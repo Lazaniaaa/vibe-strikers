@@ -38,14 +38,21 @@ credits fighting the toolchain.
   Never mix API styles from different versions.
 
 ## Hard rules
-1. **Server authority.** Clients send intents only (move, aim, jump, fire, reload,
-   switch, use, emote, ping). The server owns positions, cooldowns, ammo, health,
-   scores, round state and hit detection.
+1. **Server authority** (owner decision 2026-10-30, revisit after the cloud phase).
+   Clients send intents (aim, fire, reload, switch, use, emote, ping). Movement is the
+   one exception: Rapier cannot run inside the SpacetimeDB module, so the client runs
+   the Rapier KCC and sends its position, velocity and input seq; the server VALIDATES
+   it (max speed with jump/fall tolerance, capsule not inside map boxes, no teleports)
+   and snaps the player back to the last valid position on a violation. The server owns
+   everything else: HP, ammo, cooldowns, fire rate, hits (lag compensated), rounds,
+   scores and bots. Keep validation behind one interface so fully server-side movement
+   can replace it later (GAME.md 6.6).
 2. **No React state in the frame loop.** No `setState` and no `new Vector3()` /
    `new Object3D()` inside `useFrame` or `requestAnimationFrame`. Mutate refs, reuse
    scratch objects.
 3. **No custom physics math.** Use Rapier's KinematicCharacterController for player
-   movement. Hit detection on the server is a ray against map boxes and per-player
+   movement (client). Server bots move along the nav grid without Rapier and pass the
+   same movement validation. Hit detection on the server is a ray against map boxes and per-player
    hit volumes (see GAME.md), not Rapier.
 4. **All gameplay numbers live in `src/config/`.** No magic numbers elsewhere.
 5. **Map is data.** The map is JSON (`src/maps/data/*.json`, loaded by `loadMapData`)

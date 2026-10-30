@@ -94,13 +94,16 @@ muzzle flash, tracer, hit marker, damage numbers (toggle) are part of the feel.
 
 ## 6. Networking
 ### 6.1 Rules
-Clients send intents; server owns state. Client-side prediction for the local
-player, interpolation for remote players, reconciliation by input sequence number.
-Keep the real values in `config/net.ts`.
+Clients send intents; server owns state. Exception (owner decision 2026-10-30,
+revisit after the cloud phase): the client runs its own movement (Rapier KCC) and
+sends the result; the server validates it (6.6) and snaps back on violation.
+Interpolation for remote players; the local player is corrected only on a snap-back
+(by input sequence number). Keep the real values in `config/net.ts`.
 
 ### 6.2 Intents (client -> server), initial contract
-`input{seq, dt, moveX, moveZ, yaw, pitch, jump, crouch, sneak}`,
-`fire{seq, yaw, pitch, clientTimeSeen}`, `reload`, `switchWeapon{slot}`,
+`move{seq, x, y, z, vx, vy, vz, yaw, pitch, crouch, grounded, walk}` (client KCC result,
+sent at the net send rate), `fire{seq, yaw, pitch, viewTime}` (viewTime = server time of
+the world the client was showing, used for the rewind), `reload`, `switchWeapon{slot}`,
 `pickup{itemId}`, `useHeal`, `emote{id}`, `ping{x,y,z,kind}`,
 `chat{text}` (private rooms only), `joinRoom{code|quick, nickname, characterId}`,
 `loadout{primary}`, `pingMeasure` (RTT every 1 s).
@@ -129,6 +132,18 @@ code, preset}`. Default 4v4, up to 16 after a load test (`100-bot` script).
 Entry: Quick Play (nearest region, bots fill), private room by code or link,
 bots-only room (practice). Region is part of the room code. One region at first;
 rooms are independent so more regions can be added later.
+
+### 6.6 Movement validation — DECIDED (owner 2026-10-30, phase 1)
+- Server accepts a `move` only if: seq is newer; horizontal distance since the last
+  accepted position <= (max speed for the state + tolerance) x elapsed time; vertical
+  change fits jump velocity / gravity / max fall speed (+ tolerance); the capsule does not
+  overlap any `mapColliders` box (small epsilon); no single step longer than the teleport
+  cap. Values in `config/net.ts`.
+- On violation: keep the last valid position and send a correction; the client snaps to
+  it and continues from there. Count violations per player (logged, kick threshold later).
+- Server bots move along the nav grid and pass the same checks.
+- One `MovementAuthority` interface on the server: `ClientValidated` now, a fully
+  server-simulated version can replace it later without changing the contract for hits.
 
 ## 7. Bots — DECIDED
 Server-side fake players using the same intent path. Waypoint graph generated from
