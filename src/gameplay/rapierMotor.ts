@@ -1,10 +1,11 @@
 // Player movement with Rapier's KinematicCharacterController (CLAUDE.md rule 3).
 // Velocity / gravity / jump / crouch rules come from src/config/movement.ts.
-import type { Collider, KinematicCharacterController, Shape, World } from '@dimforge/rapier3d-compat';
+import type { Capsule, Collider, ColliderDesc, KinematicCharacterController, Shape, World } from '@dimforge/rapier3d-compat';
 import { CAPSULE, KCC, MOVEMENT } from '../config/movement.ts';
 import type { Actor, PlayerIntent } from './actor.ts';
 
-type RapierApi = typeof import('@dimforge/rapier3d-compat');
+/** The parts of the Rapier module this motor needs (works with @react-three/rapier's `rapier`). */
+export interface RapierApi { ColliderDesc: typeof ColliderDesc; Capsule: typeof Capsule }
 
 /** Actor capsules are in group 2 and filter nothing: map queries never see them. */
 const ACTOR_GROUPS = 0x0002_0000;

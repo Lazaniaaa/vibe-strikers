@@ -43,3 +43,6 @@ export const NAV_GRID = {
   /** Surfaces higher than this are never walkable for bots. */
   maxSurfaceY: 3.5,
 } as const;
+
+/** Display names for offline bots. */
+export const BOT_NAMES = ['Bolt', 'Pixel', 'Nova', 'Rook', 'Vexa', 'Mango', 'Juno', 'Ziggy'] as const;

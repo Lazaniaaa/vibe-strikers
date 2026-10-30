@@ -11,6 +11,9 @@ export default defineConfig({
   build: {
     outDir: '../work/game-dist',
     emptyOutDir: true,
-    rollupOptions: { input: { smoke: resolve(import.meta.dirname, 'client/smoke.html') } },
+    rollupOptions: { input: {
+      index: resolve(import.meta.dirname, 'client/index.html'),
+      smoke: resolve(import.meta.dirname, 'client/smoke.html'),
+    } },
   },
 });

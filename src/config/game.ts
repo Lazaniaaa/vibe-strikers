@@ -20,3 +20,34 @@ export const RENDER_BUDGET = {
   maxTriangles: 200_000,
   maxDrawCalls: 120,
 } as const;
+
+export const RENDER = {
+  shadows: true,
+  shadowMapSize: 2048,
+  /** Half-size of the sun's orthographic shadow camera, metres (covers the 70 x 70 m map). */
+  shadowExtent: 40,
+  /** Distance of the sun light from the map centre along its direction. */
+  sunDistance: 60,
+  /** Cap on devicePixelRatio (performance on high-DPI laptops). */
+  maxPixelRatio: 1.5,
+} as const;
+
+/** Visual effect timings (not gameplay). */
+export const EFFECTS = {
+  tracerLife: 0.05,
+  tracerWidth: 0.025,
+  tracerPool: 32,
+  impactLife: 0.35,
+  impactSize: 0.08,
+  impactPool: 32,
+  muzzleFlashFraction: 0.5,
+  viewPunchRecover: 14,
+  hitMarkerTime: 0.18,
+  damageFlashTime: 0.35,
+} as const;
+
+export const LOCAL_PLAYER = {
+  name: 'You',
+  /** Index into the characters list until character select exists (M3). */
+  characterIndex: 0,
+} as const;

@@ -3,17 +3,21 @@
 Date started: 2026-10-30. Credits expire 2026-11-05.
 
 ## State
-- M0 (environment smoke test) DONE 2026-10-30. Waiting for owner approval of the M1 plan below.
+- M0 DONE 2026-10-30. M1 (playable single player vs bots) DONE 2026-10-30. Waiting for owner:
+  FPS on the laptop (see "Run M1 on your laptop") and approval before M2.
 - Asset folders `src/characters/`, `src/weapons/`, `src/maps/` + Voxel Lab root files (owned by Codex).
-- Game app skeleton: `vite.game.config.ts` (root `client/`, port 5190), `tsconfig.game.json`,
-  `src/config/game.ts` (map id, camera, render budget), M0 smoke page `client/smoke.html`.
+- Game: `client/index.html` (game), `client/smoke.html` (M0 smoke page), `client/game/*` (R3F app,
+  input, visuals), `src/gameplay/*` (pure simulation code), `src/ui/hud.ts`, `src/config/*`.
 - Map in use: `toy-town-l1-r1` (`MAP_ID` in `src/config/game.ts`). Owner has not chosen a lane variant yet.
 
 ## Commands
-- `npm run game:dev` — game dev server, http://127.0.0.1:5190/smoke.html (M0 smoke page)
-- `npm run game:build` — game build to `work/game-dist/`
-- `npm run typecheck` — strict tsc on game code (`scripts/typecheck-game.mjs`; errors inside the
-  asset folders are reported as a note, not a failure, see requests below)
+- `npm run game:dev` — game dev server: http://127.0.0.1:5190/ (game), `/smoke.html` (M0 smoke page)
+- `npm run game:build` then `npm run game:preview` — production build on http://127.0.0.1:5191/
+- `npm run typecheck` — strict tsc on game code (`scripts/typecheck-game.mjs`)
+- `npm run test:gameplay` — 12 unit checks (hitscan, headshot, rotated hit boxes, weapons, rounds, nav)
+- `node scripts/e2e-m1.cjs [shot.jpg]` — headless play test (needs `game:dev` running and Playwright;
+  in the cloud container: `NODE_PATH=$(npm root -g) node scripts/e2e-m1.cjs`). URL params:
+  `?debug=1` exposes `window.__game` and hides the click overlay, `?freeze=1` shortens freeze time.
 - Asset owner commands unchanged: `npm run dev`, `npm run build`, `npm run verify`.
 
 ## Environment (M0 results, 2026-10-30)
@@ -52,11 +56,12 @@ Date started: 2026-10-30. Credits expire 2026-11-05.
   Reason: TypeScript everywhere, and the server can import `src/config/*.ts` directly (one source
   of gameplay numbers). Verified with a probe module: built, published, reducer read `MAP_ID`
   from `src/config/game.ts` and 401 shot-blocker boxes.
-- Catch: `spacetime build` type-checks everything it imports, and the asset folders currently have
-  5 strict-mode type errors, so the server cannot import `src/maps` directly yet. Plan: a small
-  generator script (Vite SSR) calls `loadMapData` + `mapShotBlockers` + `spawnPoints` and writes
-  `server/generated/<mapId>.json`; the server imports that JSON. This is generated, not hand-copied
-  (rule 5). If the asset owner fixes the type errors, import directly instead.
+- Asset type errors are fixed (see "Changes made in asset folders"), so the server can import
+  `src/maps` and `src/gameplay` directly; the planned generated-JSON workaround is not needed.
+- M2 RISK (found at the end of M1): `@dimforge/rapier3d-compat` does not load inside the SpacetimeDB
+  TypeScript runtime (`TextDecoder` option `ignoreBOM` not supported, at import time). It may work
+  with a small shim; WebAssembly support there is not checked yet. If Rapier cannot run on the server,
+  server-side movement needs an owner decision (see M2 plan).
 - SpacetimeDB versions: CLI 2.14.0, npm `spacetimedb` 2.14.0 (client SDK + `spacetimedb/server`).
 
 ## Pinned versions (root package.json, exact)
@@ -64,7 +69,7 @@ Date started: 2026-10-30. Credits expire 2026-11-05.
 - Added: react 19.3.1, react-dom 19.3.1, @react-three/fiber 9.8.2, @react-three/drei 10.7.9,
   @react-three/rapier 2.2.0 (brings @dimforge/rapier3d-compat 0.19.2), spacetimedb 2.14.0;
   dev: typescript 6.0.3, @types/three 0.186.0, @types/react 19.3.0, @types/react-dom 19.3.0,
-  @vitejs/plugin-react 6.1.2.
+  @vitejs/plugin-react 6.1.2, @types/node 22.20.5 (added in M1).
 - Not chosen on purpose: three 0.187 (assets are pinned to 0.186.1), TypeScript 7.0 (new native
   compiler, too fresh). Note: drei's `stats-gl` pulls its own three 0.170 — do not use drei `StatsGl`;
   `resolve.dedupe` keeps one three in the game build.
@@ -103,27 +108,57 @@ One-time owner exception (2026-10-30, start of M1): type-only fixes for strict `
 - Public rooms maxRewindMs 250, private 300; interpolationDelayMs starts at 100.
 - 2026-10-30 M0: SpacetimeDB with a TypeScript server module (see above).
 - 2026-10-30 M0: viewmodel = second render pass (own scene + camera, fixed FOV 70, depth cleared).
+- 2026-10-30 M1: bots are real characters (rifle, HIP hold, `poseCharacter`); took < 30 min.
+- 2026-10-30 M1: default match 4v4 (you + 3 ally bots vs 4 bots), preset `test` (first to 3, 45 s).
+- 2026-10-30 M1: recoil moves the real aim (CS style); spread from base + bloom + movement + air.
+- 2026-10-30 M1: bots walk the lowest level only (nav grid from `mapColliders`), no balconies yet.
+- 2026-10-30 M1: shadows = PCF (three 0.186 removed PCFSoft); StrictMode off on the game page.
 
-## Next step: M1 plan (needs owner approval)
-Goal (GAME.md 16): playable single player on Toy Town vs bots, local only (no server yet).
-What I will build:
-1. `src/config/`: `movement.ts` (run 5.5, walk 2.6, crouch 2.2, gravity 22, jump 7, air 30%,
-   capsule), `weapons.ts` (pistol + rifle rows from GAME.md 4, knife row kept for later),
-   `rounds.ts` (`test` preset), `bots.ts`.
-2. `client/index.html` + game entry: R3F canvas, map + Rapier fixed colliders, pointer lock,
-   WASD/Space/Shift/Ctrl, Rapier KinematicCharacterController for the player, first-person camera.
-3. Weapons: pistol + rifle (keys 1/2), hitscan ray vs map shot blockers + bot hit boxes (head/body
-   boxes from GAME.md 3, x2.5 headshot), fire rate, mag/reload, spread + bloom, simple recoil,
-   viewmodel fire/reload animation, tracer + hit marker. Shared pure hit-test code in
-   `src/gameplay/` so the M2 server reuses it.
-4. Bots: capsules (or real characters if cheap) that walk spawn-to-spawn on simple waypoints from
-   map data, see the player with a line-of-sight ray and shoot with a reaction delay and spread.
-5. HUD: HP, ammo, crosshair, round timer, kills; simple round: player vs bots, round ends when one
-   side is dead or time runs out, restart.
-How I will test: `npm run typecheck`, `npm run game:build`, small unit checks for the hit-test code
-(ray vs box, headshot), a Playwright script that plays a scripted round headless (move, shoot a
-bot, check HP/ammo in a debug object), 1-2 small screenshots in `docs/evidence/`, 0 console errors.
-Credit estimate: ~25% of the total budget (GAME.md guide). If it grows, I stop after step 3 and
-report.
-Open question for the owner after M1 playtest: which lane variant feels best (l1-r1 / l1-r2 /
-l2-r1 / l2-r2).
+## M1 result (2026-10-30)
+What works (seen in headless Chromium, `docs/evidence/m1-play.jpg`, 0 console errors in dev and
+production builds):
+- Toy Town from `buildMap`, 401 Rapier colliders from `mapColliders`, sun shadow + fog from map data.
+- Player: Rapier KinematicCharacterController (run 5.5, walk Shift 2.6, crouch C/Ctrl 2.2, jump,
+  gravity 22, air control 30%, autostep, snap to ground), first-person camera + viewmodel.
+- Rifle (auto, 600 rpm, 30/90) and pistol (semi, 12/36): hitscan vs `mapShotBlockers` boxes and the
+  identical head/body hit boxes (rotate with yaw, crouch scales, headshot x2.5), spread + bloom,
+  recoil pattern, reload, weapon switch 1/2, tracers, impacts, muzzle flash, hit marker, damage flash.
+- Bots: 7 real characters (3 allies with a blue marker, 4 enemies), nav grid + A*, line-of-sight
+  vision with FOV, reaction delay, aim error, bursts, strafing, reload, stuck recovery.
+- Round: freeze 5 s, 45 s round, elimination or timeout by team HP, round end 4 s, first to 3,
+  VICTORY/DEFEAT, Enter/click to restart. HUD: HP, ammo, weapon, timer, score, alive count, kill
+  feed, crosshair that opens with spread, FPS + triangles + draw calls.
+- Checks: typecheck OK, 12 unit checks OK, e2e: move, jump, land, rifle hits kill a bot, magazine,
+  reload, switch, bots finish a round (kills happen), no console errors.
+- Budget (headless, 8 players, shadows on): about 52-64k triangles and 98-114 draw calls per frame
+  (the shadow pass counts too). Triangles are far below the 200k budget; draw calls are close to the
+  120 budget. If FPS is low on the laptop, the first fix is `RENDER.shadows = false` in `src/config/game.ts`.
+- Headless FPS is 4-7 (software rendering): it says nothing about real FPS.
+
+Known limits (fine for M1, not bugs to fix now):
+- Players and bots pass through each other (no actor-vs-actor collision yet).
+- Bots never use stairs/balconies; they can be slow to find enemies, so some rounds end by timeout.
+- No sound, no ADS, no knife/sniper/shotgun in the loadout (M3). The local player is always character 01.
+- Ctrl as crouch can trigger browser shortcuts (Ctrl+W closes the tab!): use C.
+- Game bundle ~4.3 MB (Rapier WASM inlined + 5 map JSONs).
+
+## Run M1 on your laptop (measure FPS)
+Needs Node.js 22 or newer and git. In a terminal:
+1. `git clone https://github.com/Lazaniaaa/name.git voxel-arena`
+2. `cd voxel-arena`
+3. `git checkout claude/game-smoke-test-m0-0pnjf5`
+4. `npm ci`
+5. `npm run game:build`
+6. `npm run game:preview`
+7. Open http://127.0.0.1:5191/ in Chrome, click, play. FPS is in the top-left corner
+   (`FPS · k tris · calls`). Please write down: FPS at spawn, FPS in the middle square during a fight,
+   and the laptop model / browser. Also try `npm run game:dev` (http://127.0.0.1:5190/) if you
+   want to change numbers in `src/config/` and see them live.
+8. Tell me which lane map feels best later (change `MAP_ID` in `src/config/game.ts`:
+   `toy-town-l1-r1`, `toy-town-l1-r2`, `toy-town-l2-r1`, `toy-town-l2-r2`).
+
+## Next step
+M2 (authoritative multiplayer). Plan will be written after the owner's FPS report and approval.
+Main open question for M2: where server-side movement runs if Rapier does not load in SpacetimeDB
+(options: shim Rapier in the module; or server validates client-predicted movement with speed /
+collision plausibility checks while it still owns hits, HP, ammo and rounds).

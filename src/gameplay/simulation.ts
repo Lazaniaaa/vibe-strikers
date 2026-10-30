@@ -126,6 +126,13 @@ export class Simulation {
     }
   }
 
+  /** Move an actor (debug tools and tests). */
+  teleport(actorId: number, x: number, y: number, z: number, yaw: number): void {
+    const a = this.actors[actorId];
+    this.opts.motor.teleport(a, x, y, z);
+    a.yaw = yaw; a.intent.yaw = yaw;
+  }
+
   restart(): void {
     restartMatch(this.round, this.preset);
     for (const a of this.actors) { a.kills = 0; a.deaths = 0; }

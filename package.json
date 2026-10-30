@@ -10,7 +10,8 @@
     "game:dev": "vite --config vite.game.config.ts",
     "game:build": "vite build --config vite.game.config.ts",
     "typecheck": "node scripts/typecheck-game.mjs",
-    "test:gameplay": "node --experimental-strip-types --no-warnings src/gameplay/gameplay.test.ts"
+    "test:gameplay": "node --experimental-strip-types --no-warnings src/gameplay/gameplay.test.ts",
+    "game:preview": "vite preview --config vite.game.config.ts --host 127.0.0.1 --port 5191 --strictPort"
   },
   "dependencies": {
     "@react-three/drei": "10.7.9",
