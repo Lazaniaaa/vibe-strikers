@@ -5,7 +5,7 @@ import { CuboidCollider, Physics, RigidBody, useRapier } from '@react-three/rapi
 import { BoxGeometry, Color, Fog, Mesh, MeshBasicMaterial, PerspectiveCamera, Vector3, type DirectionalLight } from 'three';
 import { buildMap, loadMapData, mapColliders, mapShotBlockers, spawnPoints } from '../../src/maps';
 import { characters } from '../../src/characters';
-import { CAMERA, EFFECTS, LOCAL_PLAYER, MAP_ID, RENDER } from '../../src/config/game';
+import { CAMERA, EFFECTS, LOCAL_PLAYER, MAP_ID, POSE, RENDER } from '../../src/config/game';
 import { BOT_NAMES } from '../../src/config/bots';
 import { MAX_FRAME_DT } from '../../src/config/movement';
 import { DEG } from '../../src/gameplay/math';
@@ -16,6 +16,7 @@ import { spreadDeg } from '../../src/gameplay/weaponLogic';
 import { Hud, type HudView } from '../../src/ui/hud';
 import { Input } from './input';
 import { AvatarRig, ShotEffects, ViewmodelRig } from './visuals';
+import { FramePerf } from './perf';
 
 export interface GameOptions { debug: boolean; freezeTime?: number }
 
@@ -27,11 +28,21 @@ export interface GameDebug {
   sim: Simulation;
   input: Input;
   stats: { frames: number; localShots: number; localHits: number; localDamage: number; triangles: number; calls: number; fps: number };
+  perf: FramePerf;
   snapshot(): unknown;
   aimAt(actorId: number, head?: boolean): void;
   teleport(actorId: number, x: number, y: number, z: number, yaw: number): void;
 }
 declare global { interface Window { __game?: GameDebug } }
+
+/** Local player's character first, then bot characters (skipping ones that are too slow to pose). */
+function pickCharacters(): number[] {
+  const list: number[] = [LOCAL_PLAYER.characterIndex];
+  for (let i = 1; i < characters.length; i++) {
+    if (i !== LOCAL_PLAYER.characterIndex && !POSE.botCharacterExclude.includes(characters[i].id)) list.push(i);
+  }
+  return list;
+}
 
 function MapView() {
   const group = useMemo(() => buildMap(map), []);
@@ -70,8 +81,9 @@ function GameDriver({ options }: { options: GameOptions }) {
     pruneUnreachable(nav, spawnsA[0].x, spawnsA[0].z);
     const goals = [...map.zones.map((z) => ({ x: z.x, y: 0, z: z.z })), ...spawnsA, ...spawnsB];
     const motor = new RapierMotor(rapier, world);
-    const sim = new Simulation({ blockers, spawnsA, spawnsB, goals, nav, motor, killY: map.killY,
-      localName: LOCAL_PLAYER.name, botNames: BOT_NAMES, characterCount: characters.length, freezeTime: options.freezeTime });
+    const perf = new FramePerf();
+    const sim = new Simulation({ profile: perf.now, clock: () => performance.now(), blockers, spawnsA, spawnsB, goals, nav, motor, killY: map.killY,
+      localName: LOCAL_PLAYER.name, botNames: BOT_NAMES, characterIndices: pickCharacters(), freezeTime: options.freezeTime });
     const input = new Input(gl.domElement);
     const hudRoot = document.getElementById('hud')!;
     const hud = new Hud(hudRoot);
@@ -93,7 +105,7 @@ function GameDriver({ options }: { options: GameOptions }) {
     const viewmodel = new ViewmodelRig(sim.local, flashMat, flashGeo);
     const stats = { frames: 0, localShots: 0, localHits: 0, localDamage: 0, triangles: 0, calls: 0, fps: 0 };
     input.onConfirm = () => { if (sim.round.phase === 'matchEnd') sim.restart(); };
-    return { sim, input, hud, effects, rigs, viewmodel, stats, disposables: [unitBox, tracerMat, impactMat, flashMat, flashGeo, allyMat, allyGeo] };
+    return { sim, input, hud, effects, rigs, viewmodel, stats, perf, disposables: [unitBox, tracerMat, impactMat, flashMat, flashGeo, allyMat, allyGeo] };
   }, [world, rapier, gl, options.freezeTime]);
 
   useEffect(() => {
@@ -101,10 +113,14 @@ function GameDriver({ options }: { options: GameOptions }) {
     scene.add(game.effects.group);
     const cam = camera as PerspectiveCamera;
     cam.rotation.order = 'YXZ';
+    // Compile every material now so the first shot / tracer / flash does not stall a frame.
+    game.effects.setAllVisible(true); game.viewmodel.setAllVisible(true);
+    gl.compile(scene, cam); gl.compile(game.viewmodel.scene, game.viewmodel.camera);
+    game.effects.setAllVisible(false); game.viewmodel.setAllVisible(false);
     if (options.debug) {
       const g = game;
       window.__game = {
-        sim: g.sim, input: g.input, stats: g.stats,
+        sim: g.sim, input: g.input, stats: g.stats, perf: g.perf,
         snapshot: () => ({
           phase: g.sim.round.phase, timeLeft: g.sim.round.timeLeft, round: g.sim.round.round,
           scoreA: g.sim.round.scoreA, scoreB: g.sim.round.scoreB, matchWinner: g.sim.round.matchWinner,
@@ -129,16 +145,18 @@ function GameDriver({ options }: { options: GameOptions }) {
       for (const d of game.disposables) d.dispose();
       if (window.__game?.sim === game.sim) delete window.__game;
     };
-  }, [game, scene, camera, options.debug]);
+  }, [game, scene, camera, gl, options.debug]);
 
   const scratch = useMemo(() => ({ from: new Vector3(), fwd: new Vector3(), right: new Vector3(), hudTimer: 0, fpsFrames: 0, fpsTimer: 0, punch: 0 }), []);
   const view = useMemo<HudView>(() => ({ hp: 100, alive: true, weapon: '', mag: 0, reserve: 0, reloading: false, phase: 'freeze',
     timeLeft: 0, round: 1, scoreA: 0, scoreB: 0, aliveA: 0, aliveB: 0, center: '', sub: '', killFeed: '', fps: 0, perf: '', locked: false }), []);
 
   useFrame((state, delta) => {
-    const { sim, input, hud, effects, rigs, viewmodel, stats } = game;
+    const { sim, input, hud, effects, rigs, viewmodel, stats, perf } = game;
     const cam = camera as PerspectiveCamera;
     const dt = Math.min(delta, MAX_FRAME_DT);
+    const frameStart = performance.now();
+    perf.beginFrame(frameStart);
     stats.frames++;
     const local = sim.local;
     // Let Rapier step once so the static map is in the query structures before anyone moves.
@@ -147,6 +165,8 @@ function GameDriver({ options }: { options: GameOptions }) {
       if (options.debug) input.debugLook = null;
       sim.update(dt, intent);
     }
+    perf.now.sim = performance.now() - frameStart;
+    perf.endSim();
 
     // Shot events -> tracers, hit markers, damage flash.
     let localFired = false;
@@ -170,7 +190,18 @@ function GameDriver({ options }: { options: GameOptions }) {
       effects.addShot(shot, from);
     }
 
-    for (const a of sim.actors) { const rig = rigs.get(a.id); if (rig) rig.sync(a, dt); }
+    for (const a of sim.actors) {
+      const rig = rigs.get(a.id);
+      if (!rig) continue;
+      const t = performance.now();
+      rig.sync(a, dt);
+      const ms = performance.now() - t;
+      perf.now.pose += ms; if (ms > perf.now.poseMaxCall) perf.now.poseMaxCall = ms;
+      if (options.debug && ms > 30) {
+        const w = window as unknown as { __slowPoses?: unknown[] };
+        (w.__slowPoses ??= []).push({ ms: Math.round(ms), id: a.id, char: a.characterIndex, ...rig.pose, moveDir: { ...rig.pose.moveDir } });
+      }
+    }
 
     // Camera: eye of the local player; after death it stays where the player fell.
     const slot = local.slots[local.active];
@@ -185,6 +216,7 @@ function GameDriver({ options }: { options: GameOptions }) {
     viewmodel.sync(local, state.clock.elapsedTime, size.width / Math.max(1, size.height));
     effects.update(dt);
 
+    const renderStart = performance.now();
     gl.autoClear = true;
     gl.render(scene, cam);
     stats.triangles = gl.info.render.triangles; stats.calls = gl.info.render.calls;
@@ -192,6 +224,7 @@ function GameDriver({ options }: { options: GameOptions }) {
     gl.clearDepth();
     gl.render(viewmodel.scene, viewmodel.camera);
     stats.triangles += gl.info.render.triangles; stats.calls += gl.info.render.calls;
+    perf.now.render = performance.now() - renderStart;
 
     // HUD.
     const spread = spreadDeg(slot, local.moveFraction, !local.grounded) * DEG;
@@ -202,6 +235,7 @@ function GameDriver({ options }: { options: GameOptions }) {
     if (scratch.hudTimer <= 0) {
       scratch.hudTimer = 0.1;
       fillHudView(view, sim, input.locked || options.debug, stats);
+      view.perf += ` \u00b7 worst ${Math.round(perf.displayWorstMs)} ms (sim ${perf.displayWorstSimMs.toFixed(1)}) / 5 s`;
       hud.update(view);
     }
   }, 1);

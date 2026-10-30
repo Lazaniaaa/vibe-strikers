@@ -82,6 +82,8 @@ function check(cond, msg) { if (!cond) throw new Error('FAIL: ' + msg); console.
     check(true, `round ended after ${((Date.now() - t0) / 1000).toFixed(0)} s real time: score A ${s.scoreA} B ${s.scoreB}, kills ${kills}`);
     check(kills > 0 || s.phase !== 'live', 'bots fight (kills or timeout)');
     console.log('perf', JSON.stringify(s.stats));
+    const perfText = await page.evaluate(() => document.querySelector('.hud-perf').textContent);
+    check(perfText.includes('worst'), `HUD shows the worst frame: "${perfText}"`);
     check(errors.length === 0, `no console errors ${errors.length ? JSON.stringify(errors.slice(0, 3)) : ''}`);
     console.log('E2E PASS');
   } catch (e) {

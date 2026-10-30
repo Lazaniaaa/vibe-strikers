@@ -26,6 +26,8 @@ export const BOTS = {
   /** Bots move slower than players while engaging. */
   engageMoveScale: 0.45,
   repathInterval: 1.5,
+  /** At most this many A* searches per simulation tick for all bots together (no round-start spike). */
+  maxPathsPerTick: 2,
   /** If a bot moved less than this in stuckTime seconds, it repaths. */
   stuckDistance: 0.4,
   stuckTime: 1.0,

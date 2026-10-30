@@ -1,5 +1,6 @@
 // Offline match simulation (M1): actors, movement, weapons, hits, bots and rounds.
 // The structure mirrors the M2 server: intents in, state + events out.
+import { BOTS } from '../config/bots.ts';
 import { HITBOXES } from '../config/hitboxes.ts';
 import { CAPSULE } from '../config/movement.ts';
 import { MATCH, ROUND_PRESETS, type RoundPreset } from '../config/rounds.ts';
@@ -26,11 +27,14 @@ export interface SimulationOptions {
   killY: number;
   localName: string;
   botNames: readonly string[];
-  /** Number of characters available (visual index range). */
-  characterCount: number;
+  /** Character indices (visual only) for: [0] the local player, then bots in order. */
+  characterIndices: readonly number[];
   random?: () => number;
   /** Override the freeze time (tests). */
   freezeTime?: number;
+  /** Optional profiler: milliseconds spent per section are added here (needs `clock`). */
+  profile?: { bots: number; motor: number; weapons: number };
+  clock?: () => number;
 }
 
 /** One bullet, for tracers, hit markers and sounds. */
@@ -85,7 +89,7 @@ export class Simulation {
       for (let i = 0; i < MATCH.teamSize; i++) {
         const isLocal = id === LOCAL_ID;
         const actor = this.createActor(id, team, isLocal ? opts.localName : opts.botNames[(id - 1) % opts.botNames.length], !isLocal,
-          id % opts.characterCount);
+          opts.characterIndices[id % opts.characterIndices.length]);
         this.actors.push(actor);
         opts.motor.add(actor);
         if (!isLocal) this.brains.set(id, createBrain());
@@ -95,7 +99,7 @@ export class Simulation {
     for (let i = 0; i < MAX_SHOT_EVENTS; i++) {
       this.shots.push({ shooterId: 0, ox: 0, oy: 0, oz: 0, ex: 0, ey: 0, ez: 0, hitKind: 'none', victimId: -1, part: 'body', damage: 0, killed: false });
     }
-    this.botWorld = { actors: this.actors, blockers: opts.blockers, nav: opts.nav, goals: opts.goals, random: this.random };
+    this.botWorld = { actors: this.actors, blockers: opts.blockers, nav: opts.nav, goals: opts.goals, random: this.random, pathBudget: 0 };
     this.respawnAll();
   }
 
@@ -122,7 +126,11 @@ export class Simulation {
       actor.sinceDamage = 99; actor.lastAttacker = -1;
       for (const s of actor.slots) resetSlot(s);
       const brain = this.brains.get(actor.id);
-      if (brain) resetBrain(brain);
+      if (brain) {
+        resetBrain(brain);
+        // Spread the bots' vision checks over different ticks.
+        brain.thinkLeft = BOTS.thinkInterval * (actor.id / this.actors.length);
+      }
     }
   }
 
@@ -144,6 +152,7 @@ export class Simulation {
   update(dt: number, localIntent: PlayerIntent): void {
     this.time += dt;
     this.shotCount = 0;
+    this.botWorld.pathBudget = BOTS.maxPathsPerTick;
     const local = this.local;
     Object.assign(local.intent, localIntent);
 
@@ -158,18 +167,23 @@ export class Simulation {
     for (const a of this.actors) {
       a.sinceDamage += dt;
       if (!a.alive) continue;
+      const prof = this.opts.profile, clock = this.opts.clock;
+      let t0 = prof && clock ? clock() : 0;
       if (a.isBot) {
         if (combat || phase === 'roundEnd') updateBot(a, this.brains.get(a.id)!, this.botWorld, dt);
         else { a.intent.forward = 0; a.intent.right = 0; a.intent.fire = false; a.intent.yaw = a.yaw; a.intent.pitch = a.pitch; }
+        if (prof && clock) { const t = clock(); prof.bots += t - t0; t0 = t; }
       }
       const intent = a.intent;
       a.yaw = intent.yaw;
       a.pitch = clamp(intent.pitch, -89 * DEG, 89 * DEG);
       const slot = a.slots[a.active];
       this.opts.motor.step(a, intent, dt, frozen || phase === 'matchEnd', slot.stats.moveSpeedScale);
+      if (prof && clock) { const t = clock(); prof.motor += t - t0; t0 = t; }
       if (a.y < this.opts.killY) this.kill(a, null, false);
       if (!a.alive) continue;
       this.updateWeapon(a, dt, combat);
+      if (prof && clock) prof.weapons += clock() - t0;
     }
   }
 

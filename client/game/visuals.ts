@@ -4,7 +4,7 @@ import {
 } from 'three';
 import { characters, createCharacter, poseCharacter, type PoseState } from '../../src/characters';
 import { attachWeapon, createViewmodel, createWeapon, poseViewmodel, poseWeapon, type ViewmodelState, type WeaponId, type WeaponState } from '../../src/weapons';
-import { EFFECTS, VIEWMODEL_CAMERA } from '../../src/config/game';
+import { EFFECTS, POSE, VIEWMODEL_CAMERA } from '../../src/config/game';
 import type { Actor } from '../../src/gameplay/actor';
 import { reloadProgress } from '../../src/gameplay/weaponLogic';
 import type { ShotEvent } from '../../src/gameplay/simulation';
@@ -18,7 +18,10 @@ export class AvatarRig {
   private weapons = new Map<WeaponId, Group>();
   private currentWeapon: WeaponId | null = null;
   private marker: Mesh | null;
-  private readonly pose: PoseState = { weapon: 'rifle', fire: 0, reload: null, cycle: null, speed: 0, moveDir: { x: 0, z: -1 },
+  /** True after a slow firearm pose: the rig uses the cheap no-weapon pose from then on. */
+  degraded = false;
+  private deadFrames = 0;
+  readonly pose: PoseState = { weapon: 'rifle', fire: 0, reload: null, cycle: null, speed: 0, moveDir: { x: 0, z: -1 },
     aimPitch: 0, shooting: false, crouching: false, grounded: true, dead: false };
   private readonly weaponPose: WeaponState = { fire: 0, reload: null, cycle: null, equip: 1 };
 
@@ -54,7 +57,17 @@ export class AvatarRig {
     p.aimPitch = actor.pitch; p.shooting = actor.fireAnimLeft > 0; p.crouching = actor.crouching;
     p.grounded = actor.grounded || !actor.alive; p.dead = !actor.alive;
     p.fire = actor.fireAnimLeft / slot.stats.fireAnimTime; p.reload = reloadProgress(slot);
-    poseCharacter(this.root, p, dt);
+    if (this.degraded) p.weapon = null;
+    // A dead body does not move: pose it a couple of times, then stop.
+    this.deadFrames = actor.alive ? 0 : this.deadFrames + 1;
+    if (this.deadFrames <= POSE.deadPoseFrames) {
+      const t = performance.now();
+      poseCharacter(this.root, p, dt);
+      if (!this.degraded && p.weapon && performance.now() - t > POSE.slowCallMs) {
+        this.degraded = true;
+        console.warn(`Character pose for ${characters[actor.characterIndex % characters.length].id} is slow; using the no-weapon pose.`);
+      }
+    }
     const wp = this.weaponPose;
     wp.fire = p.fire; wp.reload = p.reload;
     poseWeapon(this.weapons.get(id)!, wp);
@@ -90,6 +103,13 @@ export class ViewmodelRig {
         this.flashes.set(id, flash);
       }
     }
+  }
+
+  /** Show every model and flash (used once to pre-compile shaders), or hide them again. */
+  setAllVisible(visible: boolean): void {
+    for (const m of this.models.values()) m.visible = visible;
+    for (const f of this.flashes.values()) f.visible = visible;
+    if (!visible) this.active = null;
   }
 
   sync(actor: Actor, time: number, aspect: number): void {
@@ -159,6 +179,12 @@ export class ShotEffects {
   update(dt: number): void {
     for (const t of this.tracers) if (t.life > 0) { t.life -= dt; if (t.life <= 0) t.obj.visible = false; }
     for (const p of this.impacts) if (p.life > 0) { p.life -= dt; if (p.life <= 0) p.obj.visible = false; }
+  }
+
+  /** Show or hide every pooled mesh (used once to pre-compile shaders). */
+  setAllVisible(visible: boolean): void {
+    for (const t of this.tracers) t.obj.visible = visible;
+    for (const p of this.impacts) p.obj.visible = visible;
   }
 
   /** Scratch start vector for callers. */

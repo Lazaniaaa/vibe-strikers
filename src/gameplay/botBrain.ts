@@ -14,6 +14,8 @@ export interface BotWorld {
   /** Roam goals (zone centres, enemy spawns). */
   goals: readonly Vec3[];
   random: () => number;
+  /** A* searches still allowed this tick (the simulation resets it every tick). */
+  pathBudget: number;
 }
 
 export interface BotBrain {
@@ -170,7 +172,8 @@ export function updateBot(self: Actor, b: BotBrain, w: BotWorld, dt: number): vo
   else if (b.goalCell < 0 || (b.path.length > 0 && b.pathIndex >= b.path.length)) pickRoamGoal(self, b, w);
 
   b.repathLeft -= dt;
-  if (b.repathLeft <= 0) {
+  if (b.repathLeft <= 0 && w.pathBudget > 0) {
+    w.pathBudget--;
     b.repathLeft = BOTS.repathInterval;
     const start = nearestWalkable(w.nav, self.x, self.z);
     findPath(w.nav, start, b.goalCell, b.path);

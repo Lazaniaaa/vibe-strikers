@@ -51,3 +51,16 @@ export const LOCAL_PLAYER = {
   /** Index into the characters list until character select exists (M3). */
   characterIndex: 0,
 } as const;
+
+/** Third-person character posing (visual only, never on the server). */
+export const POSE = {
+  /**
+   * Characters whose firearm hold solver costs 100-1200 ms per poseCharacter call (measured
+   * 2026-10-30, see docs/PROGRESS.md). Bots never use them until the asset owner fixes it.
+   */
+  botCharacterExclude: ['vibe-vibers-viber-142', 'vibe-vibers-bureau-roll-40-10'] as readonly string[],
+  /** A rig whose firearm pose ever takes longer than this switches to the cheap no-weapon pose. */
+  slowCallMs: 12,
+  /** Dead bodies are posed this many frames, then left alone. */
+  deadPoseFrames: 2,
+} as const;
