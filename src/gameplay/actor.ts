@@ -1,0 +1,62 @@
+// Simulation state of one player (local, bot, or later remote). Plain data, no three.js.
+import type { WeaponSlot } from './weaponLogic.ts';
+import type { HitTarget } from './hitscan.ts';
+import type { TeamId } from './round.ts';
+
+/** What a client (or bot) wants this step. The simulation decides what actually happens. */
+export interface PlayerIntent {
+  /** -1..1 along view yaw. */
+  forward: number;
+  /** -1..1, positive = right. */
+  right: number;
+  /** Absolute look angles, radians. */
+  yaw: number;
+  pitch: number;
+  jump: boolean;
+  crouch: boolean;
+  walk: boolean;
+  fire: boolean;
+  reload: boolean;
+  /** Weapon slot to switch to, -1 = keep. */
+  slot: number;
+}
+
+export function createIntent(): PlayerIntent {
+  return { forward: 0, right: 0, yaw: 0, pitch: 0, jump: false, crouch: false, walk: false, fire: false, reload: false, slot: -1 };
+}
+
+export interface Actor extends HitTarget {
+  team: TeamId;
+  name: string;
+  isBot: boolean;
+  /** Index into the `characters` list (visual only). */
+  characterIndex: number;
+  pitch: number;
+  vx: number; vy: number; vz: number;
+  grounded: boolean;
+  /** Current (smoothed) eye height above the feet. */
+  eyeHeight: number;
+  hp: number;
+  alive: boolean;
+  slots: WeaponSlot[];
+  active: number;
+  /** Seconds left of the draw animation. */
+  equipLeft: number;
+  /** Seconds left of the fire kick animation. */
+  fireAnimLeft: number;
+  /** Semi-auto trigger latch and jump latch. */
+  fireLatch: boolean;
+  jumpLatch: boolean;
+  kills: number;
+  deaths: number;
+  /** Horizontal speed / run speed, 0..1 (animation and spread). */
+  moveFraction: number;
+  /** Movement direction relative to facing (+X right, +Z back), for poseCharacter. */
+  moveLocalX: number;
+  moveLocalZ: number;
+  /** Seconds since this actor last took damage. */
+  sinceDamage: number;
+  /** id of the actor that hit this one last, -1 = none. */
+  lastAttacker: number;
+  intent: PlayerIntent;
+}
