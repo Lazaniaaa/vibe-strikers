@@ -1,0 +1,194 @@
+{
+  "requiredCombinations": 9900,
+  "phaseSamples": 4,
+  "checked": 39600,
+  "rayChecks": 1320,
+  "scopeRays": 162,
+  "supportChecks": 31680,
+  "rows": [
+    {
+      "weapon": "knife",
+      "cases": 7920,
+      "minClearance": 0.09487911901202965,
+      "minLateralGap": 0.056820810077270245,
+      "minFistGap": 0.02600000858306828,
+      "maxHeadOverlap": 0.07951371270607988,
+      "maxLeftError": 0,
+      "maxRightError": 0,
+      "maxShoulderShift": 0,
+      "minMuzzlePitch": -7,
+      "maxMuzzlePitch": 13.729577951308238,
+      "rayChecks": 264,
+      "rayHits": 0,
+      "worstClearance": {
+        "character": "vibe-vibers-viber-142",
+        "weapon": "knife",
+        "pose": "crouch",
+        "aim": -45,
+        "shooting": true,
+        "phase": 0
+      },
+      "worstReach": null,
+      "worstShoulder": null
+    },
+    {
+      "weapon": "pistol",
+      "cases": 7920,
+      "minClearance": 0.13425324480526146,
+      "minLateralGap": 0.12193973264304248,
+      "minFistGap": 0.03115434162262387,
+      "maxHeadOverlap": 0.07951371270607988,
+      "maxLeftError": 9.992007221626409e-16,
+      "maxRightError": 0.04500000000000061,
+      "maxShoulderShift": 1.5814956258586184,
+      "minMuzzlePitch": -21.99999999999999,
+      "maxMuzzlePitch": 40.729577951308244,
+      "rayChecks": 264,
+      "rayHits": 0,
+      "worstClearance": {
+        "character": "vibe-vibers-viber-123",
+        "weapon": "pistol",
+        "pose": "run",
+        "aim": 0,
+        "shooting": false,
+        "phase": 1.5707963267948966
+      },
+      "worstReach": {
+        "character": "vibe-vibers-bureau-4",
+        "weapon": "pistol",
+        "pose": "back",
+        "aim": 45,
+        "shooting": true,
+        "phase": 1.5707963267948966
+      },
+      "worstShoulder": {
+        "character": "vibe-vibers-viber-extra-9",
+        "weapon": "pistol",
+        "pose": "run",
+        "aim": 45,
+        "shooting": false,
+        "phase": 1.5707963267948966
+      }
+    },
+    {
+      "weapon": "rifle",
+      "cases": 7920,
+      "minClearance": 0.10332345839943613,
+      "minLateralGap": 0.07432346459831907,
+      "minFistGap": 0.03107140370777639,
+      "maxHeadOverlap": 0.07951371270607988,
+      "maxLeftError": 1.3506446028928519e-15,
+      "maxRightError": 0.04500000000000061,
+      "maxShoulderShift": 1.7550664233719122,
+      "minMuzzlePitch": -21.99999999999999,
+      "maxMuzzlePitch": 40.729577951308244,
+      "rayChecks": 264,
+      "rayHits": 0,
+      "worstClearance": {
+        "character": "vibe-vibers-viber-10",
+        "weapon": "rifle",
+        "pose": "idle",
+        "aim": 0,
+        "shooting": false,
+        "phase": 0
+      },
+      "worstReach": {
+        "character": "vibe-vibers-viber-123",
+        "weapon": "rifle",
+        "pose": "back",
+        "aim": 45,
+        "shooting": true,
+        "phase": 4.71238898038469
+      },
+      "worstShoulder": {
+        "character": "vibe-vibers-viber-extra-9",
+        "weapon": "rifle",
+        "pose": "run",
+        "aim": -45,
+        "shooting": false,
+        "phase": 1.5707963267948966
+      }
+    },
+    {
+      "weapon": "sniper",
+      "cases": 7920,
+      "minClearance": 0.08838695720734369,
+      "minLateralGap": 0.07838695720734279,
+      "minFistGap": 0.03107140370777639,
+      "maxHeadOverlap": 0.07951371270607988,
+      "maxLeftError": 1.355199909595506e-15,
+      "maxRightError": 0.04500000000000061,
+      "maxShoulderShift": 1.768285835373055,
+      "minMuzzlePitch": -21.99999999999999,
+      "maxMuzzlePitch": 40.729577951308244,
+      "rayChecks": 264,
+      "rayHits": 0,
+      "worstClearance": {
+        "character": "vibe-vibers-viber-10",
+        "weapon": "sniper",
+        "pose": "idle",
+        "aim": 89,
+        "shooting": false,
+        "phase": 0
+      },
+      "worstReach": {
+        "character": "vibe-vibers-bureau-roll-22-12",
+        "weapon": "sniper",
+        "pose": "jump",
+        "aim": 0,
+        "shooting": false,
+        "phase": 4.71238898038469
+      },
+      "worstShoulder": {
+        "character": "vibe-vibers-viber-extra-9",
+        "weapon": "sniper",
+        "pose": "idle",
+        "aim": -45,
+        "shooting": false,
+        "phase": 0
+      }
+    },
+    {
+      "weapon": "shotgun",
+      "cases": 7920,
+      "minClearance": 0.10224696316780812,
+      "minLateralGap": 0.06833226126575065,
+      "minFistGap": 0.031071403707775946,
+      "maxHeadOverlap": 0.07951371270607988,
+      "maxLeftError": 1.1102230246251565e-15,
+      "maxRightError": 0.04500000000000061,
+      "maxShoulderShift": 1.7392210011063307,
+      "minMuzzlePitch": -21.99999999999999,
+      "maxMuzzlePitch": 40.729577951308244,
+      "rayChecks": 264,
+      "rayHits": 0,
+      "worstClearance": {
+        "character": "vibe-vibers-viber-10",
+        "weapon": "shotgun",
+        "pose": "idle",
+        "aim": 0,
+        "shooting": false,
+        "phase": 0
+      },
+      "worstReach": {
+        "character": "vibe-vibers-viber-71",
+        "weapon": "shotgun",
+        "pose": "crouch",
+        "aim": 89,
+        "shooting": true,
+        "phase": 4.71238898038469
+      },
+      "worstShoulder": {
+        "character": "vibe-vibers-viber-extra-9",
+        "weapon": "shotgun",
+        "pose": "idle",
+        "aim": -45,
+        "shooting": false,
+        "phase": 0
+      }
+    }
+  ],
+  "failures": [],
+  "scopeClearSquare": 0.12,
+  "failedCombinations": 0
+}

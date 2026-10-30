@@ -3,9 +3,13 @@
 Date started: 2026-10-30. Credits expire 2026-11-05.
 
 ## State
-- Repo has: CLAUDE.md, docs/GAME.md, docs/ASSETS.md, this file.
-- Asset folders `src/characters/`, `src/weapons/`, `src/maps/`, `tools/` are uploaded by
-  the owner (check they exist before M0 ends; if missing, tell the owner).
+- Repo has: CLAUDE.md, docs/GAME.md, docs/ASSETS.md, this file, the asset folders
+  `src/characters/`, `src/weapons/`, `src/maps/` and the Voxel Lab root files
+  (`package.json`: three 0.186.1, vite 8.3.5; `vite.config.js`).
+- `npm install`, `npm run build` and `npm run verify` pass on the assets (checked 2026-10-30).
+- Large generated reports and images from the asset phase were left out on purpose.
+- Map files: `src/maps/data/toy-town.json` plus four lane options
+  (`toy-town-l1-r1`, `l1-r2`, `l2-r1`, `l2-r2`); the owner has not chosen yet (start with `toy-town-l1-r1`).
 - No game code yet.
 
 ## Next step

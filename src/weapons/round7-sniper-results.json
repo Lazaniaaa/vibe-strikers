@@ -1,0 +1,283 @@
+{
+  "housing": {
+    "width": 0.34200000762939453,
+    "height": 0.35750001668930054,
+    "depth": 0.7572682537138462
+  },
+  "assembly": {
+    "width": 0.34200000762939453,
+    "height": 0.5325000286102295,
+    "depth": 0.7572682537138462
+  },
+  "rearOpening": {
+    "width": 0.06799999594688416,
+    "height": 0.07000003755092622
+  },
+  "frontOpening": {
+    "width": 0.30799999807029954,
+    "height": 0.26999996617436406
+  },
+  "viewRearOpening": {
+    "width": 0.2300000040233136,
+    "height": 0.2119999980181455
+  },
+  "frameSize": {
+    "x": 0.27000001072883606,
+    "y": 0.24800002574920654,
+    "z": 0.011999999172985554
+  },
+  "border": {
+    "horizontal": 0.020000003352761225,
+    "vertical": 0.018000013865530518
+  },
+  "rearFace": {
+    "width": 0.32199999690055847,
+    "height": 0.28999996185302734
+  },
+  "openingRatio": {
+    "width": 0.7142857336559021,
+    "height": 0.7310345720858666
+  },
+  "adsDistance": 0.1,
+  "opaque": 3,
+  "lenses": 2,
+  "viewmodelOpaque": 2,
+  "tipDistance": 1.412834031300209,
+  "centreChecks": 16,
+  "centreHits": 0,
+  "minClearAngle": 70,
+  "maxAxisError": 2.257868348103919e-16,
+  "ads": [
+    {
+      "side": "right",
+      "fire": 0,
+      "reload": null,
+      "cycle": null,
+      "clearWidthFraction": 0.8546875,
+      "clearHeightFraction": 1,
+      "blockedPixels": 0,
+      "opaqueCoveragePercent": 14.531250000000002,
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "side": "right",
+      "fire": 0,
+      "reload": null,
+      "cycle": 1,
+      "clearWidthFraction": 0.8546875,
+      "clearHeightFraction": 1,
+      "blockedPixels": 0,
+      "opaqueCoveragePercent": 14.531250000000002,
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "side": "right",
+      "fire": 0,
+      "reload": 1,
+      "cycle": null,
+      "clearWidthFraction": 0.8546875,
+      "clearHeightFraction": 1,
+      "blockedPixels": 0,
+      "opaqueCoveragePercent": 14.531250000000002,
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "side": "right",
+      "fire": 0,
+      "reload": 1,
+      "cycle": 1,
+      "clearWidthFraction": 0.8546875,
+      "clearHeightFraction": 1,
+      "blockedPixels": 0,
+      "opaqueCoveragePercent": 14.531250000000002,
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "side": "right",
+      "fire": 1,
+      "reload": null,
+      "cycle": null,
+      "clearWidthFraction": 0.8546875,
+      "clearHeightFraction": 1,
+      "blockedPixels": 0,
+      "opaqueCoveragePercent": 14.531250000000002,
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "side": "right",
+      "fire": 1,
+      "reload": null,
+      "cycle": 1,
+      "clearWidthFraction": 0.8546875,
+      "clearHeightFraction": 1,
+      "blockedPixels": 0,
+      "opaqueCoveragePercent": 14.531250000000002,
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "side": "right",
+      "fire": 1,
+      "reload": 1,
+      "cycle": null,
+      "clearWidthFraction": 0.8546875,
+      "clearHeightFraction": 1,
+      "blockedPixels": 0,
+      "opaqueCoveragePercent": 14.531250000000002,
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "side": "right",
+      "fire": 1,
+      "reload": 1,
+      "cycle": 1,
+      "clearWidthFraction": 0.8546875,
+      "clearHeightFraction": 1,
+      "blockedPixels": 0,
+      "opaqueCoveragePercent": 14.531250000000002,
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "side": "left",
+      "fire": 0,
+      "reload": null,
+      "cycle": null,
+      "clearWidthFraction": 0.8546875,
+      "clearHeightFraction": 1,
+      "blockedPixels": 0,
+      "opaqueCoveragePercent": 14.531250000000002,
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "side": "left",
+      "fire": 0,
+      "reload": null,
+      "cycle": 1,
+      "clearWidthFraction": 0.8546875,
+      "clearHeightFraction": 1,
+      "blockedPixels": 0,
+      "opaqueCoveragePercent": 14.531250000000002,
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "side": "left",
+      "fire": 0,
+      "reload": 1,
+      "cycle": null,
+      "clearWidthFraction": 0.8546875,
+      "clearHeightFraction": 1,
+      "blockedPixels": 0,
+      "opaqueCoveragePercent": 14.531250000000002,
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "side": "left",
+      "fire": 0,
+      "reload": 1,
+      "cycle": 1,
+      "clearWidthFraction": 0.8546875,
+      "clearHeightFraction": 1,
+      "blockedPixels": 0,
+      "opaqueCoveragePercent": 14.531250000000002,
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "side": "left",
+      "fire": 1,
+      "reload": null,
+      "cycle": null,
+      "clearWidthFraction": 0.8546875,
+      "clearHeightFraction": 1,
+      "blockedPixels": 0,
+      "opaqueCoveragePercent": 14.531250000000002,
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "side": "left",
+      "fire": 1,
+      "reload": null,
+      "cycle": 1,
+      "clearWidthFraction": 0.8546875,
+      "clearHeightFraction": 1,
+      "blockedPixels": 0,
+      "opaqueCoveragePercent": 14.531250000000002,
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "side": "left",
+      "fire": 1,
+      "reload": 1,
+      "cycle": null,
+      "clearWidthFraction": 0.8546875,
+      "clearHeightFraction": 1,
+      "blockedPixels": 0,
+      "opaqueCoveragePercent": 14.531250000000002,
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "side": "left",
+      "fire": 1,
+      "reload": 1,
+      "cycle": 1,
+      "clearWidthFraction": 0.8546875,
+      "clearHeightFraction": 1,
+      "blockedPixels": 0,
+      "opaqueCoveragePercent": 14.531250000000002,
+      "width": 1280,
+      "height": 720
+    }
+  ],
+  "coverage": [
+    {
+      "side": "right",
+      "aspect": 1.7777777777777777,
+      "percentage": 5.636610243055555,
+      "boundsPercentage": 8.51779513888889,
+      "pixels": 51947,
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "side": "right",
+      "aspect": 1,
+      "percentage": 9.798804012345679,
+      "boundsPercentage": 14.467592592592593,
+      "pixels": 50797,
+      "width": 720,
+      "height": 720
+    },
+    {
+      "side": "left",
+      "aspect": 1.7777777777777777,
+      "percentage": 5.636610243055555,
+      "boundsPercentage": 8.51779513888889,
+      "pixels": 51947,
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "side": "left",
+      "aspect": 1,
+      "percentage": 9.798804012345679,
+      "boundsPercentage": 14.467592592592593,
+      "pixels": 50797,
+      "width": 720,
+      "height": 720
+    }
+  ],
+  "visibilityChecks": 76
+}

@@ -1,0 +1,14 @@
+{
+  "id": "toy-town-l2-r1",
+  "sha256": "c6d8b51114467f5e13e10d5cd5d05b8f44bbc00e2ed9e15e0ab8bce9f749f344",
+  "stats": {
+    "boxes": 1066,
+    "renderBoxes": 3392,
+    "triangles": 40704,
+    "drawCalls": 42,
+    "chunks": 36,
+    "instancedPrefabs": 6,
+    "instances": 16,
+    "shadowChunks": 6
+  }
+}

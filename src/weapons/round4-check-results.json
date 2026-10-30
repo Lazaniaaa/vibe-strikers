@@ -1,0 +1,4657 @@
+{
+  "complete": true,
+  "checked": 285120,
+  "requiredCombinations": 71280,
+  "phaseSamples": 4,
+  "rayChecks": 6336,
+  "scopeRays": 0,
+  "rows": [
+    {
+      "weapon": "pistol",
+      "side": "center",
+      "cases": 23760,
+      "maxRightError": 1.6203171603697468e-15,
+      "maxLeftError": 1.831026719408895e-15,
+      "minClearance": 0.002741601397974627,
+      "failedCases": 0,
+      "adsClearAngle": 31,
+      "maxAxisError": 1.1445100410952132e-16,
+      "rayHits": 0,
+      "axisMinX": 0.07692195879719099,
+      "axisMaxX": 0.13875373145566794,
+      "worstClearance": {
+        "character": "vibe-vibers-viber-142",
+        "weapon": "pistol",
+        "side": "center",
+        "pose": "idle",
+        "ads": 0,
+        "aim": 0,
+        "shooting": true,
+        "phase": 0,
+        "mesh": "armL-boxes",
+        "vertex": 48,
+        "body": "torso"
+      },
+      "worstReach": {
+        "character": "vibe-vibers-viber-extra-11",
+        "weapon": "pistol",
+        "side": "center",
+        "pose": "idle",
+        "ads": 1,
+        "aim": 89,
+        "shooting": true,
+        "phase": 0
+      }
+    },
+    {
+      "weapon": "rifle",
+      "side": "center",
+      "cases": 23760,
+      "maxRightError": 1.6764000044290905e-15,
+      "maxLeftError": 2.2266822963392197e-15,
+      "minClearance": 0.0030280458897473574,
+      "failedCases": 0,
+      "adsClearAngle": 28,
+      "maxAxisError": 1.3886012625391418e-16,
+      "rayHits": 0,
+      "axisMinX": 0.05668910937614502,
+      "axisMaxX": 0.1200000000000001,
+      "worstClearance": {
+        "character": "vibe-vibers-bureau-roll-40-10",
+        "weapon": "rifle",
+        "side": "center",
+        "pose": "crouch",
+        "ads": 1,
+        "aim": 45,
+        "shooting": true,
+        "phase": 0,
+        "mesh": "armR-boxes",
+        "vertex": 291,
+        "body": "torso"
+      },
+      "worstReach": {
+        "character": "vibe-vibers-viber-extra-24",
+        "weapon": "rifle",
+        "side": "center",
+        "pose": "strafe",
+        "ads": 1,
+        "aim": 89,
+        "shooting": false,
+        "phase": 0
+      }
+    },
+    {
+      "weapon": "sniper",
+      "side": "center",
+      "cases": 23760,
+      "maxRightError": 1.88411095042053e-15,
+      "maxLeftError": 1.8318679906315083e-15,
+      "minClearance": 0.003060856573239851,
+      "failedCases": 0,
+      "adsClearAngle": 25.5,
+      "maxAxisError": 1.1103876508620593e-16,
+      "rayHits": 0,
+      "axisMinX": 0.05689062598969086,
+      "axisMaxX": 0.1200000000000001,
+      "worstClearance": {
+        "character": "vibe-vibers-bureau-roll-40-10",
+        "weapon": "sniper",
+        "side": "center",
+        "pose": "idle",
+        "ads": 0,
+        "aim": -89,
+        "shooting": true,
+        "phase": 0,
+        "mesh": "armR-boxes",
+        "vertex": 294,
+        "body": "torso"
+      },
+      "worstReach": {
+        "character": "vibe-vibers-bureau-24",
+        "weapon": "sniper",
+        "side": "center",
+        "pose": "crouch",
+        "ads": 1,
+        "aim": 89,
+        "shooting": false,
+        "phase": 0
+      }
+    },
+    {
+      "weapon": "shotgun",
+      "side": "center",
+      "cases": 23760,
+      "maxRightError": 2.1065000811460206e-15,
+      "maxLeftError": 1.8115696578480912e-15,
+      "minClearance": 0.003060856573239851,
+      "failedCases": 0,
+      "adsClearAngle": 26.5,
+      "maxAxisError": 2.7764438590931347e-17,
+      "rayHits": 0,
+      "axisMinX": 0.056880274307805845,
+      "axisMaxX": 0.1200000000000001,
+      "worstClearance": {
+        "character": "vibe-vibers-bureau-roll-40-10",
+        "weapon": "shotgun",
+        "side": "center",
+        "pose": "idle",
+        "ads": 0,
+        "aim": -89,
+        "shooting": true,
+        "phase": 0,
+        "mesh": "armR-boxes",
+        "vertex": 294,
+        "body": "torso"
+      },
+      "worstReach": {
+        "character": "vibe-vibers-bureau-24",
+        "weapon": "shotgun",
+        "side": "center",
+        "pose": "idle",
+        "ads": 1,
+        "aim": 89,
+        "shooting": false,
+        "phase": 0
+      }
+    },
+    {
+      "weapon": "pistol",
+      "side": "right",
+      "cases": 23760,
+      "maxRightError": 1.6764000044290905e-15,
+      "maxLeftError": 2.2315206618374916e-15,
+      "minClearance": 0.0016493033130483472,
+      "failedCases": 0,
+      "adsClearAngle": 31,
+      "maxAxisError": 1.2077049446576806e-16,
+      "rayHits": 0,
+      "axisMinX": 0.30673758790720473,
+      "axisMaxX": 0.4091421794801908,
+      "worstClearance": {
+        "character": "vibe-vibers-viber-142",
+        "weapon": "pistol",
+        "side": "right",
+        "pose": "idle",
+        "ads": 0,
+        "aim": 0,
+        "shooting": false,
+        "phase": 0,
+        "mesh": "armR-boxes",
+        "vertex": 5,
+        "body": "head"
+      },
+      "worstReach": {
+        "character": "vibe-vibers-viber-extra-9",
+        "weapon": "pistol",
+        "side": "right",
+        "pose": "strafe",
+        "ads": 1,
+        "aim": 89,
+        "shooting": false,
+        "phase": 0
+      }
+    },
+    {
+      "weapon": "rifle",
+      "side": "right",
+      "cases": 23760,
+      "maxRightError": 1.7798229048217483e-15,
+      "maxLeftError": 2.2452871135843694e-15,
+      "minClearance": 0.001110571552608344,
+      "failedCases": 0,
+      "adsClearAngle": 28,
+      "maxAxisError": 1.440185481677951e-16,
+      "rayHits": 0,
+      "axisMinX": 0.29051777373693,
+      "axisMaxX": 0.38000000000000034,
+      "worstClearance": {
+        "character": "vibe-vibers-viber-142",
+        "weapon": "rifle",
+        "side": "right",
+        "pose": "idle",
+        "ads": 1,
+        "aim": 0,
+        "shooting": false,
+        "phase": 0,
+        "mesh": "armR-boxes",
+        "vertex": 25,
+        "body": "torso"
+      },
+      "worstReach": {
+        "character": "vibe-vibers-viber-63",
+        "weapon": "rifle",
+        "side": "right",
+        "pose": "crouch",
+        "ads": 1,
+        "aim": 45,
+        "shooting": false,
+        "phase": 0
+      }
+    },
+    {
+      "weapon": "sniper",
+      "side": "right",
+      "cases": 23760,
+      "maxRightError": 1.3322676295501878e-15,
+      "maxLeftError": 2.0977046352944823e-15,
+      "minClearance": 0.0012750967320085873,
+      "failedCases": 0,
+      "adsClearAngle": 25.5,
+      "maxAxisError": 1.174829351422271e-16,
+      "rayHits": 0,
+      "axisMinX": 0.29051777373693,
+      "axisMaxX": 0.38000000000000034,
+      "worstClearance": {
+        "character": "vibe-vibers-viber-142",
+        "weapon": "sniper",
+        "side": "right",
+        "pose": "idle",
+        "ads": 1,
+        "aim": 0,
+        "shooting": false,
+        "phase": 0,
+        "mesh": "armR-boxes",
+        "vertex": 25,
+        "body": "torso"
+      },
+      "worstReach": {
+        "character": "vibe-vibers-viber-63",
+        "weapon": "sniper",
+        "side": "right",
+        "pose": "idle",
+        "ads": 0.5,
+        "aim": 89,
+        "shooting": false,
+        "phase": 0
+      }
+    },
+    {
+      "weapon": "shotgun",
+      "side": "right",
+      "cases": 23760,
+      "maxRightError": 1.4895204919483639e-15,
+      "maxLeftError": 2.198129442157285e-15,
+      "minClearance": 0.001273765123245554,
+      "failedCases": 0,
+      "adsClearAngle": 26.5,
+      "maxAxisError": 4.7433671375321173e-17,
+      "rayHits": 0,
+      "axisMinX": 0.29051777373693,
+      "axisMaxX": 0.38000000000000034,
+      "worstClearance": {
+        "character": "vibe-vibers-viber-142",
+        "weapon": "shotgun",
+        "side": "right",
+        "pose": "idle",
+        "ads": 1,
+        "aim": 0,
+        "shooting": false,
+        "phase": 0,
+        "mesh": "armR-boxes",
+        "vertex": 25,
+        "body": "torso"
+      },
+      "worstReach": {
+        "character": "vibe-vibers-bureau-roll-22-12",
+        "weapon": "shotgun",
+        "side": "right",
+        "pose": "idle",
+        "ads": 1,
+        "aim": 89,
+        "shooting": true,
+        "phase": 0
+      }
+    },
+    {
+      "weapon": "pistol",
+      "side": "left",
+      "cases": 23760,
+      "maxRightError": 3.052608629176561e-15,
+      "maxLeftError": 0.028991088049428335,
+      "minClearance": 0.0010958566111168768,
+      "failedCases": 0,
+      "adsClearAngle": 31,
+      "maxAxisError": 1.2077049446576806e-16,
+      "rayHits": 0,
+      "axisMinX": -0.4200498524075764,
+      "axisMaxX": -0.2799999999999996,
+      "worstClearance": {
+        "character": "vibe-vibers-viber-142",
+        "weapon": "pistol",
+        "side": "left",
+        "pose": "strafe",
+        "ads": 0,
+        "aim": 0,
+        "shooting": true,
+        "phase": 0,
+        "mesh": "armL-boxes",
+        "vertex": 76,
+        "body": "head"
+      },
+      "worstReach": {
+        "character": "vibe-vibers-viber-142",
+        "weapon": "pistol",
+        "side": "left",
+        "pose": "strafe",
+        "ads": 1,
+        "aim": 0,
+        "shooting": true,
+        "phase": 0
+      }
+    },
+    {
+      "weapon": "rifle",
+      "side": "left",
+      "cases": 23760,
+      "maxRightError": 3.204296758965566e-15,
+      "maxLeftError": 1.631687946612622e-15,
+      "minClearance": 0.0019018684500938712,
+      "failedCases": 0,
+      "adsClearAngle": 28,
+      "maxAxisError": 1.440185481677951e-16,
+      "rayHits": 0,
+      "axisMinX": -0.40714833672780415,
+      "axisMaxX": -0.2799999999999998,
+      "worstClearance": {
+        "character": "vibe-vibers-viber-142",
+        "weapon": "rifle",
+        "side": "left",
+        "pose": "strafe",
+        "ads": 0,
+        "aim": 0,
+        "shooting": false,
+        "phase": 0,
+        "mesh": "armL-boxes",
+        "vertex": 76,
+        "body": "head"
+      },
+      "worstReach": {
+        "character": "vibe-vibers-viber-extra-9",
+        "weapon": "rifle",
+        "side": "left",
+        "pose": "strafe",
+        "ads": 0.5,
+        "aim": 89,
+        "shooting": true,
+        "phase": 0
+      }
+    },
+    {
+      "weapon": "sniper",
+      "side": "left",
+      "cases": 23760,
+      "maxRightError": 2.185652450427126e-15,
+      "maxLeftError": 1.4371385710365135e-15,
+      "minClearance": 0.0019018684500938712,
+      "failedCases": 0,
+      "adsClearAngle": 25.5,
+      "maxAxisError": 1.174829351422271e-16,
+      "rayHits": 0,
+      "axisMinX": -0.40714833672780415,
+      "axisMaxX": -0.2799999999999998,
+      "worstClearance": {
+        "character": "vibe-vibers-viber-142",
+        "weapon": "sniper",
+        "side": "left",
+        "pose": "strafe",
+        "ads": 0,
+        "aim": 0,
+        "shooting": false,
+        "phase": 0,
+        "mesh": "armL-boxes",
+        "vertex": 76,
+        "body": "head"
+      },
+      "worstReach": {
+        "character": "vibe-vibers-viber-141",
+        "weapon": "sniper",
+        "side": "left",
+        "pose": "idle",
+        "ads": 1,
+        "aim": 45,
+        "shooting": false,
+        "phase": 0
+      }
+    },
+    {
+      "weapon": "shotgun",
+      "side": "left",
+      "cases": 23760,
+      "maxRightError": 2.4552312978479334e-15,
+      "maxLeftError": 1.617461973727859e-15,
+      "minClearance": 0.0019018684500938712,
+      "failedCases": 0,
+      "adsClearAngle": 26.5,
+      "maxAxisError": 4.7433671375321173e-17,
+      "rayHits": 0,
+      "axisMinX": -0.40714833672780415,
+      "axisMaxX": -0.2799999999999998,
+      "worstClearance": {
+        "character": "vibe-vibers-viber-142",
+        "weapon": "shotgun",
+        "side": "left",
+        "pose": "strafe",
+        "ads": 0,
+        "aim": 0,
+        "shooting": false,
+        "phase": 0,
+        "mesh": "armL-boxes",
+        "vertex": 76,
+        "body": "head"
+      },
+      "worstReach": {
+        "character": "vibe-vibers-viber-6",
+        "weapon": "shotgun",
+        "side": "left",
+        "pose": "idle",
+        "ads": 1,
+        "aim": 45,
+        "shooting": false,
+        "phase": 0
+      }
+    }
+  ],
+  "lengths": [
+    {
+      "character": "reference-01",
+      "side": "center",
+      "leftExtra": 0.8,
+      "rightExtra": 0.64,
+      "leftUpper": 1.0450000334531069,
+      "rightUpper": 0.8850000072270632,
+      "leftReach": 1.2002603764664004,
+      "rightReach": 1.0403004289956925
+    },
+    {
+      "character": "vibe-vibers-bureau-8",
+      "side": "center",
+      "leftExtra": 0.8,
+      "rightExtra": 0.6,
+      "leftUpper": 1.2638036981225014,
+      "rightUpper": 1.0638036504387856,
+      "leftReach": 1.3120764711488166,
+      "rightReach": 1.1147967011533346
+    },
+    {
+      "character": "vibe-vibers-viber-extra-12",
+      "side": "center",
+      "leftExtra": 0.64,
+      "rightExtra": 0.44,
+      "leftUpper": 1.2434681504964828,
+      "rightUpper": 1.0434682220220566,
+      "leftReach": 1.2645450141228511,
+      "rightReach": 1.064595261780301
+    },
+    {
+      "character": "vibe-vibers-viber-142",
+      "side": "center",
+      "leftExtra": 0.92,
+      "rightExtra": 0.76,
+      "leftUpper": 1.245301129296422,
+      "rightUpper": 1.085301162675023,
+      "leftReach": 1.2127710580825806,
+      "rightReach": 1.0527710914611816
+    },
+    {
+      "character": "vibe-vibers-viber-extra-11",
+      "side": "center",
+      "leftExtra": 1.04,
+      "rightExtra": 0.84,
+      "leftUpper": 1.3066666144877672,
+      "rightUpper": 1.106666686013341,
+      "leftReach": 1.3291791809698816,
+      "rightReach": 1.1292305478570606
+    },
+    {
+      "character": "vibe-vibers-bureau-25",
+      "side": "center",
+      "leftExtra": 0.92,
+      "rightExtra": 0.76,
+      "leftUpper": 1.196923078969121,
+      "rightUpper": 1.036923112347722,
+      "leftReach": 1.2504610337566822,
+      "rightReach": 1.0905026381898868
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-22-11",
+      "side": "center",
+      "leftExtra": 0.92,
+      "rightExtra": 0.76,
+      "leftUpper": 1.196923078969121,
+      "rightUpper": 1.036923112347722,
+      "leftReach": 1.2504610337566822,
+      "rightReach": 1.0905026381898868
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-48-7",
+      "side": "center",
+      "leftExtra": 0.92,
+      "rightExtra": 0.76,
+      "leftUpper": 1.196923078969121,
+      "rightUpper": 1.036923112347722,
+      "leftReach": 1.2504610337566822,
+      "rightReach": 1.0905026381898868
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-7-11",
+      "side": "center",
+      "leftExtra": 0.92,
+      "rightExtra": 0.76,
+      "leftUpper": 1.196923078969121,
+      "rightUpper": 1.036923112347722,
+      "leftReach": 1.2504610337566822,
+      "rightReach": 1.0905026381898868
+    },
+    {
+      "character": "vibe-vibers-viber-32",
+      "side": "center",
+      "leftExtra": 0.92,
+      "rightExtra": 0.76,
+      "leftUpper": 1.196923078969121,
+      "rightUpper": 1.036923112347722,
+      "leftReach": 1.2504610337566822,
+      "rightReach": 1.0905026381898868
+    },
+    {
+      "character": "vibe-vibers-viber-10",
+      "side": "center",
+      "leftExtra": 0.92,
+      "rightExtra": 0.72,
+      "leftUpper": 1.1905201692134142,
+      "rightUpper": 0.9905202407389879,
+      "leftReach": 1.2428155746364538,
+      "rightReach": 1.042867766969025
+    },
+    {
+      "character": "vibe-vibers-viber-103",
+      "side": "center",
+      "leftExtra": 0.96,
+      "rightExtra": 0.76,
+      "leftUpper": 1.2369231600314379,
+      "rightUpper": 1.036923112347722,
+      "leftReach": 1.2904522666580172,
+      "rightReach": 1.0905026381898868
+    },
+    {
+      "character": "vibe-vibers-viber-31",
+      "side": "center",
+      "leftExtra": 0.96,
+      "rightExtra": 0.76,
+      "leftUpper": 1.2599999774247408,
+      "rightUpper": 1.0600000489503145,
+      "leftReach": 1.318008043332572,
+      "rightReach": 1.1180644703816423
+    },
+    {
+      "character": "vibe-vibers-viber-42",
+      "side": "center",
+      "leftExtra": 0.92,
+      "rightExtra": 0.76,
+      "leftUpper": 1.196923078969121,
+      "rightUpper": 1.036923112347722,
+      "leftReach": 1.2504610337566822,
+      "rightReach": 1.0905026381898868
+    },
+    {
+      "character": "vibe-vibers-viber-71",
+      "side": "center",
+      "leftExtra": 0.8,
+      "rightExtra": 0.64,
+      "leftUpper": 1.228571429848671,
+      "rightUpper": 1.068571463227272,
+      "leftReach": 1.244931045384661,
+      "rightReach": 1.084973519342736
+    },
+    {
+      "character": "vibe-vibers-bureau-23",
+      "side": "center",
+      "leftExtra": 0.6,
+      "rightExtra": 0.44,
+      "leftUpper": 1.2802325524389744,
+      "rightUpper": 1.1202325858175755,
+      "leftReach": 1.2174418568611145,
+      "rightReach": 1.0574418604373932
+    },
+    {
+      "character": "vibe-vibers-bureau-4",
+      "side": "center",
+      "leftExtra": 0.88,
+      "rightExtra": 0.72,
+      "leftUpper": 1.1653658524155617,
+      "rightUpper": 1.005365826189518,
+      "leftReach": 1.2589575811724552,
+      "rightReach": 1.0990011237414072
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-40-10",
+      "side": "center",
+      "leftExtra": 0.6,
+      "rightExtra": 0.44,
+      "leftUpper": 1.2000000216066837,
+      "rightUpper": 1.03999999538064,
+      "leftReach": 1.1950266246717753,
+      "rightReach": 1.0350713942193874
+    },
+    {
+      "character": "vibe-vibers-viber-141",
+      "side": "center",
+      "leftExtra": 0.92,
+      "rightExtra": 0.76,
+      "leftUpper": 1.3386047091335058,
+      "rightUpper": 1.1786046233028173,
+      "leftReach": 1.5343500828705616,
+      "rightReach": 1.3743962865224888
+    },
+    {
+      "character": "vibe-vibers-viber-48",
+      "side": "center",
+      "leftExtra": 0.76,
+      "rightExtra": 0.6,
+      "leftUpper": 1.2377778179943562,
+      "rightUpper": 1.0777777321636677,
+      "leftReach": 1.2491977286392029,
+      "rightReach": 1.0892431344106084
+    },
+    {
+      "character": "vibe-vibers-bureau-24",
+      "side": "center",
+      "leftExtra": 0.92,
+      "rightExtra": 0.72,
+      "leftUpper": 1.3226315174251795,
+      "rightUpper": 1.1226315889507532,
+      "leftReach": 1.3288824223355822,
+      "rightReach": 1.1289409250906743
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-22-12",
+      "side": "center",
+      "leftExtra": 0.72,
+      "rightExtra": 0.52,
+      "leftUpper": 1.3044155612587929,
+      "rightUpper": 1.1044156327843666,
+      "leftReach": 1.2989001328194645,
+      "rightReach": 1.0989599711147013
+    },
+    {
+      "character": "vibe-vibers-viber-6",
+      "side": "center",
+      "leftExtra": 0.76,
+      "rightExtra": 0.56,
+      "leftUpper": 1.4032989628612995,
+      "rightUpper": 1.2032989151775837,
+      "leftReach": 1.3294319183105803,
+      "rightReach": 1.129495701548184
+    },
+    {
+      "character": "vibe-vibers-viber-63",
+      "side": "center",
+      "leftExtra": 1,
+      "rightExtra": 0.84,
+      "leftUpper": 1.3776223845779896,
+      "rightUpper": 1.2176224179565907,
+      "leftReach": 1.3779817311085358,
+      "rightReach": 1.2180289715148194
+    },
+    {
+      "character": "vibe-vibers-viber-84",
+      "side": "center",
+      "leftExtra": 1.04,
+      "rightExtra": 0.88,
+      "leftUpper": 1.4098629765212536,
+      "rightUpper": 1.2498630098998547,
+      "leftReach": 1.3855483709032204,
+      "rightReach": 1.2255931060180132
+    },
+    {
+      "character": "vibe-vibers-viber-extra-20",
+      "side": "center",
+      "leftExtra": 0.96,
+      "rightExtra": 0.76,
+      "leftUpper": 1.2658823151141405,
+      "rightUpper": 1.0658823866397142,
+      "leftReach": 1.3250323656477854,
+      "rightReach": 1.1250903533712995
+    },
+    {
+      "character": "vibe-vibers-bureau-31",
+      "side": "center",
+      "leftExtra": 0.88,
+      "rightExtra": 0.68,
+      "leftUpper": 1.2333742380142212,
+      "rightUpper": 1.0333741903305054,
+      "leftReach": 1.3054453208206505,
+      "rightReach": 1.1054981519839893
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-9-5",
+      "side": "center",
+      "leftExtra": 0.88,
+      "rightExtra": 0.72,
+      "leftUpper": 1.1157142836600542,
+      "rightUpper": 0.9557143170386553,
+      "leftReach": 1.2347341096885647,
+      "rightReach": 1.0749071950870317
+    },
+    {
+      "character": "vibe-vibers-viber-123",
+      "side": "center",
+      "leftExtra": 0.88,
+      "rightExtra": 0.72,
+      "leftUpper": 1.2673417180776596,
+      "rightUpper": 1.1073417514562607,
+      "leftReach": 1.2733565255576937,
+      "rightReach": 1.1134022778753667
+    },
+    {
+      "character": "vibe-vibers-viber-extra-19",
+      "side": "center",
+      "leftExtra": 0.92,
+      "rightExtra": 0.76,
+      "leftUpper": 1.196923078969121,
+      "rightUpper": 1.036923112347722,
+      "leftReach": 1.2504610337566822,
+      "rightReach": 1.0905026381898868
+    },
+    {
+      "character": "vibe-vibers-viber-extra-15",
+      "side": "center",
+      "leftExtra": 0.92,
+      "rightExtra": 0.76,
+      "leftUpper": 1.2731645535677671,
+      "rightUpper": 1.1131645869463682,
+      "leftReach": 1.301957073408336,
+      "rightReach": 1.1420007581693208
+    },
+    {
+      "character": "vibe-vibers-viber-extra-24",
+      "side": "center",
+      "leftExtra": 0.92,
+      "rightExtra": 0.76,
+      "leftUpper": 1.2053659334778786,
+      "rightUpper": 1.04536584764719,
+      "leftReach": 1.260542569400241,
+      "rightReach": 1.1005860243820422
+    },
+    {
+      "character": "vibe-vibers-viber-extra-9",
+      "side": "center",
+      "leftExtra": 1.08,
+      "rightExtra": 0.88,
+      "leftUpper": 1.4228570815175772,
+      "rightUpper": 1.222857153043151,
+      "leftReach": 1.5589805366927039,
+      "rightReach": 1.359040819412202
+    },
+    {
+      "character": "reference-01",
+      "side": "right",
+      "leftExtra": 0.96,
+      "rightExtra": 0.52,
+      "leftUpper": 1.2050000000745058,
+      "rightUpper": 0.7650000024586916,
+      "leftReach": 1.360229714684536,
+      "rightReach": 0.9203396278732148
+    },
+    {
+      "character": "vibe-vibers-bureau-8",
+      "side": "right",
+      "leftExtra": 0.92,
+      "rightExtra": 0.52,
+      "leftUpper": 1.383803702890873,
+      "rightUpper": 0.9838036671280861,
+      "leftReach": 1.4308069345970416,
+      "rightReach": 1.0361768446398227
+    },
+    {
+      "character": "vibe-vibers-viber-extra-12",
+      "side": "right",
+      "leftExtra": 0.76,
+      "rightExtra": 0.32,
+      "leftUpper": 1.3634681552648544,
+      "rightUpper": 0.923468217253685,
+      "leftReach": 1.3845218293368586,
+      "rightReach": 0.9446356317255082
+    },
+    {
+      "character": "vibe-vibers-viber-142",
+      "side": "right",
+      "leftExtra": 1.08,
+      "rightExtra": 0.68,
+      "leftUpper": 1.4053012151271105,
+      "rightUpper": 1.0053012389689684,
+      "leftReach": 1.3727710843086243,
+      "rightReach": 0.9727710783481598
+    },
+    {
+      "character": "vibe-vibers-viber-extra-11",
+      "side": "right",
+      "leftExtra": 1.2,
+      "rightExtra": 0.72,
+      "leftUpper": 1.4666667003184557,
+      "rightUpper": 0.9866666812449694,
+      "leftReach": 1.4891479582400438,
+      "rightReach": 1.0092712013230194
+    },
+    {
+      "character": "vibe-vibers-bureau-25",
+      "side": "right",
+      "leftExtra": 1.08,
+      "rightExtra": 0.64,
+      "leftUpper": 1.35692304559052,
+      "rightUpper": 0.9169230479747057,
+      "leftReach": 1.410428896383249,
+      "rightReach": 0.9705428342720112
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-22-11",
+      "side": "right",
+      "leftExtra": 1.08,
+      "rightExtra": 0.64,
+      "leftUpper": 1.35692304559052,
+      "rightUpper": 0.9169230479747057,
+      "leftReach": 1.410428896383249,
+      "rightReach": 0.9705428342720112
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-48-7",
+      "side": "right",
+      "leftExtra": 1.08,
+      "rightExtra": 0.64,
+      "leftUpper": 1.35692304559052,
+      "rightUpper": 0.9169230479747057,
+      "leftReach": 1.410428896383249,
+      "rightReach": 0.9705428342720112
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-7-11",
+      "side": "right",
+      "leftExtra": 1.08,
+      "rightExtra": 0.64,
+      "leftUpper": 1.35692304559052,
+      "rightUpper": 0.9169230479747057,
+      "leftReach": 1.410428896383249,
+      "rightReach": 0.9705428342720112
+    },
+    {
+      "character": "vibe-vibers-viber-32",
+      "side": "right",
+      "leftExtra": 1.08,
+      "rightExtra": 0.64,
+      "leftUpper": 1.35692304559052,
+      "rightUpper": 0.9169230479747057,
+      "leftReach": 1.410428896383249,
+      "rightReach": 0.9705428342720112
+    },
+    {
+      "character": "vibe-vibers-viber-10",
+      "side": "right",
+      "leftExtra": 1.08,
+      "rightExtra": 0.64,
+      "leftUpper": 1.3505202550441027,
+      "rightUpper": 0.9105201978236437,
+      "leftReach": 1.4027844908047886,
+      "rightReach": 0.9628947696335766
+    },
+    {
+      "character": "vibe-vibers-viber-103",
+      "side": "right",
+      "leftExtra": 1.12,
+      "rightExtra": 0.64,
+      "leftUpper": 1.3969231266528368,
+      "rightUpper": 0.9169230479747057,
+      "leftReach": 1.4504219855946727,
+      "rightReach": 0.9705428342720112
+    },
+    {
+      "character": "vibe-vibers-viber-31",
+      "side": "right",
+      "leftExtra": 1.08,
+      "rightExtra": 0.64,
+      "leftUpper": 1.3799999821931124,
+      "rightUpper": 0.9399999845772982,
+      "leftReach": 1.4379817027560313,
+      "rightReach": 0.9981092126607501
+    },
+    {
+      "character": "vibe-vibers-viber-42",
+      "side": "right",
+      "leftExtra": 1.08,
+      "rightExtra": 0.64,
+      "leftUpper": 1.35692304559052,
+      "rightUpper": 0.9169230479747057,
+      "leftReach": 1.410428896383249,
+      "rightReach": 0.9705428342720112
+    },
+    {
+      "character": "vibe-vibers-viber-71",
+      "side": "right",
+      "leftExtra": 0.92,
+      "rightExtra": 0.52,
+      "leftUpper": 1.3485714346170425,
+      "rightUpper": 0.9485714584589005,
+      "leftReach": 1.364905713107555,
+      "rightReach": 0.9650146371287907
+    },
+    {
+      "character": "vibe-vibers-bureau-23",
+      "side": "right",
+      "leftExtra": 0.72,
+      "rightExtra": 0.32,
+      "leftUpper": 1.400232557207346,
+      "rightUpper": 1.0002325810492039,
+      "leftReach": 1.337441861629486,
+      "rightReach": 0.9374418556690216
+    },
+    {
+      "character": "vibe-vibers-bureau-4",
+      "side": "right",
+      "leftExtra": 1.04,
+      "rightExtra": 0.6,
+      "leftUpper": 1.3253659382462502,
+      "rightUpper": 0.8853658214211464,
+      "leftReach": 1.4189238265498496,
+      "rightReach": 0.9790431108968839
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-40-10",
+      "side": "right",
+      "leftExtra": 0.76,
+      "rightExtra": 0.36,
+      "leftUpper": 1.3599999882280827,
+      "rightUpper": 0.9600000120699406,
+      "leftReach": 1.3549924328210232,
+      "rightReach": 0.9550994362162989
+    },
+    {
+      "character": "vibe-vibers-viber-141",
+      "side": "right",
+      "leftExtra": 1.08,
+      "rightExtra": 0.6,
+      "leftUpper": 1.4986046757549047,
+      "rightUpper": 1.0186046566814184,
+      "leftReach": 1.6943125980292688,
+      "rightReach": 1.2144545646398666
+    },
+    {
+      "character": "vibe-vibers-viber-48",
+      "side": "right",
+      "leftExtra": 0.92,
+      "rightExtra": 0.48,
+      "leftUpper": 1.397777784615755,
+      "rightUpper": 0.9577777869999409,
+      "leftReach": 1.409162684435114,
+      "rightReach": 0.9692869877176907
+    },
+    {
+      "character": "vibe-vibers-bureau-24",
+      "side": "right",
+      "leftExtra": 1.04,
+      "rightExtra": 0.6,
+      "leftUpper": 1.442631522193551,
+      "rightUpper": 1.0026315841823816,
+      "leftReach": 1.44885511045796,
+      "rightReach": 1.00898709638278
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-22-12",
+      "side": "right",
+      "leftExtra": 0.84,
+      "rightExtra": 0.44,
+      "leftUpper": 1.4244155660271645,
+      "rightUpper": 1.0244155898690224,
+      "leftReach": 1.4188723362014508,
+      "rightReach": 1.0189904930647653
+    },
+    {
+      "character": "vibe-vibers-viber-6",
+      "side": "right",
+      "leftExtra": 0.88,
+      "rightExtra": 0.44,
+      "leftUpper": 1.523298967629671,
+      "rightUpper": 1.0832989104092121,
+      "leftReach": 1.4494021345077748,
+      "rightReach": 1.0095460389467679
+    },
+    {
+      "character": "vibe-vibers-viber-63",
+      "side": "right",
+      "leftExtra": 1.16,
+      "rightExtra": 0.68,
+      "leftUpper": 1.5376223511993885,
+      "rightUpper": 1.0576223321259022,
+      "leftReach": 1.5379443116465574,
+      "rightReach": 1.0580904272269465
+    },
+    {
+      "character": "vibe-vibers-viber-84",
+      "side": "right",
+      "leftExtra": 1.2,
+      "rightExtra": 0.76,
+      "leftUpper": 1.5698629431426525,
+      "rightUpper": 1.129863005131483,
+      "leftReach": 1.5455128428091676,
+      "rightReach": 1.1056352026783631
+    },
+    {
+      "character": "vibe-vibers-viber-extra-20",
+      "side": "right",
+      "leftExtra": 1.12,
+      "rightExtra": 0.64,
+      "leftUpper": 1.4258822817355394,
+      "rightUpper": 0.9458823818713427,
+      "leftReach": 1.4849971577424366,
+      "rightReach": 1.0051362839406115
+    },
+    {
+      "character": "vibe-vibers-bureau-31",
+      "side": "right",
+      "leftExtra": 1,
+      "rightExtra": 0.52,
+      "leftUpper": 1.3533742427825928,
+      "rightUpper": 0.8733742237091064,
+      "leftReach": 1.4254207477165146,
+      "rightReach": 0.9455564669975612
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-9-5",
+      "side": "right",
+      "leftExtra": 1.04,
+      "rightExtra": 0.6,
+      "leftUpper": 1.2757142502814531,
+      "rightUpper": 0.8357143122702837,
+      "leftReach": 1.394600747877853,
+      "rightReach": 0.9550750387559105
+    },
+    {
+      "character": "vibe-vibers-viber-123",
+      "side": "right",
+      "leftExtra": 1.04,
+      "rightExtra": 0.6,
+      "leftUpper": 1.427341803908348,
+      "rightUpper": 0.9873418062925339,
+      "leftReach": 1.4333209922300512,
+      "rightReach": 0.9934462825870864
+    },
+    {
+      "character": "vibe-vibers-viber-extra-19",
+      "side": "right",
+      "leftExtra": 1.08,
+      "rightExtra": 0.64,
+      "leftUpper": 1.35692304559052,
+      "rightUpper": 0.9169230479747057,
+      "leftReach": 1.410428896383249,
+      "rightReach": 0.9705428342720112
+    },
+    {
+      "character": "vibe-vibers-viber-extra-15",
+      "side": "right",
+      "leftExtra": 1.08,
+      "rightExtra": 0.64,
+      "leftUpper": 1.433164520189166,
+      "rightUpper": 0.9931645821779966,
+      "leftReach": 1.461923061401607,
+      "rightReach": 1.0220424896432976
+    },
+    {
+      "character": "vibe-vibers-viber-extra-24",
+      "side": "right",
+      "leftExtra": 1.08,
+      "rightExtra": 0.64,
+      "leftUpper": 1.3653659000992775,
+      "rightUpper": 0.9253658428788185,
+      "leftReach": 1.4205089543608007,
+      "rightReach": 0.9806278832794566
+    },
+    {
+      "character": "vibe-vibers-viber-extra-9",
+      "side": "right",
+      "leftExtra": 1.24,
+      "rightExtra": 0.76,
+      "leftUpper": 1.5828571673482656,
+      "rightUpper": 1.1028571482747793,
+      "leftReach": 1.718942480530386,
+      "rightReach": 1.2390862699055878
+    },
+    {
+      "character": "reference-01",
+      "side": "left",
+      "leftExtra": 0.52,
+      "rightExtra": 1.08,
+      "leftUpper": 0.7650000024586916,
+      "rightUpper": 1.3250000048428774,
+      "leftReach": 0.9203396278732148,
+      "rightReach": 1.4802110930381742
+    },
+    {
+      "character": "vibe-vibers-bureau-8",
+      "side": "left",
+      "leftExtra": 0.56,
+      "rightExtra": 1.08,
+      "leftUpper": 1.0238036885857582,
+      "rightUpper": 1.5438036695122719,
+      "leftReach": 1.0754612843396072,
+      "rightReach": 1.5894108890543603
+    },
+    {
+      "character": "vibe-vibers-viber-extra-12",
+      "side": "left",
+      "leftExtra": 0.32,
+      "rightExtra": 0.92,
+      "leftUpper": 0.923468217253685,
+      "rightUpper": 1.523468241095543,
+      "leftReach": 0.9446356317255082,
+      "rightReach": 1.5444964813704214
+    },
+    {
+      "character": "vibe-vibers-viber-142",
+      "side": "left",
+      "leftExtra": 0.72,
+      "rightExtra": 1.16,
+      "leftUpper": 1.0453012008219957,
+      "rightUpper": 1.4853011388331652,
+      "leftReach": 1.012771099805832,
+      "rightReach": 1.4527710676193237
+    },
+    {
+      "character": "vibe-vibers-viber-extra-11",
+      "side": "left",
+      "leftExtra": 0.72,
+      "rightExtra": 1.32,
+      "leftUpper": 0.9866666812449694,
+      "rightUpper": 1.5866667050868273,
+      "leftReach": 1.0092712013230194,
+      "rightReach": 1.6091286409773995
+    },
+    {
+      "character": "vibe-vibers-bureau-25",
+      "side": "left",
+      "leftExtra": 0.64,
+      "rightExtra": 1.2,
+      "leftUpper": 0.9169230479747057,
+      "rightUpper": 1.4769230503588915,
+      "leftReach": 0.9705428342720112,
+      "rightReach": 1.5304091914490532
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-22-11",
+      "side": "left",
+      "leftExtra": 0.64,
+      "rightExtra": 1.2,
+      "leftUpper": 0.9169230479747057,
+      "rightUpper": 1.4769230503588915,
+      "leftReach": 0.9705428342720112,
+      "rightReach": 1.5304091914490532
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-48-7",
+      "side": "left",
+      "leftExtra": 0.64,
+      "rightExtra": 1.2,
+      "leftUpper": 0.9169230479747057,
+      "rightUpper": 1.4769230503588915,
+      "leftReach": 0.9705428342720112,
+      "rightReach": 1.5304091914490532
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-7-11",
+      "side": "left",
+      "leftExtra": 0.64,
+      "rightExtra": 1.2,
+      "leftUpper": 0.9169230479747057,
+      "rightUpper": 1.4769230503588915,
+      "leftReach": 0.9705428342720112,
+      "rightReach": 1.5304091914490532
+    },
+    {
+      "character": "vibe-vibers-viber-32",
+      "side": "left",
+      "leftExtra": 0.64,
+      "rightExtra": 1.2,
+      "leftUpper": 0.9169230479747057,
+      "rightUpper": 1.4769230503588915,
+      "leftReach": 0.9705428342720112,
+      "rightReach": 1.5304091914490532
+    },
+    {
+      "character": "vibe-vibers-viber-10",
+      "side": "left",
+      "leftExtra": 0.64,
+      "rightExtra": 1.2,
+      "leftUpper": 0.9105201978236437,
+      "rightUpper": 1.4705202598124743,
+      "leftReach": 0.9628947696335766,
+      "rightReach": 1.5227654893931386
+    },
+    {
+      "character": "vibe-vibers-viber-103",
+      "side": "left",
+      "leftExtra": 0.64,
+      "rightExtra": 1.24,
+      "leftUpper": 0.9169230479747057,
+      "rightUpper": 1.5169231314212084,
+      "leftReach": 0.9705428342720112,
+      "rightReach": 1.570403312320303
+    },
+    {
+      "character": "vibe-vibers-viber-31",
+      "side": "left",
+      "leftExtra": 0.64,
+      "rightExtra": 1.24,
+      "leftUpper": 0.9399999845772982,
+      "rightUpper": 1.5399999488145113,
+      "leftReach": 0.9981092126607501,
+      "rightReach": 1.5979526967166597
+    },
+    {
+      "character": "vibe-vibers-viber-42",
+      "side": "left",
+      "leftExtra": 0.64,
+      "rightExtra": 1.24,
+      "leftUpper": 0.9169230479747057,
+      "rightUpper": 1.5169231314212084,
+      "leftReach": 0.9705428342720112,
+      "rightReach": 1.570403312320303
+    },
+    {
+      "character": "vibe-vibers-viber-71",
+      "side": "left",
+      "leftExtra": 0.52,
+      "rightExtra": 1.08,
+      "leftUpper": 0.9485714584589005,
+      "rightUpper": 1.5085714012384415,
+      "leftReach": 0.9650146371287907,
+      "rightReach": 1.524878159187161
+    },
+    {
+      "character": "vibe-vibers-bureau-23",
+      "side": "left",
+      "leftExtra": 0.32,
+      "rightExtra": 0.88,
+      "leftUpper": 1.0002325810492039,
+      "rightUpper": 1.5602325238287449,
+      "leftReach": 0.9374418556690216,
+      "rightReach": 1.497441828250885
+    },
+    {
+      "character": "vibe-vibers-bureau-4",
+      "side": "left",
+      "leftExtra": 0.6,
+      "rightExtra": 1.2,
+      "leftUpper": 0.8853658214211464,
+      "rightUpper": 1.485365904867649,
+      "leftReach": 0.9790431108968839,
+      "rightReach": 1.5788969652065936
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-40-10",
+      "side": "left",
+      "leftExtra": 0.4,
+      "rightExtra": 0.88,
+      "leftUpper": 1.0000000335276127,
+      "rightUpper": 1.4799999929964542,
+      "leftReach": 0.9950848818339504,
+      "rightReach": 1.4749716453418535
+    },
+    {
+      "character": "vibe-vibers-viber-141",
+      "side": "left",
+      "leftExtra": 0.6,
+      "rightExtra": 1.24,
+      "leftUpper": 1.0186046566814184,
+      "rightUpper": 1.6586046423763037,
+      "leftReach": 1.2144545646398666,
+      "rightReach": 1.8542816351683613
+    },
+    {
+      "character": "vibe-vibers-viber-48",
+      "side": "left",
+      "leftExtra": 0.48,
+      "rightExtra": 1.04,
+      "leftUpper": 0.9577777869999409,
+      "rightUpper": 1.5177777893841267,
+      "leftReach": 0.9692869877176907,
+      "rightReach": 1.5291412021556907
+    },
+    {
+      "character": "vibe-vibers-bureau-24",
+      "side": "left",
+      "leftExtra": 0.6,
+      "rightExtra": 1.2,
+      "leftUpper": 1.0026315841823816,
+      "rightUpper": 1.6026316080242395,
+      "leftReach": 1.00898709638278,
+      "rightReach": 1.6088250526980512
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-22-12",
+      "side": "left",
+      "leftExtra": 0.44,
+      "rightExtra": 1,
+      "leftUpper": 1.0244155898690224,
+      "rightUpper": 1.584415651857853,
+      "leftReach": 1.0189904930647653,
+      "rightReach": 1.5788418670840323
+    },
+    {
+      "character": "vibe-vibers-viber-6",
+      "side": "left",
+      "leftExtra": 0.44,
+      "rightExtra": 1.04,
+      "leftUpper": 1.0832989104092121,
+      "rightUpper": 1.68329893425107,
+      "leftReach": 1.0095460389467679,
+      "rightReach": 1.6093694115879267
+    },
+    {
+      "character": "vibe-vibers-viber-63",
+      "side": "left",
+      "leftExtra": 0.68,
+      "rightExtra": 1.32,
+      "leftUpper": 1.0576223321259022,
+      "rightUpper": 1.6976223178207874,
+      "leftReach": 1.0580904272269465,
+      "rightReach": 1.6979140565898907
+    },
+    {
+      "character": "vibe-vibers-viber-84",
+      "side": "left",
+      "leftExtra": 0.76,
+      "rightExtra": 1.32,
+      "leftUpper": 1.129863005131483,
+      "rightUpper": 1.689862947911024,
+      "leftReach": 1.1056352026783631,
+      "rightReach": 1.665490701536539
+    },
+    {
+      "character": "vibe-vibers-viber-extra-20",
+      "side": "left",
+      "leftExtra": 0.64,
+      "rightExtra": 1.24,
+      "leftUpper": 0.9458823818713427,
+      "rightUpper": 1.545882286503911,
+      "leftReach": 1.0051362839406115,
+      "rightReach": 1.6049753834556897
+    },
+    {
+      "character": "vibe-vibers-bureau-31",
+      "side": "left",
+      "leftExtra": 0.56,
+      "rightExtra": 1.16,
+      "leftUpper": 0.9133742451667786,
+      "rightUpper": 1.5133742094039917,
+      "leftReach": 0.9855401275478243,
+      "rightReach": 1.5853937905329172
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-9-5",
+      "side": "left",
+      "leftExtra": 0.6,
+      "rightExtra": 1.2,
+      "leftUpper": 0.8357143122702837,
+      "rightUpper": 1.4357143361121416,
+      "leftReach": 0.9550750387559105,
+      "rightReach": 1.5544948334166924
+    },
+    {
+      "character": "vibe-vibers-viber-123",
+      "side": "left",
+      "leftExtra": 0.6,
+      "rightExtra": 1.2,
+      "leftUpper": 0.9873418062925339,
+      "rightUpper": 1.587341770529747,
+      "leftReach": 0.9934462825870864,
+      "rightReach": 1.5932925403810991
+    },
+    {
+      "character": "vibe-vibers-viber-extra-19",
+      "side": "left",
+      "leftExtra": 0.64,
+      "rightExtra": 1.2,
+      "leftUpper": 0.9169230479747057,
+      "rightUpper": 1.4769230503588915,
+      "leftReach": 0.9705428342720112,
+      "rightReach": 1.5304091914490532
+    },
+    {
+      "character": "vibe-vibers-viber-extra-15",
+      "side": "left",
+      "leftExtra": 0.64,
+      "rightExtra": 1.24,
+      "leftUpper": 0.9931645821779966,
+      "rightUpper": 1.5931646060198545,
+      "leftReach": 1.0220424896432976,
+      "rightReach": 1.6218956570072265
+    },
+    {
+      "character": "vibe-vibers-viber-extra-24",
+      "side": "left",
+      "leftExtra": 0.64,
+      "rightExtra": 1.24,
+      "leftUpper": 0.9253658428788185,
+      "rightUpper": 1.5253658667206764,
+      "leftReach": 0.9806278832794566,
+      "rightReach": 1.580482090367741
+    },
+    {
+      "character": "vibe-vibers-viber-extra-9",
+      "side": "left",
+      "leftExtra": 0.76,
+      "rightExtra": 1.36,
+      "leftUpper": 1.1028571482747793,
+      "rightUpper": 1.7028571721166372,
+      "leftReach": 1.2390862699055878,
+      "rightReach": 1.8389182123214096
+    }
+  ],
+  "failures": [],
+  "characters": [
+    {
+      "character": "reference-01",
+      "side": "center",
+      "weapon": "pistol",
+      "maxFistError": 1.5141423334015086e-15,
+      "minClearance": 0.022650578845305736,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-8",
+      "side": "center",
+      "weapon": "pistol",
+      "maxFistError": 1.1957467920563633e-15,
+      "minClearance": 0.003404000865371728,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-12",
+      "side": "center",
+      "weapon": "pistol",
+      "maxFistError": 1.7483809675615383e-15,
+      "minClearance": 0.01650061135810337,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-142",
+      "side": "center",
+      "weapon": "pistol",
+      "maxFistError": 1.2008898127460164e-15,
+      "minClearance": 0.002741601397974627,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-11",
+      "side": "center",
+      "weapon": "pistol",
+      "maxFistError": 1.831026719408895e-15,
+      "minClearance": 0.06908382833403846,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-25",
+      "side": "center",
+      "weapon": "pistol",
+      "maxFistError": 1.4043333874306805e-15,
+      "minClearance": 0.021554891854283602,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-22-11",
+      "side": "center",
+      "weapon": "pistol",
+      "maxFistError": 1.4043333874306805e-15,
+      "minClearance": 0.021554891854283602,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-48-7",
+      "side": "center",
+      "weapon": "pistol",
+      "maxFistError": 1.6050308076832566e-15,
+      "minClearance": 0.021554891854283602,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-7-11",
+      "side": "center",
+      "weapon": "pistol",
+      "maxFistError": 1.6050308076832566e-15,
+      "minClearance": 0.021554891854283602,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-32",
+      "side": "center",
+      "weapon": "pistol",
+      "maxFistError": 1.6050308076832566e-15,
+      "minClearance": 0.021554891854283602,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-10",
+      "side": "center",
+      "weapon": "pistol",
+      "maxFistError": 9.992007221626409e-16,
+      "minClearance": 0.018821781946740994,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-103",
+      "side": "center",
+      "weapon": "pistol",
+      "maxFistError": 1.1322097734007351e-15,
+      "minClearance": 0.0675423810330351,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-31",
+      "side": "center",
+      "weapon": "pistol",
+      "maxFistError": 1.2947314098277875e-15,
+      "minClearance": 0.03206464608162184,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-42",
+      "side": "center",
+      "weapon": "pistol",
+      "maxFistError": 1.1226435567921847e-15,
+      "minClearance": 0.021554891854283602,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-71",
+      "side": "center",
+      "weapon": "pistol",
+      "maxFistError": 1.047382306668854e-15,
+      "minClearance": 0.019951082291778437,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-23",
+      "side": "center",
+      "weapon": "pistol",
+      "maxFistError": 1.0532500405730103e-15,
+      "minClearance": 0.004606554501511253,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-4",
+      "side": "center",
+      "weapon": "pistol",
+      "maxFistError": 1.793620188084545e-15,
+      "minClearance": 0.026003005712528775,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-40-10",
+      "side": "center",
+      "weapon": "pistol",
+      "maxFistError": 1.2755491433176288e-15,
+      "minClearance": 0.0031718371465065866,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-141",
+      "side": "center",
+      "weapon": "pistol",
+      "maxFistError": 1.7342238036525468e-15,
+      "minClearance": 0.03282377694805893,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-48",
+      "side": "center",
+      "weapon": "pistol",
+      "maxFistError": 1.4432899320127035e-15,
+      "minClearance": 0.006941532424105881,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-24",
+      "side": "center",
+      "weapon": "pistol",
+      "maxFistError": 1.6011864169946884e-15,
+      "minClearance": 0.035597463298303926,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-22-12",
+      "side": "center",
+      "weapon": "pistol",
+      "maxFistError": 1.4043333874306805e-15,
+      "minClearance": 0.0033882510772289456,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-6",
+      "side": "center",
+      "weapon": "pistol",
+      "maxFistError": 1.137640067256873e-15,
+      "minClearance": 0.004189705462023454,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-63",
+      "side": "center",
+      "weapon": "pistol",
+      "maxFistError": 1.5543122344752192e-15,
+      "minClearance": 0.03501452588113762,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-84",
+      "side": "center",
+      "weapon": "pistol",
+      "maxFistError": 1.2008898127460164e-15,
+      "minClearance": 0.0037970046817348193,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-20",
+      "side": "center",
+      "weapon": "pistol",
+      "maxFistError": 1.2008898127460164e-15,
+      "minClearance": 0.03598294432614379,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-31",
+      "side": "center",
+      "weapon": "pistol",
+      "maxFistError": 1.1322097734007351e-15,
+      "minClearance": 0.041468848987480704,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-9-5",
+      "side": "center",
+      "weapon": "pistol",
+      "maxFistError": 1.047382306668854e-15,
+      "minClearance": 0.009605277310271101,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-123",
+      "side": "center",
+      "weapon": "pistol",
+      "maxFistError": 1.336885555457667e-15,
+      "minClearance": 0.02304396537380337,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-19",
+      "side": "center",
+      "weapon": "pistol",
+      "maxFistError": 1.6050308076832566e-15,
+      "minClearance": 0.021554891854283602,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-15",
+      "side": "center",
+      "weapon": "pistol",
+      "maxFistError": 1.616509124176106e-15,
+      "minClearance": 0.036106899831792265,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-24",
+      "side": "center",
+      "weapon": "pistol",
+      "maxFistError": 1.6203171603697468e-15,
+      "minClearance": 0.025766633323405556,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-9",
+      "side": "center",
+      "weapon": "pistol",
+      "maxFistError": 1.5100665727558131e-15,
+      "minClearance": 0.013133646390156786,
+      "failedCases": 0
+    },
+    {
+      "character": "reference-01",
+      "side": "center",
+      "weapon": "rifle",
+      "maxFistError": 1.9133237149764433e-15,
+      "minClearance": 0.003122362695094019,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-8",
+      "side": "center",
+      "weapon": "rifle",
+      "maxFistError": 1.047382306668854e-15,
+      "minClearance": 0.0033284298883888754,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-12",
+      "side": "center",
+      "weapon": "rifle",
+      "maxFistError": 1.602148379482783e-15,
+      "minClearance": 0.017908032617406748,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-142",
+      "side": "center",
+      "weapon": "rifle",
+      "maxFistError": 1.368774871883577e-15,
+      "minClearance": 0.00306808817101671,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-11",
+      "side": "center",
+      "weapon": "rifle",
+      "maxFistError": 1.5543122344752192e-15,
+      "minClearance": 0.07127525306078318,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-25",
+      "side": "center",
+      "weapon": "rifle",
+      "maxFistError": 1.2573000033218179e-15,
+      "minClearance": 0.019734350568357366,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-22-11",
+      "side": "center",
+      "weapon": "rifle",
+      "maxFistError": 1.2573000033218179e-15,
+      "minClearance": 0.019734350568357366,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-48-7",
+      "side": "center",
+      "weapon": "rifle",
+      "maxFistError": 1.5582722720639762e-15,
+      "minClearance": 0.019734350568357366,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-7-11",
+      "side": "center",
+      "weapon": "rifle",
+      "maxFistError": 1.5582722720639762e-15,
+      "minClearance": 0.019734350568357366,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-32",
+      "side": "center",
+      "weapon": "rifle",
+      "maxFistError": 1.5582722720639762e-15,
+      "minClearance": 0.019734350568357366,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-10",
+      "side": "center",
+      "weapon": "rifle",
+      "maxFistError": 1.0532500405730103e-15,
+      "minClearance": 0.021220506818725553,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-103",
+      "side": "center",
+      "weapon": "rifle",
+      "maxFistError": 1.1957467920563633e-15,
+      "minClearance": 0.06941188620877291,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-31",
+      "side": "center",
+      "weapon": "rifle",
+      "maxFistError": 1.616509124176106e-15,
+      "minClearance": 0.03432843478798064,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-42",
+      "side": "center",
+      "weapon": "rifle",
+      "maxFistError": 1.336885555457667e-15,
+      "minClearance": 0.019734350568357366,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-71",
+      "side": "center",
+      "weapon": "rifle",
+      "maxFistError": 1.1957467920563633e-15,
+      "minClearance": 0.01909249816744462,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-23",
+      "side": "center",
+      "weapon": "rifle",
+      "maxFistError": 1.1102230246251565e-15,
+      "minClearance": 0.004240421419423148,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-4",
+      "side": "center",
+      "weapon": "rifle",
+      "maxFistError": 1.5700924586837751e-15,
+      "minClearance": 0.024114793040320374,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-40-10",
+      "side": "center",
+      "weapon": "rifle",
+      "maxFistError": 1.1116099371267112e-15,
+      "minClearance": 0.0030280458897473574,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-141",
+      "side": "center",
+      "weapon": "rifle",
+      "maxFistError": 1.5423711185402538e-15,
+      "minClearance": 0.031210047780225618,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-48",
+      "side": "center",
+      "weapon": "rifle",
+      "maxFistError": 2.198129442157285e-15,
+      "minClearance": 0.0052139042802271576,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-24",
+      "side": "center",
+      "weapon": "rifle",
+      "maxFistError": 1.6764000044290905e-15,
+      "minClearance": 0.03740077673821151,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-22-12",
+      "side": "center",
+      "weapon": "rifle",
+      "maxFistError": 1.431499025786612e-15,
+      "minClearance": 0.007777025876000146,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-6",
+      "side": "center",
+      "weapon": "rifle",
+      "maxFistError": 1.616509124176106e-15,
+      "minClearance": 0.0056462692051475385,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-63",
+      "side": "center",
+      "weapon": "rifle",
+      "maxFistError": 1.5895974606912448e-15,
+      "minClearance": 0.032590703587555885,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-84",
+      "side": "center",
+      "weapon": "rifle",
+      "maxFistError": 1.159106867033638e-15,
+      "minClearance": 0.0036757381581422523,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-20",
+      "side": "center",
+      "weapon": "rifle",
+      "maxFistError": 1.4261072965499199e-15,
+      "minClearance": 0.037707921011001504,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-31",
+      "side": "center",
+      "weapon": "rifle",
+      "maxFistError": 1.2994827337208943e-15,
+      "minClearance": 0.04400451008149219,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-9-5",
+      "side": "center",
+      "weapon": "rifle",
+      "maxFistError": 1.0877919644084146e-15,
+      "minClearance": 0.006890945579463506,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-123",
+      "side": "center",
+      "weapon": "rifle",
+      "maxFistError": 1.631687946612622e-15,
+      "minClearance": 0.021166909589137688,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-19",
+      "side": "center",
+      "weapon": "rifle",
+      "maxFistError": 1.5582722720639762e-15,
+      "minClearance": 0.019734350568357366,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-15",
+      "side": "center",
+      "weapon": "rifle",
+      "maxFistError": 1.4936523181711914e-15,
+      "minClearance": 0.03412162067145951,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-24",
+      "side": "center",
+      "weapon": "rifle",
+      "maxFistError": 2.2266822963392197e-15,
+      "minClearance": 0.023882926676819342,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-9",
+      "side": "center",
+      "weapon": "rifle",
+      "maxFistError": 1.5700924586837751e-15,
+      "minClearance": 0.014492648728502413,
+      "failedCases": 0
+    },
+    {
+      "character": "reference-01",
+      "side": "center",
+      "weapon": "sniper",
+      "maxFistError": 1.4602703977091186e-15,
+      "minClearance": 0.003122362695094019,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-8",
+      "side": "center",
+      "weapon": "sniper",
+      "maxFistError": 1.2412670766236366e-15,
+      "minClearance": 0.0033284298883888754,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-12",
+      "side": "center",
+      "weapon": "sniper",
+      "maxFistError": 1.4486177091987838e-15,
+      "minClearance": 0.017908032617406748,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-142",
+      "side": "center",
+      "weapon": "sniper",
+      "maxFistError": 1.0532500405730103e-15,
+      "minClearance": 0.0031047960251301323,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-11",
+      "side": "center",
+      "weapon": "sniper",
+      "maxFistError": 1.2609709600486848e-15,
+      "minClearance": 0.07127525306078318,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-25",
+      "side": "center",
+      "weapon": "sniper",
+      "maxFistError": 1.3334236103572998e-15,
+      "minClearance": 0.019734350568357366,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-22-11",
+      "side": "center",
+      "weapon": "sniper",
+      "maxFistError": 1.3334236103572998e-15,
+      "minClearance": 0.019734350568357366,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-48-7",
+      "side": "center",
+      "weapon": "sniper",
+      "maxFistError": 1.0877919644084146e-15,
+      "minClearance": 0.019734350568357366,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-7-11",
+      "side": "center",
+      "weapon": "sniper",
+      "maxFistError": 1.0877919644084146e-15,
+      "minClearance": 0.019734350568357366,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-32",
+      "side": "center",
+      "weapon": "sniper",
+      "maxFistError": 1.0877919644084146e-15,
+      "minClearance": 0.019734350568357366,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-10",
+      "side": "center",
+      "weapon": "sniper",
+      "maxFistError": 1.1322097734007351e-15,
+      "minClearance": 0.021220506818725553,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-103",
+      "side": "center",
+      "weapon": "sniper",
+      "maxFistError": 1.4936523181711914e-15,
+      "minClearance": 0.06941188620877291,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-31",
+      "side": "center",
+      "weapon": "sniper",
+      "maxFistError": 1.616509124176106e-15,
+      "minClearance": 0.03432843478798064,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-42",
+      "side": "center",
+      "weapon": "sniper",
+      "maxFistError": 1.5100665727558131e-15,
+      "minClearance": 0.019734350568357366,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-71",
+      "side": "center",
+      "weapon": "sniper",
+      "maxFistError": 1.227537204523176e-15,
+      "minClearance": 0.01909249816744462,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-23",
+      "side": "center",
+      "weapon": "sniper",
+      "maxFistError": 1.3608726004012153e-15,
+      "minClearance": 0.0032267835643899814,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-4",
+      "side": "center",
+      "weapon": "sniper",
+      "maxFistError": 1.8038988979531736e-15,
+      "minClearance": 0.024114793040320374,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-40-10",
+      "side": "center",
+      "weapon": "sniper",
+      "maxFistError": 1.3517848686956847e-15,
+      "minClearance": 0.003060856573239851,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-141",
+      "side": "center",
+      "weapon": "sniper",
+      "maxFistError": 1.8318679906315083e-15,
+      "minClearance": 0.031210047780225618,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-48",
+      "side": "center",
+      "weapon": "sniper",
+      "maxFistError": 1.8115696578480912e-15,
+      "minClearance": 0.0052139042802271576,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-24",
+      "side": "center",
+      "weapon": "sniper",
+      "maxFistError": 1.88411095042053e-15,
+      "minClearance": 0.03740077673821151,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-22-12",
+      "side": "center",
+      "weapon": "sniper",
+      "maxFistError": 1.3322676295501878e-15,
+      "minClearance": 0.007777025876000146,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-6",
+      "side": "center",
+      "weapon": "sniper",
+      "maxFistError": 1.2755491433176288e-15,
+      "minClearance": 0.0056462692051475385,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-63",
+      "side": "center",
+      "weapon": "sniper",
+      "maxFistError": 1.5895974606912448e-15,
+      "minClearance": 0.032590703587555885,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-84",
+      "side": "center",
+      "weapon": "sniper",
+      "maxFistError": 1.2670655869532562e-15,
+      "minClearance": 0.0036757381581422523,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-20",
+      "side": "center",
+      "weapon": "sniper",
+      "maxFistError": 1.047382306668854e-15,
+      "minClearance": 0.037707921011001504,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-31",
+      "side": "center",
+      "weapon": "sniper",
+      "maxFistError": 1.1226435567921847e-15,
+      "minClearance": 0.04400451008149219,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-9-5",
+      "side": "center",
+      "weapon": "sniper",
+      "maxFistError": 1.0429598422709816e-15,
+      "minClearance": 0.006890945579463506,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-123",
+      "side": "center",
+      "weapon": "sniper",
+      "maxFistError": 1.355199909595506e-15,
+      "minClearance": 0.021166909589137688,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-19",
+      "side": "center",
+      "weapon": "sniper",
+      "maxFistError": 1.0877919644084146e-15,
+      "minClearance": 0.019734350568357366,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-15",
+      "side": "center",
+      "weapon": "sniper",
+      "maxFistError": 1.6354606405429e-15,
+      "minClearance": 0.03412162067145951,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-24",
+      "side": "center",
+      "weapon": "sniper",
+      "maxFistError": 9.930136612989092e-16,
+      "minClearance": 0.023882926676819342,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-9",
+      "side": "center",
+      "weapon": "sniper",
+      "maxFistError": 1.5582722720639762e-15,
+      "minClearance": 0.014492648728502413,
+      "failedCases": 0
+    },
+    {
+      "character": "reference-01",
+      "side": "center",
+      "weapon": "shotgun",
+      "maxFistError": 1.6625566625485463e-15,
+      "minClearance": 0.003122362695094019,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-8",
+      "side": "center",
+      "weapon": "shotgun",
+      "maxFistError": 1.5700924586837751e-15,
+      "minClearance": 0.0033284298883888754,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-12",
+      "side": "center",
+      "weapon": "shotgun",
+      "maxFistError": 1.3148059621411757e-15,
+      "minClearance": 0.017908032617406748,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-142",
+      "side": "center",
+      "weapon": "shotgun",
+      "maxFistError": 1.0532500405730103e-15,
+      "minClearance": 0.0030970023290441875,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-11",
+      "side": "center",
+      "weapon": "shotgun",
+      "maxFistError": 1.6354606405429e-15,
+      "minClearance": 0.07127525306078318,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-25",
+      "side": "center",
+      "weapon": "shotgun",
+      "maxFistError": 1.4261072965499199e-15,
+      "minClearance": 0.019734350568357366,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-22-11",
+      "side": "center",
+      "weapon": "shotgun",
+      "maxFistError": 1.4261072965499199e-15,
+      "minClearance": 0.019734350568357366,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-48-7",
+      "side": "center",
+      "weapon": "shotgun",
+      "maxFistError": 1.4141731344682325e-15,
+      "minClearance": 0.019734350568357366,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-7-11",
+      "side": "center",
+      "weapon": "shotgun",
+      "maxFistError": 1.4141731344682325e-15,
+      "minClearance": 0.019734350568357366,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-32",
+      "side": "center",
+      "weapon": "shotgun",
+      "maxFistError": 1.4141731344682325e-15,
+      "minClearance": 0.019734350568357366,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-10",
+      "side": "center",
+      "weapon": "shotgun",
+      "maxFistError": 1.2161883888976235e-15,
+      "minClearance": 0.021220506818725553,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-103",
+      "side": "center",
+      "weapon": "shotgun",
+      "maxFistError": 1.2412670766236366e-15,
+      "minClearance": 0.06941188620877291,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-31",
+      "side": "center",
+      "weapon": "shotgun",
+      "maxFistError": 1.616509124176106e-15,
+      "minClearance": 0.03432843478798064,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-42",
+      "side": "center",
+      "weapon": "shotgun",
+      "maxFistError": 1.2755491433176288e-15,
+      "minClearance": 0.019734350568357366,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-71",
+      "side": "center",
+      "weapon": "shotgun",
+      "maxFistError": 1.472877282518059e-15,
+      "minClearance": 0.01909249816744462,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-23",
+      "side": "center",
+      "weapon": "shotgun",
+      "maxFistError": 1.2863743655007717e-15,
+      "minClearance": 0.0032267835643899814,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-4",
+      "side": "center",
+      "weapon": "shotgun",
+      "maxFistError": 1.7351120105244293e-15,
+      "minClearance": 0.024114793040320374,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-40-10",
+      "side": "center",
+      "weapon": "shotgun",
+      "maxFistError": 1.1116099371267112e-15,
+      "minClearance": 0.003060856573239851,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-141",
+      "side": "center",
+      "weapon": "shotgun",
+      "maxFistError": 1.8115696578480912e-15,
+      "minClearance": 0.031210047780225618,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-48",
+      "side": "center",
+      "weapon": "shotgun",
+      "maxFistError": 1.8115696578480912e-15,
+      "minClearance": 0.0052139042802271576,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-24",
+      "side": "center",
+      "weapon": "shotgun",
+      "maxFistError": 2.1065000811460206e-15,
+      "minClearance": 0.03740077673821151,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-22-12",
+      "side": "center",
+      "weapon": "shotgun",
+      "maxFistError": 1.5700924586837751e-15,
+      "minClearance": 0.007777025876000146,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-6",
+      "side": "center",
+      "weapon": "shotgun",
+      "maxFistError": 1.2609709600486848e-15,
+      "minClearance": 0.0056462692051475385,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-63",
+      "side": "center",
+      "weapon": "shotgun",
+      "maxFistError": 1.5895974606912448e-15,
+      "minClearance": 0.032590703587555885,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-84",
+      "side": "center",
+      "weapon": "shotgun",
+      "maxFistError": 1.4895204919483639e-15,
+      "minClearance": 0.0036757381581422523,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-20",
+      "side": "center",
+      "weapon": "shotgun",
+      "maxFistError": 1.4217791915866692e-15,
+      "minClearance": 0.037707921011001504,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-31",
+      "side": "center",
+      "weapon": "shotgun",
+      "maxFistError": 1.0429598422709816e-15,
+      "minClearance": 0.04400451008149219,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-9-5",
+      "side": "center",
+      "weapon": "shotgun",
+      "maxFistError": 1.1226435567921847e-15,
+      "minClearance": 0.006890945579463506,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-123",
+      "side": "center",
+      "weapon": "shotgun",
+      "maxFistError": 1.3911054626160788e-15,
+      "minClearance": 0.021166909589137688,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-19",
+      "side": "center",
+      "weapon": "shotgun",
+      "maxFistError": 1.4141731344682325e-15,
+      "minClearance": 0.019734350568357366,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-15",
+      "side": "center",
+      "weapon": "shotgun",
+      "maxFistError": 1.4895204919483639e-15,
+      "minClearance": 0.03412162067145951,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-24",
+      "side": "center",
+      "weapon": "shotgun",
+      "maxFistError": 1.1970346188077032e-15,
+      "minClearance": 0.023882926676819342,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-9",
+      "side": "center",
+      "weapon": "shotgun",
+      "maxFistError": 1.4602703977091186e-15,
+      "minClearance": 0.014492648728502413,
+      "failedCases": 0
+    },
+    {
+      "character": "reference-01",
+      "side": "right",
+      "weapon": "pistol",
+      "maxFistError": 1.2609709600486848e-15,
+      "minClearance": 0.0034422962388334,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-8",
+      "side": "right",
+      "weapon": "pistol",
+      "maxFistError": 1.897149936107019e-15,
+      "minClearance": 0.003935853152684068,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-12",
+      "side": "right",
+      "weapon": "pistol",
+      "maxFistError": 1.355199909595506e-15,
+      "minClearance": 0.003542028837890168,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-142",
+      "side": "right",
+      "weapon": "pistol",
+      "maxFistError": 1.336885555457667e-15,
+      "minClearance": 0.0016493033130483472,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-11",
+      "side": "right",
+      "weapon": "pistol",
+      "maxFistError": 1.4087150935148696e-15,
+      "minClearance": 0.02387855305623953,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-25",
+      "side": "right",
+      "weapon": "pistol",
+      "maxFistError": 1.318316798730503e-15,
+      "minClearance": 0.03155371334503886,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-22-11",
+      "side": "right",
+      "weapon": "pistol",
+      "maxFistError": 1.318316798730503e-15,
+      "minClearance": 0.03155371334503886,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-48-7",
+      "side": "right",
+      "weapon": "pistol",
+      "maxFistError": 1.0532500405730103e-15,
+      "minClearance": 0.03155371334503886,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-7-11",
+      "side": "right",
+      "weapon": "pistol",
+      "maxFistError": 1.0532500405730103e-15,
+      "minClearance": 0.03155371334503886,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-32",
+      "side": "right",
+      "weapon": "pistol",
+      "maxFistError": 1.0532500405730103e-15,
+      "minClearance": 0.03155371334503886,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-10",
+      "side": "right",
+      "weapon": "pistol",
+      "maxFistError": 1.8444410139024814e-15,
+      "minClearance": 0.034211836146128764,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-103",
+      "side": "right",
+      "weapon": "pistol",
+      "maxFistError": 1.4895204919483639e-15,
+      "minClearance": 0.02833864404061958,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-31",
+      "side": "right",
+      "weapon": "pistol",
+      "maxFistError": 1.5263043145882805e-15,
+      "minClearance": 0.022427988338986286,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-42",
+      "side": "right",
+      "weapon": "pistol",
+      "maxFistError": 1.2161883888976235e-15,
+      "minClearance": 0.03155371334503886,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-71",
+      "side": "right",
+      "weapon": "pistol",
+      "maxFistError": 1.897149936107019e-15,
+      "minClearance": 0.0035200513354579546,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-23",
+      "side": "right",
+      "weapon": "pistol",
+      "maxFistError": 1.3414875847488985e-15,
+      "minClearance": 0.004126309299349309,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-4",
+      "side": "right",
+      "weapon": "pistol",
+      "maxFistError": 1.4217791915866692e-15,
+      "minClearance": 0.030426656338212336,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-40-10",
+      "side": "right",
+      "weapon": "pistol",
+      "maxFistError": 1.4217791915866692e-15,
+      "minClearance": 0.00309361871743318,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-141",
+      "side": "right",
+      "weapon": "pistol",
+      "maxFistError": 1.5059797815742444e-15,
+      "minClearance": 0.004099851104280341,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-48",
+      "side": "right",
+      "weapon": "pistol",
+      "maxFistError": 1.368774871883577e-15,
+      "minClearance": 0.019806575006239828,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-24",
+      "side": "right",
+      "weapon": "pistol",
+      "maxFistError": 1.6764000044290905e-15,
+      "minClearance": 0.012806056847173944,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-22-12",
+      "side": "right",
+      "weapon": "pistol",
+      "maxFistError": 1.6011864169946884e-15,
+      "minClearance": 0.005908033942303539,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-6",
+      "side": "right",
+      "weapon": "pistol",
+      "maxFistError": 1.4432899320127035e-15,
+      "minClearance": 0.003938688291278294,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-63",
+      "side": "right",
+      "weapon": "pistol",
+      "maxFistError": 2.0740677722252305e-15,
+      "minClearance": 0.007921178503674567,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-84",
+      "side": "right",
+      "weapon": "pistol",
+      "maxFistError": 1.793620188084545e-15,
+      "minClearance": 0.015613656819444257,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-20",
+      "side": "right",
+      "weapon": "pistol",
+      "maxFistError": 1.4390135079995448e-15,
+      "minClearance": 0.027125117402032932,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-31",
+      "side": "right",
+      "weapon": "pistol",
+      "maxFistError": 1.2609709600486848e-15,
+      "minClearance": 0.008266256745997005,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-9-5",
+      "side": "right",
+      "weapon": "pistol",
+      "maxFistError": 1.8209011484034673e-15,
+      "minClearance": 0.014368604586551972,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-123",
+      "side": "right",
+      "weapon": "pistol",
+      "maxFistError": 1.5463617361248926e-15,
+      "minClearance": 0.020229849849334396,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-19",
+      "side": "right",
+      "weapon": "pistol",
+      "maxFistError": 1.0532500405730103e-15,
+      "minClearance": 0.03155371334503886,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-15",
+      "side": "right",
+      "weapon": "pistol",
+      "maxFistError": 1.0990647210786425e-15,
+      "minClearance": 0.026026148954948918,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-24",
+      "side": "right",
+      "weapon": "pistol",
+      "maxFistError": 1.368774871883577e-15,
+      "minClearance": 0.02826861967394239,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-9",
+      "side": "right",
+      "weapon": "pistol",
+      "maxFistError": 2.2315206618374916e-15,
+      "minClearance": 0.0030577025292748885,
+      "failedCases": 0
+    },
+    {
+      "character": "reference-01",
+      "side": "right",
+      "weapon": "rifle",
+      "maxFistError": 1.8444410139024814e-15,
+      "minClearance": 0.005897930735988091,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-8",
+      "side": "right",
+      "weapon": "rifle",
+      "maxFistError": 1.4087150935148696e-15,
+      "minClearance": 0.0035501114932119295,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-12",
+      "side": "right",
+      "weapon": "rifle",
+      "maxFistError": 1.4936523181711914e-15,
+      "minClearance": 0.004836272467371996,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-142",
+      "side": "right",
+      "weapon": "rifle",
+      "maxFistError": 1.0175362097255202e-15,
+      "minClearance": 0.001110571552608344,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-11",
+      "side": "right",
+      "weapon": "rifle",
+      "maxFistError": 1.4812222630807097e-15,
+      "minClearance": 0.0207727170509484,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-25",
+      "side": "right",
+      "weapon": "rifle",
+      "maxFistError": 1.355199909595506e-15,
+      "minClearance": 0.028485442830375678,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-22-11",
+      "side": "right",
+      "weapon": "rifle",
+      "maxFistError": 1.355199909595506e-15,
+      "minClearance": 0.028485442830375678,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-48-7",
+      "side": "right",
+      "weapon": "rifle",
+      "maxFistError": 1.2560739669470201e-15,
+      "minClearance": 0.028485442830375678,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-7-11",
+      "side": "right",
+      "weapon": "rifle",
+      "maxFistError": 1.2560739669470201e-15,
+      "minClearance": 0.028485442830375678,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-32",
+      "side": "right",
+      "weapon": "rifle",
+      "maxFistError": 1.2560739669470201e-15,
+      "minClearance": 0.028485442830375678,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-10",
+      "side": "right",
+      "weapon": "rifle",
+      "maxFistError": 1.8444410139024814e-15,
+      "minClearance": 0.031123469970852462,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-103",
+      "side": "right",
+      "weapon": "rifle",
+      "maxFistError": 1.8610729195778454e-15,
+      "minClearance": 0.025485879058508513,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-31",
+      "side": "right",
+      "weapon": "rifle",
+      "maxFistError": 1.631687946612622e-15,
+      "minClearance": 0.01936651454204085,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-42",
+      "side": "right",
+      "weapon": "rifle",
+      "maxFistError": 1.6946818973100072e-15,
+      "minClearance": 0.028485442830375678,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-71",
+      "side": "right",
+      "weapon": "rifle",
+      "maxFistError": 1.3506446028928519e-15,
+      "minClearance": 0.003373955617196214,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-23",
+      "side": "right",
+      "weapon": "rifle",
+      "maxFistError": 1.2755491433176288e-15,
+      "minClearance": 0.003754971278121735,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-4",
+      "side": "right",
+      "weapon": "rifle",
+      "maxFistError": 1.368774871883577e-15,
+      "minClearance": 0.027355593488241285,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-40-10",
+      "side": "right",
+      "weapon": "rifle",
+      "maxFistError": 1.4602703977091186e-15,
+      "minClearance": 0.003020924733703514,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-141",
+      "side": "right",
+      "weapon": "rifle",
+      "maxFistError": 1.7798229048217483e-15,
+      "minClearance": 0.006382707513279731,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-48",
+      "side": "right",
+      "weapon": "rifle",
+      "maxFistError": 1.4390135079995448e-15,
+      "minClearance": 0.017942131666365817,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-24",
+      "side": "right",
+      "weapon": "rifle",
+      "maxFistError": 1.4217791915866692e-15,
+      "minClearance": 0.009866475065610327,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-22-12",
+      "side": "right",
+      "weapon": "rifle",
+      "maxFistError": 1.6690311775283582e-15,
+      "minClearance": 0.004246225159085673,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-6",
+      "side": "right",
+      "weapon": "rifle",
+      "maxFistError": 1.6616296724220897e-15,
+      "minClearance": 0.0032755930203106545,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-63",
+      "side": "right",
+      "weapon": "rifle",
+      "maxFistError": 2.2452871135843694e-15,
+      "minClearance": 0.0046250271736856165,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-84",
+      "side": "right",
+      "weapon": "rifle",
+      "maxFistError": 1.4217791915866692e-15,
+      "minClearance": 0.012295725500370827,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-20",
+      "side": "right",
+      "weapon": "rifle",
+      "maxFistError": 1.2008898127460164e-15,
+      "minClearance": 0.0240293708217506,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-31",
+      "side": "right",
+      "weapon": "rifle",
+      "maxFistError": 1.793620188084545e-15,
+      "minClearance": 0.0047048703258569715,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-9-5",
+      "side": "right",
+      "weapon": "rifle",
+      "maxFistError": 1.4936523181711914e-15,
+      "minClearance": 0.01650741710583447,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-123",
+      "side": "right",
+      "weapon": "rifle",
+      "maxFistError": 1.6011864169946884e-15,
+      "minClearance": 0.018856400090111684,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-19",
+      "side": "right",
+      "weapon": "rifle",
+      "maxFistError": 1.2560739669470201e-15,
+      "minClearance": 0.028485442830375678,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-15",
+      "side": "right",
+      "weapon": "rifle",
+      "maxFistError": 1.4475537224895361e-15,
+      "minClearance": 0.023059832958345787,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-24",
+      "side": "right",
+      "weapon": "rifle",
+      "maxFistError": 1.4475537224895361e-15,
+      "minClearance": 0.025199391832514677,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-9",
+      "side": "right",
+      "weapon": "rifle",
+      "maxFistError": 1.8038988979531736e-15,
+      "minClearance": 0.03313422653380881,
+      "failedCases": 0
+    },
+    {
+      "character": "reference-01",
+      "side": "right",
+      "weapon": "sniper",
+      "maxFistError": 1.0706603116298291e-15,
+      "minClearance": 0.005897930735988091,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-8",
+      "side": "right",
+      "weapon": "sniper",
+      "maxFistError": 1.2609709600486848e-15,
+      "minClearance": 0.005077211736297303,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-12",
+      "side": "right",
+      "weapon": "sniper",
+      "maxFistError": 1.5059797815742444e-15,
+      "minClearance": 0.004836272467371996,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-142",
+      "side": "right",
+      "weapon": "sniper",
+      "maxFistError": 1.047382306668854e-15,
+      "minClearance": 0.0012750967320085873,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-11",
+      "side": "right",
+      "weapon": "sniper",
+      "maxFistError": 1.1102230246251565e-15,
+      "minClearance": 0.0207727170509484,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-25",
+      "side": "right",
+      "weapon": "sniper",
+      "maxFistError": 1.6050308076832566e-15,
+      "minClearance": 0.028485442830375678,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-22-11",
+      "side": "right",
+      "weapon": "sniper",
+      "maxFistError": 1.6050308076832566e-15,
+      "minClearance": 0.028485442830375678,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-48-7",
+      "side": "right",
+      "weapon": "sniper",
+      "maxFistError": 1.1957467920563633e-15,
+      "minClearance": 0.028485442830375678,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-7-11",
+      "side": "right",
+      "weapon": "sniper",
+      "maxFistError": 1.1957467920563633e-15,
+      "minClearance": 0.028485442830375678,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-32",
+      "side": "right",
+      "weapon": "sniper",
+      "maxFistError": 1.1957467920563633e-15,
+      "minClearance": 0.028485442830375678,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-10",
+      "side": "right",
+      "weapon": "sniper",
+      "maxFistError": 1.3414875847488985e-15,
+      "minClearance": 0.031123469970852462,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-103",
+      "side": "right",
+      "weapon": "sniper",
+      "maxFistError": 2.0350724194510405e-15,
+      "minClearance": 0.025485879058508513,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-31",
+      "side": "right",
+      "weapon": "sniper",
+      "maxFistError": 1.2008898127460164e-15,
+      "minClearance": 0.01936651454204085,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-42",
+      "side": "right",
+      "weapon": "sniper",
+      "maxFistError": 1.0175362097255202e-15,
+      "minClearance": 0.028485442830375678,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-71",
+      "side": "right",
+      "weapon": "sniper",
+      "maxFistError": 1.2609709600486848e-15,
+      "minClearance": 0.003474793164303427,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-23",
+      "side": "right",
+      "weapon": "sniper",
+      "maxFistError": 1.1957467920563633e-15,
+      "minClearance": 0.0031275202657274816,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-4",
+      "side": "right",
+      "weapon": "sniper",
+      "maxFistError": 1.368774871883577e-15,
+      "minClearance": 0.027355593488241285,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-40-10",
+      "side": "right",
+      "weapon": "sniper",
+      "maxFistError": 1.4602703977091186e-15,
+      "minClearance": 0.003020924733703514,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-141",
+      "side": "right",
+      "weapon": "sniper",
+      "maxFistError": 1.5059797815742444e-15,
+      "minClearance": 0.006382707513279731,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-48",
+      "side": "right",
+      "weapon": "sniper",
+      "maxFistError": 1.2008898127460164e-15,
+      "minClearance": 0.017942131666365817,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-24",
+      "side": "right",
+      "weapon": "sniper",
+      "maxFistError": 1.4895204919483639e-15,
+      "minClearance": 0.009866475065610327,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-22-12",
+      "side": "right",
+      "weapon": "sniper",
+      "maxFistError": 2.0137621733714643e-15,
+      "minClearance": 0.004246225159085673,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-6",
+      "side": "right",
+      "weapon": "sniper",
+      "maxFistError": 1.5059797815742444e-15,
+      "minClearance": 0.0032755930203106545,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-63",
+      "side": "right",
+      "weapon": "sniper",
+      "maxFistError": 2.0977046352944823e-15,
+      "minClearance": 0.0046250271736856165,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-84",
+      "side": "right",
+      "weapon": "sniper",
+      "maxFistError": 1.3322676295501878e-15,
+      "minClearance": 0.012295725500370827,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-20",
+      "side": "right",
+      "weapon": "sniper",
+      "maxFistError": 1.790180836524724e-15,
+      "minClearance": 0.0240293708217506,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-31",
+      "side": "right",
+      "weapon": "sniper",
+      "maxFistError": 1.4261072965499199e-15,
+      "minClearance": 0.0047048703258569715,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-9-5",
+      "side": "right",
+      "weapon": "sniper",
+      "maxFistError": 1.7235296186091125e-15,
+      "minClearance": 0.01650741710583447,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-123",
+      "side": "right",
+      "weapon": "sniper",
+      "maxFistError": 1.3777505409863063e-15,
+      "minClearance": 0.018856400090111684,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-19",
+      "side": "right",
+      "weapon": "sniper",
+      "maxFistError": 1.1957467920563633e-15,
+      "minClearance": 0.028485442830375678,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-15",
+      "side": "right",
+      "weapon": "sniper",
+      "maxFistError": 1.6050308076832566e-15,
+      "minClearance": 0.023059832958345787,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-24",
+      "side": "right",
+      "weapon": "sniper",
+      "maxFistError": 1.6050308076832566e-15,
+      "minClearance": 0.025199391832514677,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-9",
+      "side": "right",
+      "weapon": "sniper",
+      "maxFistError": 1.887379141862766e-15,
+      "minClearance": 0.03313422653380881,
+      "failedCases": 0
+    },
+    {
+      "character": "reference-01",
+      "side": "right",
+      "weapon": "shotgun",
+      "maxFistError": 1.4475537224895361e-15,
+      "minClearance": 0.005897930735988091,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-8",
+      "side": "right",
+      "weapon": "shotgun",
+      "maxFistError": 1.4432899320127035e-15,
+      "minClearance": 0.003199057481888567,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-12",
+      "side": "right",
+      "weapon": "shotgun",
+      "maxFistError": 1.1102230246251565e-15,
+      "minClearance": 0.004836272467371996,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-142",
+      "side": "right",
+      "weapon": "shotgun",
+      "maxFistError": 1.1157603309187458e-15,
+      "minClearance": 0.001273765123245554,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-11",
+      "side": "right",
+      "weapon": "shotgun",
+      "maxFistError": 1.3911054626160788e-15,
+      "minClearance": 0.0207727170509484,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-25",
+      "side": "right",
+      "weapon": "shotgun",
+      "maxFistError": 1.1322097734007351e-15,
+      "minClearance": 0.028485442830375678,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-22-11",
+      "side": "right",
+      "weapon": "shotgun",
+      "maxFistError": 1.1322097734007351e-15,
+      "minClearance": 0.028485442830375678,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-48-7",
+      "side": "right",
+      "weapon": "shotgun",
+      "maxFistError": 1.047382306668854e-15,
+      "minClearance": 0.028485442830375678,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-7-11",
+      "side": "right",
+      "weapon": "shotgun",
+      "maxFistError": 1.047382306668854e-15,
+      "minClearance": 0.028485442830375678,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-32",
+      "side": "right",
+      "weapon": "shotgun",
+      "maxFistError": 1.047382306668854e-15,
+      "minClearance": 0.028485442830375678,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-10",
+      "side": "right",
+      "weapon": "shotgun",
+      "maxFistError": 1.5700924586837751e-15,
+      "minClearance": 0.031123469970852462,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-103",
+      "side": "right",
+      "weapon": "shotgun",
+      "maxFistError": 1.7377739072730912e-15,
+      "minClearance": 0.025485879058508513,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-31",
+      "side": "right",
+      "weapon": "shotgun",
+      "maxFistError": 1.4217791915866692e-15,
+      "minClearance": 0.01936651454204085,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-42",
+      "side": "right",
+      "weapon": "shotgun",
+      "maxFistError": 1.0877919644084146e-15,
+      "minClearance": 0.028485442830375678,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-71",
+      "side": "right",
+      "weapon": "shotgun",
+      "maxFistError": 1.2755491433176288e-15,
+      "minClearance": 0.003474793164303427,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-23",
+      "side": "right",
+      "weapon": "shotgun",
+      "maxFistError": 1.2008898127460164e-15,
+      "minClearance": 0.0031275202657274816,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-4",
+      "side": "right",
+      "weapon": "shotgun",
+      "maxFistError": 1.4432899320127035e-15,
+      "minClearance": 0.027355593488241285,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-40-10",
+      "side": "right",
+      "weapon": "shotgun",
+      "maxFistError": 1.4602703977091186e-15,
+      "minClearance": 0.003020924733703514,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-141",
+      "side": "right",
+      "weapon": "shotgun",
+      "maxFistError": 1.3506446028928519e-15,
+      "minClearance": 0.006382707513279731,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-48",
+      "side": "right",
+      "weapon": "shotgun",
+      "maxFistError": 1.2008898127460164e-15,
+      "minClearance": 0.017942131666365817,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-24",
+      "side": "right",
+      "weapon": "shotgun",
+      "maxFistError": 1.4895204919483639e-15,
+      "minClearance": 0.009866475065610327,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-22-12",
+      "side": "right",
+      "weapon": "shotgun",
+      "maxFistError": 2.198129442157285e-15,
+      "minClearance": 0.004246225159085673,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-6",
+      "side": "right",
+      "weapon": "shotgun",
+      "maxFistError": 1.1801832636420706e-15,
+      "minClearance": 0.0032755930203106545,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-63",
+      "side": "right",
+      "weapon": "shotgun",
+      "maxFistError": 2.059156955057807e-15,
+      "minClearance": 0.0046250271736856165,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-84",
+      "side": "right",
+      "weapon": "shotgun",
+      "maxFistError": 1.6050308076832566e-15,
+      "minClearance": 0.012295725500370827,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-20",
+      "side": "right",
+      "weapon": "shotgun",
+      "maxFistError": 1.4936523181711914e-15,
+      "minClearance": 0.0240293708217506,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-31",
+      "side": "right",
+      "weapon": "shotgun",
+      "maxFistError": 1.3777505409863063e-15,
+      "minClearance": 0.0047048703258569715,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-9-5",
+      "side": "right",
+      "weapon": "shotgun",
+      "maxFistError": 1.5059797815742444e-15,
+      "minClearance": 0.01650741710583447,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-123",
+      "side": "right",
+      "weapon": "shotgun",
+      "maxFistError": 1.3911054626160788e-15,
+      "minClearance": 0.018856400090111684,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-19",
+      "side": "right",
+      "weapon": "shotgun",
+      "maxFistError": 1.047382306668854e-15,
+      "minClearance": 0.028485442830375678,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-15",
+      "side": "right",
+      "weapon": "shotgun",
+      "maxFistError": 1.4936523181711914e-15,
+      "minClearance": 0.023059832958345787,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-24",
+      "side": "right",
+      "weapon": "shotgun",
+      "maxFistError": 9.742167503148516e-16,
+      "minClearance": 0.025199391832514677,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-9",
+      "side": "right",
+      "weapon": "shotgun",
+      "maxFistError": 1.7342238036525468e-15,
+      "minClearance": 0.03313422653380881,
+      "failedCases": 0
+    },
+    {
+      "character": "reference-01",
+      "side": "left",
+      "weapon": "pistol",
+      "maxFistError": 1.2539255187600815e-15,
+      "minClearance": 0.007121921591326288,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-8",
+      "side": "left",
+      "weapon": "pistol",
+      "maxFistError": 1.709166621382058e-15,
+      "minClearance": 0.003421328923857261,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-12",
+      "side": "left",
+      "weapon": "pistol",
+      "maxFistError": 1.1805095966397748e-15,
+      "minClearance": 0.012628006760229063,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-142",
+      "side": "left",
+      "weapon": "pistol",
+      "maxFistError": 0.028991088049428335,
+      "minClearance": 0.0010958566111168768,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-11",
+      "side": "left",
+      "weapon": "pistol",
+      "maxFistError": 1.3186089465011212e-15,
+      "minClearance": 0.018255105795627273,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-25",
+      "side": "left",
+      "weapon": "pistol",
+      "maxFistError": 1.3517848686956847e-15,
+      "minClearance": 0.02713623948910248,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-22-11",
+      "side": "left",
+      "weapon": "pistol",
+      "maxFistError": 1.3517848686956847e-15,
+      "minClearance": 0.02713623948910248,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-48-7",
+      "side": "left",
+      "weapon": "pistol",
+      "maxFistError": 1.3426356273935429e-15,
+      "minClearance": 0.02713623948910248,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-7-11",
+      "side": "left",
+      "weapon": "pistol",
+      "maxFistError": 1.3426356273935429e-15,
+      "minClearance": 0.02713623948910248,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-32",
+      "side": "left",
+      "weapon": "pistol",
+      "maxFistError": 1.3426356273935429e-15,
+      "minClearance": 0.02713623948910248,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-10",
+      "side": "left",
+      "weapon": "pistol",
+      "maxFistError": 1.2008898127460164e-15,
+      "minClearance": 0.029899397193025028,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-103",
+      "side": "left",
+      "weapon": "pistol",
+      "maxFistError": 1.961044852356119e-15,
+      "minClearance": 0.023049746102204886,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-31",
+      "side": "left",
+      "weapon": "pistol",
+      "maxFistError": 1.5543122344752192e-15,
+      "minClearance": 0.02542026024447385,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-42",
+      "side": "left",
+      "weapon": "pistol",
+      "maxFistError": 1.9929972195927004e-15,
+      "minClearance": 0.029818712816749186,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-71",
+      "side": "left",
+      "weapon": "pistol",
+      "maxFistError": 1.7342238036525468e-15,
+      "minClearance": 0.0084606633422618,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-23",
+      "side": "left",
+      "weapon": "pistol",
+      "maxFistError": 1.4261072965499199e-15,
+      "minClearance": 0.0032437477632392044,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-4",
+      "side": "left",
+      "weapon": "pistol",
+      "maxFistError": 1.2609709600486848e-15,
+      "minClearance": 0.033023680936634485,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-40-10",
+      "side": "left",
+      "weapon": "pistol",
+      "maxFistError": 1.7591430398467916e-15,
+      "minClearance": 0.0020237368126513246,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-141",
+      "side": "left",
+      "weapon": "pistol",
+      "maxFistError": 1.5151595604785607e-15,
+      "minClearance": 0.009185996169450364,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-48",
+      "side": "left",
+      "weapon": "pistol",
+      "maxFistError": 1.47313877870876e-15,
+      "minClearance": 0.01746153071816569,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-24",
+      "side": "left",
+      "weapon": "pistol",
+      "maxFistError": 1.6821344400177196e-15,
+      "minClearance": 0.015622878588621205,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-22-12",
+      "side": "left",
+      "weapon": "pistol",
+      "maxFistError": 1.818360945611186e-15,
+      "minClearance": 0.004219745169095504,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-6",
+      "side": "left",
+      "weapon": "pistol",
+      "maxFistError": 1.9743561501005244e-15,
+      "minClearance": 0.004392909674898684,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-63",
+      "side": "left",
+      "weapon": "pistol",
+      "maxFistError": 2.009357990855139e-15,
+      "minClearance": 0.010091440632225881,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-84",
+      "side": "left",
+      "weapon": "pistol",
+      "maxFistError": 2.318213734067276e-15,
+      "minClearance": 0.01099162982168477,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-20",
+      "side": "left",
+      "weapon": "pistol",
+      "maxFistError": 1.6326319374041212e-15,
+      "minClearance": 0.021650494084520015,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-31",
+      "side": "left",
+      "weapon": "pistol",
+      "maxFistError": 2.234280737922546e-15,
+      "minClearance": 0.00680271295583367,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-9-5",
+      "side": "left",
+      "weapon": "pistol",
+      "maxFistError": 1.324147507406233e-15,
+      "minClearance": 0.012121111452100366,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-123",
+      "side": "left",
+      "weapon": "pistol",
+      "maxFistError": 1.790180836524724e-15,
+      "minClearance": 0.017794746738452154,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-19",
+      "side": "left",
+      "weapon": "pistol",
+      "maxFistError": 1.3426356273935429e-15,
+      "minClearance": 0.02713623948910248,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-15",
+      "side": "left",
+      "weapon": "pistol",
+      "maxFistError": 1.4752290795525882e-15,
+      "minClearance": 0.02923006986397935,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-24",
+      "side": "left",
+      "weapon": "pistol",
+      "maxFistError": 1.4087150935148696e-15,
+      "minClearance": 0.030781166198480973,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-9",
+      "side": "left",
+      "weapon": "pistol",
+      "maxFistError": 3.052608629176561e-15,
+      "minClearance": 0.006584701129726414,
+      "failedCases": 0
+    },
+    {
+      "character": "reference-01",
+      "side": "left",
+      "weapon": "rifle",
+      "maxFistError": 1.5423711185402538e-15,
+      "minClearance": 0.009174016047354563,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-8",
+      "side": "left",
+      "weapon": "rifle",
+      "maxFistError": 2.299696420679771e-15,
+      "minClearance": 0.0037756643549560123,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-12",
+      "side": "left",
+      "weapon": "rifle",
+      "maxFistError": 1.0778315928076987e-15,
+      "minClearance": 0.011330220469198451,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-142",
+      "side": "left",
+      "weapon": "rifle",
+      "maxFistError": 1.4390135079995448e-15,
+      "minClearance": 0.0019018684500938712,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-11",
+      "side": "left",
+      "weapon": "rifle",
+      "maxFistError": 1.4752290795525882e-15,
+      "minClearance": 0.015581670324028787,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-25",
+      "side": "left",
+      "weapon": "rifle",
+      "maxFistError": 1.631687946612622e-15,
+      "minClearance": 0.024534796820041442,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-22-11",
+      "side": "left",
+      "weapon": "rifle",
+      "maxFistError": 1.631687946612622e-15,
+      "minClearance": 0.024534796820041442,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-48-7",
+      "side": "left",
+      "weapon": "rifle",
+      "maxFistError": 1.4217791915866692e-15,
+      "minClearance": 0.024534796820041442,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-7-11",
+      "side": "left",
+      "weapon": "rifle",
+      "maxFistError": 1.4217791915866692e-15,
+      "minClearance": 0.024534796820041442,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-32",
+      "side": "left",
+      "weapon": "rifle",
+      "maxFistError": 1.4217791915866692e-15,
+      "minClearance": 0.024534796820041442,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-10",
+      "side": "left",
+      "weapon": "rifle",
+      "maxFistError": 1.5473577824350164e-15,
+      "minClearance": 0.02729057387196953,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-103",
+      "side": "left",
+      "weapon": "rifle",
+      "maxFistError": 1.5582722720639762e-15,
+      "minClearance": 0.02061109919609249,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-31",
+      "side": "left",
+      "weapon": "rifle",
+      "maxFistError": 1.4067997763904868e-15,
+      "minClearance": 0.02276011257739851,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-42",
+      "side": "left",
+      "weapon": "rifle",
+      "maxFistError": 1.5582722720639762e-15,
+      "minClearance": 0.032354112889178326,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-71",
+      "side": "left",
+      "weapon": "rifle",
+      "maxFistError": 1.3322676295501878e-15,
+      "minClearance": 0.007960422149079318,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-23",
+      "side": "left",
+      "weapon": "rifle",
+      "maxFistError": 2.1988302645701685e-15,
+      "minClearance": 0.003475316690389354,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-4",
+      "side": "left",
+      "weapon": "rifle",
+      "maxFistError": 1.4087150935148696e-15,
+      "minClearance": 0.03104597184670959,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-40-10",
+      "side": "left",
+      "weapon": "rifle",
+      "maxFistError": 1.5582722720639762e-15,
+      "minClearance": 0.0029195892325923813,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-141",
+      "side": "left",
+      "weapon": "rifle",
+      "maxFistError": 2.094764613337708e-15,
+      "minClearance": 0.004422706083577857,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-48",
+      "side": "left",
+      "weapon": "rifle",
+      "maxFistError": 1.5426208345814821e-15,
+      "minClearance": 0.01590252903758948,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-24",
+      "side": "left",
+      "weapon": "rifle",
+      "maxFistError": 1.6326319374041212e-15,
+      "minClearance": 0.013061485285193122,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-22-12",
+      "side": "left",
+      "weapon": "rifle",
+      "maxFistError": 1.790180836524724e-15,
+      "minClearance": 0.003128480540641068,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-6",
+      "side": "left",
+      "weapon": "rifle",
+      "maxFistError": 2.4121814915098567e-15,
+      "minClearance": 0.0032188542720536974,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-63",
+      "side": "left",
+      "weapon": "rifle",
+      "maxFistError": 1.6129309250176456e-15,
+      "minClearance": 0.007229918912140079,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-84",
+      "side": "left",
+      "weapon": "rifle",
+      "maxFistError": 1.4087150935148696e-15,
+      "minClearance": 0.008159132539922611,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-20",
+      "side": "left",
+      "weapon": "rifle",
+      "maxFistError": 1.6894461156195197e-15,
+      "minClearance": 0.018988760600333936,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-31",
+      "side": "left",
+      "weapon": "rifle",
+      "maxFistError": 1.7521222364188105e-15,
+      "minClearance": 0.003760947394946248,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-9-5",
+      "side": "left",
+      "weapon": "rifle",
+      "maxFistError": 2.152802317486082e-15,
+      "minClearance": 0.013943515644566742,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-123",
+      "side": "left",
+      "weapon": "rifle",
+      "maxFistError": 1.6319239955030595e-15,
+      "minClearance": 0.01982639566885324,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-19",
+      "side": "left",
+      "weapon": "rifle",
+      "maxFistError": 1.4217791915866692e-15,
+      "minClearance": 0.024534796820041442,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-15",
+      "side": "left",
+      "weapon": "rifle",
+      "maxFistError": 1.324147507406233e-15,
+      "minClearance": 0.026655585472531877,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-24",
+      "side": "left",
+      "weapon": "rifle",
+      "maxFistError": 1.4443570596498132e-15,
+      "minClearance": 0.028906464252421764,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-9",
+      "side": "left",
+      "weapon": "rifle",
+      "maxFistError": 3.204296758965566e-15,
+      "minClearance": 0.044423616197030384,
+      "failedCases": 0
+    },
+    {
+      "character": "reference-01",
+      "side": "left",
+      "weapon": "sniper",
+      "maxFistError": 1.2412670766236366e-15,
+      "minClearance": 0.009174016047354563,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-8",
+      "side": "left",
+      "weapon": "sniper",
+      "maxFistError": 1.8452761694870047e-15,
+      "minClearance": 0.0036276395838117283,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-12",
+      "side": "left",
+      "weapon": "sniper",
+      "maxFistError": 1.0778315928076987e-15,
+      "minClearance": 0.011330220469198451,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-142",
+      "side": "left",
+      "weapon": "sniper",
+      "maxFistError": 1.2412670766236366e-15,
+      "minClearance": 0.0019018684500938712,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-11",
+      "side": "left",
+      "weapon": "sniper",
+      "maxFistError": 1.2994827337208943e-15,
+      "minClearance": 0.015581670324028787,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-25",
+      "side": "left",
+      "weapon": "sniper",
+      "maxFistError": 2.0114655421281033e-15,
+      "minClearance": 0.024534796820041442,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-22-11",
+      "side": "left",
+      "weapon": "sniper",
+      "maxFistError": 2.0114655421281033e-15,
+      "minClearance": 0.024534796820041442,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-48-7",
+      "side": "left",
+      "weapon": "sniper",
+      "maxFistError": 1.217454592664719e-15,
+      "minClearance": 0.024534796820041442,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-7-11",
+      "side": "left",
+      "weapon": "sniper",
+      "maxFistError": 1.217454592664719e-15,
+      "minClearance": 0.024534796820041442,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-32",
+      "side": "left",
+      "weapon": "sniper",
+      "maxFistError": 1.217454592664719e-15,
+      "minClearance": 0.024534796820041442,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-10",
+      "side": "left",
+      "weapon": "sniper",
+      "maxFistError": 1.266153263119412e-15,
+      "minClearance": 0.02729057387196953,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-103",
+      "side": "left",
+      "weapon": "sniper",
+      "maxFistError": 1.631687946612622e-15,
+      "minClearance": 0.02061109919609249,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-31",
+      "side": "left",
+      "weapon": "sniper",
+      "maxFistError": 1.2782640434660324e-15,
+      "minClearance": 0.02276011257739851,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-42",
+      "side": "left",
+      "weapon": "sniper",
+      "maxFistError": 1.4486177091987838e-15,
+      "minClearance": 0.032354112889178326,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-71",
+      "side": "left",
+      "weapon": "sniper",
+      "maxFistError": 1.227537204523176e-15,
+      "minClearance": 0.007960422149079318,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-23",
+      "side": "left",
+      "weapon": "sniper",
+      "maxFistError": 1.8477793714103673e-15,
+      "minClearance": 0.0032176959835927745,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-4",
+      "side": "left",
+      "weapon": "sniper",
+      "maxFistError": 1.4371385710365135e-15,
+      "minClearance": 0.03104597184670959,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-40-10",
+      "side": "left",
+      "weapon": "sniper",
+      "maxFistError": 1.5582722720639762e-15,
+      "minClearance": 0.0029195892325923813,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-141",
+      "side": "left",
+      "weapon": "sniper",
+      "maxFistError": 2.185652450427126e-15,
+      "minClearance": 0.004422706083577857,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-48",
+      "side": "left",
+      "weapon": "sniper",
+      "maxFistError": 1.961044852356119e-15,
+      "minClearance": 0.01590252903758948,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-24",
+      "side": "left",
+      "weapon": "sniper",
+      "maxFistError": 1.39663232372568e-15,
+      "minClearance": 0.013061485285193122,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-22-12",
+      "side": "left",
+      "weapon": "sniper",
+      "maxFistError": 1.4414205576461542e-15,
+      "minClearance": 0.003128480540641068,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-6",
+      "side": "left",
+      "weapon": "sniper",
+      "maxFistError": 1.8477793714103673e-15,
+      "minClearance": 0.013672625953159536,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-63",
+      "side": "left",
+      "weapon": "sniper",
+      "maxFistError": 1.756294223338048e-15,
+      "minClearance": 0.007229918912140079,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-84",
+      "side": "left",
+      "weapon": "sniper",
+      "maxFistError": 1.5192216577424321e-15,
+      "minClearance": 0.008159132539922611,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-20",
+      "side": "left",
+      "weapon": "sniper",
+      "maxFistError": 1.2412670766236366e-15,
+      "minClearance": 0.018988760600333936,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-31",
+      "side": "left",
+      "weapon": "sniper",
+      "maxFistError": 1.793620188084545e-15,
+      "minClearance": 0.003760947394946248,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-9-5",
+      "side": "left",
+      "weapon": "sniper",
+      "maxFistError": 1.8041124150158794e-15,
+      "minClearance": 0.013943515644566742,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-123",
+      "side": "left",
+      "weapon": "sniper",
+      "maxFistError": 1.790180836524724e-15,
+      "minClearance": 0.01982639566885324,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-19",
+      "side": "left",
+      "weapon": "sniper",
+      "maxFistError": 1.217454592664719e-15,
+      "minClearance": 0.024534796820041442,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-15",
+      "side": "left",
+      "weapon": "sniper",
+      "maxFistError": 1.468949253613432e-15,
+      "minClearance": 0.026655585472531877,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-24",
+      "side": "left",
+      "weapon": "sniper",
+      "maxFistError": 1.4443570596498132e-15,
+      "minClearance": 0.028906464252421764,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-9",
+      "side": "left",
+      "weapon": "sniper",
+      "maxFistError": 2.102290188432565e-15,
+      "minClearance": 0.044423616197030384,
+      "failedCases": 0
+    },
+    {
+      "character": "reference-01",
+      "side": "left",
+      "weapon": "shotgun",
+      "maxFistError": 1.4390135079995448e-15,
+      "minClearance": 0.009174016047354563,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-8",
+      "side": "left",
+      "weapon": "shotgun",
+      "maxFistError": 2.2432275316371653e-15,
+      "minClearance": 0.003202666245203387,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-12",
+      "side": "left",
+      "weapon": "shotgun",
+      "maxFistError": 1.2609709600486848e-15,
+      "minClearance": 0.011330220469198451,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-142",
+      "side": "left",
+      "weapon": "shotgun",
+      "maxFistError": 1.2412670766236366e-15,
+      "minClearance": 0.0019018684500938712,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-11",
+      "side": "left",
+      "weapon": "shotgun",
+      "maxFistError": 1.1325499295668598e-15,
+      "minClearance": 0.015581670324028787,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-25",
+      "side": "left",
+      "weapon": "shotgun",
+      "maxFistError": 1.7136679897814678e-15,
+      "minClearance": 0.024534796820041442,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-22-11",
+      "side": "left",
+      "weapon": "shotgun",
+      "maxFistError": 1.7136679897814678e-15,
+      "minClearance": 0.024534796820041442,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-48-7",
+      "side": "left",
+      "weapon": "shotgun",
+      "maxFistError": 1.137640067256873e-15,
+      "minClearance": 0.024534796820041442,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-7-11",
+      "side": "left",
+      "weapon": "shotgun",
+      "maxFistError": 1.137640067256873e-15,
+      "minClearance": 0.024534796820041442,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-32",
+      "side": "left",
+      "weapon": "shotgun",
+      "maxFistError": 1.137640067256873e-15,
+      "minClearance": 0.024534796820041442,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-10",
+      "side": "left",
+      "weapon": "shotgun",
+      "maxFistError": 1.4046076445151095e-15,
+      "minClearance": 0.02729057387196953,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-103",
+      "side": "left",
+      "weapon": "shotgun",
+      "maxFistError": 1.500085513236511e-15,
+      "minClearance": 0.02061109919609249,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-31",
+      "side": "left",
+      "weapon": "shotgun",
+      "maxFistError": 1.4046076445151095e-15,
+      "minClearance": 0.02276011257739851,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-42",
+      "side": "left",
+      "weapon": "shotgun",
+      "maxFistError": 1.7064601008853095e-15,
+      "minClearance": 0.032354112889178326,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-71",
+      "side": "left",
+      "weapon": "shotgun",
+      "maxFistError": 1.318316798730503e-15,
+      "minClearance": 0.007960422149079318,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-23",
+      "side": "left",
+      "weapon": "shotgun",
+      "maxFistError": 1.5433697402820017e-15,
+      "minClearance": 0.0032176959835927745,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-4",
+      "side": "left",
+      "weapon": "shotgun",
+      "maxFistError": 1.4141731344682325e-15,
+      "minClearance": 0.03104597184670959,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-40-10",
+      "side": "left",
+      "weapon": "shotgun",
+      "maxFistError": 1.5582722720639762e-15,
+      "minClearance": 0.0029195892325923813,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-141",
+      "side": "left",
+      "weapon": "shotgun",
+      "maxFistError": 1.7702748954631059e-15,
+      "minClearance": 0.004422706083577857,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-48",
+      "side": "left",
+      "weapon": "shotgun",
+      "maxFistError": 1.457101633618084e-15,
+      "minClearance": 0.01590252903758948,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-24",
+      "side": "left",
+      "weapon": "shotgun",
+      "maxFistError": 1.4043333874306805e-15,
+      "minClearance": 0.013061485285193122,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-22-12",
+      "side": "left",
+      "weapon": "shotgun",
+      "maxFistError": 1.3699000466497265e-15,
+      "minClearance": 0.003128480540641068,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-6",
+      "side": "left",
+      "weapon": "shotgun",
+      "maxFistError": 2.4552312978479334e-15,
+      "minClearance": 0.003161868072076182,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-63",
+      "side": "left",
+      "weapon": "shotgun",
+      "maxFistError": 1.6129309250176456e-15,
+      "minClearance": 0.007229918912140079,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-84",
+      "side": "left",
+      "weapon": "shotgun",
+      "maxFistError": 1.3732700395566711e-15,
+      "minClearance": 0.008159132539922611,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-20",
+      "side": "left",
+      "weapon": "shotgun",
+      "maxFistError": 1.4043333874306805e-15,
+      "minClearance": 0.018988760600333936,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-31",
+      "side": "left",
+      "weapon": "shotgun",
+      "maxFistError": 1.7702748954631059e-15,
+      "minClearance": 0.003760947394946248,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-9-5",
+      "side": "left",
+      "weapon": "shotgun",
+      "maxFistError": 1.5070025183858945e-15,
+      "minClearance": 0.013943515644566742,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-123",
+      "side": "left",
+      "weapon": "shotgun",
+      "maxFistError": 1.6319239955030595e-15,
+      "minClearance": 0.01982639566885324,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-19",
+      "side": "left",
+      "weapon": "shotgun",
+      "maxFistError": 1.137640067256873e-15,
+      "minClearance": 0.024534796820041442,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-15",
+      "side": "left",
+      "weapon": "shotgun",
+      "maxFistError": 1.2114283377992583e-15,
+      "minClearance": 0.026655585472531877,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-24",
+      "side": "left",
+      "weapon": "shotgun",
+      "maxFistError": 1.6919522065759386e-15,
+      "minClearance": 0.028906464252421764,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-9",
+      "side": "left",
+      "weapon": "shotgun",
+      "maxFistError": 2.2781562751784003e-15,
+      "minClearance": 0.044423616197030384,
+      "failedCases": 0
+    }
+  ],
+  "limits": {
+    "fistError": 0.03,
+    "bodyShrink": 0.01,
+    "clearAngle": 25,
+    "axisError": 0.01
+  },
+  "execution": "six-process row shards; identical full oracle",
+  "worst": [
+    {
+      "character": "vibe-vibers-viber-142",
+      "maxFistError": 0.028991088049428335,
+      "minClearance": 0.0010958566111168768,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-40-10",
+      "maxFistError": 1.7591430398467916e-15,
+      "minClearance": 0.0020237368126513246,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-9",
+      "maxFistError": 3.204296758965566e-15,
+      "minClearance": 0.0030577025292748885,
+      "failedCases": 0
+    },
+    {
+      "character": "reference-01",
+      "maxFistError": 1.9133237149764433e-15,
+      "minClearance": 0.003122362695094019,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-23",
+      "maxFistError": 2.1988302645701685e-15,
+      "minClearance": 0.0031275202657274816,
+      "failedCases": 0
+    }
+  ],
+  "failedCombinations": 0
+}

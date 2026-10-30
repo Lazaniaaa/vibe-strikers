@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f5f3ed" />
+    <title>VOXEL / LAB — Контрольна сітка</title>
+  </head>
+  <body>
+    <div id="app">
+      <header class="header">
+        <a class="brand" href="./" aria-label="Voxel Lab — початок"><span class="brand-icon"><i></i><i></i><i></i><i></i></span>VOXEL <span class="brand-slash">/</span> LAB</a>
+        <div class="header-center"><span class="live-dot"></span>Студія персонажів <span class="header-divider">/</span><span class="muted">FPS Collection</span></div>
+        <div class="stage-badge"><span>ФАЗА 2</span> Повна колекція</div>
+      </header>
+
+      <main class="workspace">
+        <aside class="controls panel">
+          <div class="section-label"><span>КОЛЕКЦІЯ</span><span id="collection-count" class="counter"></span></div>
+          <label class="sr-only" for="character-select">Вибрати персонажа</label>
+          <select id="character-select"></select>
+          <button id="show-grid" class="grid-toggle" aria-pressed="true">▦ <span>Сітка всіх моделей</span></button>
+          <p class="collection-note">01 + усі 32 нові моделі.<br>Спільний шаблон, різні пропорції.</p>
+
+          <div class="section-label section-space"><span>РУХ І ПОЗА</span><span id="pose-label" class="small-tag">REF</span></div>
+          <div class="pose-grid" role="group" aria-label="Пози персонажа">
+            <button class="pose-button active" data-pose="reference"><span class="pose-symbol">◇</span>Референс</button>
+            <button class="pose-button" data-pose="idle"><span class="pose-symbol">◉</span>Спокій</button>
+            <button class="pose-button" data-pose="run"><span class="pose-symbol">↗</span>Біг</button>
+            <button class="pose-button" data-pose="strafe"><span class="pose-symbol">↔</span>Стрейф</button>
+            <button class="pose-button" data-pose="backward"><span class="pose-symbol">↓</span>Назад</button>
+            <button class="pose-button" data-pose="crouch"><span class="pose-symbol">⌄</span>Присід</button>
+            <button class="pose-button" data-pose="jump"><span class="pose-symbol">↑</span>Стрибок</button>
+            <button class="pose-button" data-pose="dead"><span class="pose-symbol">×</span>Загибель</button>
+          </div>
+
+          <div class="range-head"><label for="speed">Швидкість</label><output id="speed-value" for="speed">0.00</output></div>
+          <input id="speed" type="range" min="0" max="1" step="0.01" value="0" />
+          <div class="range-limits"><span>Спокій</span><span>Повний біг</span></div>
+
+          <div class="direction-row"><span>Напрямок</span><div class="directions" role="group" aria-label="Напрямок руху">
+            <button data-dir="left" aria-label="Ліворуч" title="Ліворуч">←</button>
+            <button data-dir="forward" class="active" aria-label="Вперед" title="Вперед">↑</button>
+            <button data-dir="backward" aria-label="Назад" title="Назад">↓</button>
+            <button data-dir="right" aria-label="Праворуч" title="Праворуч">→</button>
+          </div></div>
+
+          <div class="section-label section-space"><span>ПРИЦІЛЮВАННЯ</span></div>
+          <div class="range-head"><label for="aim">Нахил прицілу</label><output id="aim-value" for="aim">0°</output></div>
+          <input id="aim" type="range" min="-89" max="89" step="1" value="0" />
+          <div class="range-limits"><span>−89°</span><span>+89°</span></div>
+          <p class="collection-note">Голова: 0,6 × приціл, до ±35°.</p>
+          <button id="shoot" class="shoot-button" aria-pressed="false"><span class="crosshair">⌖</span>Стрільба<span class="switch"><i></i></span></button>
+
+          <div class="control-footer"><span class="live-dot"></span><span id="animation-status">Нерухома поза для звірки</span></div>
+        </aside>
+
+        <section class="stage" aria-label="Тривимірний перегляд персонажа">
+          <div class="stage-title"><p id="stage-eyebrow" class="eyebrow">ПОВНА КОЛЕКЦІЯ</p><h1 id="stage-name">Сітка персонажів<span class="title-dot">.</span></h1><p id="stage-description" class="stage-description">Один зріст. Різні пропорції.</p></div>
+          <div class="review-chip"><span></span>УСІ МОДЕЛІ ГОТОВІ</div>
+          <div id="viewport"><div id="loading">Завантаження 3D…</div></div>
+          <div id="character-grid" class="character-grid" aria-label="Сітка готових персонажів"></div>
+          <div id="height-label" class="height-label">1,80 <span>м</span></div>
+          <div class="viewport-top-actions"><button id="palette-light" class="icon-button active" aria-pressed="true" title="Рівне освітлення для звірки палітри">◐ <span>Колір</span></button><button id="export-grid" class="icon-button" title="Зберегти зображення сітки">↓ <span>PNG</span></button><button id="auto-rotate" class="icon-button" aria-pressed="false" title="Автоматичне обертання">↻ <span>Обертати</span></button></div>
+          <div class="viewport-bottom">
+            <div class="camera-label">РАКУРС</div>
+            <div class="camera-bar" role="group" aria-label="Ракурс камери">
+              <button data-view="front">Спереду</button><button data-view="back">Ззаду</button><button data-view="left">Ліворуч</button><button data-view="right">Праворуч</button><button data-view="top">Згори</button><button data-view="perspective" class="active">3/4</button>
+            </div>
+            <div class="viewport-help"><span>↔ Потягніть, щоб обертати</span><span>Коліщатко — масштаб</span></div>
+          </div>
+          <div class="stage-corner">−Z <span>напрямок погляду</span></div>
+        </section>
+
+        <aside class="details panel">
+          <div class="section-label"><span>З РЕФЕРЕНСУ</span><span class="small-tag">HEX</span></div>
+          <h2>Точна палітра</h2>
+          <p class="detail-description">Зразки з внутрішніх ділянок<br>наданих скриншотів.</p>
+          <div id="palette" class="palette"></div>
+          <p class="palette-note">Кнопка «Колір» вмикає рівне світло для перевірки зразків.</p>
+          <div class="section-label section-space"><span>ГАБАРИТИ БЕЗ EXTRAS</span></div>
+          <dl class="specs"><div><dt>Стопи → head-box</dt><dd>1,80 м</dd></div><div><dt>Ширина тіла / 01</dt><dd id="body-width">—</dd></div><div><dt>Глибина тіла / 01</dt><dd id="body-depth">—</dd></div><div><dt>Голова: ширина</dt><dd id="head-width">—</dd></div><div><dt>Голова: глибина</dt><dd id="head-depth">—</dd></div><div><dt>Мешів</dt><dd id="mesh-count">6</dd></div><div><dt>Трикутників</dt><dd id="triangle-count">—</dd></div></dl>
+          <details class="flag-details"><summary id="flag-summary">Припущення</summary><ul id="flags"></ul></details>
+          <div class="approval-note"><span class="note-icon">◇</span><p>Геометрія 01 без змін.<br><strong>Припущення — в огляді.</strong></p></div>
+        </aside>
+      </main>
+      <footer class="footer"><span><span class="footer-square"></span>THREE.JS <span class="footer-separator">/</span> BOX GEOMETRY</span><span id="runtime-stats">Локальне прев’ю</span><span id="built-count"></span></footer>
+    </div>
+    <script type="module">
+      if (new URLSearchParams(location.search).get('weapons') === '1') import('../weapons/preview.ts');
+      else import('./preview.ts');
+    </script>
+  </body>
+</html>

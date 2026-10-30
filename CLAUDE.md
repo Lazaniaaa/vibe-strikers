@@ -58,11 +58,17 @@ credits fighting the toolchain.
    has no errors.
 
 ## Folder ownership
-- `src/characters/`, `src/weapons/`, `src/maps/` and `tools/` (the Voxel Lab preview
-  pages) are owned by another agent (Codex). NEVER edit them. Use them only through
+- `src/characters/`, `src/weapons/`, `src/maps/`, the root `vite.config.js` and the
+  `dev` / `build` / `verify` scripts in the root `package.json` (the "Voxel Lab"
+  preview and the asset verify scripts) are owned by another agent (Codex). NEVER edit them. Use them only through
   their public API (see `docs/ASSETS.md` and each folder's README). If the API is not
   enough, write the request in `docs/PROGRESS.md` under "Requests to asset owner" and
   use a capsule / box / placeholder meanwhile.
+- The root `vite.config.js` must stay as it is (its root is `src/characters`; the asset
+  verify scripts depend on it). The game app needs its OWN config, for example
+  `vite.game.config.ts` with root `client/` or similar. You may ADD dependencies and
+  scripts to the root `package.json` (exact versions), but do not change the existing
+  ones.
 - You own: `src/network/`, `src/gameplay/`, `src/ui/`, `src/config/`, `server/`,
   `docs/` (except ASSETS.md facts about the asset folders).
 - Gameplay numbers (damage, fire rate, ammo, reload time) live only in `src/config/`;

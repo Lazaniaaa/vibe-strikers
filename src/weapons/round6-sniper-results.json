@@ -1,0 +1,66 @@
+{
+  "housing": {
+    "width": 0.34200000762939453,
+    "height": 0.35750001668930054,
+    "depth": 0.7572682537138462
+  },
+  "assembly": {
+    "width": 0.34200000762939453,
+    "height": 0.5325000286102295,
+    "depth": 0.7572682537138462
+  },
+  "rearOpening": {
+    "width": 0.06799999594688416,
+    "height": 0.07000003755092622
+  },
+  "frontOpening": {
+    "width": 0.30799999807029954,
+    "height": 0.26999996617436406
+  },
+  "adsDistance": 0.1,
+  "opaque": 3,
+  "lenses": 2,
+  "tipDistance": 1.412834031300209,
+  "centreChecks": 16,
+  "centreHits": 0,
+  "minClearAngle": 20,
+  "maxAxisError": 2.257868348103919e-16,
+  "coverage": [
+    {
+      "side": "right",
+      "aspect": 1.7777777777777777,
+      "percentage": 5.616102430555555,
+      "boundsPercentage": 8.51779513888889,
+      "pixels": 51758,
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "side": "right",
+      "aspect": 1,
+      "percentage": 9.763503086419753,
+      "boundsPercentage": 14.467592592592593,
+      "pixels": 50614,
+      "width": 720,
+      "height": 720
+    },
+    {
+      "side": "left",
+      "aspect": 1.7777777777777777,
+      "percentage": 5.616102430555555,
+      "boundsPercentage": 8.51779513888889,
+      "pixels": 51758,
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "side": "left",
+      "aspect": 1,
+      "percentage": 9.763503086419753,
+      "boundsPercentage": 14.467592592592593,
+      "pixels": 50614,
+      "width": 720,
+      "height": 720
+    }
+  ]
+}

@@ -1,0 +1,233 @@
+[
+  {
+    "character": "reference-01",
+    "leftExtra": 0.76,
+    "rightExtra": 0.4,
+    "leftUpper": 1.0050000119954348,
+    "rightUpper": 0.64499999769032
+  },
+  {
+    "character": "vibe-vibers-bureau-8",
+    "leftExtra": 0.68,
+    "rightExtra": 0.36,
+    "leftUpper": 1.1438036933541298,
+    "rightUpper": 0.8238037005066872
+  },
+  {
+    "character": "vibe-vibers-viber-extra-12",
+    "leftExtra": 0.52,
+    "rightExtra": 0.16,
+    "leftUpper": 1.1234681457281113,
+    "rightUpper": 0.7634681910276413
+  },
+  {
+    "character": "vibe-vibers-viber-142",
+    "leftExtra": 0.84,
+    "rightExtra": 0.52,
+    "leftUpper": 1.1653012055903673,
+    "rightUpper": 0.8453012127429247
+  },
+  {
+    "character": "vibe-vibers-viber-extra-11",
+    "leftExtra": 0.96,
+    "rightExtra": 0.56,
+    "leftUpper": 1.2266666907817125,
+    "rightUpper": 0.8266666550189257
+  },
+  {
+    "character": "vibe-vibers-bureau-25",
+    "leftExtra": 0.84,
+    "rightExtra": 0.48,
+    "leftUpper": 1.1169231552630663,
+    "rightUpper": 0.7569230813533068
+  },
+  {
+    "character": "vibe-vibers-bureau-roll-22-11",
+    "leftExtra": 0.84,
+    "rightExtra": 0.48,
+    "leftUpper": 1.1169231552630663,
+    "rightUpper": 0.7569230813533068
+  },
+  {
+    "character": "vibe-vibers-bureau-roll-48-7",
+    "leftExtra": 0.84,
+    "rightExtra": 0.48,
+    "leftUpper": 1.1169231552630663,
+    "rightUpper": 0.7569230813533068
+  },
+  {
+    "character": "vibe-vibers-bureau-roll-7-11",
+    "leftExtra": 0.84,
+    "rightExtra": 0.48,
+    "leftUpper": 1.1169231552630663,
+    "rightUpper": 0.7569230813533068
+  },
+  {
+    "character": "vibe-vibers-viber-32",
+    "leftExtra": 0.84,
+    "rightExtra": 0.48,
+    "leftUpper": 1.1169231552630663,
+    "rightUpper": 0.7569230813533068
+  },
+  {
+    "character": "vibe-vibers-viber-10",
+    "leftExtra": 0.84,
+    "rightExtra": 0.48,
+    "leftUpper": 1.1105202455073595,
+    "rightUpper": 0.7505202312022448
+  },
+  {
+    "character": "vibe-vibers-viber-103",
+    "leftExtra": 0.88,
+    "rightExtra": 0.48,
+    "leftUpper": 1.1569231171160936,
+    "rightUpper": 0.7569230813533068
+  },
+  {
+    "character": "vibe-vibers-viber-31",
+    "leftExtra": 0.84,
+    "rightExtra": 0.48,
+    "leftUpper": 1.1399999726563692,
+    "rightUpper": 0.7800000179558992
+  },
+  {
+    "character": "vibe-vibers-viber-42",
+    "leftExtra": 0.84,
+    "rightExtra": 0.48,
+    "leftUpper": 1.1169231552630663,
+    "rightUpper": 0.7569230813533068
+  },
+  {
+    "character": "vibe-vibers-viber-71",
+    "leftExtra": 0.68,
+    "rightExtra": 0.36,
+    "leftUpper": 1.1085714250802994,
+    "rightUpper": 0.7885714322328568
+  },
+  {
+    "character": "vibe-vibers-bureau-23",
+    "leftExtra": 0.48,
+    "rightExtra": 0.16,
+    "leftUpper": 1.1602325476706028,
+    "rightUpper": 0.8402325548231602
+  },
+  {
+    "character": "vibe-vibers-bureau-4",
+    "leftExtra": 0.8,
+    "rightExtra": 0.44,
+    "leftUpper": 1.085365928709507,
+    "rightUpper": 0.7253658547997475
+  },
+  {
+    "character": "vibe-vibers-bureau-roll-40-10",
+    "leftExtra": 0.52,
+    "rightExtra": 0.2,
+    "leftUpper": 1.1199999786913395,
+    "rightUpper": 0.7999999858438969
+  },
+  {
+    "character": "vibe-vibers-viber-141",
+    "leftExtra": 0.84,
+    "rightExtra": 0.44,
+    "leftUpper": 1.2586046662181616,
+    "rightUpper": 0.8586046900600195
+  },
+  {
+    "character": "vibe-vibers-viber-48",
+    "leftExtra": 0.68,
+    "rightExtra": 0.32,
+    "leftUpper": 1.157777775079012,
+    "rightUpper": 0.7977777607738972
+  },
+  {
+    "character": "vibe-vibers-bureau-24",
+    "leftExtra": 0.8,
+    "rightExtra": 0.44,
+    "leftUpper": 1.202631512656808,
+    "rightUpper": 0.8426315579563379
+  },
+  {
+    "character": "vibe-vibers-bureau-roll-22-12",
+    "leftExtra": 0.6,
+    "rightExtra": 0.28,
+    "leftUpper": 1.1844155564904213,
+    "rightUpper": 0.8644156232476234
+  },
+  {
+    "character": "vibe-vibers-viber-6",
+    "leftExtra": 0.64,
+    "rightExtra": 0.24,
+    "leftUpper": 1.283298958092928,
+    "rightUpper": 0.8832989819347858
+  },
+  {
+    "character": "vibe-vibers-viber-63",
+    "leftExtra": 0.92,
+    "rightExtra": 0.52,
+    "leftUpper": 1.2976223416626453,
+    "rightUpper": 0.8976223655045033
+  },
+  {
+    "character": "vibe-vibers-viber-84",
+    "leftExtra": 0.92,
+    "rightExtra": 0.56,
+    "leftUpper": 1.289862971752882,
+    "rightUpper": 0.929863017052412
+  },
+  {
+    "character": "vibe-vibers-viber-extra-20",
+    "leftExtra": 0.88,
+    "rightExtra": 0.48,
+    "leftUpper": 1.1858823914080858,
+    "rightUpper": 0.785882355645299
+  },
+  {
+    "character": "vibe-vibers-bureau-31",
+    "leftExtra": 0.76,
+    "rightExtra": 0.36,
+    "leftUpper": 1.1133742332458496,
+    "rightUpper": 0.7133742570877075
+  },
+  {
+    "character": "vibe-vibers-bureau-roll-9-5",
+    "leftExtra": 0.84,
+    "rightExtra": 0.48,
+    "leftUpper": 1.0757143218070269,
+    "rightUpper": 0.7157143075019121
+  },
+  {
+    "character": "vibe-vibers-viber-123",
+    "leftExtra": 0.8,
+    "rightExtra": 0.44,
+    "leftUpper": 1.187341794371605,
+    "rightUpper": 0.8273417800664902
+  },
+  {
+    "character": "vibe-vibers-viber-extra-19",
+    "leftExtra": 0.84,
+    "rightExtra": 0.48,
+    "leftUpper": 1.1169231552630663,
+    "rightUpper": 0.7569230813533068
+  },
+  {
+    "character": "vibe-vibers-viber-extra-15",
+    "leftExtra": 0.84,
+    "rightExtra": 0.48,
+    "leftUpper": 1.193164510652423,
+    "rightUpper": 0.8331645559519529
+  },
+  {
+    "character": "vibe-vibers-viber-extra-24",
+    "leftExtra": 0.84,
+    "rightExtra": 0.48,
+    "leftUpper": 1.1253658905625343,
+    "rightUpper": 0.7653658762574196
+  },
+  {
+    "character": "vibe-vibers-viber-extra-9",
+    "leftExtra": 0.96,
+    "rightExtra": 0.56,
+    "leftUpper": 1.3028570767492056,
+    "rightUpper": 0.9028571601957083
+  }
+]

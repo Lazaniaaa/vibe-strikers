@@ -5,9 +5,17 @@ This file is a short summary. If it disagrees with a folder README or the code,
 the README / code wins: fix this file and tell the owner. Facts here come from the
 approval sessions, not from reading the code, so verify before relying on exact names.
 
-## Preview pages (Voxel Lab, run with Vite from `tools/`)
-`?grid=1` characters, `?weapons=1` weapons + first-person viewmodel, `?map=1` map.
-Use them to see assets in isolation. They are not part of the game build.
+## Preview pages (Voxel Lab) and checks
+- `npm install`, then `npm run dev` (Vite, http://127.0.0.1:5173). Pages: `/?grid=1`
+  characters, `/?weapons=1` weapons + first-person viewmodel, `/?map=1` map (the map
+  preview imports small report JSON from `src/maps/reports/`).
+- `npm run verify` runs the character and weapon contract checks (passes; takes about
+  a minute). `npm run build` builds the preview to `work/dist/` (gitignored).
+- They are not part of the game build. Verified in the cloud container on 2026-10-30:
+  install, build and verify pass.
+
+Note: the READMEs inside the asset folders are written in Ukrainian (owner language).
+Read them; the TypeScript types and exports are the exact contract.
 
 ## Characters (`src/characters/`)
 - 33 characters: 01 "Malynovyi" + 32 `vibe-vibers-*`. List: `characters`.
@@ -46,7 +54,11 @@ Use them to see assets in isolation. They are not part of the game build.
 - Glass lenses use one extra shared transparent material.
 
 ## Map (`src/maps/`)
-- "Toy Town": `mapIds`, `loadMapData(id)`, `buildMap(data)` (render group, merged
+- "Toy Town" has FIVE variants in `mapIds`: `toy-town` (approved base) and four lane
+  options `toy-town-l1-r1`, `l1-r2`, `l2-r1`, `l2-r2` (see `src/maps/M3.md`). The owner has
+  not picked one: start with `toy-town-l1-r1`, keep the id in `src/config/` so it is one
+  line to change, and ask the owner which one feels best after the first playtest.
+  API: `mapIds`, `loadMapData(id)`, `buildMap(data)` (render group, merged
   chunks), `mapColliders(data)` (boxes for Rapier AND server), `mapShotBlockers(data)`,
   `spawnPoints(data, team)`, `disposeMapResources()`. Data: `src/maps/data/*.json`
   (boxes, prefab instances, spawns A/B/ffa, lootSpots, zones, bounds, killY, light).

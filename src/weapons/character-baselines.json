@@ -1,0 +1,948 @@
+{
+  "description": "Approved Stage A input: all 33 character merged geometries, captured before weapon work",
+  "poseSourceSHA256": "53b2701e21407de4341d7e283af47d0f9df8aea78c2a81fb949b2dc87fa5d893",
+  "characters": {
+    "reference-01": {
+      "head-boxes": "494301ed3b459f1d6070ef3860f01523e6f7a4111850fd90ae2b5d2a2fcd09f7",
+      "torso-boxes": "b133ac3d3898fc12eccdc6317d8dec984d75c876128b40fa06f70d0f16433300",
+      "armL-boxes": "45ce9e9ad5bb4d5fb990c2c57a4ff684cfa6cc91cef3a8fae4133473eb9865ca",
+      "armR-boxes": "45ce9e9ad5bb4d5fb990c2c57a4ff684cfa6cc91cef3a8fae4133473eb9865ca",
+      "legL-boxes": "e3015510b6b0f67fa1b322f9547fd00539036f6ec086672e19f4b66ff5b828bf",
+      "legR-boxes": "e3015510b6b0f67fa1b322f9547fd00539036f6ec086672e19f4b66ff5b828bf"
+    },
+    "vibe-vibers-bureau-8": {
+      "head-boxes": "a94afd7918863926453916ec59925306352bd67db3d8a505c8248c54aad68fe0",
+      "torso-boxes": "bb552f315924b04ba44044eb0b64f5a3a188f92982a4451124f94ac83ccf58f2",
+      "armL-boxes": "e95ce63a9cd4246df067bed98b7f6a6e2cdbfd47833fb85ca97e1fa11be1bc40",
+      "armR-boxes": "e95ce63a9cd4246df067bed98b7f6a6e2cdbfd47833fb85ca97e1fa11be1bc40",
+      "legL-boxes": "7baab19c485c57f5d1e40708048a363593d8ceb3c8dbc26cba0d8f293e374125",
+      "legR-boxes": "7baab19c485c57f5d1e40708048a363593d8ceb3c8dbc26cba0d8f293e374125"
+    },
+    "vibe-vibers-viber-extra-12": {
+      "head-boxes": "4967fd8989eab9c9aa735b329b3c92f33822094a4d5af728f9b590c7cdbca697",
+      "head-glow": "b28c29d6c39fa7b0d97da1524d65b54e369f13fef35538077dc9075721722e15",
+      "torso-boxes": "dc4f7c2abb855f5932b3ad82df5a84fb415a530093f8283a82d19e00450dd7b8",
+      "armL-boxes": "13ac43350daaf7b3fd59e00e76083700eae33b8d91348e370e9a7e47e99f2b88",
+      "armR-boxes": "13ac43350daaf7b3fd59e00e76083700eae33b8d91348e370e9a7e47e99f2b88",
+      "legL-boxes": "8c60e87b7cda001292ad6d468bd4f9bfce0b392328aa4c1fcc1f9794d7bade3e",
+      "legR-boxes": "8c60e87b7cda001292ad6d468bd4f9bfce0b392328aa4c1fcc1f9794d7bade3e"
+    },
+    "vibe-vibers-viber-142": {
+      "head-boxes": "c54f821d510315930b84f0af23883cc3b561d452a5e157184a24e351b26e59e0",
+      "torso-boxes": "aac30f711e82e05b07e6409af7b52091f4ba4a3e8d4a35acb536b27e385dc6bf",
+      "armL-boxes": "411490449ad52d06188d269984f77cc784ecc9c193c99215b1a170f2089881f0",
+      "armR-boxes": "411490449ad52d06188d269984f77cc784ecc9c193c99215b1a170f2089881f0",
+      "legL-boxes": "1ba6a08435721ab9f14fdb5804da13c7895b1bc0c099b9bc433832e9ab59b1df",
+      "legR-boxes": "de0cc58faa42ed2996ffbc13316789bea20e045181b2b43cf3a2018522f232a0"
+    },
+    "vibe-vibers-viber-extra-11": {
+      "head-boxes": "50996c931a94d2bbb9f11761450b1cb244331d4f002deaa0eea659f1d5647698",
+      "head-glow": "6bbd070ea957fef884ff43a8ff1e61496b1091e5359003f8bb55e40c61ef765b",
+      "torso-boxes": "a2fe1dccf62d55473aa58850b45239c7e9ef7cec302cc8f0eee9f1bf46690746",
+      "torso-glow": "62caca18b90ecc20b946848daeab12eeb9c2c686987b2c65af7ba290af4ce4d3",
+      "armL-boxes": "5e7c266d534636197c2be86276801cb6731e4872d390b0aebb31024ece1b7037",
+      "armR-boxes": "5e7c266d534636197c2be86276801cb6731e4872d390b0aebb31024ece1b7037",
+      "legL-boxes": "796e4dd0ec5c073c8edd29f9f90be512da6ed40970473b1b0afa1dcab26a5ce9",
+      "legR-boxes": "796e4dd0ec5c073c8edd29f9f90be512da6ed40970473b1b0afa1dcab26a5ce9"
+    },
+    "vibe-vibers-bureau-25": {
+      "head-boxes": "3ff021077a5f5e4a980b82d5b342306cc9c77cca0dc4246387421143b9174ffc",
+      "torso-boxes": "f285af43928940c965d6d67c5d56a744487683206926915a733d38753627a1e3",
+      "armL-boxes": "37db778bdf18a79cda15a443ff08d1319bbbf70f1edf016ca1b1cbdb532b4ec3",
+      "armR-boxes": "37db778bdf18a79cda15a443ff08d1319bbbf70f1edf016ca1b1cbdb532b4ec3",
+      "legL-boxes": "ffb05a94080a59e9eebf99ab665ed0c4cd1fd58f7d106f1da90585f909840d6a",
+      "legR-boxes": "ffb05a94080a59e9eebf99ab665ed0c4cd1fd58f7d106f1da90585f909840d6a"
+    },
+    "vibe-vibers-bureau-roll-22-11": {
+      "head-boxes": "1e6e03b852489c3f44cdfa9fcc3f1aa08798e60a594ba5f93ffa316f9e7df38c",
+      "torso-boxes": "27fa8fa000214656159e73489fd2003896865b286440a92b4e94ef434282e149",
+      "armL-boxes": "4ea82da667eea358ccd6e9fb7c02763092ad61c274f9954226027ac3046a9069",
+      "armR-boxes": "4ea82da667eea358ccd6e9fb7c02763092ad61c274f9954226027ac3046a9069",
+      "legL-boxes": "ce8c76c5e98e527a00277ebffeb75f5c736b91abe616451a87fa2d5e15022e11",
+      "legR-boxes": "ce8c76c5e98e527a00277ebffeb75f5c736b91abe616451a87fa2d5e15022e11"
+    },
+    "vibe-vibers-bureau-roll-48-7": {
+      "head-boxes": "855fe1453d845ee1f0cd63b02e43ab9e4b64c7f7ce4b13e16e21e8b1fa1e057a",
+      "torso-boxes": "e3c75ed45bda53af00fc9bbaffcd6dd9e63477e97da4f560b3b28822fb52f50c",
+      "armL-boxes": "4ea82da667eea358ccd6e9fb7c02763092ad61c274f9954226027ac3046a9069",
+      "armR-boxes": "4ea82da667eea358ccd6e9fb7c02763092ad61c274f9954226027ac3046a9069",
+      "legL-boxes": "defc1608f02637a91fc6bee0f913edc037e13f4dcbb330ba9c65d651050dfea7",
+      "legR-boxes": "af4f9764fb33fe23a3e3e283a2df86d5e72f8c0a1804b56fcda8244019f14fb0"
+    },
+    "vibe-vibers-bureau-roll-7-11": {
+      "head-boxes": "265382092a782d33be9d6232f64d0474f8d767880cdf2c96634ce899b1bd638f",
+      "torso-boxes": "2408e9dad93ea1c65e4065713f3d7653b156b3bd5018a3b74ded628b72bf0e6f",
+      "armL-boxes": "3db4575064966739c641005828b8c582d2be99c56d5917e09a4daea5e59dc2a5",
+      "armR-boxes": "3db4575064966739c641005828b8c582d2be99c56d5917e09a4daea5e59dc2a5",
+      "legL-boxes": "af4f9764fb33fe23a3e3e283a2df86d5e72f8c0a1804b56fcda8244019f14fb0",
+      "legR-boxes": "af4f9764fb33fe23a3e3e283a2df86d5e72f8c0a1804b56fcda8244019f14fb0"
+    },
+    "vibe-vibers-viber-32": {
+      "head-boxes": "257578c0af8adbffe28693ec5880834f164a2002221a4e5cc29a69a2c3fb921a",
+      "torso-boxes": "f90f078754f28c688b7bfbd7b94c553aeb2a204f3ea812c535d9ade4f7c2a95f",
+      "armL-boxes": "dfbcb41d8e48af6e9e085ae7f1a85af4bce8fad4b4e4f95a349c2f40bbf64c3d",
+      "armR-boxes": "dfbcb41d8e48af6e9e085ae7f1a85af4bce8fad4b4e4f95a349c2f40bbf64c3d",
+      "legL-boxes": "8f4c09b30b13462525ffacbdc1a8e4bbfcfd3b54cd26a075bbe807292d2b227d",
+      "legR-boxes": "8f4c09b30b13462525ffacbdc1a8e4bbfcfd3b54cd26a075bbe807292d2b227d"
+    },
+    "vibe-vibers-viber-10": {
+      "head-boxes": "0cf3cea08259442e721a8d167959b4395bb535b40735639c2d2a313581549a7d",
+      "torso-boxes": "b5e71bd00d449def8f7089890851d8332b66838571c2018e3a0e8b68dd60fd48",
+      "armL-boxes": "ef4ed5f65b195956b3719a27d677eae034440183d0229776c634fc6ab87b81c4",
+      "armR-boxes": "ef4ed5f65b195956b3719a27d677eae034440183d0229776c634fc6ab87b81c4",
+      "legL-boxes": "c08024ed30f65de6beb058c17c68779fcde79bc95bbdd661ddbe23d682ccb94c",
+      "legR-boxes": "c08024ed30f65de6beb058c17c68779fcde79bc95bbdd661ddbe23d682ccb94c"
+    },
+    "vibe-vibers-viber-103": {
+      "head-boxes": "930147e259be7d4feae7df479e3e7ecf3d539d88256871246f7302586486f3b2",
+      "torso-boxes": "1b7559ca8870cbec514ec65c2619a3c39d23ab773fdf3395a6f04e1ab2be811b",
+      "armL-boxes": "c2da56ccce8c3f50d1d4ea00625ad5530b2f15725f6f2874a3a42dd3a7a1ea0a",
+      "armR-boxes": "c2da56ccce8c3f50d1d4ea00625ad5530b2f15725f6f2874a3a42dd3a7a1ea0a",
+      "legL-boxes": "0f08f0c9658079219d07d289e05b8fc06b0741d2934033fdb6da6e2ec537b69c",
+      "legR-boxes": "0f08f0c9658079219d07d289e05b8fc06b0741d2934033fdb6da6e2ec537b69c"
+    },
+    "vibe-vibers-viber-31": {
+      "head-boxes": "1711f070a2d4d3b327ca5ea07c60ce07a76302bf6192ae17d3c30c8b4153ab9b",
+      "torso-boxes": "9bf3de3415d793fb92f7ba171fe66fd981f310df72f8f84ff4fdd03c9013b7c7",
+      "armL-boxes": "da0df51297f4d11b94a3052a1c04194a9435949f216e06cdddb1f627eed71421",
+      "armR-boxes": "da0df51297f4d11b94a3052a1c04194a9435949f216e06cdddb1f627eed71421",
+      "legL-boxes": "3e98133aa087655feeffb741eee3d7a17c7fcd225b1bc8a5bc87ba13a8a3ab8c",
+      "legR-boxes": "3e98133aa087655feeffb741eee3d7a17c7fcd225b1bc8a5bc87ba13a8a3ab8c"
+    },
+    "vibe-vibers-viber-42": {
+      "head-boxes": "6c4ea3adfc0d7464d920dbd095f7107f92bdb81d68a9286b6e781c850aaf94e9",
+      "torso-boxes": "d47ffec028c0b136467a27dc2684855fc3124fc0e2667060cd423be23d2a8bc3",
+      "armL-boxes": "89c2ec1242a8dfef256ab0de61c3dce0cb82b834b1949b5c316f85c4c403f737",
+      "armR-boxes": "89c2ec1242a8dfef256ab0de61c3dce0cb82b834b1949b5c316f85c4c403f737",
+      "legL-boxes": "2dcb3998d4fd07a7e26eec0489b1dce01e6cab3d16eae0bd5fbdf5c0662f5906",
+      "legR-boxes": "2dcb3998d4fd07a7e26eec0489b1dce01e6cab3d16eae0bd5fbdf5c0662f5906"
+    },
+    "vibe-vibers-viber-71": {
+      "head-boxes": "68e21480f3c196cf22c674081459c1454dded0d1231c2fd4cd9f1a17f3de9e11",
+      "torso-boxes": "1ca1bb6dc979b9f68332276ac984256c1e29deecac29d03ebb8b7d692575fd27",
+      "armL-boxes": "43386a722e62bffe343cbef26286497599c14488b09def257684e6cc50a9a4da",
+      "armR-boxes": "43386a722e62bffe343cbef26286497599c14488b09def257684e6cc50a9a4da",
+      "legL-boxes": "fccfb760b182a750aa01136f30e4f10114988f01127e474a2b9bc107a5f781de",
+      "legR-boxes": "fccfb760b182a750aa01136f30e4f10114988f01127e474a2b9bc107a5f781de"
+    },
+    "vibe-vibers-bureau-23": {
+      "head-boxes": "a9ca410b3debb621fdd79972d70153cb05201adc3cebab98175d7d9f4be929ee",
+      "torso-boxes": "493e272cbfca0aa55fefe03be9a1b8c2eac9c7cc6740b5d4219ed6fc481bd973",
+      "armL-boxes": "7003dd84ef69150e13cf4043ed6001069bcb2ede5771068b46f88cd74fb5533a",
+      "armR-boxes": "7003dd84ef69150e13cf4043ed6001069bcb2ede5771068b46f88cd74fb5533a",
+      "legL-boxes": "2296723c7ffd2acab6d033af38424036a6078377e9fd83f8b8329b7fbd49326d",
+      "legR-boxes": "2296723c7ffd2acab6d033af38424036a6078377e9fd83f8b8329b7fbd49326d"
+    },
+    "vibe-vibers-bureau-4": {
+      "head-boxes": "d780be79955a605da71f3f42f7cd8910b37217e500b19f1278c5c1f36fb0c38d",
+      "torso-boxes": "fcdd9030ed3c11988f5736a175ac7381d7b4d010b3e6029fbdce45809d53f8ec",
+      "armL-boxes": "93d6af175c7d71d80be79358c136a4d80127c4a761e5f6d1d3524da163a873ef",
+      "armR-boxes": "93d6af175c7d71d80be79358c136a4d80127c4a761e5f6d1d3524da163a873ef",
+      "legL-boxes": "6c4b9ab94b26ee9f9c847e7e5a8d152f56b2f323900a961ce81d21aaaaad7490",
+      "legR-boxes": "6c4b9ab94b26ee9f9c847e7e5a8d152f56b2f323900a961ce81d21aaaaad7490"
+    },
+    "vibe-vibers-bureau-roll-40-10": {
+      "head-boxes": "80c4161016915849f9720ad50a5f14a660cb4db92b671ac230c9d44d68da35ed",
+      "torso-boxes": "c35b0ece03ce40332c196dad1e43634fd7ccad925d664d87d39c0952de66b8db",
+      "armL-boxes": "aaf68e8804906a31d10fbc613519b15e14b089a309bbb6db32d9096518c0fb09",
+      "armR-boxes": "aaf68e8804906a31d10fbc613519b15e14b089a309bbb6db32d9096518c0fb09",
+      "legL-boxes": "3c6e37b12a192d119fc2dfc4c842e4ec611b98c7c8f7389b45a840ed8d538892",
+      "legR-boxes": "3c6e37b12a192d119fc2dfc4c842e4ec611b98c7c8f7389b45a840ed8d538892"
+    },
+    "vibe-vibers-viber-141": {
+      "head-boxes": "e6a23e5ef5e204e8480f1ad5c8d193672d5d73b1254a7c90bafddc64a4756a45",
+      "head-glow": "3b48129cc149d2b4655fdc1669f35f4287bf6269aa7c6b569f4882aa2095bd02",
+      "torso-boxes": "fdb7224ed87b29ffb66331399427067356a3c215cec7cec7abc033420f019a87",
+      "armL-boxes": "8d658c47c8a28264a9a5c8db7e8886235a4d91d2ae3dfbddbf30adc1dca0ced3",
+      "armR-boxes": "3ac4b0cfbcc894d6dcff65a852ba261412aabb335eda3434d01f2a6f55a033d5",
+      "legL-boxes": "3d106b9fda93b92b1bab8dad54e18a258433330b52da91ace29caa83198e87ce",
+      "legR-boxes": "3d106b9fda93b92b1bab8dad54e18a258433330b52da91ace29caa83198e87ce"
+    },
+    "vibe-vibers-viber-48": {
+      "head-boxes": "0c9a0399b25434027547654105ec31fff3eeea303437c43e48949bbdb5f991a6",
+      "torso-boxes": "799064dbfe3125d342750323083c70adddd61742be97e64ff7af53741209a478",
+      "armL-boxes": "d2f0536dd5d810f704b68a64dbde72fbf08c2047d1e2541d0022e3692926cdba",
+      "armR-boxes": "d2f0536dd5d810f704b68a64dbde72fbf08c2047d1e2541d0022e3692926cdba",
+      "legL-boxes": "b888617bb9e82549fd9dfbaede2dac278f75476cb264e2e2742bbb28439f971a",
+      "legR-boxes": "b888617bb9e82549fd9dfbaede2dac278f75476cb264e2e2742bbb28439f971a"
+    },
+    "vibe-vibers-bureau-24": {
+      "head-boxes": "abbf1d8547bd70724d4c0ff0fb5ba39ddcbfd35c23c90ff5de7ea22d353760b2",
+      "torso-boxes": "8defd609d3930dccc37df0c4b4954f524f24023383ad74ad33d60af60b01468a",
+      "armL-boxes": "26ceb166abbd4f02da9c4ea741906e1a026b7f1a38bf70a7738163c4d4aaae90",
+      "armR-boxes": "26ceb166abbd4f02da9c4ea741906e1a026b7f1a38bf70a7738163c4d4aaae90",
+      "legL-boxes": "f861bd91e8b5d8af017bea9aac72ecb5b17c9981143e4c2de410a82e6a8d5c62",
+      "legR-boxes": "f861bd91e8b5d8af017bea9aac72ecb5b17c9981143e4c2de410a82e6a8d5c62"
+    },
+    "vibe-vibers-bureau-roll-22-12": {
+      "head-boxes": "6b59f842af8400f3e405e9b2885f71012c4209c66f33e5181590ed686c49b38d",
+      "torso-boxes": "673142768e523351a4d11560bbe0358bb0c1308cc18c1b3e06aef1f1454774a3",
+      "armL-boxes": "cde0e098da6272f66afc1b2aa84269d1abb7d583d3f9ad97348b5971c255cb7a",
+      "armR-boxes": "cde0e098da6272f66afc1b2aa84269d1abb7d583d3f9ad97348b5971c255cb7a",
+      "legL-boxes": "7a55c4352a4199759a94e16bf13649b5e1f15d45bc39fe01af8b4bf735a0224c",
+      "legR-boxes": "7a55c4352a4199759a94e16bf13649b5e1f15d45bc39fe01af8b4bf735a0224c"
+    },
+    "vibe-vibers-viber-6": {
+      "head-boxes": "2ca4fd612b2a33de3084b4465d4533b7330d8c177c2357410d406c243b6bce67",
+      "torso-boxes": "d95abc0be21481ff1e9b2ae922fc92717a756ad354c67a8d666fc76e48842277",
+      "armL-boxes": "be95703403f0a46f8a1a110e484b3782eee7ddce11ee7db428aba74821ded692",
+      "armR-boxes": "be95703403f0a46f8a1a110e484b3782eee7ddce11ee7db428aba74821ded692",
+      "legL-boxes": "31b1b9e1aa144bbbfb25034d9c4b49ce31258fc4722bbfc0bf3b535f3df761fe",
+      "legR-boxes": "31b1b9e1aa144bbbfb25034d9c4b49ce31258fc4722bbfc0bf3b535f3df761fe"
+    },
+    "vibe-vibers-viber-63": {
+      "head-boxes": "b2cb9670f3d70ea8e91b64c15e2097fca44741ef0a323cb121252696b8e4eec1",
+      "torso-boxes": "ee8091d8c347489ad1ddf6ce47bccd9b0d14b48d3a468934a4ee16127f266e92",
+      "armL-boxes": "7c63b80debcdaa8bb862f6220ca54c36d6e341b696ce233ea8280aafc52d3dc2",
+      "armR-boxes": "7c63b80debcdaa8bb862f6220ca54c36d6e341b696ce233ea8280aafc52d3dc2",
+      "legL-boxes": "270e7d520ec2e164ef09e2818260582155ac4e9c19090f2c10b352fab0d5f66f",
+      "legR-boxes": "270e7d520ec2e164ef09e2818260582155ac4e9c19090f2c10b352fab0d5f66f"
+    },
+    "vibe-vibers-viber-84": {
+      "head-boxes": "6a3aa692198dd370b305dc66fec44f09d0a47ba40c13c21bd52fb800ae93eb74",
+      "torso-boxes": "86e301b592437e8ee6838d7ea4cef5e174fa59baccf4e9303923889a12e005ea",
+      "armL-boxes": "467ea59dd86c1570f2a844dd16ebf5694ee2f5861e275cabc76361ae3279572a",
+      "armR-boxes": "467ea59dd86c1570f2a844dd16ebf5694ee2f5861e275cabc76361ae3279572a",
+      "legL-boxes": "e0d87229a56b0a2588b418eaedad5480d3c458c8b018e214e3757454b34819a0",
+      "legR-boxes": "e0d87229a56b0a2588b418eaedad5480d3c458c8b018e214e3757454b34819a0"
+    },
+    "vibe-vibers-viber-extra-20": {
+      "head-boxes": "695a0b88124df4608a28256a536a3850317e23a16a66abc5247b0add2603e64d",
+      "torso-boxes": "2eb069c21c8e5e5a9fe921954026fb905836927ef9a31885e592991d1c1f11fc",
+      "armL-boxes": "55fedcd459e1847efb8989cb94f182f991d9591ee3872a6e52a8c941b459ad53",
+      "armR-boxes": "55fedcd459e1847efb8989cb94f182f991d9591ee3872a6e52a8c941b459ad53",
+      "legL-boxes": "d754717bfdbd08412e117e0bf4d441b7be4fc065c6e1e3b1a7ceb48019fbc57d",
+      "legR-boxes": "d754717bfdbd08412e117e0bf4d441b7be4fc065c6e1e3b1a7ceb48019fbc57d"
+    },
+    "vibe-vibers-bureau-31": {
+      "head-boxes": "780743e4ef6a5ae39b57c97769a565036dd9aecda48d0f4bf27163eb06e7c188",
+      "head-glow": "b7efd125034124c8b39be8e549bec859cb3fc6c21fc5c032332447ab1f0886a3",
+      "torso-boxes": "f398f6112f00f6f341fe0f523b37e18cc3a73f180804f9d26b47f959c9cabd30",
+      "torso-glow": "3602fa63e59c45e0ff479c61606a3efa8cf15d56a00ffd6c95877017981656f5",
+      "armL-boxes": "86d9ba78991d0c23353fd8cacea9b2801807e5f29b597fecaca84e23f846ae3b",
+      "armR-boxes": "86d9ba78991d0c23353fd8cacea9b2801807e5f29b597fecaca84e23f846ae3b",
+      "legL-boxes": "5461a84f63e148fa69e9ff3d2455c2766470584355dbe29be804b8bfc75df8f0",
+      "legR-boxes": "456345c9ca242049b3f0c023108a08df7c488a07af8c8b428d94994799695319"
+    },
+    "vibe-vibers-bureau-roll-9-5": {
+      "head-boxes": "8cad1d514ff9ca836dda32ae576b96f53fc33f7e27d55fff739cca579ac707ba",
+      "torso-boxes": "6f0ffdde0deb6020c980c3378b5022f44341cbbeafa404cafbb821b1e45fd978",
+      "armL-boxes": "ec60722b1a842087d35b86fe093bfd6d757462ece2f3e5bd4ee5120e5a809a59",
+      "armR-boxes": "ec60722b1a842087d35b86fe093bfd6d757462ece2f3e5bd4ee5120e5a809a59",
+      "legL-boxes": "9e20710b77969db9cea12fbedb88753768d7a11ce7932dbe0ac6fb0306b571de",
+      "legR-boxes": "f3f3620ab41bdddbf4449338aa8df691adc34c13cea5409be066acfbcd00c346"
+    },
+    "vibe-vibers-viber-123": {
+      "head-boxes": "10c03b3d5b79f490f850d77a4bae51ee44b6d25fda18f35c3727ff3fede36182",
+      "torso-boxes": "82025384fba23f0ecbbf5efa8d0fff42d42e0e323eae826befa57588e49aa763",
+      "armL-boxes": "dc3ecfc9055c75f1dca2af0afdd13e973a184c43b8bbc6b3a171676c8b8ba4b5",
+      "armR-boxes": "dc3ecfc9055c75f1dca2af0afdd13e973a184c43b8bbc6b3a171676c8b8ba4b5",
+      "legL-boxes": "dab50eba6365ffb945dc077c3dbf236bdb66617d2a497835a474783f94fdd185",
+      "legR-boxes": "dab50eba6365ffb945dc077c3dbf236bdb66617d2a497835a474783f94fdd185"
+    },
+    "vibe-vibers-viber-extra-19": {
+      "head-boxes": "63c7e49c133e10c50c043762a09f9d074fc5cc1819c65f6a51e05df1b15b3235",
+      "torso-boxes": "31b2191d5e5e0b64c96a8ca3104c649bda6d03ecc51c43d42c4c48df416b2973",
+      "armL-boxes": "87344894bb2091c7d2b11284babb8a3f3c64e442e9f8df4c5986be197391190f",
+      "armR-boxes": "87344894bb2091c7d2b11284babb8a3f3c64e442e9f8df4c5986be197391190f",
+      "legL-boxes": "d115d546790049661fbfc609810c634f88554eef2f973ce008bfb94e0cdaf785",
+      "legR-boxes": "b0cdcde97b8f9dc7833d4056034f7be59006dd331f209b334d7e0d08f2734391"
+    },
+    "vibe-vibers-viber-extra-15": {
+      "head-boxes": "3bea64b9bef6cc4da64cc849b57cecc403449689ff98f735e3e6d23cfb489f8a",
+      "torso-boxes": "068f5db9c5df2a53cc5a656d8ff7c74093fb282285b95ff4512b5d7e36d740ad",
+      "armL-boxes": "c91ec7efc040244ef6e727d99f54dab8216c6d184eddebdb70d6eb7a561fa20b",
+      "armR-boxes": "c91ec7efc040244ef6e727d99f54dab8216c6d184eddebdb70d6eb7a561fa20b",
+      "legL-boxes": "a2c227b61424cfa9cc59666fdf95c78c01f090d9b933c284794b0e57654146e4",
+      "legR-boxes": "a2c227b61424cfa9cc59666fdf95c78c01f090d9b933c284794b0e57654146e4"
+    },
+    "vibe-vibers-viber-extra-24": {
+      "head-boxes": "0135acbec246bfb47c55b3d4285c43a557c04fc37e34402e341bd6c1215e2707",
+      "head-glow": "1bbf91105f6457c0aea7ecdce86e5ada1831440f25e05e4fb153c0431cac68dc",
+      "torso-boxes": "b621c5e022d0c9bf16cbdbcece08b6fd206e06faa5ca2382c8a36065c621e37a",
+      "armL-boxes": "1ce0e08a3cd0dccea4ab19bed275c27f3b29b60de860ebdc49681a48166a4ced",
+      "armR-boxes": "1ce0e08a3cd0dccea4ab19bed275c27f3b29b60de860ebdc49681a48166a4ced",
+      "legL-boxes": "c55e10c390a67ec0b55cc122f8c17c03ac0428928e84b2ad01f0433a11c697de",
+      "legR-boxes": "c55e10c390a67ec0b55cc122f8c17c03ac0428928e84b2ad01f0433a11c697de"
+    },
+    "vibe-vibers-viber-extra-9": {
+      "head-boxes": "30739009baaa67e188a3d9d58f411a6aada3793275a0b6ea7f153b372d9218b7",
+      "head-glow": "4578975912af6abfe987ff68843b58b819a4d21b2f71b2d413aafc2d3264632c",
+      "torso-boxes": "0b8ac6c5e19a77c388e8699d17886120f64b78d76827fb9f4507f6764a967a7a",
+      "armL-boxes": "9c2ab8c7aa2f4bda4b23abb567abf2e52e476cdd8ef21bfb14bf99aab87972d2",
+      "armR-boxes": "9c2ab8c7aa2f4bda4b23abb567abf2e52e476cdd8ef21bfb14bf99aab87972d2",
+      "legL-boxes": "b7afd94e8999d6084fd10d0618ab563ebfc0954e17e9136816de9db228f8d87f",
+      "legR-boxes": "b7afd94e8999d6084fd10d0618ab563ebfc0954e17e9136816de9db228f8d87f"
+    }
+  },
+  "oldPoseCases": [
+    {
+      "name": "idle",
+      "state": {
+        "speed": 0,
+        "moveDir": {
+          "x": 0,
+          "z": -1
+        },
+        "aimPitch": 0,
+        "shooting": false,
+        "crouching": false,
+        "grounded": true,
+        "dead": false
+      },
+      "phase": 0.75,
+      "dt": 0.016666666666666666
+    },
+    {
+      "name": "run",
+      "state": {
+        "speed": 1,
+        "moveDir": {
+          "x": 0,
+          "z": -1
+        },
+        "aimPitch": 0,
+        "shooting": false,
+        "crouching": false,
+        "grounded": true,
+        "dead": false
+      },
+      "phase": 0.75,
+      "dt": 0.016666666666666666
+    },
+    {
+      "name": "backward",
+      "state": {
+        "speed": 1,
+        "moveDir": {
+          "x": 0,
+          "z": 1
+        },
+        "aimPitch": 0,
+        "shooting": false,
+        "crouching": false,
+        "grounded": true,
+        "dead": false
+      },
+      "phase": 0.75,
+      "dt": 0.016666666666666666
+    },
+    {
+      "name": "strafeL",
+      "state": {
+        "speed": 1,
+        "moveDir": {
+          "x": -1,
+          "z": 0
+        },
+        "aimPitch": 0,
+        "shooting": false,
+        "crouching": false,
+        "grounded": true,
+        "dead": false
+      },
+      "phase": 0.75,
+      "dt": 0.016666666666666666
+    },
+    {
+      "name": "strafeR",
+      "state": {
+        "speed": 1,
+        "moveDir": {
+          "x": 1,
+          "z": 0
+        },
+        "aimPitch": 0,
+        "shooting": false,
+        "crouching": false,
+        "grounded": true,
+        "dead": false
+      },
+      "phase": 0.75,
+      "dt": 0.016666666666666666
+    },
+    {
+      "name": "crouch",
+      "state": {
+        "speed": 0,
+        "moveDir": {
+          "x": 0,
+          "z": -1
+        },
+        "aimPitch": 0,
+        "shooting": false,
+        "crouching": true,
+        "grounded": true,
+        "dead": false
+      },
+      "phase": 0.75,
+      "dt": 0.016666666666666666
+    },
+    {
+      "name": "jump",
+      "state": {
+        "speed": 0,
+        "moveDir": {
+          "x": 0,
+          "z": -1
+        },
+        "aimPitch": 0,
+        "shooting": false,
+        "crouching": false,
+        "grounded": false,
+        "dead": false
+      },
+      "phase": 0.75,
+      "dt": 0.016666666666666666
+    },
+    {
+      "name": "dead",
+      "state": {
+        "speed": 0,
+        "moveDir": {
+          "x": 0,
+          "z": -1
+        },
+        "aimPitch": 0,
+        "shooting": false,
+        "crouching": false,
+        "grounded": true,
+        "dead": true
+      },
+      "phase": 0.75,
+      "dt": 0.016666666666666666
+    },
+    {
+      "name": "shoot",
+      "state": {
+        "speed": 0,
+        "moveDir": {
+          "x": 0,
+          "z": -1
+        },
+        "aimPitch": 0,
+        "shooting": true,
+        "crouching": false,
+        "grounded": true,
+        "dead": false
+      },
+      "phase": 0.75,
+      "dt": 0.016666666666666666
+    },
+    {
+      "name": "aimUp",
+      "state": {
+        "speed": 0,
+        "moveDir": {
+          "x": 0,
+          "z": -1
+        },
+        "aimPitch": 1.5533430342749535,
+        "shooting": false,
+        "crouching": false,
+        "grounded": true,
+        "dead": false
+      },
+      "phase": 0.75,
+      "dt": 0.016666666666666666
+    },
+    {
+      "name": "aimDown",
+      "state": {
+        "speed": 0,
+        "moveDir": {
+          "x": 0,
+          "z": -1
+        },
+        "aimPitch": -1.5533430342749535,
+        "shooting": false,
+        "crouching": false,
+        "grounded": true,
+        "dead": false
+      },
+      "phase": 0.75,
+      "dt": 0.016666666666666666
+    },
+    {
+      "name": "crouchAimFire",
+      "state": {
+        "speed": 0.8,
+        "moveDir": {
+          "x": 0,
+          "z": -1
+        },
+        "aimPitch": 1.5533430342749535,
+        "shooting": true,
+        "crouching": true,
+        "grounded": true,
+        "dead": false
+      },
+      "phase": 0.75,
+      "dt": 0.016666666666666666
+    }
+  ],
+  "poses": {
+    "reference-01": {
+      "idle": "f269f634b2370b5a2612fb3e3112ee3b74ad19755fdadbb11d9916ca971b5922",
+      "run": "9172eb8b1c26dff117fae2ba0529ec2fbb2be0595fb9bc53f87bcbf07c5b02bd",
+      "backward": "9e807fe922d356abd43fd5e1dfea309b6b85106ac54e0c1e6108749dd725356f",
+      "strafeL": "4ccd98c1335780883820f74e6b512d563e17b9103fe41a11f0b776b7d7b1c54c",
+      "strafeR": "c941af9977788f4e60f763f0ee2acef8f98cca1bdece0149c56f1d6128aef4fe",
+      "crouch": "9583ae36de36e7b75fa041ad2cf073a973d4b60c1a3e5fa18c60eaaa6611ce24",
+      "jump": "616322f19588b3e426ffb78d416e2cd12e16e340acf6734759b8267696670c16",
+      "dead": "0c96296b4998afaaec9cd76988c26f623d320503977ba83c2d640c7f1e13aac2",
+      "shoot": "f269f634b2370b5a2612fb3e3112ee3b74ad19755fdadbb11d9916ca971b5922",
+      "aimUp": "41dd8b0b76d7388165d6699c5f7e718e87998d931082e9f98c6ae0c17d322e0a",
+      "aimDown": "9e2798b49970b0de8bc52669af0bf9624164f2e3fc27b44d286375192ad7b89d",
+      "crouchAimFire": "b39d555540d27e4879e6d0070517107cc9881bb78dd91f5e930eaf68f97061a4"
+    },
+    "vibe-vibers-bureau-8": {
+      "idle": "3e75cef08d7363605576fe43d24428bc8129f617d01892bc406185b04df74f1e",
+      "run": "c82dc492b1919668771a552944e28a6f54f8e4d053273441da6a6c4036224fc6",
+      "backward": "6c30eff5d90082a6a1727f81ac0362c6fca21837616a3bb823d8a235b62769f3",
+      "strafeL": "bb24fd27807fdbbc64d138ee6b6f9734329e801703d76902f8be9ae1d90257ad",
+      "strafeR": "483553ba1cdf7e4a9d98c489aabda3d2a7493668da78e9bc0368714d2b06af78",
+      "crouch": "3af5a805f031f07fa2dc239e10de6cd38ee26629db3f693452f4397ee6ce6e44",
+      "jump": "938ed374419dc0084a767ad1aaf8a175760142e27dfc2a2cfd506a585ec58bc8",
+      "dead": "5b936bed742025b78a40cada1ee24b512922d739f0d5b66de5218cb63d679be9",
+      "shoot": "3e75cef08d7363605576fe43d24428bc8129f617d01892bc406185b04df74f1e",
+      "aimUp": "60b9881822a510da7258d381f533b4175d3c4a098586ea39d3971620a33d32b5",
+      "aimDown": "ca56f3134038030ebdd21e0aecf84f71cfdf518938e8f7753eaadaffda2402c8",
+      "crouchAimFire": "858f846efdd9bc3ecb043ef9b0b12b10ef3b8e252cda854faba5987c058ca3d8"
+    },
+    "vibe-vibers-viber-extra-12": {
+      "idle": "5775c33e7b02de1dd0441028dd77783d8c061327fd940ff61a8593327d4cee17",
+      "run": "156de490f563caf21bb8beca10a2908f7cc4d8a7db9b3644781dcd6259e652b2",
+      "backward": "655963c0a4550da07fc5c8e2d08244d99546409d90f0ad80987e0c30c9da116d",
+      "strafeL": "d5eb22fc603090d01713817d688c418a7a349ba7433771ea528c5dbddbfcc22b",
+      "strafeR": "bc6bdc0b33fca37d665bc7dbff08d7fd6b639b94aa27413cb407125f8d052faf",
+      "crouch": "b49d42b6bec2bda36ccf67a02ff92f30dd66bd118b12d8fe6cc1f998e03d4730",
+      "jump": "2c1ee84200db83f27fc3a9193d9c753c122d95f3aca890a4c8563cac06851ed1",
+      "dead": "8c6cb9a4de12566cc5e85c90eded9e44efb6f412a58dc428d84a0ad64977a381",
+      "shoot": "5775c33e7b02de1dd0441028dd77783d8c061327fd940ff61a8593327d4cee17",
+      "aimUp": "195409731209267d892067ea8db20e27126fcfd6261e4485d1e4df2a0fcf7b55",
+      "aimDown": "b8ddd30bfb13b5526f11950cfb19ae0e9378a502755975f3cfb50bfcd2eddea7",
+      "crouchAimFire": "23e7fb86634d91087973afd260ed451606ed1bef51762e29784cda799e8e8c65"
+    },
+    "vibe-vibers-viber-142": {
+      "idle": "deb90b1d16c4143dc4de1a66969790de3abfe68017a984d190eee87d8e20e125",
+      "run": "8a14f2a268c6074337db537181b88cfb55da6bc45fa22b4f73c2a073103dbe0e",
+      "backward": "bd14b462840fd602677ca677faaf848cc8faa97df1057e601e8f3141678f16c2",
+      "strafeL": "57181730a757650eabcb0b35167c0647ff04758b521c7c248b59ee2c4f7c08ec",
+      "strafeR": "769fca7ef64fbd6db3d2fc7080fff23b826a842984195593f859b2f691448217",
+      "crouch": "a55dd4c5fc8dcec8f8e2d28b79afb661b974b643868eea70f91a5b2f0b729642",
+      "jump": "d3db45c9e484e12eec0eb13ad0776ff8b9e0503c9729234005643dc2c0cde689",
+      "dead": "8bd0e418fb63bf8a7951dac24aa1cc1953d53e752b5a709149f7d2c8c202d36a",
+      "shoot": "deb90b1d16c4143dc4de1a66969790de3abfe68017a984d190eee87d8e20e125",
+      "aimUp": "f79dfc728c1db043b4ad4c67dc23fd2084d548664d8bbf8dba13e873e937f781",
+      "aimDown": "9abde43207d958ec461c71358cf4c3e7237518cc3fc7ac121820cf9ab46ed78c",
+      "crouchAimFire": "440565493a9bbe8deca6b30997de167d34ef4514d401264dee384cf29df24d18"
+    },
+    "vibe-vibers-viber-extra-11": {
+      "idle": "6f6b18c48a383d45f4b6dbbd389e20e98512a8ae0022432407594aa9026e5112",
+      "run": "f56b0d42e99340ecb5c7cc7abc3f3bab316f540a9b764e9041ee041f51a91505",
+      "backward": "56af3f49bfb910048446938005a138c40d71bb98027eec8daf225853016e198f",
+      "strafeL": "c81795da81beef879f72fd15c27cb4fbcba3d6e37f1f1465599028e8246e2066",
+      "strafeR": "d3fba082decf086e7c062015726c2a433a376f0677b3bc23f5ba76f10135b8a0",
+      "crouch": "a8c1b6c7343e0a177d551a08983f22a7f47eee6a714bc5c0dceaead20d24a810",
+      "jump": "decc7667633fbdcde02bd76916a98b2d19549c232d2d154538cdf4b0eac1a3c7",
+      "dead": "dc1525287e713a01ccbc95ed4f79dcbf4a471cbb339d8f31ddf170487b1b9d09",
+      "shoot": "6f6b18c48a383d45f4b6dbbd389e20e98512a8ae0022432407594aa9026e5112",
+      "aimUp": "fac007f188a509a20067ebfbdcb00fa1742ee4eeea08dbd77248015f30b10a86",
+      "aimDown": "0bf056f9b49779e4583dd1eee83f6731e456512f46778a01cf091bf1f474da7e",
+      "crouchAimFire": "8cac44d8dc84ee7d9a575af75a40e4d8dda68305337978d0d3d9e43415c13682"
+    },
+    "vibe-vibers-bureau-25": {
+      "idle": "0eb927031576efdbdcab36549685b3ae58605142ecfc01a2958a14ada7698a7e",
+      "run": "f881f3a76726991195eb8d5a17c073b822cf1b0661c8c41e98eb4ba8865c1c5d",
+      "backward": "789ee29b0b9046d7ee2032657a37298277c8741614ca483a6ae4007d8df2592c",
+      "strafeL": "a35b79edc83716dd358e3a938ff449b8146a865d7f0d07e225c2eac7e3e1ef85",
+      "strafeR": "f82e45e440d9da5f13144e58962a5330aa0a79dd8c77509b5bfbc86516cd7523",
+      "crouch": "5dc93809c6d055a3875b92988230d82d9d22c4b00e6b41e0df9ddfbeff8b9166",
+      "jump": "b5268401914b6161d8c7a5a55788fb6848f53fa50d04defa6aaca0be5bc792c5",
+      "dead": "432208410c4831b2078b5991c2af48fd8e2bd72aab3376612f1fd4569290c96a",
+      "shoot": "0eb927031576efdbdcab36549685b3ae58605142ecfc01a2958a14ada7698a7e",
+      "aimUp": "98b1cfe1594579c5859818fe2cef95db872c2dc14f4bbdd38b36203b7c4bc88b",
+      "aimDown": "51beaa6b014da6e3b5f40d82239fce0f818d7f18022074ad81579089edcfc39c",
+      "crouchAimFire": "5fe9aecce3af614e7687c8ea0d3dadced7e8dc7d82ec2e8c336005e0ed4c2c97"
+    },
+    "vibe-vibers-bureau-roll-22-11": {
+      "idle": "22dc934831f1e73a8bb30bb88847d60efc8259afa3f10e0e2d9edc2796fae7af",
+      "run": "4ce938cd344508bc606f0ab024137077074a7d9130a48127aa9d1c1a160eea1a",
+      "backward": "7ff954ea0af8f5b3ba95e522dbe9b0bb8248c8dfd2426dbbb0721578de112e53",
+      "strafeL": "98e48eb2095d68b76d6844585f9721af8ea6bfa4737a404809c9ca580f96e5b1",
+      "strafeR": "a05f9dd49aa83a1193a51e9f6975a9e1ac3bac400a5fda73c9303ac8206e664d",
+      "crouch": "beba09cba444df0e21a81ac0627b5701786f9052301183a63b5a39667a7085c3",
+      "jump": "b1dcf0878b3c0d86be7c69e9b4c41a11cfd471094afbde9855eed609bc371202",
+      "dead": "d80857ba7b8bb35ba919806b978f543500261fc02644ec194440ba5cd1fee2e9",
+      "shoot": "22dc934831f1e73a8bb30bb88847d60efc8259afa3f10e0e2d9edc2796fae7af",
+      "aimUp": "45e9013ba748fadc78e5dec0b47bad5bc1a1ce1deb0d17722aa684aef8ae1646",
+      "aimDown": "37397dbb7931219db1a1e1af5af7824b8beae499e3b979ee6d6fe6094f43cd6d",
+      "crouchAimFire": "3cc19b287a4775ada75e4263bf1f89ae209b3079f2a9dfaca7b460105ebdfb11"
+    },
+    "vibe-vibers-bureau-roll-48-7": {
+      "idle": "d503be95c22095ad37a0893ef0da96b5f1ed15cfdf70b18e0b97be1f3cae1c6f",
+      "run": "ffba57bc6fd3308feea7568c3f5befac3783ba3091ddb5db56c60263add904ae",
+      "backward": "3209b198de49d97714c2a600f235e336d3f187fd518c32fdf15a0fe578929a21",
+      "strafeL": "79d1785d0e7d43a94a95e873deaa7fbb648f91b7b9c425cb189802af505b29b6",
+      "strafeR": "cd857f23c9f95c7516543254fec9352e102c72b29e65ffa1d93aaeba3c910310",
+      "crouch": "35d4ef5f5aae4d25ad17e8b1d50a0d6a4e27d57f5e25d08e42a9c4842b246aa6",
+      "jump": "2bf998f7a91ef28086a665dc30f1adebfa4c617d6caca9ee5d02b597b53e7fda",
+      "dead": "d247582dbefe6812cd09bc50899c9c974d38bcf178deef7ada5b67f0da482bd4",
+      "shoot": "d503be95c22095ad37a0893ef0da96b5f1ed15cfdf70b18e0b97be1f3cae1c6f",
+      "aimUp": "8db8dc38561fbee3ac73b549c42d2e4ff0a7a4861ab4c063efef694004f4df38",
+      "aimDown": "d18ab3ef2a89fd426f1cd1d0ba6355e9823ffb71920c594d0bf0d9807094a060",
+      "crouchAimFire": "5a997140e49a642fd1989a99b402ec92af4386388fbba62a66b8371af4b6be57"
+    },
+    "vibe-vibers-bureau-roll-7-11": {
+      "idle": "82697d176ab44ec32515aa4234da63792b779e610d1fdaba2c66bc47bbe08c1a",
+      "run": "64b87aa4ee3c90dedb52475f02381305268a824ec6ca0160ddeb18f415039850",
+      "backward": "a777943c4d6ef3c7f559d6e025ee47ce74bbd44ee7f723088285aca70bfffe56",
+      "strafeL": "e4192e3197c3cc85b477f2f86c6d61b0abaf85370966a2e92000c2c5c8af5115",
+      "strafeR": "5e5890cc5c1d4bc387b4f34d7845322567f835e6a05f5744e3a4d3b092cb5bab",
+      "crouch": "2d70405d1ae2cfc68560a503263d21d5b281a5e5136c217f3f89222145005573",
+      "jump": "8774f03b73aca9f74c14f2127c4b85bff4715022286a4594a6900dad80ad6512",
+      "dead": "1d4cf3cef2b50d069be9f995312afb6c6f684655acf3bb8f6832ca1dfb57a100",
+      "shoot": "82697d176ab44ec32515aa4234da63792b779e610d1fdaba2c66bc47bbe08c1a",
+      "aimUp": "622e8b9755968e369620e5459c38904f7a88ed26b2a299e48fbcdbaf6b7e36a1",
+      "aimDown": "b4f5d75e8a4141717414fd77eeeca1ede2d6e5cdb6a740cfe7e114d60efdd2f6",
+      "crouchAimFire": "5e35f4a1b6d96100295b99dca48b03059410d102357f5dd7d9f592ce49c68b93"
+    },
+    "vibe-vibers-viber-32": {
+      "idle": "83c831fe4d491958ca556b931cbf6c85ed97303d89536b2a62d7f84f8aef0b3c",
+      "run": "0d55f08feb3dff722777ed21d4be372689e9fc12c7370346af096c0fa2a46f43",
+      "backward": "9ce95ed10f5c96512fa892b883d8914c1c1cd4f448990b9eb8c6dd5557029f21",
+      "strafeL": "4fae48048c107b14ce18c7fd0a71959a3a85abb12806449159b949c836bcda7c",
+      "strafeR": "5680ff7628b880ed4600189bd80dbdf7453bc11915e21426f45532ea8568fe6e",
+      "crouch": "317ce608f4c232356df60cb5198c3936b80cfc367dd46516267b86b36ad6b66e",
+      "jump": "abc38ad5ad8a1700527584d65ab91f1ce76dd2dec7d69f532d96d0dc148b2cdd",
+      "dead": "1e99725ee14e584b6ad50f4412d3afbbcf8ed393fcdacf92e9fc117aec0912f0",
+      "shoot": "83c831fe4d491958ca556b931cbf6c85ed97303d89536b2a62d7f84f8aef0b3c",
+      "aimUp": "3419b0cda1f9a23bd9aeeca391ed545c2d7599f2746f458e8e52827f8f607b65",
+      "aimDown": "e020b8a98a87f17ccfbd6694a9a9831996ae7b6ecd3b4f871b84f1bfb77a7ddd",
+      "crouchAimFire": "89c1a083e65e18b0273b245c24adee57038c295ab46ebe0d879bd2f89bd9c002"
+    },
+    "vibe-vibers-viber-10": {
+      "idle": "b2bee88423b50b570b69a29efc2016cce5507f9e899ac1b1f6abdeb009fa1c27",
+      "run": "84d2d06c7c1ffd2c1772941ee5627bcf1e6a752be0889e7443c0eaba187d2a35",
+      "backward": "25b912f57fe46e3982e4ffc97b7ea5f8c1614e5d848e5560dff81796f2108899",
+      "strafeL": "7918123b03e1169ab080a059f106a23830bd4de2ee08f0a005b3635d56994d3f",
+      "strafeR": "2293ae950537045042f88600ec9a1c05a0666cae7545dc589bff5ac7f20c3f72",
+      "crouch": "9d224ed971422fa97b8e9d2ed326d6341c823d0380477cfd9d28f25ab682b8de",
+      "jump": "4b3e1699184a6ad7d8e6dfb9071803b148030a143df140b92974f0e9395959c7",
+      "dead": "c74ceb82d0a55fc0d636f4e61a9ace8f6e20878adca2460a5598263d4595bc5c",
+      "shoot": "b2bee88423b50b570b69a29efc2016cce5507f9e899ac1b1f6abdeb009fa1c27",
+      "aimUp": "4ef2de4741be2edcc68caf08877181e1bce5be2f817729f8135e026df4e0284d",
+      "aimDown": "0e2031efd22262db0b0ed31dc467d024e92e11edafac1103fb68693b63fac326",
+      "crouchAimFire": "faa86f0c875654ec1067ef4956f8aace55b92a88eb1f16b874c9b6c4115e90f4"
+    },
+    "vibe-vibers-viber-103": {
+      "idle": "251f7d08d6a76489802fa0fae782774dd08909e8221feeb97d7550f8951fc0fc",
+      "run": "76b38280b1fab1f13e8898f1ca3039cee769ed0ca43272062c71bda3f3010d44",
+      "backward": "5d2a4a5f3f84cdc065e99d5ce5f52337c515d1785cc1eed29c7dc5163d9805d1",
+      "strafeL": "b42a2f96ab21763d695c60583ef247e9362abdb32fdf755cfec1f5634c3fb62c",
+      "strafeR": "6eefdac1b5714cc811e01bf537c0de5e9badae20fab15a43878af1adde237a1d",
+      "crouch": "d628f73a822302bc57db2b3a81bfbd28d3f8117efc2f211e800b26a7b71076cc",
+      "jump": "d31bb5f3ad4245fcb484519a4555be2a6315f61bad84e1e74caa3615480c00ad",
+      "dead": "ce01b64ca2b6c39247bb74b985b695003283ef536fedc7bd972c7e9272f60762",
+      "shoot": "251f7d08d6a76489802fa0fae782774dd08909e8221feeb97d7550f8951fc0fc",
+      "aimUp": "9388b98c4556eb7b39f8cd46ee856537d755add46468421eb90fd405737f9ea9",
+      "aimDown": "a41fdad82fb3a61143df5fe1fca0657458400ddce49234ec1f57c749f1943f2b",
+      "crouchAimFire": "9eb47097788ccc695f4a8d3ae8da0f958a719886968f3156f1ce47ca5608abd1"
+    },
+    "vibe-vibers-viber-31": {
+      "idle": "9ec1f4ab7a68ca874a621c850f6892cfd4858790da4aa938f38be8a6cbfdcb3b",
+      "run": "2592358413fb8aa0a92623922326e7e1292a3ec17eec4d8ce83f62d3b7ee7668",
+      "backward": "1be2c6311cfcc688a8c75018e073e4ec113cc4d4d70db4a2452f09edcb32b7cb",
+      "strafeL": "33583d79d202a4346c6c35c32e37f9d45fe04c6c72164f127e52e1142c89caa9",
+      "strafeR": "999ab202bac0238efbf6ea918af0046c0abe6287b8ea7909e0ec3fe667ff9111",
+      "crouch": "e34b4a1b6e78ddfc6aa05201b3b166fe0a4042f5aa29b6c47bdfd07d26b7cea8",
+      "jump": "00f73caecc1926e28ccd21fca724f8637382162c01ce4d51c3ad53e3f3a80f06",
+      "dead": "a9f4f6512264607c123d2d0f8964007a980a94d7de469ea0a0c15b583842b542",
+      "shoot": "9ec1f4ab7a68ca874a621c850f6892cfd4858790da4aa938f38be8a6cbfdcb3b",
+      "aimUp": "748d9b7a4d4067944e875bc612a23a4c4ec3e27b865eef9f91e837e0aba76ecc",
+      "aimDown": "85389d1b0859dd519dd59498cd79c7b17d622c3d1a12b8173689f82812547e41",
+      "crouchAimFire": "ce32ab5380a11264b18289713ab3cf78aea78c3153b574dbaefc140505422cf0"
+    },
+    "vibe-vibers-viber-42": {
+      "idle": "0177c73c07021d9bf5da9e77b56677784e3fc4ec6c8c9fb99328f9bf84b713c7",
+      "run": "a319a1e1754d8af66a5743a68cf271c63c7eb2cd72b3db3f24fdad927bbc850f",
+      "backward": "6420efe6aa5330d550e59186138cff5d5043a96b9e018625353f15f361a6337e",
+      "strafeL": "b547a0e07ca8e8277d5773f17c9d8ed5d593362e60b6897c13bd0df1e673d5c0",
+      "strafeR": "8f2195a2632a07bfd9a127288284d1bc8de86c6b4039b8dc4969e3b291b945b7",
+      "crouch": "b9b1ccbc1f036c7bd7b911f4dd2e3e7044f7195f06c44df8f18fea1fd19a9b4f",
+      "jump": "87aec0b40fb7fdba8f686a6e4015395053555ac23f50a43bcc700c022cc51b78",
+      "dead": "c2443dad1f9de2fb585d00793deda7c1cf2901c8800ea3dd188bd3d3aaa789bd",
+      "shoot": "0177c73c07021d9bf5da9e77b56677784e3fc4ec6c8c9fb99328f9bf84b713c7",
+      "aimUp": "8458bb575c7b99e5e39f92bb0c6545b37e770c75c342541c21f0be4234f86931",
+      "aimDown": "4163e3e417818fe0aeacb7720203009fa25e61476087042551b908b7aad390d9",
+      "crouchAimFire": "8124cdb889a973ca51d105e80e775040ddfc10abf80a386e40566fc30694ab21"
+    },
+    "vibe-vibers-viber-71": {
+      "idle": "e19f7892c1cf10eb1fdd65452242a03eecbfae8a494da0d8bb54dcb26f5f11f0",
+      "run": "0ee37cffc3b70f62892362e6ebc362f25a0da0886903afae6aa8c0e499a9fe48",
+      "backward": "790b9c7e61945ec1254db25286e22c9f4fa44a002a227de6cfd16eb9d1c9468d",
+      "strafeL": "9ad39dd272c83bd0fe3d2aebce8c70a5be601ab8445a6ef1bf6e952cf19f5c52",
+      "strafeR": "52007e9f00cd6ac277063775ba8cf246fea07c2aa8e010fd3ba095a33d6006bf",
+      "crouch": "9c6f5c7a365e0d98c7c72e9f9197d72df6496ae74ef60e6768f86835ee738431",
+      "jump": "cc09da2070f533879d31587de07f823760fa1dfffd4082577f8b77ae31c568ac",
+      "dead": "1704f6bab6836c526e4475337651ae587e25c80914726281a87054f8b1ffe3ab",
+      "shoot": "e19f7892c1cf10eb1fdd65452242a03eecbfae8a494da0d8bb54dcb26f5f11f0",
+      "aimUp": "dc84739a574266b1af4cebc61a8a5eebb41852c0e94a6bfdd305df92caf948e1",
+      "aimDown": "fc677f9034d5133bbf6eb7651abfa5d739af3e0b57c9eb4f026407aeb569d4ea",
+      "crouchAimFire": "5c08d08d0332f3ab0f85d73f73e78c653e8d2737080ef2080b7f7a22adcd5fec"
+    },
+    "vibe-vibers-bureau-23": {
+      "idle": "98a0751234989aac1d05b947c4fa4addd5dee17676fc6adc129cb8e114609699",
+      "run": "9b351611594c935a3ae210cc1febab4d2c65217471b828176a8fd7b83b655501",
+      "backward": "dbc883bf3379762740762eb498b55de5e308e1c4e675b3ebc518a32050ef48ba",
+      "strafeL": "5358f15f6df22e017460f613f22df7f9e184875fcf357041e74bc18b6ab1e0e6",
+      "strafeR": "2acc78a725268b7db4838437815201defa4be5c5e0873cd78559afd96c8634d5",
+      "crouch": "449e247377a6555488136ccd5b33c34a8d60aa688c8c4e049e2908a0c4f23dd8",
+      "jump": "23b3063474891c76634d6ed5dbfed3f8304b51d6e8440542231e185270e88422",
+      "dead": "d03eeedba3cba3a33e941af4d8523cfeb9630329e5a1c3c61e4a9b000fa5fe2f",
+      "shoot": "98a0751234989aac1d05b947c4fa4addd5dee17676fc6adc129cb8e114609699",
+      "aimUp": "80712124605a89d51b98e10d783d506cede441860d081b269d9e4017604278e0",
+      "aimDown": "ff3266a6312657eeb930241f56b3e90b6115e8a8b714179b36eff296fa054d92",
+      "crouchAimFire": "6163ca2158d5f042539f515b6e8edd7e03a859700094e8e5944a2f6f8560e279"
+    },
+    "vibe-vibers-bureau-4": {
+      "idle": "a9c3c086b186188e630ce7e4665a5fed26ceacbf7f6d1b256712b0efd28e3fda",
+      "run": "d9ea035d8e8f000f7bf575749565cec97f62dc23e1bb7ed00de16dfc453a8307",
+      "backward": "a10070b3514b18bbd0e13c31b89aab869c19ed0352fe9507a8291f615809f76b",
+      "strafeL": "876a0d2b9088293b09c6d306365d6ebeee65f28a436648528bc3a9e666dbe220",
+      "strafeR": "4c4582fe651c249eb8e3b8ab85d7064670cfaace68cfa6a9f3dd45aca3498a10",
+      "crouch": "342ae84d7fa00ae4485698d8988215205a95c64483eec6b9e22f2cb6e77c8517",
+      "jump": "d6049cd85586ab8560e2c33866a41f8ac104818df0bc047e98aa32d5aecba78b",
+      "dead": "49219bde4ff8bf3966d333c60e5c1ac2739a408218d5d8202d982902da73844f",
+      "shoot": "a9c3c086b186188e630ce7e4665a5fed26ceacbf7f6d1b256712b0efd28e3fda",
+      "aimUp": "54ac122af34a5afeaf3b460a9b71ee0a9d7b2c17e610dd8a1a81ba1fbfbe225a",
+      "aimDown": "b869d6adcf7a6243607b325bbe8ab63a47d65c602cc8191e722b25364df5ee52",
+      "crouchAimFire": "fd47068d4743dc993fbcd786a355a1ff64e99e7be8715eee2d9853af7d8cbb27"
+    },
+    "vibe-vibers-bureau-roll-40-10": {
+      "idle": "bb5874dca34dfea119ceee4f2243357567f30a8367fe5696c440004e39f44196",
+      "run": "9fc2e842d8b0a5d4de1d7cc1520f559a95e9e1e0098dce1a00fb58ef49f10205",
+      "backward": "b356be7bc326c1a3828a50b2d84fb076ffa014bfe49f0c92b688bd4501e9bec1",
+      "strafeL": "3ed8b86d53a57b28c632613af58336f26ef84ea82c76887477d227770e8e4a83",
+      "strafeR": "378cc03c5b84d2eac99abcbed22f177efaa558eadf9d855d2c2e33282603db4b",
+      "crouch": "1f8136f62390969b63c09f0a39cb192721ea2029d1a876ec3ecc4b55fa48ea69",
+      "jump": "d7f9696f340423710fc1258a8bb45cfa46db402cfaf134d6f32d543adb250705",
+      "dead": "287b3e22494a99e10265bde24a62707ab60d029b7b724162b1cd161ee7fec8d3",
+      "shoot": "bb5874dca34dfea119ceee4f2243357567f30a8367fe5696c440004e39f44196",
+      "aimUp": "d22b3166a358e0f3c781c14c779490720b08f3a42bb011836f96140a87ffdcfc",
+      "aimDown": "70293456aaa2cb0e80f0f945db53e11b72822bd784a20df6cf9d1fa52d33d874",
+      "crouchAimFire": "ae9090c5103f3c61b885cf44d933f3f7a1dfd867e3e092e36f479d4e5a2f7b15"
+    },
+    "vibe-vibers-viber-141": {
+      "idle": "86a22a241f1601deef4f5e89dcb626caf93263335f337a0e2cdd187e2d96e2ec",
+      "run": "74c2e6eb2cbab22abba720afa6a4e575a62396d6b22ec444e3537385f9232099",
+      "backward": "a818d62aa49b18f8b563c332fc321f3d34f0ac2fd82532df4489d7f86b983eaf",
+      "strafeL": "0c1ad8a48ed23c9530c498a930928b1ae17601163e3efe98c89e0e39cbcec23c",
+      "strafeR": "a17f36d4833ff1fa4e6051c4ddf2ad29064e42481e7149e8d68b53a489cfaead",
+      "crouch": "f0b98e49fda2bb2ec28959ef708d007afd0e0dba8cdc89f0078dd63f2c32fa60",
+      "jump": "71dd871b5236d9e1830d012c3e0352f90337535265a3daad4ab835f1c6c2af54",
+      "dead": "e7bcc7297fb59a57f82527878aaf41867c21b77be1be56543c4e71fc69b126fb",
+      "shoot": "86a22a241f1601deef4f5e89dcb626caf93263335f337a0e2cdd187e2d96e2ec",
+      "aimUp": "f3da518c00b104e60845091ac3530b841f666f422c805b578e028287f6adc6a7",
+      "aimDown": "8241fc300c25f14ceaaacac1d15de0a60e0667e599002a4a2e0426947e26c218",
+      "crouchAimFire": "d3fc208855a1da345912586955980063d5e67d782f8bc0def31f96a68bcc8117"
+    },
+    "vibe-vibers-viber-48": {
+      "idle": "8a1a6b97fad455130f2c27c40e1fc7ac28482eab59f71c568304c449ad8c43d6",
+      "run": "e91c2e57b5abf9bb696cf56c8b7b7b6bd94ddb5b7479347431959b26fd8e1882",
+      "backward": "bf440a890aaf79f5eb2c01634326b1c3512d6b98861b5ef3c890c644676f1f4d",
+      "strafeL": "49638dfbd46181d566be698f9df07365b11175ecc3a9570d06dfbfdf997339d9",
+      "strafeR": "e32b9b4bc76b60d1ec6fb4cd1a1bce9c88d05d960b3a7bc3e182c47f70216c9e",
+      "crouch": "57d5749be0c78f89dcdef3568ee0a344ae9b82a6e4aa4ab63efed5dd7562baa0",
+      "jump": "566f696286337a849a3e427e0f8be8f41cbb61427ee169c908b7bc343dc84acc",
+      "dead": "4924937515caad5df6fb050d8e620c2e449eadcaf0e46ed785edad3cc150b950",
+      "shoot": "8a1a6b97fad455130f2c27c40e1fc7ac28482eab59f71c568304c449ad8c43d6",
+      "aimUp": "5c955634d3a567031db688463e8398763edf77f8ef621ccfebd5a42216e14e5c",
+      "aimDown": "c77ff997c007604ac9dc29e88bca9302f3e4cfbaee278674bc02a835b46bbe84",
+      "crouchAimFire": "3056fa0883b72f034e23574862b0a2895ca1c2c8e2b2695edce8142d4c408b19"
+    },
+    "vibe-vibers-bureau-24": {
+      "idle": "deb0f6122659891f37bb1e359cc30dad160bb1ed0d6bb334c5d5c4779a4d1db2",
+      "run": "439368c07c22a722efb90505417d42001c7d43d0892c46b39a12962c29d0623d",
+      "backward": "b2f281e7bd5895969e3ffb0490dbee8afe84f79b5297072ea2769f586822042e",
+      "strafeL": "9f8adbe709ba6075fc43babd6cfcc1136377efecdbffe55b3454369f0a88ed0d",
+      "strafeR": "975d6bf6ad3a535b5e72a52be7846223b21b5dfa73118de552f49471852f9462",
+      "crouch": "8d404a2fe6c04dc2dd3eaedaa737b71ad00d54a16355c4ed9855828ce6b09c7d",
+      "jump": "3ccdc5d539c817a8b2030d34b8e1ba3d98e2e26bad0d468346dbc683cb298a89",
+      "dead": "4f7a6cf8fb4377d6be321ccd79f129a8ea221bcc013263178f8acfa685229a50",
+      "shoot": "deb0f6122659891f37bb1e359cc30dad160bb1ed0d6bb334c5d5c4779a4d1db2",
+      "aimUp": "c24d98f07dfd5d3e444d67f97dca31b51308a32f994fcda2a5a7903a2b378338",
+      "aimDown": "906ab1af5633af28e6d97b90b0cec118afa74ad7d4bd081af2e9589946df56d5",
+      "crouchAimFire": "0398199e413f5b0f42d611587897ef759da6a32f83a3482dfd424d433d9764c1"
+    },
+    "vibe-vibers-bureau-roll-22-12": {
+      "idle": "b32ceec6298df3dd1fedac3ffe18822a98749c1b04cdcf084d14b1a8abe22071",
+      "run": "78081223d6416f6529574547445617267b388f8ed584f0aa3fbacd6541be424f",
+      "backward": "2c35663f7fd54c1e0d29707a39dbb5d90e89cd018bff41f8953b87313b714040",
+      "strafeL": "34a8c69383a2a90c02d065ab3c38888f23d78e3831d25943e9a8c9aa53a9b566",
+      "strafeR": "f5e56f415cdcd9526f21306ff9cb87f37f4f209f3d07559ac00fd192a15802f2",
+      "crouch": "03d182eb9a02c11272609ccd605c16b36d25ed03fa363edd160b8d2cc9b5ab2f",
+      "jump": "ac06a95cf2ec43d248ee5bc3a6c9dbbe219ed796ed45c15b5dc2ac7215ec7f6e",
+      "dead": "7c0131bc04c38d75b8ee221723172aa9f5267aebf59d5df975fcfcf7107b0543",
+      "shoot": "b32ceec6298df3dd1fedac3ffe18822a98749c1b04cdcf084d14b1a8abe22071",
+      "aimUp": "fa2c3577f6f4115a4830687635ef3a844aef13680dd43c794a1fe7578c48863e",
+      "aimDown": "3ac690ea9c5a9256839810d6b99c4c672fcbdc39c234a6eed6dc38c7554cd4c5",
+      "crouchAimFire": "4da9691914050e3a348b7d3f811be141d7320d3300f43d8652585eaa7bc7bb06"
+    },
+    "vibe-vibers-viber-6": {
+      "idle": "153a9ec51d960a7ea6231a273e70d4256334c5e2057608c6d454da946b1533eb",
+      "run": "2eb6125f3243848ddcb5f00bffa323c6dbe44305213b47a02827f9efa6758175",
+      "backward": "add3e7ad5ac78d539fefa3620e918eba6531329f8512e448b0616c545f416f15",
+      "strafeL": "d4a8cb3d1ac9d30015e510d9968bf10e660ab55dd2a8389d06b335c3302ce3c6",
+      "strafeR": "ae607b52c90b400f953fbbfa9138a10dfaa06260e4b78ab71653a2329857a3c0",
+      "crouch": "dcb48f55a2e7d2a79871f838dd2218300002c4ab44b382b66e03cd21b3a88907",
+      "jump": "2ec46ddbd939e3a9265b8f258c42bfe078318756c5d59f8852306fb08c5b417a",
+      "dead": "67740f02c2a4031ccf6b34ee894c00b0ae8539342b4d70fe83a743567974bd37",
+      "shoot": "153a9ec51d960a7ea6231a273e70d4256334c5e2057608c6d454da946b1533eb",
+      "aimUp": "efd07ebb63781eea8a2a4f4d62718c16958121df6edbea616fdeac63e80ec110",
+      "aimDown": "e8e57c3f7f078d45f58a325ba0f831f5ad628e35b55b19c18f5229988d89f460",
+      "crouchAimFire": "89c9beadb9a8446c71812a37bbc711140083e5cfd7c584c4896b5f48b4068bfc"
+    },
+    "vibe-vibers-viber-63": {
+      "idle": "500c0b822e3ac0ab48e6f1b51c0871b904e37796a1f9ad126f72170c20f039f3",
+      "run": "a390e4c92e1b9ea67bd4c0096e00ea8d6391fecb08f319c7e72ccb83a72e1eb0",
+      "backward": "9e071f785ecfd1701fc31036619f6a4f4934ae9c7b64b53f3faa9ca5b08c5b13",
+      "strafeL": "7b70821e7017a874d4207352ee9fd1a6b8c521256e3411f9c9c3d26ebbb095e0",
+      "strafeR": "481ae718320f0cc3f2fb4bed19bda5687de708c070cc274bd8ae7b67dde3f80a",
+      "crouch": "770678d4f3c990edaa741a0cba227ae05c0d92aae2a5cebed2f10a8270884ea8",
+      "jump": "3b35f849f8532f8b3e7a106c8db33b278f7a4d1d955fd368e7894fd44554854d",
+      "dead": "f90cca8a454763c20a0943f7f7551aa78b3d55ab987e96966a6480f93259d61e",
+      "shoot": "500c0b822e3ac0ab48e6f1b51c0871b904e37796a1f9ad126f72170c20f039f3",
+      "aimUp": "2fda4b6ede53364ce0960dc85f27df4ec4c8870d2301a9f5979ebd49f610137d",
+      "aimDown": "c9bb8bf100602cab289b89decba66a54b68e205b8b228aec40366afb941debc9",
+      "crouchAimFire": "5afd61b616ab08bb82851b25923b18d95301728e0a7d0065df3399e8fd761982"
+    },
+    "vibe-vibers-viber-84": {
+      "idle": "2151d85a482268daaf92ddbddee1d894db04bc041ec656ece936cc09f4c3002c",
+      "run": "8452cc4ce155f9163c7369dd92bffd6efaf011adf7b9f61bf98b164f7d86857d",
+      "backward": "d5d0ff57556775bad221be526299f8a82567a7511699c23708510188b88ce63c",
+      "strafeL": "6b4ba2e4e17a038b82d2a0e41512c2bd0f6eb4561cd2d7033617afba545da398",
+      "strafeR": "519545f3f4b5aa70f43b48874db0ca18f49575f94b2e714c4cb3c4b626ec5f1d",
+      "crouch": "c23507dedcbffc80bd42a27ba8414f4ab7252c8debffd04383eb411e165e464b",
+      "jump": "058598dde10bf72affe95330481008a53f0d666bd30fd33c0fc79289e3d27d9e",
+      "dead": "f85b362661fd8ef1b76b5a5a8c1655bcea0449f7d765b1b420dc27150d3272a5",
+      "shoot": "2151d85a482268daaf92ddbddee1d894db04bc041ec656ece936cc09f4c3002c",
+      "aimUp": "ee731b147a260eead4f9293c757d08a6610aba3411e78475e8b13427e3f6d5da",
+      "aimDown": "69fbfc69ef046d3adb9a035049642447cdd142e4144599b3b37dc46ca17bf175",
+      "crouchAimFire": "f2eafafbc96704d881cbd596bb20a8c4fcd558beee1ba2fcad937bebb437344f"
+    },
+    "vibe-vibers-viber-extra-20": {
+      "idle": "2a63adafd2d296dcbcb571aae36ed9496c04d731c5920479576f33f0f5011db0",
+      "run": "a6f2314d821f199a902e55e71ca3e678c837a39d8d81df5a1bf4bfad5351095f",
+      "backward": "5de22bad78567f0a9c857bd9045d1efb5cbe85f43dc7d8a3b23a8efdaf817c7d",
+      "strafeL": "b491d3cf2692fb8492fb10ee1a5fb0cc1d9c58128a96746362c4e57da4c67d5f",
+      "strafeR": "3b67ee9b729fc9f8332a85ba734a6fde1999eb8cd6c9e7f2aef0ff3956e2365e",
+      "crouch": "e7866f016144b33d214fc1037efa61d9684f73a40251ea4454f7475f9ee182e7",
+      "jump": "d86dc19a7ce2fd6e6d08fc85be815af5d5c07673fd73ce8d1659099f03644ac6",
+      "dead": "450a2440439ab29db9e6e0097f32ae32889ec7a9654b6ef8c82d2f90ee99155f",
+      "shoot": "2a63adafd2d296dcbcb571aae36ed9496c04d731c5920479576f33f0f5011db0",
+      "aimUp": "2ac8eae4ce6a130b4a4675fbc921716b10b90152871c58d81c406112a39fbf32",
+      "aimDown": "90dd5974f3751f88a004128df750de829541e1ca1ee4a841f86a882ce1bd7a68",
+      "crouchAimFire": "9464d2c687bb10aa76dd0a37411ce77d4be60245e2ba98ea6403673e2a8b0302"
+    },
+    "vibe-vibers-bureau-31": {
+      "idle": "251a5381a99b2073aea23e566f0150f131d041736a2b6b788a3aad64eb10f172",
+      "run": "b2b8b06578c783fa9ee69e8fcf78c2931031498995ded52a267ff3f061d84084",
+      "backward": "64b8913fe145645f9c1ba659f18523c9d5669fbd0f4ee5c80b803c6b90409937",
+      "strafeL": "db89172012f647c14283d50968a08e0196342d751ffdb2bcbc700e8ae9dbcc1f",
+      "strafeR": "286cf461db379f47b117c1f0543f3d82fa5e34bce3755bcca9896ff10cd7d7df",
+      "crouch": "de959fb3aabc999719fc88a3a439b9aebbc9d320d055b74ceb81e1d4b9b0313d",
+      "jump": "93c729e79277463e458bb22fd5dbe03a11f368082fcfb9a8eafb1efe5334b7bf",
+      "dead": "a10b2a3bfefc9cbd3a3038f81c97fe7a3c7ca7200b3ad6e033048958a48076b8",
+      "shoot": "251a5381a99b2073aea23e566f0150f131d041736a2b6b788a3aad64eb10f172",
+      "aimUp": "3bf4a569476eaa79181f5a6a86f64d452e12a0634767c884fd8f405fce9c1e33",
+      "aimDown": "e682be5be1e5ebf7765d6edee664829f7898c2afdf897ed812ebb6dd33cd1786",
+      "crouchAimFire": "2d7a19c2c322d100a69e546a76b69e174fc855e0bb7d1b1cde4a19d3a882f2f4"
+    },
+    "vibe-vibers-bureau-roll-9-5": {
+      "idle": "9967ae9c0d3b4a381221001422295b110503990717cbd41dc2cf22c36c14f3c0",
+      "run": "bad9f86688d1eb8a938066709e0c8f69edf77ccd18a59700973ab28aa8564728",
+      "backward": "b341221af233c4230a559647d6e9e7166e52347d97fb0aa9bd0cbe7f175f92ca",
+      "strafeL": "88be22b64724bab816f24788f1364a31d96d95c8074132e252ba719d30baf75a",
+      "strafeR": "201597ac55877d2873a646789072b815c48722f7e7e170e676d3497013bb3b53",
+      "crouch": "9baaa9b3c4ad83e20085f1db81be1e58eebffbb18c9a36c6e7d51989f8fde470",
+      "jump": "bd8ec3e3cccd73635c012388e9a08984e304b91762128bfd337ea2c41358551a",
+      "dead": "06200e3a8d21bce7040eb1bd3b7c6a90fd8040e220fd981c583c296148dbc977",
+      "shoot": "9967ae9c0d3b4a381221001422295b110503990717cbd41dc2cf22c36c14f3c0",
+      "aimUp": "61904d404ac23c2fa1ceb1615cfef1d3f8ab2c14ea6f75acc90535995092cd02",
+      "aimDown": "5cd885fbf57cceb63e0c823cb5c05cf482b47767c2e56f2e5e7bbbc88419aa40",
+      "crouchAimFire": "1568947449923047529ee4f30aff1b5a68123290ff09d1a5325c598dfe9b38b2"
+    },
+    "vibe-vibers-viber-123": {
+      "idle": "6ba6017a5f78dbc12a08699e45ca274bc3ab6c96349eba80d1fd92a2e32f24c6",
+      "run": "893c5dec0d6d94cfaea4273a49df0a6014ca0da1c59bc9d474e478c353026962",
+      "backward": "50390e50f975be3139c78b8d7cfd8619c78e9de517f1552e01b1175bcd69ad35",
+      "strafeL": "8de1bec9156d3005f08996c42a57d20c3c34077921c9157d0defd1260a6c93f8",
+      "strafeR": "868f0bc1d8140db125396d853f0dc4b40ff198f3514d9e4ecf04fb59490db16b",
+      "crouch": "95c20446cf7fc0ef2708ea99a74e10a5c3f5d075042a57d6e864fec76fb5348b",
+      "jump": "31428d12ab1e7429425693a8d390c2c81d48295a22aecfead8318282b0206207",
+      "dead": "15e63ad09ff780309484117d6f172a7ac7e26abac26bb2f131e05f738e36029e",
+      "shoot": "6ba6017a5f78dbc12a08699e45ca274bc3ab6c96349eba80d1fd92a2e32f24c6",
+      "aimUp": "5696b984a8688178e4e43b73b2a0193cadddb20f9126ce101cb029f5fc8aef23",
+      "aimDown": "f0b1caca8386db0ed741591ac4b9ec374863c118e6242f984d04727c4f21150c",
+      "crouchAimFire": "61c2b6d729d10911ae5c2ea9e92057380a229d9add2b97bc0634667e0ed6613c"
+    },
+    "vibe-vibers-viber-extra-19": {
+      "idle": "7f4037f7a32682ed24b074fe9a93718f108f49d6058ba948231cdb0b92dba6ec",
+      "run": "15bceb188f9491bd6f7a27f4ee65be9c8fc5c775236d060d686c2973571efcc9",
+      "backward": "7538325854e3b7f74f991270b89735fae842f62508b050c334fa310cd02f1fa6",
+      "strafeL": "c1aba9964de844f57bfae427ac770da9c916f64d7f33b5c427e89a452a06bf89",
+      "strafeR": "061d7f4681ede2e2826da7c8881f0eaf6f368715334bf20648af1a17e818f6da",
+      "crouch": "950eab0c7d477389e24f0be2fc7787388d2651b50bbf9659a732e6abb2e910b3",
+      "jump": "518948d9c9c5d7a1ea5f3603d67d4c82658e873b991592fd9859a78c23b88a1b",
+      "dead": "f97c75609074e23dd4264fa5edebd68fafefe774f55b2eafa0e1803240d50f5f",
+      "shoot": "7f4037f7a32682ed24b074fe9a93718f108f49d6058ba948231cdb0b92dba6ec",
+      "aimUp": "fb31c7b5187dc5d3fb486837855254ec6b42e8f1b7b2d87151ad0ae0d24741be",
+      "aimDown": "fecc025b2cd2370d7da0fdeef9e38e0fa715f94c31b8426e4321f832b5be7ab1",
+      "crouchAimFire": "14c007337aa3c5afd8a9630494f961fa0d8589b0f23b9e7590391add1da3e75c"
+    },
+    "vibe-vibers-viber-extra-15": {
+      "idle": "a5f6fd4032f6a900b6e34643f9d45985e86f27b409748a6a98f7978c8d979787",
+      "run": "95dd0b652cfdf84f0c3e5a1fd6a22eb8ca2398d0a2e235612a7a491faa142de9",
+      "backward": "e1d79200a77571892e87dd7177c3e44fa2c281f8305a83a3fe3176a9a8fe7918",
+      "strafeL": "7705060be3ef8ffee85876807df5bbfdf9524a935be8b0db78376318301e6e85",
+      "strafeR": "91625ffc4ceec7517759ee8d6815de6b8e7fff098312cde23b416f8d4fb06e18",
+      "crouch": "bce173c35808bdccb8de6966ceae3c603a59721fbc0dc984f76bc6389310adff",
+      "jump": "15ec6e2432d7b397b5d496319ae54515f414ef1bf5d566ed749870036c3dbc1b",
+      "dead": "6a91eeabc5c552562a94d65e16d90b725af53d5fd5be7ebd19d9f112aa3ed0c4",
+      "shoot": "a5f6fd4032f6a900b6e34643f9d45985e86f27b409748a6a98f7978c8d979787",
+      "aimUp": "6d3fe14cae3626b39e881fc23d589293d7cfda8b2bab81dae0fcec4912a5bd0f",
+      "aimDown": "4b34d6a59d9000c333d3a0a7a871bc4de8db096c0bbc7418cd3002504db44c27",
+      "crouchAimFire": "02b1876cb8d25d17d9dd50ae06d254532824934c5d72f1aa39ba2713d743f19d"
+    },
+    "vibe-vibers-viber-extra-24": {
+      "idle": "cb182baa662c53f5b955a7bd2a0ca4869f51234f2bfb39718df320c6e7de740c",
+      "run": "da57879d712089c822c2bd478f70464d03bbe9876d52b7d943092699090b9463",
+      "backward": "0ab9993e136012ab67bac76fcf7bf51a4dd39f81530f8dca1c70ee48c464184c",
+      "strafeL": "4338423230a1b75e6bd9c0ba408ed84b8f6b2731b45e04c69e5689b3b843a529",
+      "strafeR": "2fb59fe2c85520f1baa8839837c6e2a7e92d04f51700a12fafc9bd7d774e2917",
+      "crouch": "8310408184af4092e59781181195d521f49783b72c90576bf89bf3eb06f320d4",
+      "jump": "81bed393f0bc7eacf0a7f4ca40f1680565018d2aaf25538d1c49c01067e04f4b",
+      "dead": "40bfe780302f0670d464ea03de621015708912a7833fbb02f6f8442e600a3a5e",
+      "shoot": "cb182baa662c53f5b955a7bd2a0ca4869f51234f2bfb39718df320c6e7de740c",
+      "aimUp": "b24536d45e321a83937b9de79546ed2413f27eac918db6881d5b89dd10bd293e",
+      "aimDown": "f878a2c3087d4bf086667d7b7b2cdc2b7c1a79be60dde3c2592392208d2da5a2",
+      "crouchAimFire": "bf2baf3a74061d4f1f55fd260cc90ab8e6d6609ed4213721906d3ae8d8782331"
+    },
+    "vibe-vibers-viber-extra-9": {
+      "idle": "e6f8876a8eb768c6cf9b22919c875c200c1b088dae2fe578c4bb7697740f851e",
+      "run": "a32918f9b33a750aaa76e97348e6be5b48c92a55bdce4b4a67bba6cc1f563265",
+      "backward": "7b257b23ddc1587f418519118ec15c277fd763e7479338ef2a9f3cdfc84d6eb8",
+      "strafeL": "657d80d5fdbaa181f74e30751c3a31df4200e43fc73b178f1f7b5d48471e5511",
+      "strafeR": "a80f53a1d3b9b4b0318e3559fe099bb137620308232592d74251d4b0d9b248a6",
+      "crouch": "f5c8ee5befa7bb78ce75f368477b32ac29177d6e3b6f3961aae3373d4c93b7a6",
+      "jump": "e554a010f6a0039d75e557b6acee2e69b14b12568832b8177439bde2475f0e2b",
+      "dead": "3bc99a4ee426a80b372e51d4ec5b306d628aaf4aff7a203f8857cf0a2eee18f8",
+      "shoot": "e6f8876a8eb768c6cf9b22919c875c200c1b088dae2fe578c4bb7697740f851e",
+      "aimUp": "e40d6176dbe8becbd32380b3f09799ee51454e86e34484e98d862aeb2fc28ea3",
+      "aimDown": "b70b279eb9c45f119523eda7c0d94be28c0b8fc4d092f4d3bce9e5d324b89274",
+      "crouchAimFire": "70579b348b8717a38308efedcd2471a636d2089229b2f5b124adea39d8f44e14"
+    }
+  }
+}

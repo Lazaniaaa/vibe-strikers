@@ -1,0 +1,137 @@
+{
+  "extraLength": 0.4,
+  "characters": {
+    "reference-01": {
+      "armL": "ca5ba0d8363b47e7f6cd665464067bb15f4623c41fc60edb5690bdb87dc146c7",
+      "armR": "ca5ba0d8363b47e7f6cd665464067bb15f4623c41fc60edb5690bdb87dc146c7"
+    },
+    "vibe-vibers-bureau-8": {
+      "armL": "6ba3109da37f80bc4d917d7c9c3960cc4c9e1aa8bbe6a343d661cd3cdc42b067",
+      "armR": "6ba3109da37f80bc4d917d7c9c3960cc4c9e1aa8bbe6a343d661cd3cdc42b067"
+    },
+    "vibe-vibers-viber-extra-12": {
+      "armL": "a4b8786ace0c21899ce7ef62e1152132ad5cf3b8715ebe967540db83ab5a3d85",
+      "armR": "a4b8786ace0c21899ce7ef62e1152132ad5cf3b8715ebe967540db83ab5a3d85"
+    },
+    "vibe-vibers-viber-142": {
+      "armL": "5c80cd42bd8057e53f23e94f8cc53dd0239163c803e1876dd12de9194597ba5e",
+      "armR": "5c80cd42bd8057e53f23e94f8cc53dd0239163c803e1876dd12de9194597ba5e"
+    },
+    "vibe-vibers-viber-extra-11": {
+      "armL": "839c3787a01a2647cf6357ebed4a5e99932f8a5acd787e31819487ee7130c771",
+      "armR": "839c3787a01a2647cf6357ebed4a5e99932f8a5acd787e31819487ee7130c771"
+    },
+    "vibe-vibers-bureau-25": {
+      "armL": "2065abad2f31c65c072ed33f0af5705f76c9130e0234021918feaf042f910706",
+      "armR": "2065abad2f31c65c072ed33f0af5705f76c9130e0234021918feaf042f910706"
+    },
+    "vibe-vibers-bureau-roll-22-11": {
+      "armL": "52cc3c2b0e725bd6ac02982eba4546b2af3e9295a06294a8872c9c3f2bafa05c",
+      "armR": "52cc3c2b0e725bd6ac02982eba4546b2af3e9295a06294a8872c9c3f2bafa05c"
+    },
+    "vibe-vibers-bureau-roll-48-7": {
+      "armL": "52cc3c2b0e725bd6ac02982eba4546b2af3e9295a06294a8872c9c3f2bafa05c",
+      "armR": "52cc3c2b0e725bd6ac02982eba4546b2af3e9295a06294a8872c9c3f2bafa05c"
+    },
+    "vibe-vibers-bureau-roll-7-11": {
+      "armL": "5b2a7838b229236fb1af9b1347f4457b355faea8bac376674fe39691c3f51f36",
+      "armR": "5b2a7838b229236fb1af9b1347f4457b355faea8bac376674fe39691c3f51f36"
+    },
+    "vibe-vibers-viber-32": {
+      "armL": "ac7d4390d434e9e8a40b1876b967675c5cf207117f545bf0a0dd81546f117454",
+      "armR": "ac7d4390d434e9e8a40b1876b967675c5cf207117f545bf0a0dd81546f117454"
+    },
+    "vibe-vibers-viber-10": {
+      "armL": "69680a80a632ee6618e9931c3d65f29b26b0ef6972ddc44720ef42ed493ac4e3",
+      "armR": "69680a80a632ee6618e9931c3d65f29b26b0ef6972ddc44720ef42ed493ac4e3"
+    },
+    "vibe-vibers-viber-103": {
+      "armL": "dd257e197354e591ce73b6174787e3af2d78c4d62b2898725ee5d5aed7b93736",
+      "armR": "dd257e197354e591ce73b6174787e3af2d78c4d62b2898725ee5d5aed7b93736"
+    },
+    "vibe-vibers-viber-31": {
+      "armL": "3662c4bf7a08ee39f58a31404f0afd0c5760b44ea46f9c187bd25b63da861260",
+      "armR": "3662c4bf7a08ee39f58a31404f0afd0c5760b44ea46f9c187bd25b63da861260"
+    },
+    "vibe-vibers-viber-42": {
+      "armL": "531f441a733d2d571cac224caac4812d84afe55b0640c49f64dcad3a250052f0",
+      "armR": "531f441a733d2d571cac224caac4812d84afe55b0640c49f64dcad3a250052f0"
+    },
+    "vibe-vibers-viber-71": {
+      "armL": "7e0983ceafc98282148c25b65914d2f2fff4968a9aa0afa3eeb90313d8432b2f",
+      "armR": "7e0983ceafc98282148c25b65914d2f2fff4968a9aa0afa3eeb90313d8432b2f"
+    },
+    "vibe-vibers-bureau-23": {
+      "armL": "5a2a8ce9cbfd61a8766e53b4bf41e6901722c5890025bd7da0a8c049b44ccc05",
+      "armR": "5a2a8ce9cbfd61a8766e53b4bf41e6901722c5890025bd7da0a8c049b44ccc05"
+    },
+    "vibe-vibers-bureau-4": {
+      "armL": "7df1ef4dbfcd210047224cbf9a00d69ec83b082753499ad2c194e43957d85189",
+      "armR": "7df1ef4dbfcd210047224cbf9a00d69ec83b082753499ad2c194e43957d85189"
+    },
+    "vibe-vibers-bureau-roll-40-10": {
+      "armL": "68e49fde44f64169831b4e519f98b950d587d34cbe6c66ab063de2224f5da30c",
+      "armR": "68e49fde44f64169831b4e519f98b950d587d34cbe6c66ab063de2224f5da30c"
+    },
+    "vibe-vibers-viber-141": {
+      "armL": "4c540e676dd3f299fa7896e403c97bd5f15f743d7691865f894767f42769558e",
+      "armR": "e94737df4eb6f7a4ef8613e1027ecbcf576beb86328be0184c41669e27d482f2"
+    },
+    "vibe-vibers-viber-48": {
+      "armL": "489f37dc9ab3b7ba5cb4c3802ff462a53bd2006be8f436b2b3477654b7f0af51",
+      "armR": "489f37dc9ab3b7ba5cb4c3802ff462a53bd2006be8f436b2b3477654b7f0af51"
+    },
+    "vibe-vibers-bureau-24": {
+      "armL": "9bd02cdf68398b22187ce9627d3f6e53daedf64c92046a51d277f1f4f7872d94",
+      "armR": "9bd02cdf68398b22187ce9627d3f6e53daedf64c92046a51d277f1f4f7872d94"
+    },
+    "vibe-vibers-bureau-roll-22-12": {
+      "armL": "619df688699c558bcab503bc8e5e069b8845effe8f2910b6649f8c1a8c67800e",
+      "armR": "619df688699c558bcab503bc8e5e069b8845effe8f2910b6649f8c1a8c67800e"
+    },
+    "vibe-vibers-viber-6": {
+      "armL": "90cea41ce40cad91924a74092eb407809a6b2e4781c6485c516faed3f18be4b8",
+      "armR": "90cea41ce40cad91924a74092eb407809a6b2e4781c6485c516faed3f18be4b8"
+    },
+    "vibe-vibers-viber-63": {
+      "armL": "5669d19eb83c384cb5f75e799c4ede992e67f5d79a67908d9232d4764f0c5c59",
+      "armR": "5669d19eb83c384cb5f75e799c4ede992e67f5d79a67908d9232d4764f0c5c59"
+    },
+    "vibe-vibers-viber-84": {
+      "armL": "3a56427e98db203d7eb2ae862f0baf0c80da2b47efeaf0ee02a233b9e458d87a",
+      "armR": "3a56427e98db203d7eb2ae862f0baf0c80da2b47efeaf0ee02a233b9e458d87a"
+    },
+    "vibe-vibers-viber-extra-20": {
+      "armL": "9233fb06668f32388877f177d676acb19ebe7637e8298bfa0329ddf5758bb75b",
+      "armR": "9233fb06668f32388877f177d676acb19ebe7637e8298bfa0329ddf5758bb75b"
+    },
+    "vibe-vibers-bureau-31": {
+      "armL": "ae73a0844fec8f1f3edde26a324d2e9bacc2c4fc56421b9203e1dccb2cf10ef6",
+      "armR": "ae73a0844fec8f1f3edde26a324d2e9bacc2c4fc56421b9203e1dccb2cf10ef6"
+    },
+    "vibe-vibers-bureau-roll-9-5": {
+      "armL": "77f098368ef8e830b8a74d3f1c70eba0b4e1dd2b90fde81bdd1b409a55fb615f",
+      "armR": "77f098368ef8e830b8a74d3f1c70eba0b4e1dd2b90fde81bdd1b409a55fb615f"
+    },
+    "vibe-vibers-viber-123": {
+      "armL": "c839791f5478465e3f0db1b3bef22a8d6c9d9b87064d2c311aa71371b4c8bc85",
+      "armR": "c839791f5478465e3f0db1b3bef22a8d6c9d9b87064d2c311aa71371b4c8bc85"
+    },
+    "vibe-vibers-viber-extra-19": {
+      "armL": "abe87c3bfdd761e446f0e2f185a2380b01c031013a1ebdadc00a49cd1bd7258c",
+      "armR": "abe87c3bfdd761e446f0e2f185a2380b01c031013a1ebdadc00a49cd1bd7258c"
+    },
+    "vibe-vibers-viber-extra-15": {
+      "armL": "0d1e7f9ef6b53cfa98d2ba60f2373471fbd6050a3b8b1c67820996843b96567c",
+      "armR": "0d1e7f9ef6b53cfa98d2ba60f2373471fbd6050a3b8b1c67820996843b96567c"
+    },
+    "vibe-vibers-viber-extra-24": {
+      "armL": "29fb7120fc821c0679f0c19bcf562ceb02e9333593dc488c381b6bb2df7939ee",
+      "armR": "29fb7120fc821c0679f0c19bcf562ceb02e9333593dc488c381b6bb2df7939ee"
+    },
+    "vibe-vibers-viber-extra-9": {
+      "armL": "79fe4ff5dfdd34448c0c8ad3727e1c745b84cd7b96e68b69db9afe7f6d880c26",
+      "armR": "79fe4ff5dfdd34448c0c8ad3727e1c745b84cd7b96e68b69db9afe7f6d880c26"
+    }
+  }
+}

@@ -1,0 +1,47 @@
+[
+  {
+    "id": "knife",
+    "opaque": 2,
+    "lenses": 0,
+    "tip": 0.55,
+    "width": 0.322,
+    "height": 0.17,
+    "depth": 0.662
+  },
+  {
+    "id": "pistol",
+    "opaque": 3,
+    "lenses": 1,
+    "tip": 0.45,
+    "width": 0.254,
+    "height": 0.892,
+    "depth": 0.558
+  },
+  {
+    "id": "rifle",
+    "opaque": 3,
+    "lenses": 1,
+    "tip": 1.1,
+    "width": 0.326,
+    "height": 0.954,
+    "depth": 1.342
+  },
+  {
+    "id": "sniper",
+    "opaque": 3,
+    "lenses": 2,
+    "tip": 1.4,
+    "width": 0.487,
+    "height": 1.023,
+    "depth": 1.682
+  },
+  {
+    "id": "shotgun",
+    "opaque": 2,
+    "lenses": 0,
+    "tip": 1,
+    "width": 0.337,
+    "height": 0.847,
+    "depth": 1.222
+  }
+]

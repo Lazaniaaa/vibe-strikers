@@ -1,0 +1,197 @@
+{
+  "checked": 31680,
+  "failedCombinations": 31680,
+  "rayChecks": 1320,
+  "scopeRays": 162,
+  "rows": [
+    {
+      "weapon": "pistol",
+      "cases": 7920,
+      "maxRightError": 0.2467182892719638,
+      "maxLeftError": 0.35796160667247295,
+      "minClearance": -0.18265640585684834,
+      "maxShoulderShift": 0,
+      "failedCases": 7920,
+      "rayChecks": 264,
+      "rayHits": 0,
+      "worstRight": {
+        "character": "vibe-vibers-viber-extra-11",
+        "weapon": "pistol",
+        "pose": "idle",
+        "aim": -89,
+        "shooting": false,
+        "phase": 0
+      },
+      "worstLeft": {
+        "character": "vibe-vibers-viber-extra-11",
+        "weapon": "pistol",
+        "pose": "idle",
+        "aim": 0,
+        "shooting": false,
+        "phase": 0
+      },
+      "worstClearance": {
+        "character": "vibe-vibers-viber-84",
+        "weapon": "pistol",
+        "pose": "crouch",
+        "aim": -45,
+        "shooting": false,
+        "phase": 0,
+        "mesh": "armR-boxes",
+        "vertex": 145,
+        "body": "head"
+      }
+    },
+    {
+      "weapon": "rifle",
+      "cases": 7920,
+      "maxRightError": 0.25196605171727493,
+      "maxLeftError": 0.5453967739864393,
+      "minClearance": -0.18265640585684834,
+      "maxShoulderShift": 0,
+      "failedCases": 7920,
+      "rayChecks": 264,
+      "rayHits": 0,
+      "worstRight": {
+        "character": "vibe-vibers-viber-extra-11",
+        "weapon": "rifle",
+        "pose": "idle",
+        "aim": 89,
+        "shooting": true,
+        "phase": 0
+      },
+      "worstLeft": {
+        "character": "vibe-vibers-viber-extra-11",
+        "weapon": "rifle",
+        "pose": "idle",
+        "aim": 0,
+        "shooting": false,
+        "phase": 0
+      },
+      "worstClearance": {
+        "character": "vibe-vibers-viber-84",
+        "weapon": "rifle",
+        "pose": "crouch",
+        "aim": -45,
+        "shooting": false,
+        "phase": 0,
+        "mesh": "armR-boxes",
+        "vertex": 145,
+        "body": "head"
+      }
+    },
+    {
+      "weapon": "sniper",
+      "cases": 7920,
+      "maxRightError": 0.25196605171727493,
+      "maxLeftError": 0.5453967739864393,
+      "minClearance": -0.18265640585684834,
+      "maxShoulderShift": 0,
+      "failedCases": 7920,
+      "rayChecks": 264,
+      "rayHits": 0,
+      "worstRight": {
+        "character": "vibe-vibers-viber-extra-11",
+        "weapon": "sniper",
+        "pose": "idle",
+        "aim": 89,
+        "shooting": true,
+        "phase": 0
+      },
+      "worstLeft": {
+        "character": "vibe-vibers-viber-extra-11",
+        "weapon": "sniper",
+        "pose": "idle",
+        "aim": 0,
+        "shooting": false,
+        "phase": 0
+      },
+      "worstClearance": {
+        "character": "vibe-vibers-viber-84",
+        "weapon": "sniper",
+        "pose": "crouch",
+        "aim": -45,
+        "shooting": false,
+        "phase": 0,
+        "mesh": "armR-boxes",
+        "vertex": 145,
+        "body": "head"
+      }
+    },
+    {
+      "weapon": "shotgun",
+      "cases": 7920,
+      "maxRightError": 0.25196605171727493,
+      "maxLeftError": 0.5453967739864393,
+      "minClearance": -0.18265640585684834,
+      "maxShoulderShift": 0,
+      "failedCases": 7920,
+      "rayChecks": 264,
+      "rayHits": 0,
+      "worstRight": {
+        "character": "vibe-vibers-viber-extra-11",
+        "weapon": "shotgun",
+        "pose": "idle",
+        "aim": 89,
+        "shooting": true,
+        "phase": 0
+      },
+      "worstLeft": {
+        "character": "vibe-vibers-viber-extra-11",
+        "weapon": "shotgun",
+        "pose": "idle",
+        "aim": 0,
+        "shooting": false,
+        "phase": 0
+      },
+      "worstClearance": {
+        "character": "vibe-vibers-viber-84",
+        "weapon": "shotgun",
+        "pose": "crouch",
+        "aim": -45,
+        "shooting": false,
+        "phase": 0,
+        "mesh": "armR-boxes",
+        "vertex": 145,
+        "body": "head"
+      }
+    }
+  ],
+  "worst": [
+    {
+      "character": "vibe-vibers-viber-extra-11",
+      "failedCases": 960,
+      "maxRightError": 0.25196605171727493,
+      "maxLeftError": 0.5453967739864393,
+      "minClearance": -0.0744071693356626
+    },
+    {
+      "character": "vibe-vibers-viber-extra-9",
+      "failedCases": 960,
+      "maxRightError": 0.23152158613470827,
+      "maxLeftError": 0.5187528431824671,
+      "minClearance": -0.09944418722059128
+    },
+    {
+      "character": "vibe-vibers-viber-84",
+      "failedCases": 960,
+      "maxRightError": 0.21560741445263532,
+      "maxLeftError": 0.5018251001481489,
+      "minClearance": -0.18265640585684834
+    },
+    {
+      "character": "vibe-vibers-viber-63",
+      "failedCases": 960,
+      "maxRightError": 0.21024062228407242,
+      "maxLeftError": 0.49510482342692,
+      "minClearance": -0.16372401278179322
+    },
+    {
+      "character": "vibe-vibers-viber-103",
+      "failedCases": 960,
+      "maxRightError": 0.1648378128234382,
+      "maxLeftError": 0.459866276647426,
+      "minClearance": -0.054582904999296133
+    }
+  ]
+}

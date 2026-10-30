@@ -1,0 +1,388 @@
+{
+  "checked": 31680,
+  "failedCombinations": 0,
+  "rows": [
+    {
+      "weapon": "pistol",
+      "cases": 7920,
+      "maxRightError": 0.08896468055870996,
+      "maxLeftError": 0.08474343769048351,
+      "minClearance": 0.001006479004025498,
+      "failedCases": 0,
+      "worstReach": {
+        "character": "vibe-vibers-bureau-31",
+        "weapon": "pistol",
+        "pose": "crouch",
+        "aim": 0,
+        "shooting": false,
+        "phase": 0
+      },
+      "worstClearance": {
+        "character": "vibe-vibers-bureau-roll-40-10",
+        "weapon": "pistol",
+        "pose": "crouch",
+        "aim": 0,
+        "shooting": false,
+        "phase": 0,
+        "mesh": "armL-boxes",
+        "vertex": 290,
+        "body": "torso"
+      }
+    },
+    {
+      "weapon": "rifle",
+      "cases": 7920,
+      "maxRightError": 0.08826987848011747,
+      "maxLeftError": 0.08478441438354037,
+      "minClearance": 0.0010017148976991155,
+      "failedCases": 0,
+      "worstReach": {
+        "character": "vibe-vibers-bureau-31",
+        "weapon": "rifle",
+        "pose": "idle",
+        "aim": 0,
+        "shooting": true,
+        "phase": 0
+      },
+      "worstClearance": {
+        "character": "vibe-vibers-viber-142",
+        "weapon": "rifle",
+        "pose": "idle",
+        "aim": 0,
+        "shooting": true,
+        "phase": 0,
+        "mesh": "armR-boxes",
+        "vertex": 53,
+        "body": "torso"
+      }
+    },
+    {
+      "weapon": "sniper",
+      "cases": 7920,
+      "maxRightError": 0.08826987848011747,
+      "maxLeftError": 0.08478441438354037,
+      "minClearance": 0.0010017148976991155,
+      "failedCases": 0,
+      "worstReach": {
+        "character": "vibe-vibers-bureau-31",
+        "weapon": "sniper",
+        "pose": "idle",
+        "aim": 0,
+        "shooting": true,
+        "phase": 0
+      },
+      "worstClearance": {
+        "character": "vibe-vibers-viber-142",
+        "weapon": "sniper",
+        "pose": "idle",
+        "aim": 0,
+        "shooting": true,
+        "phase": 0,
+        "mesh": "armR-boxes",
+        "vertex": 53,
+        "body": "torso"
+      }
+    },
+    {
+      "weapon": "shotgun",
+      "cases": 7920,
+      "maxRightError": 0.08826987848011747,
+      "maxLeftError": 0.08478441438354037,
+      "minClearance": 0.0010017148976991155,
+      "failedCases": 0,
+      "worstReach": {
+        "character": "vibe-vibers-bureau-31",
+        "weapon": "shotgun",
+        "pose": "idle",
+        "aim": 0,
+        "shooting": true,
+        "phase": 0
+      },
+      "worstClearance": {
+        "character": "vibe-vibers-viber-142",
+        "weapon": "shotgun",
+        "pose": "idle",
+        "aim": 0,
+        "shooting": true,
+        "phase": 0,
+        "mesh": "armR-boxes",
+        "vertex": 53,
+        "body": "torso"
+      }
+    }
+  ],
+  "firstPerson": [
+    {
+      "weapon": "pistol",
+      "side": "right",
+      "ads": 0,
+      "cases": 264,
+      "clearAngle": 32.5,
+      "maxSightAxisError": 1.029677353976761,
+      "centreHits": 0,
+      "failedCases": 0
+    },
+    {
+      "weapon": "pistol",
+      "side": "right",
+      "ads": 0.5,
+      "cases": 264,
+      "clearAngle": 28,
+      "maxSightAxisError": 0.5130197320477161,
+      "centreHits": 0,
+      "failedCases": 0
+    },
+    {
+      "weapon": "pistol",
+      "side": "right",
+      "ads": 1,
+      "cases": 264,
+      "clearAngle": 31,
+      "maxSightAxisError": 1.2077049446576806e-16,
+      "centreHits": 0,
+      "failedCases": 0
+    },
+    {
+      "weapon": "pistol",
+      "side": "left",
+      "ads": 0,
+      "cases": 264,
+      "clearAngle": 32.5,
+      "maxSightAxisError": 1.029677353976761,
+      "centreHits": 0,
+      "failedCases": 0
+    },
+    {
+      "weapon": "pistol",
+      "side": "left",
+      "ads": 0.5,
+      "cases": 264,
+      "clearAngle": 28,
+      "maxSightAxisError": 0.5130197320477161,
+      "centreHits": 0,
+      "failedCases": 0
+    },
+    {
+      "weapon": "pistol",
+      "side": "left",
+      "ads": 1,
+      "cases": 264,
+      "clearAngle": 31,
+      "maxSightAxisError": 1.2077049446576806e-16,
+      "centreHits": 0,
+      "failedCases": 0
+    },
+    {
+      "weapon": "rifle",
+      "side": "right",
+      "ads": 0,
+      "cases": 264,
+      "clearAngle": 12,
+      "maxSightAxisError": 1.1315007725687465,
+      "centreHits": 0,
+      "failedCases": 0
+    },
+    {
+      "weapon": "rifle",
+      "side": "right",
+      "ads": 0.5,
+      "cases": 264,
+      "clearAngle": 13,
+      "maxSightAxisError": 0.5663290139068574,
+      "centreHits": 0,
+      "failedCases": 0
+    },
+    {
+      "weapon": "rifle",
+      "side": "right",
+      "ads": 1,
+      "cases": 264,
+      "clearAngle": 28,
+      "maxSightAxisError": 1.440185481677951e-16,
+      "centreHits": 0,
+      "failedCases": 0
+    },
+    {
+      "weapon": "rifle",
+      "side": "left",
+      "ads": 0,
+      "cases": 264,
+      "clearAngle": 12,
+      "maxSightAxisError": 1.1315007725687465,
+      "centreHits": 0,
+      "failedCases": 0
+    },
+    {
+      "weapon": "rifle",
+      "side": "left",
+      "ads": 0.5,
+      "cases": 264,
+      "clearAngle": 13,
+      "maxSightAxisError": 0.5663290139068574,
+      "centreHits": 0,
+      "failedCases": 0
+    },
+    {
+      "weapon": "rifle",
+      "side": "left",
+      "ads": 1,
+      "cases": 264,
+      "clearAngle": 28,
+      "maxSightAxisError": 1.440185481677951e-16,
+      "centreHits": 0,
+      "failedCases": 0
+    },
+    {
+      "weapon": "sniper",
+      "side": "right",
+      "ads": 0,
+      "cases": 264,
+      "clearAngle": 6,
+      "maxSightAxisError": 1.0783659947769175,
+      "centreHits": 0,
+      "failedCases": 0
+    },
+    {
+      "weapon": "sniper",
+      "side": "right",
+      "ads": 0.5,
+      "cases": 264,
+      "clearAngle": 33.5,
+      "maxSightAxisError": 0.5375355586889374,
+      "centreHits": 0,
+      "failedCases": 0
+    },
+    {
+      "weapon": "sniper",
+      "side": "right",
+      "ads": 1,
+      "cases": 264,
+      "clearAngle": 70,
+      "maxSightAxisError": 2.257868348103919e-16,
+      "centreHits": 0,
+      "failedCases": 0
+    },
+    {
+      "weapon": "sniper",
+      "side": "left",
+      "ads": 0,
+      "cases": 264,
+      "clearAngle": 6,
+      "maxSightAxisError": 1.0783659947769175,
+      "centreHits": 0,
+      "failedCases": 0
+    },
+    {
+      "weapon": "sniper",
+      "side": "left",
+      "ads": 0.5,
+      "cases": 264,
+      "clearAngle": 33.5,
+      "maxSightAxisError": 0.5375355586889374,
+      "centreHits": 0,
+      "failedCases": 0
+    },
+    {
+      "weapon": "sniper",
+      "side": "left",
+      "ads": 1,
+      "cases": 264,
+      "clearAngle": 70,
+      "maxSightAxisError": 2.257868348103919e-16,
+      "centreHits": 0,
+      "failedCases": 0
+    },
+    {
+      "weapon": "shotgun",
+      "side": "right",
+      "ads": 0,
+      "cases": 264,
+      "clearAngle": 12,
+      "maxSightAxisError": 1.0554583378713425,
+      "centreHits": 0,
+      "failedCases": 0
+    },
+    {
+      "weapon": "shotgun",
+      "side": "right",
+      "ads": 0.5,
+      "cases": 264,
+      "clearAngle": 14,
+      "maxSightAxisError": 0.5264866221515724,
+      "centreHits": 0,
+      "failedCases": 0
+    },
+    {
+      "weapon": "shotgun",
+      "side": "right",
+      "ads": 1,
+      "cases": 264,
+      "clearAngle": 26.5,
+      "maxSightAxisError": 4.7433671375321173e-17,
+      "centreHits": 0,
+      "failedCases": 0
+    },
+    {
+      "weapon": "shotgun",
+      "side": "left",
+      "ads": 0,
+      "cases": 264,
+      "clearAngle": 12,
+      "maxSightAxisError": 1.0554583378713425,
+      "centreHits": 0,
+      "failedCases": 0
+    },
+    {
+      "weapon": "shotgun",
+      "side": "left",
+      "ads": 0.5,
+      "cases": 264,
+      "clearAngle": 14,
+      "maxSightAxisError": 0.5264866221515724,
+      "centreHits": 0,
+      "failedCases": 0
+    },
+    {
+      "weapon": "shotgun",
+      "side": "left",
+      "ads": 1,
+      "cases": 264,
+      "clearAngle": 26.5,
+      "maxSightAxisError": 4.7433671375321173e-17,
+      "centreHits": 0,
+      "failedCases": 0
+    }
+  ],
+  "worst": [
+    {
+      "character": "vibe-vibers-viber-142",
+      "maxFistError": 0.08299214199783868,
+      "minClearance": 0.0010017148976991155,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-40-10",
+      "maxFistError": 0.08390146547228787,
+      "minClearance": 0.001006479004025498,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-bureau-8",
+      "maxFistError": 0.0840074653194705,
+      "minClearance": 0.0010714863801688426,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-extra-9",
+      "maxFistError": 0.07576043259169397,
+      "minClearance": 0.0011534297749458047,
+      "failedCases": 0
+    },
+    {
+      "character": "vibe-vibers-viber-6",
+      "maxFistError": 0.08475406785153812,
+      "minClearance": 0.0013432634385674904,
+      "failedCases": 0
+    }
+  ]
+}
