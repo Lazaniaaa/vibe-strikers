@@ -44,8 +44,10 @@ Read them; the TypeScript types and exports are the exact contract.
 - First person: `createViewmodel(weaponId, characterConfig)` and
   `poseViewmodel(viewmodel, {moveSpeed, strafe, grounded, crouching, fire, reload,
   cycle, equip, aimPitch, time, ads, holdSide})`. HIP side 'right' or 'left',
-  `ads` 0..1 blends to the centred sight. Render the viewmodel as a separate pass /
-  layer (see the weapons README for react-three-fiber), near plane 0.05.
+  `ads` 0..1 blends to the centred sight. Render the viewmodel as a separate pass:
+  own scene + camera (FOV 70, near 0.05), `renderer.clearDepth()` after the world
+  (as in `src/weapons/preview.ts`; the weapons README has no react-three-fiber notes).
+  Game example: `client/smoke/main.tsx`.
 - ADS data: `fovForAds(weaponId, ads)` (hip FOV 70 in the preview; game FOV setting is
   separate, scale from it), `adsSensitivityScale`, `ADS_DISTANCE`, `adsFov`
   (sniper 28, rifle 55, shotgun 62, pistol 60; knife none).
