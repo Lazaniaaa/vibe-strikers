@@ -78,11 +78,21 @@ Date started: 2026-10-30. Credits expire 2026-11-05.
 - Measured at spawn A in the smoke page: world 10,080 triangles / 19 calls.
 - Real fps must be measured on the owner's laptop (headless is software rendering).
 
+## Changes made in asset folders
+One-time owner exception (2026-10-30, start of M1): type-only fixes for strict `tsc`. No runtime change.
+- `src/characters/armVariants.ts` line 23: `d.dimensions['hand'+side]` -> `d.dimensions[('hand'+side) as 'handL'|'handR']`
+  and `d.restPose['arm'+side]` -> `d.restPose[('arm'+side) as 'armL'|'armR']`.
+- `src/characters/armVariants.ts` line 27: `d.dimensions.components['arm'+side]` ->
+  `d.dimensions.components[('arm'+side) as 'armL'|'armR']`.
+- `src/characters/createCharacter.ts` line 171: `as Record<PartName, BoxSpec[]>` -> `as unknown as Record<PartName, BoxSpec[]>`.
+- `src/maps/index.ts` line 11: `d as MapData` -> `d as unknown as MapData`.
+- After the change: strict `tsc` 0 errors (also inside asset folders); `npm run verify` passes
+  (33 default geometry baselines, 66 long-arm hashes, 396 approved old poses unchanged); `npm run build` passes.
+- Note: `node src/maps/verify.mjs` (not part of `npm run verify`) fails before AND after this change
+  because `src/maps/reports/m2/color-geometry-guard.json` was left out of the repo on purpose.
+
 ## Requests to asset owner
-- Type errors under strict `tsc` (blocks importing `src/maps` into the SpacetimeDB server module):
-  `src/characters/armVariants.ts` lines 23 and 27 (TS7053 string index),
-  `src/characters/createCharacter.ts` line 171 (TS2352 cast), `src/maps/index.ts` line 11 (TS2352:
-  JSON `light.sun.direction` is `number[]`, type wants a tuple; cast through `unknown`).
+- (done by the one-time exception above) strict type errors in asset folders.
 - `docs/ASSETS.md` said the weapons README explains react-three-fiber viewmodel rendering; it does
   not. The game uses the preview's method (second scene + camera, `clearDepth`). Fixed in ASSETS.md.
 - Known gaps (not needed yet): emotes, rocket-boot flames, ice-surface field.

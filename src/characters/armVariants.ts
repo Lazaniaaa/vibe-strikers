@@ -20,11 +20,11 @@ export function chooseHoldLengths(d: Pick<CharacterRuntime,'restPose'|'dimension
   const depth=Math.max(d.dimensions.components.head[2]/2+.36,d.dimensions.components.torso[2]/2+.40);
   const y=Math.min(.58,Math.max(.5,d.restPose.armR[1]-.28));
   for(const side of ['L','R'] as const){
-    const hand=d.dimensions['hand'+side],shoulder=d.restPose['arm'+side];
+    const hand=d.dimensions[('hand'+side) as 'handL'|'handR'],shoulder=d.restPose[('arm'+side) as 'armL'|'armR'];
     const cx=(hand.min[0]+hand.max[0])/2,cy=(hand.min[1]+hand.max[1])/2,cz=(hand.min[2]+hand.max[2])/2;
     const x=side==='L'?.225:.33,gy=side==='L'?y-.035:y,z=side==='L'?-depth-.17:-depth;
     const radius=Math.hypot(x-shoulder[0],gy-shoulder[1],z-shoulder[2]);
-    const base=d.dimensions.components['arm'+side][1];
+    const base=d.dimensions.components[('arm'+side) as 'armL'|'armR'][1];
     const estimated=Math.sqrt(Math.max(0,radius*radius-cx*cx-cz*cz))+cy+ARM_LENGTH_RESERVE;
     const extra=fixed?(side==='L'?fixed.leftExtra:fixed.rightExtra):(base+estimated)*ARM_SHORTEN_RATIO-base;
     result[side]=Math.round(Math.max(ARM_MIN_EXTRA,Math.min(ARM_MAX_EXTRA,extra))/ARM_LENGTH_STEP);

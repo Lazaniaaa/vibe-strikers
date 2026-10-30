@@ -168,7 +168,7 @@ function build(config: CharacterConfig): ModelData {
     const p = pivots[name];
     restPose[name] = s === 1 && feetBottom === 0 ? p : [p[0] * s, (p[1] - feetBottom) * s, p[2] * s];
   }
-  const base = Object.fromEntries(PART_NAMES.map((name) => [name, []])) as Record<PartName, BoxSpec[]>;
+  const base = Object.fromEntries(PART_NAMES.map((name) => [name, []])) as unknown as Record<PartName, BoxSpec[]>;
   for (const component of COMPONENTS) {
     const f = family(component);
     const style: Surface = config.surfaces?.[component] ?? config.surfaces?.[f] ?? {
