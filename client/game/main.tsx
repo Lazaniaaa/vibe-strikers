@@ -4,6 +4,7 @@ import { LOCAL_PLAYER } from '../../src/config/game';
 import { GameNet } from '../../src/network/client';
 import { Menu, type MenuChoice } from '../../src/ui/menu';
 import { getSettingsPanel, settingsButton } from '../../src/ui/settingsPanel';
+import { getSfx } from '../../src/ui/sfx';
 import { GameApp, type GameOptions } from './GameApp';
 import { OnlineApp } from './OnlineApp';
 import { characterLabel } from './characterLabel';
@@ -20,6 +21,9 @@ const options: GameOptions = {
 function storage(kind: 'local' | 'session'): Storage | null {
   try { return kind === 'local' ? window.localStorage : window.sessionStorage; } catch { return null; }
 }
+
+// UI click sound for every button (the first click also starts the audio context).
+document.addEventListener('click', (e) => { if ((e.target as HTMLElement).closest('button')) getSfx().play('ui'); });
 
 // No StrictMode: its double mount frees the Rapier world that the simulation holds.
 const root = createRoot(document.getElementById('root')!);

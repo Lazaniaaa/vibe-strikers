@@ -18,6 +18,8 @@ import { Input } from './input';
 import { AvatarRig, ShotEffects, ViewmodelRig } from './visuals';
 import { FramePerf } from './perf';
 import { AdsController } from './ads';
+import { getSfx } from '../../src/ui/sfx';
+import { AUDIO, type SoundName } from '../../src/config/audio';
 import { onSettingsChange, settings } from '../../src/ui/settings';
 import { getSettingsPanel, settingsButton } from '../../src/ui/settingsPanel';
 
@@ -30,8 +32,9 @@ const spawnsA = spawnPoints(map, 'A'), spawnsB = spawnPoints(map, 'B');
 export interface GameDebug {
   sim: Simulation;
   input: Input;
-  stats: { frames: number; localShots: number; localHits: number; localDamage: number; triangles: number; calls: number; fps: number };
+  stats: { frames: number; localShots: number; localHits: number; localDamage: number; triangles: number; calls: number; fps: number; localSteps: number };
   perf: FramePerf;
+  sounds: Record<string, number>;
   /** Ids of bots whose firearm pose was too slow and now use the no-weapon pose. */
   degradedRigs(): number[];
   snapshot(): unknown;
@@ -113,7 +116,7 @@ function GameDriver({ options }: { options: GameOptions }) {
     const applyStyle = () => hud.setCrosshairStyle(settings.crosshairColor, settings.crosshairSize);
     applyStyle();
     onSettingsChange(applyStyle);
-    const stats = { frames: 0, localShots: 0, localHits: 0, localDamage: 0, triangles: 0, calls: 0, fps: 0 };
+    const stats = { frames: 0, localShots: 0, localHits: 0, localDamage: 0, triangles: 0, calls: 0, fps: 0, localSteps: 0 };
     input.onConfirm = () => { if (sim.round.phase === 'matchEnd') sim.restart(); };
     return { sim, input, hud, effects, rigs, viewmodel, ads, stats, perf, disposables: [unitBox, tracerMat, impactMat, flashMat, flashGeo, allyMat, allyGeo] };
   }, [world, rapier, gl, options.freezeTime]);
@@ -130,7 +133,7 @@ function GameDriver({ options }: { options: GameOptions }) {
     if (options.debug) {
       const g = game;
       window.__game = {
-        sim: g.sim, input: g.input, stats: g.stats, perf: g.perf,
+        sim: g.sim, input: g.input, stats: g.stats, perf: g.perf, sounds: getSfx().played,
         degradedRigs: () => [...g.rigs.values()].filter((r) => r.degraded).map((r) => r.actorId),
         snapshot: () => ({
           phase: g.sim.round.phase, timeLeft: g.sim.round.timeLeft, round: g.sim.round.round,
@@ -159,7 +162,8 @@ function GameDriver({ options }: { options: GameOptions }) {
     };
   }, [game, scene, camera, gl, options.debug]);
 
-  const scratch = useMemo(() => ({ from: new Vector3(), fwd: new Vector3(), right: new Vector3(), hudTimer: 0, fpsFrames: 0, fpsTimer: 0, punch: 0 }), []);
+  const scratch = useMemo(() => ({ from: new Vector3(), fwd: new Vector3(), right: new Vector3(), hudTimer: 0, fpsFrames: 0, fpsTimer: 0, punch: 0,
+    audio: { prevReload: 0, steps: new Map<number, number>() } }), []);
   const view = useMemo<HudView>(() => ({ hp: 100, alive: true, weapon: '', mag: 0, reserve: 0, reloading: false, phase: 'freeze',
     timeLeft: 0, round: 1, scoreA: 0, scoreB: 0, aliveA: 0, aliveB: 0, center: '', sub: '', killFeed: '', fps: 0, perf: '', locked: false }), []);
 
@@ -185,9 +189,13 @@ function GameDriver({ options }: { options: GameOptions }) {
 
     // Shot events -> tracers, hit markers, damage flash.
     let localFired = false;
+    const sfx = getSfx();
     for (let i = 0; i < sim.shotCount; i++) {
       const shot = sim.shots[i];
       const from = scratch.from;
+      const shooter = sim.actors[shot.shooterId], weaponId = shooter.slots[shooter.active].stats.id;
+      if (shot.shooterId === LOCAL_ID) sfx.play(`shot_${weaponId}` as SoundName);
+      else sfx.playAt(`shot_${weaponId}` as SoundName, shot.ox, shot.oz, local.x, local.z, local.yaw);
       if (shot.shooterId === LOCAL_ID) {
         localFired = true; stats.localShots++;
         scratch.fwd.set(-Math.sin(local.yaw) * Math.cos(local.pitch), Math.sin(local.pitch), -Math.cos(local.yaw) * Math.cos(local.pitch));
@@ -196,13 +204,29 @@ function GameDriver({ options }: { options: GameOptions }) {
         if (shot.hitKind === 'player') {
           stats.localHits++; stats.localDamage += shot.damage;
           hud.hitMarker(shot.part === 'head', shot.killed, EFFECTS.hitMarkerTime);
+          sfx.play(shot.killed ? 'kill' : shot.part === 'head' ? 'headshot' : 'hit');
         }
       } else {
         const rig = rigs.get(shot.shooterId);
         if (!rig || !rig.muzzleWorld(from)) from.set(shot.ox, shot.oy, shot.oz);
       }
-      if (shot.victimId === LOCAL_ID) hud.damageFlash(EFFECTS.damageFlashTime);
-      effects.addShot(shot, from);
+      if (shot.victimId === LOCAL_ID) { hud.damageFlash(EFFECTS.damageFlashTime); sfx.play('hurt'); }
+      if (weaponId !== 'knife') effects.addShot(shot, from);
+    }
+
+    // Reload clicks and footsteps (running only; Shift walk and crouch are silent).
+    {
+      const slot = local.slots[local.active], au = scratch.audio;
+      if (slot.reloadLeft > 0 && au.prevReload <= 0) sfx.play('reload');
+      if (au.prevReload > AUDIO.reloadSecondClick && slot.reloadLeft > 0 && slot.reloadLeft <= AUDIO.reloadSecondClick) sfx.play('reload');
+      au.prevReload = slot.reloadLeft;
+      for (const a of sim.actors) {
+        if (!a.alive || !a.grounded || a.crouching || a.intent.walk || a.moveFraction < AUDIO.stepMinMoveFraction) continue;
+        const d = (au.steps.get(a.id) ?? 0) + Math.hypot(a.vx, a.vz) * dt;
+        if (d < AUDIO.stride) { au.steps.set(a.id, d); continue; }
+        au.steps.set(a.id, 0);
+        if (a.id === LOCAL_ID) { sfx.play('step'); stats.localSteps++; } else sfx.playAt('step', a.x, a.z, local.x, local.z, local.yaw);
+      }
     }
 
     for (const a of sim.actors) {

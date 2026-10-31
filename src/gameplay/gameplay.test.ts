@@ -9,6 +9,8 @@ import { canFire, consumeShot, createSlot, startReload, tickSlot, damageAt, spre
 import { createRoundState, tickRound } from './round.ts';
 import { ClientValidatedMovement, capsuleInsideBoxes } from './movementCheck.ts';
 import { PoseHistory } from './rewind.ts';
+import { synth } from '../ui/sfxSynth.ts';
+import { SOUNDS } from '../config/audio.ts';
 import { buildNavGrid, cellIndex, findPath, nearestWalkable, pruneUnreachable } from './navGrid.ts';
 
 let passed = 0;
@@ -166,6 +168,17 @@ test('sniper: accurate only when scoped; bolt cycle; knife has no magazine', () 
   const knife = createSlot(WEAPON_STATS.knife);
   for (let i = 0; i < 5; i++) { assert.ok(canFire(knife)); consumeShot(knife); tickSlot(knife, WEAPON_STATS.knife.fireInterval); }
   assert.equal(WEAPON_STATS.shotgun.pellets * WEAPON_STATS.shotgun.damage, 96);
+});
+
+test('procedural sounds render audible, bounded samples', () => {
+  for (const [name, def] of Object.entries(SOUNDS)) {
+    const data = synth(def, 22050);
+    let peak = 0, sum = 0;
+    for (const v of data) { peak = Math.max(peak, Math.abs(v)); sum += v * v; }
+    const rms = Math.sqrt(sum / data.length);
+    assert.ok(peak <= 1 && rms > 0.005, `${name}: peak ${peak.toFixed(3)} rms ${rms.toFixed(4)}`);
+    assert.ok(data.length / 22050 < 1, `${name} is short`);
+  }
 });
 
 console.log(`${passed} gameplay checks passed`);

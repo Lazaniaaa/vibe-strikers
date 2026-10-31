@@ -28,6 +28,8 @@ import { Input } from './input';
 import { FramePerf } from './perf';
 import { AvatarRig, ShotEffects, ViewmodelRig } from './visuals';
 import { AdsController } from './ads';
+import { getSfx } from '../../src/ui/sfx';
+import { AUDIO, type SoundName } from '../../src/config/audio';
 import { onSettingsChange, settings } from '../../src/ui/settings';
 import { getSettingsPanel, settingsButton } from '../../src/ui/settingsPanel';
 
@@ -46,6 +48,8 @@ export interface OnlineDebug {
   setAutoAim(id: string | null): void;
   /** Server rewind (ms) of my recent shots. */
   rewinds: number[];
+  /** Sounds played so far, by name. */
+  sounds: Record<string, number>;
   /** What the TAB scoreboard shows. */
   scoreRows(): ScoreRow[];
   /** Kill feed lines. */
@@ -57,7 +61,7 @@ export interface OnlineDebug {
 }
 declare global { interface Window { __online?: OnlineDebug } }
 
-interface Remote { actor: Actor; rig: AvatarRig }
+interface Remote { actor: Actor; rig: AvatarRig; stepDist: number }
 
 /** After death: 'killcam' follows the killer for KILLCAM.duration, then 'spectate' follows living teammates. */
 interface ViewState { mode: 'self' | 'killcam' | 'spectate'; target: bigint | null; until: number; killer: string; weapon: string; fireWas: boolean }
@@ -97,6 +101,8 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
     const feed: string[] = [];
     const scratch = { from: vec3(), dir: vec3(), punch: 0, autoAim: null as bigint | null };
     const rewinds: number[] = [];
+    const sfx = getSfx();
+    const audio = { stepDist: 0, prevReload: 0 };
     const view: ViewState = { mode: 'self', target: null, until: 0, killer: '', weapon: '', fireWas: false };
     const spawn = (row: { x: number; y: number; z: number; yaw: number; primary: string }) => {
       setPrimary(local, row.primary as WeaponId);
@@ -125,17 +131,19 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
         if (debug) { rewinds.push(Math.round(e.rewindMs)); if (rewinds.length > 50) rewinds.shift(); }
         if (e.hitKind === 'player') {
           hud.hitMarker(e.part === 'head', e.killed, EFFECTS.hitMarkerTime);
+          sfx.play(e.killed ? 'kill' : e.part === 'head' ? 'headshot' : 'hit');
         }
       } else {
         const r = remotes.get(e.shooterId);
         if (r) r.actor.fireAnimLeft = r.actor.slots[r.actor.active].stats.fireAnimTime;
         const from = effects.scratchStart;
         if (!r || !r.rig.muzzleWorld(from)) from.set(e.ox, e.oy, e.oz);
+        sfx.playAt(`shot_${e.weapon}` as SoundName, e.ox, e.oz, local.x, local.z, local.yaw);
         if (e.weapon !== 'knife') effects.addShot({ shooterId: Number(e.shooterId), ox: e.ox, oy: e.oy, oz: e.oz, ex: e.ex, ey: e.ey, ez: e.ez,
           hitKind: e.hitKind as 'none' | 'world' | 'player', victimId: Number(e.victimId), part: e.part as 'head' | 'body',
           damage: e.damage, killed: e.killed }, from);
       }
-      if (net.me && e.victimId === net.me.id && e.hitKind === 'player') hud.damageFlash(EFFECTS.damageFlashTime);
+      if (net.me && e.victimId === net.me.id && e.hitKind === 'player') { hud.damageFlash(EFFECTS.damageFlashTime); sfx.play('hurt'); }
     };
     net.onKill = (k: KillEvent) => {
       if (net.me && k.killerId === net.me.id) stats.kills++;
@@ -148,7 +156,7 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
       }
       if (feed.length > 4) feed.shift();
     };
-    return { local, motor, input, hud, scoreboard, viewmodel, ads, view, effects, remotes, perf, stats, sample, feed, scratch, rewinds, allyMat, allyGeo,
+    return { local, motor, input, hud, scoreboard, viewmodel, ads, view, sfx, audio, effects, remotes, perf, stats, sample, feed, scratch, rewinds, allyMat, allyGeo,
       disposables: [unitBox, tracerMat, impactMat, flashMat, flashGeo, allyMat, allyGeo] };
   }, [net, world, rapier, gl, scene, debug]);
 
@@ -182,6 +190,7 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
           camMode: game.view.mode, camTarget: game.view.target === null ? null : String(game.view.target) }),
         setAutoAim: (id: string | null) => { game.scratch.autoAim = id === null ? null : BigInt(id); },
         rewinds: game.rewinds,
+        sounds: game.sfx.played,
         scoreRows: () => scoreRows(net),
         feed: game.feed,
       };
@@ -252,15 +261,16 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
         const s = local.slots[local.active];
         tickSlot(s, dt);
         if (local.equipLeft > 0) local.equipLeft = Math.max(0, local.equipLeft - dt);
-        if (intent.reload && startReload(s)) { net.reload(); input.cancelAds(); }
+        if (intent.reload && startReload(s)) { net.reload(); input.cancelAds(); game.sfx.play('reload'); }
         if (!intent.fire) local.fireLatch = false;
         if (live && intent.fire && local.equipLeft <= 0) {
-          if (s.stats.magSize > 0 && s.mag === 0) { if (startReload(s)) { net.reload(); input.cancelAds(); } }
+          if (s.stats.magSize > 0 && s.mag === 0) { if (startReload(s)) { net.reload(); input.cancelAds(); game.sfx.play('reload'); } }
           while (canFire(s) && (s.stats.automatic || !local.fireLatch)) {
             // Server time of the remote poses on screen right now (they are drawn interpolationDelayMs behind).
             net.fire(local.yaw, local.pitch, net.serverTimeAt(performance.now() - NET.interpolationDelayMs), game.ads.scoped(s.stats.id));
             const kick = consumeShot(s);
             stats.shots++; localFired = true;
+            game.sfx.play(`shot_${s.stats.id}` as SoundName);
             local.fireAnimLeft = s.stats.fireAnimTime; local.fireLatch = true;
             // Predicted tracer along the aim, to the first map box.
             directionFromAngles(local.yaw, local.pitch, scratch.dir);
@@ -282,6 +292,16 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
       }
       if (local.fireAnimLeft > 0) local.fireAnimLeft = Math.max(0, local.fireAnimLeft - dt);
     }
+    // Second reload click near the end; footsteps while running (Shift walk and crouch are silent).
+    {
+      const s = local.slots[local.active], a = game.audio;
+      if (a.prevReload > AUDIO.reloadSecondClick && s.reloadLeft > 0 && s.reloadLeft <= AUDIO.reloadSecondClick) game.sfx.play('reload');
+      a.prevReload = s.reloadLeft;
+      if (local.alive && local.grounded && !local.crouching && !input.intent.walk && local.moveFraction >= AUDIO.stepMinMoveFraction) {
+        a.stepDist += Math.hypot(local.vx, local.vz) * dt;
+        if (a.stepDist >= AUDIO.stride) { a.stepDist = 0; game.sfx.play('step'); }
+      }
+    }
     perf.now.sim = performance.now() - frameStart;
     perf.endSim();
 
@@ -296,7 +316,7 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
         const actor = createActor(Number(id), row.team as TeamId, row.name, row.isBot, row.character);
         const marker = row.team === myTeam ? new Mesh(game.allyGeo, game.allyMat) : null;
         if (marker) marker.rotation.set(Math.PI / 4, 0, Math.PI / 4);
-        r = { actor, rig: new AvatarRig(actor, marker) };
+        r = { actor, rig: new AvatarRig(actor, marker), stepDist: 0 };
         remotes.set(id, r);
         scene.add(r.rig.root);
       }
@@ -310,6 +330,10 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
       if (a.fireAnimLeft > 0) a.fireAnimLeft = Math.max(0, a.fireAnimLeft - dt);
       setMotionFromVelocity(a, sample.vx, sample.vz, MOVEMENT.runSpeed);
       r.rig.sync(a, dt);
+      if (a.alive && a.grounded && !row.walk && !a.crouching && a.moveFraction >= AUDIO.stepMinMoveFraction) {
+        r.stepDist += Math.hypot(a.vx, a.vz) * dt;
+        if (r.stepDist >= AUDIO.stride) { r.stepDist = 0; game.sfx.playAt('step', a.x, a.z, local.x, local.z, local.yaw); }
+      }
     }
     stats.remotes = remotes.size;
     perf.now.pose = performance.now() - poseStart;

@@ -59,6 +59,8 @@ try {
   const sub = await tab.evaluate(() => document.querySelector('.hud-sub').textContent);
   check(sp.camMode === 'spectate' && sp.camTarget === String(eve.me.id), `after ${KILLCAM.duration} s: spectating teammate Eve (${sp.camMode})`);
   check(sub.startsWith('Spectating Eve'), `hint: "${sub}"`);
+  const heard = await tab.evaluate(() => window.__online.sounds);
+  check((heard.shot_rifle ?? 0) > 0 && (heard.hurt ?? 0) > 0, `heard the enemy's shots (${heard.shot_rifle}) and got hurt (${heard.hurt})`);
   clearInterval(pump);
   carl.disconnect(); eve.disconnect();
   check(errors.length === 0, `no console errors ${errors.length ? JSON.stringify(errors.slice(0, 3)) : ''}`);

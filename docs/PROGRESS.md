@@ -204,6 +204,12 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
 - 2026-10-31 M3p2d: settings panel opens from a Settings button on the menu and on the "click to play"
   overlay (Esc frees the mouse); sliders apply at once and save to localStorage ("Defaults" resets).
   Sensitivity shown x1000 (0.5-6.0), FOV 70-110, volume 0-100%, crosshair colour + size 4-20 px, ADS toggle/hold.
+- 2026-10-31 M3p2e: sounds = own small ZzFX-style synth (`src/ui/sfxSynth.ts`: oscillator + noise, pitch
+  slide, envelope, low-pass), rendered once per sound into Web Audio buffers; definitions in
+  `src/config/audio.ts`. Master gain = settings volume. World sounds (other players' shots and steps):
+  full volume within 4 m, then 4/d, silent beyond 70 m, stereo pan from the listener's yaw. Footsteps every
+  2.2 m only when running (Shift walk and crouch are silent, GAME.md 3). Reload = two clicks. UI click on
+  every button (the first click also unlocks audio). No zzfx package: the synth is ~40 lines.
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 
