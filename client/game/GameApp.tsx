@@ -19,7 +19,10 @@ import { Input } from './input';
 import { AvatarRig, DeathMarkers, ShotEffects, ViewmodelRig } from './visuals';
 import { FramePerf } from './perf';
 import { AdsController } from './ads';
-import { ItemViews } from './items';
+import { BootGlows, ItemViews } from './items';
+import type { GameMode } from '../../src/gameplay/mode';
+import { CORNUCOPIA } from '../../src/config/items';
+import { cornucopiaEndText, cornucopiaScoreLine, healHint } from '../../src/ui/modeText';
 import { itemHint } from '../../src/gameplay/items';
 import { TagProjector } from './nameTagProjector';
 import { NameTags } from '../../src/ui/nameTags';
@@ -30,7 +33,8 @@ import { getSettingsPanel, settingsButton } from '../../src/ui/settingsPanel';
 
 export interface GameOptions { debug: boolean; freezeTime?: number; /** Local player's character (menu). */ character?: number;
   /** Back to the menu (Esc overlay "Leave match"). */ onLeave?: () => void;
-  /** Bot difficulty (menu). */ difficulty?: BotDifficulty }
+  /** Bot difficulty (menu). */ difficulty?: BotDifficulty;
+  /** Game mode and Cornucopia teams / free-for-all (menu). */ mode?: GameMode; teams?: boolean }
 
 const map = loadMapData(MAP_ID);
 const blockersForDebug = mapShotBlockers(map).boxes;
@@ -104,7 +108,8 @@ function GameDriver({ options }: { options: GameOptions }) {
     const motor = new RapierMotor(rapier, world);
     const perf = new FramePerf();
     const sim = new Simulation({ profile: perf.now, clock: () => performance.now(), blockers, spawnsA, spawnsB, goals, cover, routes, perches, nav, motor, killY: map.killY,
-      localName: LOCAL_PLAYER.name, botNames: BOT_NAMES, botSkill: BOT_SKILLS[options.difficulty ?? DEFAULT_DIFFICULTY], characterIndices: pickCharacters(options.character ?? LOCAL_PLAYER.characterIndex), freezeTime: options.freezeTime });
+      localName: LOCAL_PLAYER.name, botNames: BOT_NAMES, botSkill: BOT_SKILLS[options.difficulty ?? DEFAULT_DIFFICULTY], characterIndices: pickCharacters(options.character ?? LOCAL_PLAYER.characterIndex), freezeTime: options.freezeTime,
+      mode: options.mode, teams: options.teams, spawnsFfa: spawnPoints(map, 'ffa'), lootSpots: map.lootSpots });
     const input = new Input(gl.domElement);
     const hudRoot = document.getElementById('hud')!;
     const hud = new Hud(hudRoot);
@@ -137,14 +142,16 @@ function GameDriver({ options }: { options: GameOptions }) {
     const stats = { frames: 0, localShots: 0, localHits: 0, localDamage: 0, triangles: 0, calls: 0, fps: 0, localSteps: 0 };
     input.onConfirm = () => { if (sim.round.phase === 'matchEnd') sim.restart(); };
     const items = new ItemViews();
-    return { sim, input, hud, effects, rigs, viewmodel, ads, markers, items, nameTags, tagger, stats, perf, disposables: [unitBox, tracerMat, impactMat, flashMat, flashGeo, allyMat, allyGeo] };
-  }, [world, rapier, gl, options.freezeTime]);
+    const glows = new BootGlows();
+    return { sim, input, hud, effects, rigs, viewmodel, ads, markers, items, glows, nameTags, tagger, stats, perf, disposables: [unitBox, tracerMat, impactMat, flashMat, flashGeo, allyMat, allyGeo] };
+  }, [world, rapier, gl, options.freezeTime, options.mode, options.teams]);
 
   useEffect(() => {
     for (const rig of game.rigs.values()) scene.add(rig.root);
     scene.add(game.effects.group);
     scene.add(game.markers.group);
     scene.add(game.items.group);
+    scene.add(game.glows.group);
     const cam = camera as PerspectiveCamera;
     cam.rotation.order = 'YXZ';
     // Compile every material now so the first shot / tracer / flash does not stall a frame.
@@ -165,7 +172,9 @@ function GameDriver({ options }: { options: GameOptions }) {
           phase: g.sim.round.phase, timeLeft: g.sim.round.timeLeft, round: g.sim.round.round,
           scoreA: g.sim.round.scoreA, scoreB: g.sim.round.scoreB, matchWinner: g.sim.round.matchWinner,
           stats: { ...g.stats },
-          items: g.sim.items.map((i) => ({ ...i })), itemViews: g.items.count, hint: view.hint ?? '',
+          items: g.sim.items.map((i) => ({ ...i })), itemViews: g.items.count, hint: view.hint ?? '', glows: g.glows.visibleCount,
+          mode: g.sim.mode, ffa: g.sim.ffa, center: view.center, scoreLine: view.scoreLine ?? '',
+          local: { hasPrimary: g.sim.local.hasPrimary, boots: g.sim.local.boots, healLeft: g.sim.local.healLeft, active: g.sim.local.active },
           actors: g.sim.actors.map((a) => ({ id: a.id, team: a.team, name: a.name, hp: a.hp, alive: a.alive,
             x: +a.x.toFixed(2), y: +a.y.toFixed(2), z: +a.z.toFixed(2), grounded: a.grounded,
             weapon: a.slots[a.active].stats.id, mag: a.slots[a.active].mag, reserve: a.slots[a.active].reserve, kills: a.kills })),
@@ -184,6 +193,7 @@ function GameDriver({ options }: { options: GameOptions }) {
       scene.remove(game.effects.group);
       scene.remove(game.markers.group);
       scene.remove(game.items.group);
+      scene.remove(game.glows.group);
       game.markers.dispose();
       game.input.dispose();
       game.ads.dispose();
@@ -197,7 +207,7 @@ function GameDriver({ options }: { options: GameOptions }) {
   const scratch = useMemo(() => ({ from: new Vector3(), fwd: new Vector3(), right: new Vector3(), hudTimer: 0, fpsFrames: 0, fpsTimer: 0, punch: 0,
     audio: { prevReload: 0, steps: new Map<number, number>() } }), []);
   const view = useMemo<HudView>(() => ({ hp: 100, alive: true, weapon: '', mag: 0, reserve: 0, reloading: false, phase: 'freeze',
-    timeLeft: 0, round: 1, scoreA: 0, scoreB: 0, aliveA: 0, aliveB: 0, center: '', sub: '', feed: [], roomInfo: `Offline practice · bots ${options.difficulty ?? DEFAULT_DIFFICULTY}`, fps: 0, perf: '', locked: false }), []);
+    timeLeft: 0, round: 1, scoreA: 0, scoreB: 0, aliveA: 0, aliveB: 0, center: '', sub: '', feed: [], roomInfo: `Offline practice · ${options.mode === 'cornucopia' ? `Cornucopia${options.teams === false ? ' (free-for-all)' : ''}` : 'Elimination'} · bots ${options.difficulty ?? DEFAULT_DIFFICULTY}`, fps: 0, perf: '', locked: false }), []);
 
   useFrame((state, delta) => {
     const { sim, input, hud, effects, rigs, viewmodel, stats, perf } = game;
@@ -296,6 +306,9 @@ function GameDriver({ options }: { options: GameOptions }) {
     hud.setCrosshairHidden(game.ads.hideCrosshair || !local.alive);
     effects.update(dt);
     game.items.sync(sim.items, state.clock.elapsedTime);
+    game.glows.begin();
+    for (const a of sim.actors) if (a.alive && a.boots && a.sinceBoost < CORNUCOPIA.glowTime) game.glows.show(a.id, a.x, a.y, a.z);
+    game.glows.end();
 
     const renderStart = performance.now();
     gl.autoClear = true;
@@ -317,7 +330,7 @@ function GameDriver({ options }: { options: GameOptions }) {
       scratch.hudTimer = 0.1;
       fillHudView(view, sim, input.locked || options.debug, stats);
       const near = sim.local.alive && sim.round.phase === 'live' ? sim.itemNear(sim.local) : null;
-      view.hint = near ? itemHint(near) : '';
+      view.hint = near ? itemHint(near) : healHint(sim.local.healLeft > 0);
       view.perf += ` \u00b7 worst ${Math.round(perf.displayWorstMs)} ms (sim ${perf.displayWorstSimMs.toFixed(1)}) / 5 s`;
       hud.update(view);
     }
@@ -341,6 +354,13 @@ function fillHudView(v: HudView, sim: Simulation, locked: boolean, stats: GameDe
   else if (r.phase === 'matchEnd') { v.center = r.matchWinner === mine ? 'VICTORY' : 'DEFEAT'; v.sub = 'Press Enter or click to play again'; }
   else if (!local.alive) { v.center = 'You died'; v.sub = 'Wait for the round to end'; }
   else { v.center = ''; v.sub = ''; }
+  const m = { mode: sim.mode, ffa: sim.ffa, phase: r.phase, myTeam: mine, lastWinner: r.lastWinner ?? '', matchWinner: r.matchWinner ?? '',
+    nameOfTeam: (t: string) => sim.actors.find((a) => a.team === t)?.name ?? t, aliveA, aliveB,
+    aliveAll: sim.actors.filter((a) => a.alive).length, boots: local.boots, healing: local.healLeft > 0 };
+  v.scoreLine = cornucopiaScoreLine(m);
+  const end = cornucopiaEndText(m);
+  if (end) { v.center = end.center; v.sub = r.phase === 'matchEnd' ? `${end.sub}\nPress Enter or click to play again` : end.sub; }
+  else if (sim.mode === 'cornucopia' && r.phase === 'freeze') { v.center = 'Cornucopia'; v.sub = `starts in ${Math.ceil(r.timeLeft)} · loot on the pedestals, E to take`; }
   const names = (id: number) => (id < 0 ? 'world' : sim.actors[id].name);
   const ally = (id: number) => id >= 0 && sim.actors[id].team === local.team;
   v.feed = sim.kills.slice(-4).map((k) => ({ killer: names(k.killerId), killerAlly: ally(k.killerId), victim: names(k.victimId),

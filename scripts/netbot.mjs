@@ -21,10 +21,10 @@ function moveMsg(net, x, y, z, vx, vz, yaw) {
 }
 
 /** Walk `net` (a GameNet in a room) to (tx, tz) along an A* path at `speed` m/s. Returns false if stopped. */
-export async function walkTo(mods, net, tx, tz, speed = 4.5) {
+export async function walkTo(mods, net, tx, tz, speed = 4.5, ty = 0) {
   const { nav, grid } = mods;
   const path = [];
-  const start = nav.nearestWalkable(grid, net.me.x, net.me.y, net.me.z), goal = nav.nearestWalkable(grid, tx, 0, tz);
+  const start = nav.nearestWalkable(grid, net.me.x, net.me.y, net.me.z), goal = nav.nearestWalkable(grid, tx, ty, tz);
   nav.findPath(grid, start, goal, path);
   let x = net.me.x, z = net.me.z, y = net.me.y;
   const before = net.corrections;

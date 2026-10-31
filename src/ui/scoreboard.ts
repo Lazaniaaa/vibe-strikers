@@ -30,15 +30,17 @@ export class Scoreboard {
   update(rows: readonly ScoreRow[], meId: string, scoreA: number, scoreB: number): void {
     const esc = (t: string) => t.replace(/[&<>"]/g, (c) => `&#${c.charCodeAt(0)};`);
     const table = (team: string, score: number) => {
-      const list = rows.filter((r) => r.team === team).sort((a, b) => b.kills - a.kills || a.deaths - b.deaths);
+      const list = rows.filter((r) => team === '' || r.team === team).sort((a, b) => b.kills - a.kills || a.deaths - b.deaths);
       const color = (ally: boolean) => (ally ? TEAM_COLORS.ally : TEAM_COLORS.enemy);
       const body = list.map((r) => `<tr class="${r.id === meId ? 'me' : ''} ${r.alive ? '' : 'dead'}"><td style="color:${color(r.ally)}">${esc(r.name)}</td>` +
         `<td>${esc(r.character)}</td><td class="num">${r.kills}</td><td class="num">${r.deaths}</td>` +
         `<td class="num">${r.isBot ? 'BOT' : r.ping}</td></tr>`).join('');
       const ally = list[0]?.ally ?? false;
-      return `<table><tr><th style="color:${color(ally)}">TEAM ${team}${list.length ? (ally ? ' (yours)' : ' (enemy)') : ''} · ${score}</th><th>Character</th><th>K</th><th>D</th><th>Ping</th></tr>${body}</table>`;
+      return `<table><tr><th style="color:${color(ally)}">${team === '' ? 'PLAYERS (free-for-all)' : `TEAM ${team}${list.length ? (ally ? ' (yours)' : ' (enemy)') : ''} · ${score}`}</th><th>Character</th><th>K</th><th>D</th><th>Ping</th></tr>${body}</table>`;
     };
-    const html = table('A', scoreA) + table('B', scoreB);
+    // Free-for-all (Cornucopia without teams): one table with everyone.
+    const ffa = rows.some((r) => r.team !== 'A' && r.team !== 'B');
+    const html = ffa ? table('', 0) : table('A', scoreA) + table('B', scoreB);
     if (html !== this.lastHtml) { this.lastHtml = html; this.root.innerHTML = html; }
   }
 }

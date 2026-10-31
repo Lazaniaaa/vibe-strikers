@@ -28,8 +28,11 @@ import { Input } from './input';
 import { FramePerf } from './perf';
 import { AvatarRig, DeathMarkers, ShotEffects, ViewmodelRig } from './visuals';
 import { AdsController } from './ads';
-import { ItemViews } from './items';
-import { itemHint, nearestOf } from '../../src/gameplay/items';
+import { BootGlows, ItemViews } from './items';
+import { cornucopiaLoadout, itemHint, nearestOf } from '../../src/gameplay/items';
+import { isFfaTeam } from '../../src/gameplay/mode';
+import { CORNUCOPIA } from '../../src/config/items';
+import { cornucopiaEndText, cornucopiaScoreLine, healHint } from '../../src/ui/modeText';
 import { TagProjector } from './nameTagProjector';
 import { NameTags } from '../../src/ui/nameTags';
 import { getSfx } from '../../src/ui/sfx';
@@ -103,6 +106,7 @@ function OnlineDriver({ net, debug, onLeave }: { net: GameNet; debug: boolean; o
     const effects = new ShotEffects(tracerMat, impactMat, unitBox);
     const markers = new DeathMarkers();
     const items = new ItemViews();
+    const glows = new BootGlows();
     const nameTags = new NameTags(hudRoot);
     const tagger = new TagProjector(nameTags, blockers);
     const remotes = new Map<bigint, Remote>();
@@ -111,17 +115,20 @@ function OnlineDriver({ net, debug, onLeave }: { net: GameNet; debug: boolean; o
     const sample: Snapshot = { t: 0, x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0, yaw: 0, pitch: 0, crouch: false, grounded: true, alive: true };
     const feed: string[] = [];
     const feedEntries: KillFeedEntry[] = [];
-    const scratch = { from: vec3(), dir: vec3(), punch: 0, autoAim: null as bigint | null };
+    const scratch = { from: vec3(), dir: vec3(), punch: 0, autoAim: null as bigint | null, primary: '' };
     const rewinds: number[] = [];
     const sfx = getSfx();
     const audio = { stepDist: 0, prevReload: 0 };
     const view: ViewState = { mode: 'self', target: null, until: 0, killer: '', weapon: '', fireWas: false };
-    const spawn = (row: { x: number; y: number; z: number; yaw: number; primary: string }) => {
-      setPrimary(local, row.primary as WeaponId);
+    const spawn = (row: { x: number; y: number; z: number; yaw: number; primary: string; weapon: number }) => {
+      local.hasPrimary = row.primary !== '';
+      if (local.hasPrimary) setPrimary(local, row.primary as WeaponId);
+      scratch.primary = row.primary;
       motor.teleport(local, row.x, row.y, row.z);
       local.yaw = row.yaw; local.intent.yaw = row.yaw; local.pitch = 0;
       for (const s of local.slots) resetSlot(s);
-      local.active = 0; local.equipLeft = 0; local.fireAnimLeft = 0; local.alive = true;
+      local.active = 0; local.equipLeft = 0; local.fireAnimLeft = 0; local.alive = true; local.boots = false; local.healLeft = 0;
+      if (!local.hasPrimary) cornucopiaLoadout(local); // Cornucopia: knife + pistol with one magazine
       view.mode = 'self'; view.target = null;
     };
     net.onSpawn = spawn;
@@ -174,7 +181,7 @@ function OnlineDriver({ net, debug, onLeave }: { net: GameNet; debug: boolean; o
         weapon: k.weapon, headshot: k.headshot });
       if (feedEntries.length > 4) feedEntries.shift();
     };
-    return { local, motor, input, hud, scoreboard, viewmodel, ads, view, sfx, audio, markers, items, feedEntries, nameTags, tagger, effects, remotes, perf, stats, sample, feed, scratch, rewinds, allyMat, allyGeo,
+    return { local, motor, input, hud, scoreboard, viewmodel, ads, view, sfx, audio, markers, items, glows, feedEntries, nameTags, tagger, effects, remotes, perf, stats, sample, feed, scratch, rewinds, allyMat, allyGeo,
       disposables: [unitBox, tracerMat, impactMat, flashMat, flashGeo, allyMat, allyGeo] };
   }, [net, world, rapier, gl, scene, debug, onLeave]);
 
@@ -184,6 +191,7 @@ function OnlineDriver({ net, debug, onLeave }: { net: GameNet; debug: boolean; o
     scene.add(game.effects.group);
     scene.add(game.markers.group);
     scene.add(game.items.group);
+    scene.add(game.glows.group);
     if (debug) {
       window.__online = {
         net, local: game.local, stats: game.stats,
@@ -192,8 +200,10 @@ function OnlineDriver({ net, debug, onLeave }: { net: GameNet; debug: boolean; o
           me: net.me && { id: String(net.me.id), team: net.me.team, x: net.me.x, z: net.me.z, hp: net.me.hp, alive: net.me.alive,
             mag: net.me.mag, reserve: net.me.reserve, violations: net.me.violations, kills: net.me.kills, deaths: net.me.deaths },
           local: { x: game.local.x, y: game.local.y, z: game.local.z, grounded: game.local.grounded, mag: game.local.slots[game.local.active].mag },
-          items: [...net.items.values()].map((i) => ({ id: String(i.id), kind: i.kind, weapon: i.weapon, mag: i.mag, reserve: i.reserve, x: i.x, y: i.y, z: i.z })),
-          itemViews: game.items.count, hint: view.hint ?? '', primary: game.local.slots[0].stats.id,
+          items: [...net.items.values()].map((i) => ({ id: String(i.id), kind: i.kind, weapon: i.weapon, mag: i.mag, reserve: i.reserve, x: i.x, y: i.y, z: i.z, pedestal: i.pedestal })),
+          itemViews: game.items.count, hint: view.hint ?? '', primary: game.local.hasPrimary ? game.local.slots[0].stats.id : '',
+          glows: game.glows.visibleCount, center: view.center, sub: view.sub, scoreLine: view.scoreLine ?? '', mode: net.room?.mode, teams: net.room?.teams,
+          localState: { boots: game.local.boots, active: game.local.active, healLeft: net.me?.healLeft ?? 0, pistol: [game.local.slots[1].mag, game.local.slots[1].reserve] },
           snapBacks: net.corrections, players: net.players.size, remotes: game.remotes.size, stats: { ...game.stats },
         }),
         aimAtRemote: (id: string, head = false) => {
@@ -225,6 +235,7 @@ function OnlineDriver({ net, debug, onLeave }: { net: GameNet; debug: boolean; o
       scene.remove(game.effects.group);
       scene.remove(game.markers.group);
       scene.remove(game.items.group);
+      scene.remove(game.glows.group);
       game.markers.dispose();
       game.input.dispose();
       game.ads.dispose();
@@ -254,10 +265,16 @@ function OnlineDriver({ net, debug, onLeave }: { net: GameNet; debug: boolean; o
     local.alive = me?.alive ?? false;
     // The server applied a new primary during the freeze phase.
     // (A pick-up also swaps the primary and draws it: take its ammo from the row.)
-    if (me && setPrimary(local, me.primary as WeaponId)) {
-      if (me.weapon === 0) { cancelReload(local.slots[local.active]); local.active = 0; local.slots[0].mag = me.mag; local.slots[0].reserve = me.reserve; }
-      if (local.active === 0) local.equipLeft = local.slots[0].stats.equipTime;
+    if (me && me.primary !== scratchPrimary(game)) {
+      game.scratch.primary = me.primary;
+      local.hasPrimary = me.primary !== '';
+      if (local.hasPrimary) {
+        setPrimary(local, me.primary as WeaponId);
+        if (me.weapon === 0) { cancelReload(local.slots[local.active]); local.active = 0; local.slots[0].mag = me.mag; local.slots[0].reserve = me.reserve; }
+        if (local.active === 0) local.equipLeft = local.slots[0].stats.equipTime;
+      }
     }
+    if (me) local.boots = me.boots;
     const primaryChoice = input.takePrimaryRequest();
     if (primaryChoice >= 0 && me) {
       const want = LOADOUT.primaries[primaryChoice];
@@ -289,7 +306,7 @@ function OnlineDriver({ net, debug, onLeave }: { net: GameNet; debug: boolean; o
         // E: pick up the nearest item (the server checks range and swaps the primary).
         if (intent.use && live) { const it = nearestOf(net.items.values(), local.x, local.y, local.z); if (it) net.pickUp(it.id); }
         // Weapon switch / reload / fire (the server repeats every check).
-        if (intent.slot >= 0 && intent.slot < local.slots.length && intent.slot !== local.active) {
+        if (intent.slot >= 0 && intent.slot < local.slots.length && intent.slot !== local.active && (intent.slot !== 0 || local.hasPrimary)) {
           input.cancelAds();
           cancelReload(local.slots[local.active]);
           local.active = intent.slot; local.equipLeft = local.slots[intent.slot].stats.equipTime; local.fireLatch = false;
@@ -325,7 +342,7 @@ function OnlineDriver({ net, debug, onLeave }: { net: GameNet; debug: boolean; o
           }
         }
         // Reconcile ammo with the server when both sides are idle.
-        if (me.weapon === local.active && !me.reloading && s.reloadLeft <= 0 && Math.abs(me.mag - s.mag) > 1) { s.mag = me.mag; s.reserve = me.reserve; }
+        if (me.weapon === local.active && !me.reloading && s.reloadLeft <= 0 && (Math.abs(me.mag - s.mag) > 1 || me.reserve !== s.reserve)) { s.mag = me.mag; s.reserve = me.reserve; }
       }
       if (local.fireAnimLeft > 0) local.fireAnimLeft = Math.max(0, local.fireAnimLeft - dt);
     }
@@ -346,6 +363,8 @@ function OnlineDriver({ net, debug, onLeave }: { net: GameNet; debug: boolean; o
     const renderTime = performance.now() - NET.interpolationDelayMs;
     const myTeam = me?.team;
     const poseStart = performance.now();
+    game.glows.begin();
+    if (local.alive && local.boots && local.sinceBoost < CORNUCOPIA.glowTime) game.glows.show(-1n, local.x, local.y, local.z);
     for (const [id, row] of net.players) {
       if (me && id === me.id) continue;
       let r = remotes.get(id);
@@ -367,12 +386,14 @@ function OnlineDriver({ net, debug, onLeave }: { net: GameNet; debug: boolean; o
       if (a.fireAnimLeft > 0) a.fireAnimLeft = Math.max(0, a.fireAnimLeft - dt);
       setMotionFromVelocity(a, sample.vx, sample.vz, MOVEMENT.runSpeed);
       r.rig.sync(a, dt);
+      if (row.boots && a.alive && !sample.grounded && sample.vy > 0.5) game.glows.show(id, a.x, a.y, a.z);
       game.markers.update(Number(id), a.alive, a.x, a.y, a.z, row.team === myTeam);
       if (a.alive && a.grounded && !row.walk && !a.crouching && a.moveFraction >= AUDIO.stepMinMoveFraction) {
         r.stepDist += Math.hypot(a.vx, a.vz) * dt;
         if (r.stepDist >= AUDIO.stride) { r.stepDist = 0; game.sfx.playAt('step', a.x, a.z, local.x, local.z, local.yaw); }
       }
     }
+    game.glows.end();
     stats.remotes = remotes.size;
     perf.now.pose = performance.now() - poseStart;
 
@@ -387,7 +408,8 @@ function OnlineDriver({ net, debug, onLeave }: { net: GameNet; debug: boolean; o
       vs.fireWas = fire;
       if (vs.mode === 'killcam' && (performance.now() >= vs.until || !remotes.has(vs.target!))) { vs.mode = 'spectate'; vs.target = null; }
       if (vs.mode === 'spectate') {
-        const mates = [...net.players.values()].filter((p) => p.team === myTeam && p.alive && p.id !== me?.id).map((p) => p.id)
+        const ffa = !!myTeam && isFfaTeam(myTeam);
+        const mates = [...net.players.values()].filter((p) => (ffa || p.team === myTeam) && p.alive && p.id !== me?.id).map((p) => p.id)
           .sort((a, b) => (a < b ? -1 : 1));
         const at = vs.target === null ? -1 : mates.indexOf(vs.target);
         if (at < 0 || click) vs.target = mates.length ? mates[(at + 1) % mates.length] : null;
@@ -449,7 +471,7 @@ function OnlineDriver({ net, debug, onLeave }: { net: GameNet; debug: boolean; o
         else { view.center = 'You died'; view.sub = target ? `Spectating ${target} · click: next teammate` : 'No teammates alive'; }
       }
       const near = local.alive && room?.phase === 'live' ? nearestOf(net.items.values(), local.x, local.y, local.z) : null;
-      view.hint = near ? itemHint(near) : '';
+      view.hint = near ? itemHint(near) : healHint((me?.healLeft ?? 0) > 0);
       view.fps = stats.fps;
       view.perf = `${Math.round(stats.triangles / 1000)}k tris · ${stats.calls} calls · worst ${Math.round(perf.displayWorstMs)} ms / 5 s · ping ${Math.round(net.pingMs)} · snap-backs ${net.corrections}`;
       game.scoreboard.setVisible(input.isDown(KEYS.scoreboard));
@@ -461,6 +483,8 @@ function OnlineDriver({ net, debug, onLeave }: { net: GameNet; debug: boolean; o
 
   return null;
 }
+
+function scratchPrimary(game: { scratch: { primary: string } }): string { return game.scratch.primary; }
 
 function scoreRows(net: GameNet): ScoreRow[] {
   const mine = net.me?.team;
@@ -489,11 +513,21 @@ function fillOnlineHud(v: HudView, net: GameNet, local: Actor, feed: readonly Ki
   else if (r.phase === 'matchEnd') { v.center = r.matchWinner === mine ? 'VICTORY' : 'DEFEAT'; v.sub = `new match in ${Math.ceil(r.timeLeft)}`; }
   else if (me && !me.alive) { v.center = 'You died'; v.sub = 'Wait for the next round'; }
   else { v.center = ''; v.sub = ''; }
-  if (me && r && (r.phase === 'freeze' || r.phase === 'roundEnd' || !me.alive)) {
+  const ffa = !!mine && isFfaTeam(mine);
+  const m = { mode: r?.mode ?? 'elimination', ffa, phase: r?.phase ?? 'freeze', myTeam: mine ?? '', lastWinner: r?.lastWinner ?? '',
+    matchWinner: r?.matchWinner ?? '', nameOfTeam: (t: string) => [...net.players.values()].find((p) => p.team === t)?.name ?? t,
+    aliveA, aliveB, aliveAll: aliveA + aliveB, boots: me?.boots ?? false, healing: (me?.healLeft ?? 0) > 0 };
+  v.scoreLine = cornucopiaScoreLine(m);
+  const end = cornucopiaEndText(m);
+  const corn = r?.mode === 'cornucopia';
+  if (end) { v.center = end.center; v.sub = r?.phase === 'matchEnd' ? `${end.sub}\nnew match in ${Math.ceil(r.timeLeft)}` : end.sub; }
+  else if (corn && r?.phase === 'freeze') { v.center = 'Cornucopia'; v.sub = `starts in ${Math.ceil(r.timeLeft)} · loot on the pedestals, E to take`; }
+  else if (corn && me && !me.alive) { v.center = 'You died'; v.sub = 'One life per match: spectating'; }
+  if (me && r && !corn && (r.phase === 'freeze' || r.phase === 'roundEnd' || !me.alive)) {
     const next = loadoutFor(me.nextPrimary as WeaponId)[0];
     v.sub += `${v.sub ? '\n' : ''}Primary: ${LOADOUT.primaries.map((w, i) => `${7 + i} ${w}${w === next ? ' ✓' : ''}`).join(' · ')}`;
   }
-  v.roomInfo = `Room ${r?.code ?? '-----'}${r?.isPrivate ? ' (private)' : ''} · ${humans} players + ${bots} bots (${r?.difficulty ?? 'normal'}) · team ${mine ?? '-'}` +
+  v.roomInfo = `Room ${r?.code ?? '-----'}${r?.isPrivate ? ' (private)' : ''}${corn ? ` · Cornucopia${ffa ? ' (free-for-all)' : ''}` : ''} · ${humans} players + ${bots} bots (${r?.difficulty ?? 'normal'}) · team ${mine ?? '-'}` +
     `${net.lagMs ? ` · lag ${net.lagMs} ms` : ''}${net.lastError ? `\n${net.lastError}` : ''}`;
   v.feed = feed;
 }

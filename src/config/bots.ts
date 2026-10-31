@@ -111,8 +111,22 @@ export const BOT_ROLES = {
   sniperFacingCos: 0.6,
   /** Shotgun: keep pushing toward the target until this close (m). */
   shotgunPushRange: 4,
+  /** Knife (Cornucopia, no ammo left): run at the target until this close (m). */
+  knifePushRange: 1.0,
   /** Shotgun: do not shoot from farther than this (m). */
   shotgunFireRange: 14,
+} as const;
+
+/** Cornucopia bots: go for loot, heal, sometimes the contested centre (high tier). */
+export const BOT_LOOT = {
+  /** Use a medkit below this HP. */
+  healBelow: 70,
+  /** Look for items at most this far (m). */
+  searchRadius: 40,
+  /** With a primary: chance (per roam goal) to go for a high-tier item (centre) or other useful loot. */
+  centreChance: 0.5,
+  /** Pick up pistol ammo while the pistol has less than this in reserve. */
+  ammoBelow: 12,
 } as const;
 
 export type BotDifficulty = 'easy' | 'normal' | 'hard';

@@ -10,18 +10,19 @@ import { BOT_SKILLS, BOTS, DEFAULT_DIFFICULTY, type BotDifficulty } from '../../
 import { HITBOXES } from '../../src/config/hitboxes.ts';
 import { CAPSULE, MOVEMENT } from '../../src/config/movement.ts';
 import { FIRE_CHECK, NET } from '../../src/config/net.ts';
-import { MATCH, ROUND_PRESETS } from '../../src/config/rounds.ts';
-import { ITEMS } from '../../src/config/items.ts';
+import { MATCH } from '../../src/config/rounds.ts';
+import { CORNUCOPIA, ITEMS } from '../../src/config/items.ts';
 import { LOADOUT, loadoutFor, WEAPON_STATS } from '../../src/config/weapons.ts';
 import type { WeaponId } from '../../src/weapons/types.ts';
 import { setPrimary, type Actor } from '../../src/gameplay/actor.ts';
 import { pickBotPrimary, resetBrain, updateBot, type BotWorld } from '../../src/gameplay/botBrain.ts';
-import { inPickupRange, primaryState, swapPrimary, type WeaponState } from '../../src/gameplay/items.ts';
+import { cornucopiaLoadout, inPickupRange, lootAmmo, nearestItem, primaryState, tickHeal, useItem, type WeaponState } from '../../src/gameplay/items.ts';
+import { ffaTeam, isFfaTeam, lootPlan, presetFor, tickModeRound, type GameMode } from '../../src/gameplay/mode.ts';
 import { createShotResult, traceShot, type HitTarget } from '../../src/gameplay/hitscan.ts';
 import { DEG, directionFromAngles, spreadDirection, vec3 } from '../../src/gameplay/math.ts';
 import { stepOnGrid } from '../../src/gameplay/navMotor.ts';
 import type { MoveSample } from '../../src/gameplay/movementCheck.ts';
-import { restartMatch, tickRound, type RoundPhase, type RoundState, type TeamId } from '../../src/gameplay/round.ts';
+import { restartMatch, type RoundPhase, type RoundState, type TeamId } from '../../src/gameplay/round.ts';
 import { canFire, cancelReload, consumeShot, damageAt, resetSlot, spreadDeg, startReload, tickSlot } from '../../src/gameplay/weaponLogic.ts';
 import { actorFor, brainFor, forgetActor, getNav, getWorld, historyFor } from './world.ts';
 
@@ -33,6 +34,10 @@ const room = table({ name: 'room', public: true }, {
   bots: t.bool(),
   /** Bot difficulty: 'easy' | 'normal' | 'hard' (quick play: normal). */
   difficulty: t.string(),
+  /** 'elimination' | 'cornucopia' */
+  mode: t.string(),
+  /** Cornucopia: teams (true) or free-for-all (false). Elimination: always true. */
+  teams: t.bool(),
   phase: t.string(),
   round: t.u32(),
   scoreA: t.u32(),
@@ -78,6 +83,10 @@ const player = table({ name: 'player', public: true }, {
   reloading: t.bool(),
   kills: t.u32(),
   deaths: t.u32(),
+  /** Medkit healing: seconds left. */
+  healLeft: t.f32(),
+  /** Cornucopia rocket boots (double jump). */
+  boots: t.bool(),
   /** Round-trip time reported by the client (ms); 0 for bots. */
   ping: t.u16(),
   /** Server time of this pose (move accepted / bot tick); clients use it to map their view to server time. */
@@ -125,6 +134,8 @@ const item = table({ name: 'item', public: true }, {
   reserve: t.u16(),
   /** Floor position (feet height). */
   x: t.f32(), y: t.f32(), z: t.f32(),
+  /** Cornucopia loot on a pedestal (not a drop). */
+  pedestal: t.bool(),
 });
 
 const tickTimer = table({ name: 'tick_timer' }, {
@@ -140,7 +151,8 @@ type PlayerRow = ReturnType<Ctx['db']['player']['id']['find']> & {};
 type RoomRow = ReturnType<Ctx['db']['room']['id']['find']> & {};
 
 const TICK_DT = 1 / NET.tickRateHz;
-const PRESET = ROUND_PRESETS[MATCH.preset];
+const modeOf = (r: RoomRow) => (r.mode === 'cornucopia' ? 'cornucopia' : 'elimination') as GameMode;
+const isFfa = (r: RoomRow) => modeOf(r) === 'cornucopia' && !r.teams;
 
 const nowMs = (ctx: Ctx) => Number(ctx.timestamp.microsSinceUnixEpoch) / 1000;
 
@@ -166,7 +178,9 @@ function actorOf(row: PlayerRow): Actor {
   const a = actorFor(Number(row.id), row.team as TeamId, row.isBot);
   a.team = row.team as TeamId; a.x = row.x; a.y = row.y; a.z = row.z; a.yaw = row.yaw; a.pitch = row.pitch;
   a.crouching = row.crouch; a.alive = row.alive; a.hp = row.hp; a.grounded = row.grounded;
-  setPrimary(a, row.primary as WeaponId);
+  a.hasPrimary = row.primary !== '';
+  if (a.hasPrimary) setPrimary(a, row.primary as WeaponId);
+  a.boots = row.boots; a.healLeft = row.healLeft;
   if (a.active !== row.weapon && row.weapon < a.slots.length) a.active = row.weapon;
   a.eyeHeight = row.crouch ? CAPSULE.crouchEyeHeight : CAPSULE.eyeHeight;
   return a;
@@ -177,23 +191,38 @@ function fullAmmo(primary: WeaponId): { mag: number; reserve: number } {
   return { mag: s.magSize, reserve: s.reserve };
 }
 
-function spawnRow(ctx: Ctx, roomId: bigint, team: TeamId, isBot: boolean, ownerHex: string, name: string, character: number,
+function spawnRow(ctx: Ctx, r: RoomRow, team: TeamId, isBot: boolean, ownerHex: string, name: string, character: number,
   spawnIndex: number, primary: WeaponId = LOADOUT.defaultPrimary): void {
-  const spots = getWorld().spawns[team];
+  const roomId = r.id, corn = modeOf(r) === 'cornucopia';
+  const spots = isFfaTeam(team) ? getWorld().ffaSpawns : getWorld().spawns[team];
   const s = spots[spawnIndex % spots.length];
-  const ammo = fullAmmo(primary);
-  ctx.db.player.insert({
+  const ammo = corn ? { mag: CORNUCOPIA.pistolMag, reserve: CORNUCOPIA.pistolReserve } : fullAmmo(primary);
+  const row = ctx.db.player.insert({
     id: 0n, roomId, ownerHex, isBot, name, character: character % characters.length, team, x: s.x, y: s.y, z: s.z, vx: 0, vy: 0, vz: 0,
     yaw: s.yaw, pitch: 0, crouch: false, grounded: true, walk: false, seq: 0, correctionSeq: 1, spawnCount: 1, violations: 0,
-    hp: MATCH.maxHealth, alive: true, weapon: 0, primary, nextPrimary: primary,
-    mag: ammo.mag, reserve: ammo.reserve, reloading: false, kills: 0, deaths: 0, ping: 0, lastMoveAt: ctx.timestamp,
+    hp: MATCH.maxHealth, alive: true, weapon: corn ? 1 : 0, primary: corn ? '' : primary, nextPrimary: corn ? '' : primary,
+    mag: ammo.mag, reserve: ammo.reserve, reloading: false, kills: 0, deaths: 0, healLeft: 0, boots: false, ping: 0, lastMoveAt: ctx.timestamp,
   });
+  if (corn) cornucopiaLoadout(actorFor(Number(row.id), team, isBot));
+}
+
+/** A free team id for free-for-all ('F1', 'F2', ...). */
+function freeFfaTeam(rows: readonly PlayerRow[]): TeamId {
+  for (let i = 1; ; i++) { const t = ffaTeam(i); if (!rows.some((p) => p.team === t)) return t; }
 }
 
 /** Fill both teams up to MATCH.teamSize with bots (if the room uses bots). */
 function fillBots(ctx: Ctx, r: RoomRow): void {
   if (!r.bots) return;
   const rows = playersIn(ctx, r.id);
+  if (isFfa(r)) {
+    while (rows.length < MATCH.teamSize * 2) {
+      const team = freeFfaTeam(rows);
+      spawnRow(ctx, r, team, true, '', `Bot ${ctx.random.integerInRange(10, 99)}`, ctx.random.integerInRange(0, characters.length - 1), rows.length);
+      rows.push({ team } as PlayerRow);
+    }
+    return;
+  }
   for (const team of ['A', 'B'] as const) {
     let count = rows.filter((p) => p.team === team).length;
     // Random primaries, at most LOADOUT.maxSnipersPerTeam snipers per team.
@@ -201,7 +230,7 @@ function fillBots(ctx: Ctx, r: RoomRow): void {
     while (count < MATCH.teamSize) {
       const primary = pickBotPrimary(() => ctx.random(), snipers >= LOADOUT.maxSnipersPerTeam);
       if (primary === 'sniper') snipers++;
-      spawnRow(ctx, r.id, team, true, '', `Bot ${ctx.random.integerInRange(10, 99)}`,
+      spawnRow(ctx, r, team, true, '', `Bot ${ctx.random.integerInRange(10, 99)}`,
         ctx.random.integerInRange(0, characters.length - 1), count, primary);
       count++;
     }
@@ -234,12 +263,21 @@ function joinRoom(ctx: Ctx, r: RoomRow, name: string, character: number): void {
   removeOwnRows(ctx);
   const rows = playersIn(ctx, r.id);
   const humans = (team: string) => rows.filter((p) => p.team === team && !p.isBot).length;
-  if (humans('A') + humans('B') >= MATCH.teamSize * 2) throw new SenderError('room is full');
+  if (rows.filter((p) => !p.isBot).length >= MATCH.teamSize * 2) throw new SenderError('room is full');
+  if (isFfa(r)) {
+    // Free-for-all: take a bot's place (and its team id), else a new team id.
+    const bot = rows.find((p) => p.isBot);
+    if (bot) { ctx.db.player.id.delete(bot.id); forgetActor(Number(bot.id)); }
+    const team = bot ? (bot.team as TeamId) : freeFfaTeam(rows);
+    spawnRow(ctx, r, team, false, ctx.sender.toHexString(), cleanName(name), character, rows.length);
+    fillBots(ctx, r);
+    return;
+  }
   const team: TeamId = humans('A') <= humans('B') ? 'A' : 'B';
   const bot = rows.find((p) => p.team === team && p.isBot);
   if (bot) { ctx.db.player.id.delete(bot.id); forgetActor(Number(bot.id)); }
   const teamCount = rows.filter((p) => p.team === team).length - (bot ? 1 : 0);
-  spawnRow(ctx, r.id, team, false, ctx.sender.toHexString(), cleanName(name), character, teamCount);
+  spawnRow(ctx, r, team, false, ctx.sender.toHexString(), cleanName(name), character, teamCount);
   fillBots(ctx, r);
 }
 
@@ -250,11 +288,14 @@ function ensureTick(ctx: Ctx): void {
   }
 }
 
-function createRoom(ctx: Ctx, isPrivate: boolean, bots: boolean, difficulty: BotDifficulty = DEFAULT_DIFFICULTY): RoomRow {
+function createRoom(ctx: Ctx, isPrivate: boolean, bots: boolean, difficulty: BotDifficulty = DEFAULT_DIFFICULTY,
+  mode: GameMode = 'elimination', teams = true): RoomRow {
   ensureTick(ctx);
   getNav(); // build the nav grid now, not during a tick
-  return ctx.db.room.insert({ id: 0n, code: newRoomCode(ctx), isPrivate, bots, difficulty, phase: 'freeze', round: 1, scoreA: 0, scoreB: 0,
-    timeLeft: PRESET.freezeTime, lastWinner: '', matchWinner: '', createdAt: ctx.timestamp });
+  const r = ctx.db.room.insert({ id: 0n, code: newRoomCode(ctx), isPrivate, bots, difficulty, mode, teams: mode === 'elimination' || teams,
+    phase: 'freeze', round: 1, scoreA: 0, scoreB: 0, timeLeft: presetFor(mode).freezeTime, lastWinner: '', matchWinner: '', createdAt: ctx.timestamp });
+  if (mode === 'cornucopia') spawnLoot(ctx, r.id);
+  return r;
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -276,7 +317,8 @@ function syncAmmo(ctx: Ctx, row: PlayerRow, a: Actor): PlayerRow {
 function kill(ctx: Ctx, r: RoomRow, victimId: bigint, killerId: bigint, headshot: boolean, weapon: string): void {
   const v = ctx.db.player.id.find(victimId);
   if (!v || !v.alive) return;
-  dropItem(ctx, r.id, primaryState(actorOf(v)), v.x, v.y, v.z);
+  const va = actorOf(v);
+  if (va.hasPrimary) dropItem(ctx, r.id, primaryState(va), v.x, v.y, v.z);
   ctx.db.player.id.update({ ...v, hp: 0, alive: false, deaths: v.deaths + 1, vx: 0, vy: 0, vz: 0, reloading: false });
   actorFor(Number(v.id), v.team as TeamId, v.isBot).alive = false;
   const k = ctx.db.player.id.find(killerId);
@@ -289,8 +331,8 @@ function kill(ctx: Ctx, r: RoomRow, victimId: bigint, killerId: bigint, headshot
 
 /** A weapon with its ammo on the floor at (x, y, z). Keeps at most ITEMS.maxDropsPerRoom (oldest go first). */
 function dropItem(ctx: Ctx, roomId: bigint, w: WeaponState, x: number, y: number, z: number): void {
-  ctx.db.item.insert({ id: 0n, roomId, kind: 'weapon', weapon: w.weapon, mag: w.mag, reserve: w.reserve, x, y, z });
-  const all = [...ctx.db.item.roomId.filter(roomId)];
+  ctx.db.item.insert({ id: 0n, roomId, kind: 'weapon', weapon: w.weapon, mag: w.mag, reserve: w.reserve, x, y, z, pedestal: false });
+  const all = [...ctx.db.item.roomId.filter(roomId)].filter((it) => !it.pedestal);
   if (all.length <= ITEMS.maxDropsPerRoom) return;
   all.sort((a, b) => (a.id < b.id ? -1 : 1));
   for (let i = 0; i < all.length - ITEMS.maxDropsPerRoom; i++) ctx.db.item.id.delete(all[i].id);
@@ -298,6 +340,28 @@ function dropItem(ctx: Ctx, roomId: bigint, w: WeaponState, x: number, y: number
 
 function clearItems(ctx: Ctx, roomId: bigint): void {
   for (const it of [...ctx.db.item.roomId.filter(roomId)]) ctx.db.item.id.delete(it.id);
+}
+
+/** Cornucopia: loot on pedestals at the map's lootSpots (GAME.md 2.2, CORNUCOPIA.loot). */
+function spawnLoot(ctx: Ctx, roomId: bigint): void {
+  for (const l of lootPlan(getWorld().lootSpots)) {
+    const ammo = lootAmmo(l.kind, l.weapon);
+    ctx.db.item.insert({ id: 0n, roomId, kind: l.kind, weapon: l.weapon, mag: ammo.mag, reserve: ammo.reserve, x: l.x, y: l.y, z: l.z, pedestal: true });
+  }
+}
+
+type ItemRow = ReturnType<Ctx['db']['item']['id']['find']> & {};
+
+/** E on an item (humans and bots): validated by the caller (range, phase). Writes the player row. */
+function pickUpItem(ctx: Ctx, r: RoomRow, row: PlayerRow, a: Actor, it: ItemRow): void {
+  if (it.kind === 'weapon' && !LOADOUT.primaries.includes(it.weapon as WeaponId)) return;
+  const dropped: WeaponState[] = [];
+  if (!useItem(a, it, (w) => dropped.push(w))) return;
+  ctx.db.item.id.delete(it.id);
+  for (const w of dropped) dropItem(ctx, r.id, w, row.x, row.y, row.z);
+  const slot = a.slots[a.active];
+  ctx.db.player.id.update({ ...row, primary: a.hasPrimary ? a.slots[0].stats.id : '', weapon: a.active, mag: slot.mag, reserve: slot.reserve,
+    reloading: false, boots: a.boots, healLeft: a.healLeft });
 }
 
 /**
@@ -358,22 +422,27 @@ function fireShot(ctx: Ctx, r: RoomRow, shooter: PlayerRow, a: Actor, yaw: numbe
 /** Everyone back to the team spawns with full HP and ammo. */
 function respawnAll(ctx: Ctx, r: RoomRow, resetScores: boolean): void {
   clearItems(ctx, r.id);
+  const corn = modeOf(r) === 'cornucopia';
+  if (corn) spawnLoot(ctx, r.id);
   const rows = playersIn(ctx, r.id).sort((p, q) => (p.id < q.id ? -1 : 1));
-  const index = { A: 0, B: 0 };
+  const index: Record<string, number> = { A: 0, B: 0, F: 0 };
   for (const p of rows) {
-    const team = p.team as TeamId;
-    const spots = getWorld().spawns[team];
-    const s = spots[index[team]++ % spots.length];
+    const team = p.team as TeamId, ffa = isFfaTeam(team);
+    const spots = ffa ? getWorld().ffaSpawns : getWorld().spawns[team];
+    const s = spots[index[ffa ? 'F' : team]++ % spots.length];
     const a = actorFor(Number(p.id), team, p.isBot);
     const primary = loadoutFor(p.nextPrimary as WeaponId)[0];
     setPrimary(a, primary);
     for (const slot of a.slots) resetSlot(slot);
     a.active = 0; a.equipLeft = 0; a.fireAnimLeft = 0; a.alive = true; a.hp = MATCH.maxHealth; a.lastAttacker = -1; a.sinceDamage = 99;
+    a.hasPrimary = true; a.boots = false; a.healLeft = 0;
+    if (corn) cornucopiaLoadout(a);
     historyFor(Number(p.id)).clear();
     if (p.isBot) resetBrain(brainFor(Number(p.id)));
-    const slot = a.slots[0];
+    const slot = a.slots[a.active];
     ctx.db.player.id.update({ ...p, x: s.x, y: s.y, z: s.z, vx: 0, vy: 0, vz: 0, yaw: s.yaw, pitch: 0, crouch: false,
-      grounded: true, hp: MATCH.maxHealth, alive: true, weapon: 0, primary, mag: slot.mag, reserve: slot.reserve, reloading: false,
+      grounded: true, hp: MATCH.maxHealth, alive: true, weapon: a.active, primary: corn ? '' : primary, mag: slot.mag, reserve: slot.reserve,
+      reloading: false, healLeft: 0, boots: false,
       correctionSeq: p.correctionSeq + 1, spawnCount: p.spawnCount + 1, lastMoveAt: ctx.timestamp,
       kills: resetScores ? 0 : p.kills, deaths: resetScores ? 0 : p.deaths });
   }
@@ -387,17 +456,12 @@ function roundStateOf(r: RoomRow): RoundState {
 
 /** Advance the room's round state; respawns on a new round / match. */
 function tickRoom(ctx: Ctx, r: RoomRow): RoomRow {
-  const state = roundStateOf(r);
+  const state = roundStateOf(r), preset = presetFor(modeOf(r));
   if (state.phase === 'matchEnd') {
     state.timeLeft -= TICK_DT;
-    if (state.timeLeft <= 0) { restartMatch(state, PRESET); respawnAll(ctx, r, true); }
+    if (state.timeLeft <= 0) { restartMatch(state, preset); respawnAll(ctx, r, true); }
   } else {
-    let aliveA = 0, aliveB = 0, hpA = 0, hpB = 0;
-    for (const p of ctx.db.player.roomId.filter(r.id)) {
-      if (!p.alive) continue;
-      if (p.team === 'A') { aliveA++; hpA += p.hp; } else { aliveB++; hpB += p.hp; }
-    }
-    const ev = tickRound(state, PRESET, TICK_DT, { aliveA, aliveB, hpA, hpB });
+    const ev = tickModeRound(state, preset, TICK_DT, ctx.db.player.roomId.filter(r.id), isFfa(r));
     if (ev === 'roundStart') respawnAll(ctx, r, false);
     if (ev === 'matchEnd') state.timeLeft = MATCH.matchRestartTime;
   }
@@ -428,10 +492,11 @@ export const joinQuick = spacetimedb.reducer({ name: t.string(), character: t.u1
   joinRoom(ctx, target ?? createRoom(ctx, false, true), name, character);
 });
 
-export const createPrivateRoom = spacetimedb.reducer({ name: t.string(), character: t.u16(), bots: t.bool(), difficulty: t.string() },
-  (ctx, { name, character, bots, difficulty }) => {
+export const createPrivateRoom = spacetimedb.reducer({ name: t.string(), character: t.u16(), bots: t.bool(), difficulty: t.string(),
+  mode: t.string(), teams: t.bool() },
+  (ctx, { name, character, bots, difficulty, mode, teams }) => {
     const level: BotDifficulty = difficulty in BOT_SKILLS ? (difficulty as BotDifficulty) : DEFAULT_DIFFICULTY;
-    joinRoom(ctx, createRoom(ctx, true, bots, level), name, character);
+    joinRoom(ctx, createRoom(ctx, true, bots, level, mode === 'cornucopia' ? 'cornucopia' : 'elimination', teams), name, character);
 });
 
 export const joinByCode = spacetimedb.reducer({ code: t.string(), name: t.string(), character: t.u16() }, (ctx, { code, name, character }) => {
@@ -496,6 +561,8 @@ export const setPrimaryWeapon = spacetimedb.reducer({ weapon: t.string() }, (ctx
   if (!row) return;
   const want = weapon as WeaponId;
   if (!LOADOUT.primaries.includes(want)) throw new SenderError('not a primary weapon');
+  const rr = ctx.db.room.id.find(row.roomId);
+  if (rr && modeOf(rr) === 'cornucopia') throw new SenderError('Cornucopia: find weapons on the pedestals');
   if (want === 'sniper') {
     // Picked-up snipers do not count; a bot sniper gives its place to a human (takes a rifle).
     const mates = playersIn(ctx, row.roomId).filter((p) => p.id !== row.id && p.team === row.team && p.nextPrimary === 'sniper');
@@ -530,13 +597,7 @@ export const pickUp = spacetimedb.reducer({ itemId: t.u64() }, (ctx, { itemId })
   const r = ctx.db.room.id.find(row.roomId);
   if (!it || it.roomId !== row.roomId || !r || r.phase !== 'live') return;
   if (!inPickupRange(it, row.x, row.y, row.z, ITEMS.serverSlack)) return;
-  if (it.kind !== 'weapon' || !LOADOUT.primaries.includes(it.weapon as WeaponId)) return;
-  const a = actorOf(row);
-  ctx.db.item.id.delete(it.id);
-  const old = swapPrimary(a, { weapon: it.weapon as WeaponId, mag: it.mag, reserve: it.reserve });
-  dropItem(ctx, r.id, old, row.x, row.y, row.z);
-  const slot = a.slots[0];
-  ctx.db.player.id.update({ ...row, primary: slot.stats.id, weapon: 0, mag: slot.mag, reserve: slot.reserve, reloading: false });
+  pickUpItem(ctx, r, row, actorOf(row), it);
 });
 
 /** The client's measured round-trip time, for the scoreboard. */
@@ -557,7 +618,7 @@ export const switchWeapon = spacetimedb.reducer({ slot: t.u8() }, (ctx, { slot }
   const row = myRow(ctx);
   if (!row || !row.alive) return;
   const a = actorOf(row);
-  if (slot >= a.slots.length || slot === a.active) return;
+  if (slot >= a.slots.length || slot === a.active || (slot === 0 && !a.hasPrimary)) return;
   cancelReload(a.slots[a.active]);
   a.active = slot;
   a.equipLeft = a.slots[slot].stats.equipTime;
@@ -585,12 +646,20 @@ export const tick = spacetimedb.reducer({ onSchedule: tickTimer }, { timer: tick
       if (a.equipLeft > 0) a.equipLeft = Math.max(0, a.equipLeft - TICK_DT);
       if (a.fireAnimLeft > 0) a.fireAnimLeft = Math.max(0, a.fireAnimLeft - TICK_DT);
       a.sinceDamage += TICK_DT;
+      if (a.healLeft > 0 && rows[i].alive) {
+        tickHeal(a, TICK_DT);
+        rows[i] = { ...rows[i], hp: a.hp, healLeft: a.healLeft };
+        ctx.db.player.id.update(rows[i]);
+      }
       if (rows[i].alive) historyFor(Number(rows[i].id)).push(tNow, rows[i].x, rows[i].y, rows[i].z, rows[i].yaw, rows[i].crouch);
       if (!rows[i].isBot) syncAmmo(ctx, rows[i], a);
     }
     if (r.phase === 'freeze' || r.phase === 'matchEnd') continue;
     const botWorld: BotWorld = { actors, blockers: world.blockers, nav, goals: world.goals, cover: world.cover, routes: world.routes, perches: world.perches,
+      items: undefined,
       spawns: { A: world.spawns.A[0], B: world.spawns.B[0] }, random, pathBudget };
+    let roomItems: ItemRow[] = modeOf(r) === 'cornucopia' ? [...ctx.db.item.roomId.filter(r.id)] : [];
+    if (modeOf(r) === 'cornucopia') botWorld.items = roomItems;
     for (let i = 0; i < rows.length; i++) {
       const row = ctx.db.player.id.find(rows[i].id);
       const a = actors[i];
@@ -600,8 +669,13 @@ export const tick = spacetimedb.reducer({ onSchedule: tickTimer }, { timer: tick
       brain.skill = BOT_SKILLS[(r.difficulty in BOT_SKILLS ? r.difficulty : DEFAULT_DIFFICULTY) as BotDifficulty];
       updateBot(a, brain, botWorld, TICK_DT);
       a.yaw = a.intent.yaw; a.pitch = a.intent.pitch;
+      if (a.intent.use && live && roomItems.length) {
+        const k = nearestItem(roomItems, row.x, row.y, row.z);
+        const it = k >= 0 ? ctx.db.item.id.find(roomItems[k].id) : undefined;
+        if (it) { pickUpItem(ctx, r, row, a, it); roomItems = [...ctx.db.item.roomId.filter(r.id)]; botWorld.items = roomItems; }
+      }
       const sw = a.intent.slot;
-      if (sw >= 0 && sw < a.slots.length && sw !== a.active) {
+      if (sw >= 0 && sw < a.slots.length && sw !== a.active && (sw !== 0 || a.hasPrimary)) {
         cancelReload(a.slots[a.active]);
         a.active = sw; a.equipLeft = a.slots[sw].stats.equipTime; a.fireLatch = false;
       }

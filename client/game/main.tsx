@@ -3,6 +3,7 @@ import { characters } from '../../src/characters';
 import { LOCAL_PLAYER } from '../../src/config/game';
 import { BOT_SKILLS, DEFAULT_DIFFICULTY, type BotDifficulty } from '../../src/config/bots';
 import { GameNet } from '../../src/network/client';
+import type { GameMode } from '../../src/gameplay/mode';
 import { Menu, type MenuChoice } from '../../src/ui/menu';
 import { getSettingsPanel, settingsButton } from '../../src/ui/settingsPanel';
 import { getSfx } from '../../src/ui/sfx';
@@ -31,7 +32,7 @@ const root = createRoot(document.getElementById('root')!);
 
 async function joinWith(net: GameNet, choice: MenuChoice, character: number): Promise<void> {
   if (choice.kind === 'quick') await net.joinQuick(choice.name, character);
-  else if (choice.kind === 'create') await net.createPrivateRoom(choice.name, character, choice.bots, choice.difficulty);
+  else if (choice.kind === 'create') await net.createPrivateRoom(choice.name, character, choice.bots, choice.difficulty, choice.mode, choice.teams);
   else if (choice.kind === 'join') await net.joinByCode(choice.code, choice.name, character);
   // Wait until my row has arrived (after artificial lag too).
   const end = performance.now() + 10000;
@@ -45,13 +46,21 @@ function savedDifficulty(): BotDifficulty {
   return d in BOT_SKILLS ? (d as BotDifficulty) : DEFAULT_DIFFICULTY;
 }
 
+/** Game mode: ?mode= (tests), else the last menu choice. ?teams=0 = free-for-all (tests). */
+function savedMode(): GameMode {
+  const m = params.get('mode') ?? storage('local')?.getItem('voxel-mode');
+  return m === 'cornucopia' ? 'cornucopia' : 'elimination';
+}
+const savedTeams = params.get('teams') !== '0';
+
 const savedName = storage('local')?.getItem('voxel-name') ?? '';
 const savedCharacter = Number(params.get('character') ?? storage('local')?.getItem('voxel-character') ?? LOCAL_PLAYER.characterIndex);
 const list = characters.map((c, i) => ({ name: characterLabel(i), body: c.colors.body, accent: c.colors.glove ?? c.colors.outline }));
 const menu = new Menu(document.body, params.get('name') ?? savedName, list,
   Number.isFinite(savedCharacter) ? savedCharacter : LOCAL_PLAYER.characterIndex,
   (i) => storage('local')?.setItem('voxel-character', String(i)),
-  savedDifficulty(), (d) => storage('local')?.setItem('voxel-difficulty', d));
+  savedDifficulty(), (d) => storage('local')?.setItem('voxel-difficulty', d),
+  savedMode(), (m) => storage('local')?.setItem('voxel-mode', m));
 settingsButton(menu.settingsSlot, getSettingsPanel(), 'menu-btn menu-settings');
 // One connection for the whole page: leaving a match and joining another works without reloading.
 let net: GameNet | null = null;
@@ -65,9 +74,9 @@ function backToMenu(): void {
   void leaving.then(() => { root.render(<></>); void menuLoop(); });
 }
 
-function startOffline(character?: number, difficulty: BotDifficulty = savedDifficulty()): void {
+function startOffline(character?: number, difficulty: BotDifficulty = savedDifficulty(), mode: GameMode = savedMode(), teams = savedTeams): void {
   menu.hide();
-  root.render(<GameApp options={{ ...options, character, difficulty, onLeave: backToMenu }} />);
+  root.render(<GameApp options={{ ...options, character, difficulty, mode, teams, onLeave: backToMenu }} />);
 }
 
 async function menuLoop(): Promise<void> {
@@ -75,13 +84,13 @@ async function menuLoop(): Promise<void> {
   for (;;) {
     const autoName = params.get('name') ?? 'Tester';
     const choice: MenuChoice = auto === 'quick' ? { kind: 'quick', name: autoName }
-      : auto === 'create' ? { kind: 'create', name: autoName, bots: params.get('bots') !== '0', difficulty: savedDifficulty() }
+      : auto === 'create' ? { kind: 'create', name: autoName, bots: params.get('bots') !== '0', difficulty: savedDifficulty(), mode: savedMode(), teams: savedTeams }
       : auto === 'join' ? { kind: 'join', name: autoName, code: (params.get('code') ?? '').toUpperCase() }
       : await menu.choose();
     const wasAuto = auto !== null;
     auto = null;
     storage('local')?.setItem('voxel-name', choice.name);
-    if (choice.kind === 'offline') { startOffline(menu.character, choice.difficulty); return; }
+    if (choice.kind === 'offline') { startOffline(menu.character, choice.difficulty, choice.mode, choice.teams); return; }
     try {
       menu.setStatus('Connecting...');
       if (!net) {

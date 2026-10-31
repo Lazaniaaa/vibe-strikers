@@ -11,6 +11,8 @@ export interface RoundPreset {
 export const ROUND_PRESETS = {
   test: { winsToMatch: 3, roundTime: 45, freezeTime: 5, roundEndTime: 4 },
   live: { winsToMatch: 7, roundTime: 105, freezeTime: 5, roundEndTime: 4 },
+  /** Cornucopia: one life per match = one round (timeout: more HP wins). */
+  cornucopia: { winsToMatch: 1, roundTime: 300, freezeTime: 5, roundEndTime: 4 },
 } as const satisfies Record<string, RoundPreset>;
 
 export type RoundPresetId = keyof typeof ROUND_PRESETS;

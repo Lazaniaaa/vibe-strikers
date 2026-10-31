@@ -304,6 +304,20 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   Server bots now switch weapons (intent.slot) and respect the draw time. Offline: local ADS now gives the scoped
   sniper accuracy too (was server-only). Test `scripts/test-bot-roles.mjs` (180 s): snipers 40% of live time at
   sniper spots (rifles 0%), sniper hits 18.4 m vs rifle 14.0 m vs shotgun 8.4 m.
+- 2026-11-01 features 3: Cornucopia mode ("Hunger Games", GAME.md 2.2) on Toy Town (owner: use the map's lootSpots;
+  GAME.md said "own arena, later"). Room option `mode` (+ `teams`; off = free-for-all, every player its own team id
+  F1..F8, FFA spawns from the map). One life per match = one round of `ROUND_PRESETS.cornucopia` (300 s; timeout:
+  more HP wins); the last team / player standing wins, then a new match after 10 s with fresh loot. Start: knife +
+  pistol 12 / 0, no primary (row `primary` = '', slot 1 cannot be drawn). Loot per tier (`CORNUCOPIA.loot`, assigned
+  to the tier's spots in turn): low = ammo / shotgun / medkit, mid = rifle / medkit, high (the 4 balcony spots) =
+  sniper / boots / medkit / medkit. Pedestals are visual boxes (no collider). E = pick up / use the nearest item:
+  ammo +24 pistol rounds; first weapon is just taken, later weapons swap (old one drops); medkit = E on the medkit
+  uses it at once (only below full HP): +60 HP over 3 s (the only way to heal); boots: +1 jump in the air for the rest
+  of the match, glow box under the feet for 0.6 s after a boost (others see it while a booted player rises). Dead
+  players drop their primary. Bots: pick up a weapon when they have none, ammo for the pistol, medkits below 70 HP,
+  about half of them also go for the centre (sniper, boots); pistol, then knife when out of ammo. Menu: mode select +
+  "Cornucopia in teams" for private rooms and offline practice; Quick Play stays Elimination. Joining a running
+  Cornucopia match spawns you alive (late join, simplest). No sniper limit in Cornucopia (loot decides).
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 

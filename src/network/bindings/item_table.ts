@@ -20,4 +20,5 @@ export default __t.row({
   x: __t.f32(),
   y: __t.f32(),
   z: __t.f32(),
+  pedestal: __t.bool(),
 });

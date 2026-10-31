@@ -20,6 +20,7 @@ export const Item = __t.object("Item", {
   x: __t.f32(),
   y: __t.f32(),
   z: __t.f32(),
+  pedestal: __t.bool(),
 });
 export type Item = __Infer<typeof Item>;
 
@@ -65,6 +66,8 @@ export const Player = __t.object("Player", {
   reloading: __t.bool(),
   kills: __t.u32(),
   deaths: __t.u32(),
+  healLeft: __t.f32(),
+  boots: __t.bool(),
   ping: __t.u16(),
   lastMoveAt: __t.timestamp(),
 });
@@ -76,6 +79,8 @@ export const Room = __t.object("Room", {
   isPrivate: __t.bool(),
   bots: __t.bool(),
   difficulty: __t.string(),
+  mode: __t.string(),
+  teams: __t.bool(),
   phase: __t.string(),
   round: __t.u32(),
   scoreA: __t.u32(),

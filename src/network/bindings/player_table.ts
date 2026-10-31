@@ -43,6 +43,8 @@ export default __t.row({
   reloading: __t.bool(),
   kills: __t.u32(),
   deaths: __t.u32(),
+  healLeft: __t.f32().name("heal_left"),
+  boots: __t.bool(),
   ping: __t.u16(),
   lastMoveAt: __t.timestamp().name("last_move_at"),
 });

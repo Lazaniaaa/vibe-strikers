@@ -16,6 +16,8 @@ export default __t.row({
   isPrivate: __t.bool().name("is_private"),
   bots: __t.bool(),
   difficulty: __t.string(),
+  mode: __t.string(),
+  teams: __t.bool(),
   phase: __t.string(),
   round: __t.u32(),
   scoreA: __t.u32().name("score_a"),

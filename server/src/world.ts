@@ -18,6 +18,10 @@ export interface World {
   colliders: readonly AabbBox[];
   blockers: readonly AabbBox[];
   spawns: Record<TeamId, readonly SpawnPoint[]>;
+  /** Free-for-all spawns. */
+  ffaSpawns: readonly SpawnPoint[];
+  /** Cornucopia loot spots (map data). */
+  lootSpots: readonly { x: number; y: number; z: number; tier: 'low' | 'mid' | 'high' }[];
   /** Roam goals; balcony points are added when the nav grid is built. */
   goals: Vec3[];
   killY: number;
@@ -40,6 +44,7 @@ export function getWorld(): World {
     const spawnsA = spawnPoints(map, 'A'), spawnsB = spawnPoints(map, 'B');
     world = {
       mapId: MAP_ID, colliders, blockers: mapShotBlockers(map).boxes, spawns: { A: spawnsA, B: spawnsB },
+      ffaSpawns: spawnPoints(map, 'ffa'), lootSpots: map.lootSpots,
       goals: [...map.zones.map((z) => ({ x: z.x, y: 0, z: z.z })), ...spawnsA, ...spawnsB],
       killY: map.killY, movement: new ClientValidatedMovement(colliders, map.bounds, map.killY), nav: null, cover: [], routes: [], perches: [],
     };

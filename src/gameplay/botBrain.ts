@@ -1,7 +1,7 @@
 // Bot AI (offline and server): roam the multi-level nav graph along one of three routes, spot enemies with
 // line-of-sight rays, turn and shoot in bursts; fight from cover (peek out, shoot, hide; hide to reload or when
 // low on HP). It only writes a PlayerIntent, exactly like a human client (server authority stays the same).
-import { BOT_LOADOUT, BOT_ROLES, BOT_SKILLS, BOT_TACTICS, BOTS, DEFAULT_DIFFICULTY, type BotSkill } from '../config/bots.ts';
+import { BOT_LOADOUT, BOT_LOOT, BOT_ROLES, BOT_SKILLS, BOT_TACTICS, BOTS, DEFAULT_DIFFICULTY, type BotSkill } from '../config/bots.ts';
 import type { WeaponId } from '../weapons/types.ts';
 import { HITBOXES } from '../config/hitboxes.ts';
 import type { Actor } from './actor.ts';
@@ -20,6 +20,8 @@ export interface BotWorld {
   routes?: readonly (readonly Vec3[])[];
   /** Sniper perches: balconies and long sight lines (see mapNav; yaw NaN = face the enemy spawn). */
   perches?: readonly (Vec3 & { yaw: number })[];
+  /** Cornucopia: items on the ground (bots pick up loot, heal); undefined in Elimination. */
+  items?: readonly { x: number; y: number; z: number; kind: string; weapon: string; pedestal?: boolean }[];
   /** Team spawn centres (bots aim for the enemy side). */
   spawns?: { A: Vec3; B: Vec3 };
   random: () => number;
@@ -262,6 +264,28 @@ function steer(self: Actor, yaw: number): void {
   intent.right = move.x * -fz + move.z * fx;
 }
 
+/** Cornucopia: the item this bot wants now (medkit when hurt, a weapon when it has none, ammo, sometimes the centre). */
+function wantedItem(self: Actor, w: BotWorld): number {
+  const items = w.items;
+  if (!items || items.length === 0) return -1;
+  const hurt = self.hp < BOT_LOOT.healBelow && self.healLeft <= 0;
+  const needAmmo = !self.hasPrimary && self.slots[1].reserve < BOT_LOOT.ammoBelow;
+  // About BOT_LOOT.centreChance of the bots (by id, deterministic) also go for the centre loot (sniper, boots).
+  const greedy = ((self.id * 37) % 100) / 100 < BOT_LOOT.centreChance;
+  let best = -1, bestD: number = BOT_LOOT.searchRadius;
+  for (let i = 0; i < items.length; i++) {
+    const it = items[i];
+    const useful = it.kind === 'medkit' ? hurt
+      : it.kind === 'weapon' ? !self.hasPrimary || (greedy && self.slots[0].stats.id !== 'sniper' && it.weapon === 'sniper')
+      : it.kind === 'boots' ? !self.boots && (greedy || !self.hasPrimary)
+      : it.kind === 'ammo' ? needAmmo : false;
+    if (!useful) continue;
+    const d = Math.hypot(it.x - self.x, it.z - self.z) + Math.abs(it.y - self.y) * 2;
+    if (d < bestD) { bestD = d; best = i; }
+  }
+  return best;
+}
+
 /** Writes the bot's intent for this step. */
 export function updateBot(self: Actor, b: BotBrain, w: BotWorld, dt: number): void {
   const intent = self.intent, skill = b.skill;
@@ -282,8 +306,9 @@ export function updateBot(self: Actor, b: BotBrain, w: BotWorld, dt: number): vo
   // Weapon: snipers draw the pistol up close; an empty primary -> pistol; otherwise the primary.
   const role = self.slots[0].stats.id, primary = self.slots[0];
   const dist = target ? Math.hypot(target.x - self.x, target.z - self.z) : Infinity;
-  const primaryEmpty = primary.stats.magSize > 0 && primary.mag + primary.reserve === 0;
-  const wantSlot = primaryEmpty || (role === 'sniper' && dist < BOT_ROLES.sniperPistolRange) ? 1 : 0;
+  const primaryEmpty = !self.hasPrimary || (primary.stats.magSize > 0 && primary.mag + primary.reserve === 0);
+  const pistol = self.slots[1], pistolEmpty = pistol.mag + pistol.reserve === 0;
+  const wantSlot = primaryEmpty || (role === 'sniper' && dist < BOT_ROLES.sniperPistolRange) ? (primaryEmpty && pistolEmpty ? 2 : 1) : 0;
   if (self.active !== wantSlot) intent.slot = wantSlot;
   const sniping = self.active === 0 && role === 'sniper';
   intent.aim = sniping;
@@ -354,7 +379,8 @@ export function updateBot(self: Actor, b: BotBrain, w: BotWorld, dt: number): vo
     }
     // Sniper: stand still (scoped accuracy). Shotgun: push until close.
     if (sniping) return;
-    if (self.active === 0 && role === 'shotgun' && dist > BOT_ROLES.shotgunPushRange) {
+    const pushTo = self.active === 0 && role === 'shotgun' ? BOT_ROLES.shotgunPushRange : self.active === 2 ? BOT_ROLES.knifePushRange : Infinity;
+    if (dist > pushTo) {
       setGoal(b, w, target.x, target.y, target.z);
       followPath(self, b, w, dt);
       steer(self, intent.yaw);
@@ -369,7 +395,17 @@ export function updateBot(self: Actor, b: BotBrain, w: BotWorld, dt: number): vo
 
   // No visible target.
   if (slot.stats.magSize > 0 && slot.mag < slot.stats.magSize * 0.5) intent.reload = true;
-  if (fightingFromCover) {
+  const want = !fightingFromCover && b.memoryLeft <= 0 ? wantedItem(self, w) : -1;
+  if (want >= 0) {
+    const it = w.items![want];
+    if (Math.hypot(it.x - self.x, it.z - self.z) < BOTS.waypointReach * 2 && Math.abs(it.y - self.y) < 1.2) {
+      intent.use = true; // E: pick up / use (the simulation checks the range)
+      intent.yaw = self.yaw; intent.pitch = self.pitch;
+      return;
+    }
+    b.atPerch = false;
+    setGoal(b, w, it.x, it.y, it.z);
+  } else if (fightingFromCover) {
     // Wait in cover (reload / hurt), then peek again from the peek spot.
     const spot = b.phase === 'hide' ? b.cover : b.peekSpot;
     setGoal(b, w, spot.x, spot.y, spot.z);

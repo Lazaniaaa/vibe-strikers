@@ -2,19 +2,20 @@
 // The structure mirrors the M2 server: intents in, state + events out.
 import { BOTS } from '../config/bots.ts';
 import { HITBOXES } from '../config/hitboxes.ts';
-import { MATCH, ROUND_PRESETS, type RoundPreset } from '../config/rounds.ts';
+import { MATCH, type RoundPreset } from '../config/rounds.ts';
 import type { HitPart } from '../config/hitboxes.ts';
 import { ITEMS } from '../config/items.ts';
 import type { WeaponId } from '../weapons/types.ts';
 import { createActor, setPrimary, type Actor, type PlayerIntent } from './actor.ts';
-import { nearestItem, primaryState, swapPrimary, type WeaponState } from './items.ts';
+import { cornucopiaLoadout, lootAmmo, nearestItem, primaryState, tickHeal, useItem, type ItemKind, type WeaponState } from './items.ts';
+import { ffaTeam, isFfaTeam, lootPlan, presetFor, tickModeRound, type GameMode } from './mode.ts';
 import { createBrain, pickBotPrimary, resetBrain, updateBot, type BotBrain, type BotWorld } from './botBrain.ts';
 import type { BotSkill } from '../config/bots.ts';
 import { createShotResult, traceShot, type AabbBox } from './hitscan.ts';
 import { clamp, DEG, directionFromAngles, spreadDirection, vec3, type Vec3 } from './math.ts';
 import type { NavGrid } from './navGrid.ts';
 import type { RapierMotor } from './rapierMotor.ts';
-import { createRoundState, restartMatch, tickRound, type RoundEvent, type RoundState, type TeamId } from './round.ts';
+import { createRoundState, restartMatch, type RoundEvent, type RoundState, type TeamId } from './round.ts';
 import { canFire, cancelReload, consumeShot, damageAt, resetSlot, spreadDeg, startReload, tickSlot } from './weaponLogic.ts';
 
 export interface SpawnSpot { x: number; y: number; z: number; yaw: number }
@@ -41,6 +42,12 @@ export interface SimulationOptions {
   botSkill?: BotSkill;
   /** Override the freeze time (tests). */
   freezeTime?: number;
+  /** Game mode (default Elimination); Cornucopia: teams or free-for-all. */
+  mode?: GameMode;
+  teams?: boolean;
+  /** Free-for-all spawns and Cornucopia loot spots (map data). */
+  spawnsFfa?: readonly SpawnSpot[];
+  lootSpots?: readonly { x: number; y: number; z: number; tier: 'low' | 'mid' | 'high' }[];
   /** Optional profiler: milliseconds spent per section are added here (needs `clock`). */
   profile?: { bots: number; motor: number; weapons: number };
   clock?: () => number;
@@ -60,7 +67,7 @@ export interface ShotEvent {
 }
 
 /** An item on the ground (offline). */
-export interface SimItem extends WeaponState { id: number; kind: 'weapon'; x: number; y: number; z: number }
+export interface SimItem { id: number; kind: ItemKind; weapon: string; mag: number; reserve: number; x: number; y: number; z: number; pedestal: boolean }
 
 export interface KillEvent { killerId: number; victimId: number; headshot: boolean; weapon: string }
 
@@ -79,6 +86,8 @@ export class Simulation {
   private nextItemId = 1;
   /** Primary each actor starts a round with (pick-ups only last for the round). */
   private readonly loadout = new Map<number, WeaponId>();
+  readonly mode: GameMode;
+  readonly ffa: boolean;
   lastRoundEvent: RoundEvent = 'none';
   time = 0;
   private brains = new Map<number, BotBrain>();
@@ -98,7 +107,9 @@ export class Simulation {
   constructor(opts: SimulationOptions) {
     this.opts = opts;
     this.random = opts.random ?? Math.random;
-    const base = ROUND_PRESETS[MATCH.preset];
+    this.mode = opts.mode ?? 'elimination';
+    this.ffa = this.mode === 'cornucopia' && opts.teams === false;
+    const base = presetFor(this.mode);
     this.preset = opts.freezeTime === undefined ? base : { ...base, freezeTime: opts.freezeTime };
     this.round = createRoundState(this.preset);
     let id = 0;
@@ -109,7 +120,7 @@ export class Simulation {
         // Bots get random primaries (at most one sniper per team).
         const primary = isLocal ? undefined : pickBotPrimary(this.random, sniper);
         if (primary === 'sniper') sniper = true;
-        const actor = createActor(id, team, isLocal ? opts.localName : opts.botNames[(id - 1) % opts.botNames.length], !isLocal,
+        const actor = createActor(id, this.ffa ? ffaTeam(id + 1) : team, isLocal ? opts.localName : opts.botNames[(id - 1) % opts.botNames.length], !isLocal,
           opts.characterIndices[id % opts.characterIndices.length], primary);
         this.actors.push(actor);
         this.loadout.set(id, actor.slots[0].stats.id);
@@ -122,6 +133,7 @@ export class Simulation {
       this.shots.push({ shooterId: 0, ox: 0, oy: 0, oz: 0, ex: 0, ey: 0, ez: 0, hitKind: 'none', victimId: -1, part: 'body', damage: 0, killed: false });
     }
     this.botWorld = { actors: this.actors, blockers: opts.blockers, nav: opts.nav, goals: opts.goals, cover: opts.cover, routes: opts.routes, perches: opts.perches,
+      items: this.mode === 'cornucopia' ? this.items : undefined,
       spawns: { A: opts.spawnsA[0], B: opts.spawnsB[0] }, random: this.random, pathBudget: 0 };
     this.respawnAll();
   }
@@ -129,17 +141,27 @@ export class Simulation {
   get local(): Actor { return this.actors[LOCAL_ID]; }
 
   private respawnAll(): void {
-    let a = 0, b = 0;
+    let a = 0, b = 0, f = 0;
+    const corn = this.mode === 'cornucopia';
     this.items.length = 0;
+    if (corn && this.opts.lootSpots) {
+      for (const l of lootPlan(this.opts.lootSpots)) {
+        const ammo = lootAmmo(l.kind, l.weapon);
+        this.items.push({ id: this.nextItemId++, kind: l.kind, weapon: l.weapon, mag: ammo.mag, reserve: ammo.reserve, x: l.x, y: l.y, z: l.z, pedestal: true });
+      }
+    }
     for (const actor of this.actors) {
       setPrimary(actor, this.loadout.get(actor.id) ?? actor.slots[0].stats.id);
-      const list = actor.team === 'A' ? this.opts.spawnsA : this.opts.spawnsB;
-      const spot = list[(actor.team === 'A' ? a++ : b++) % list.length];
+      const ffa = isFfaTeam(actor.team) && this.opts.spawnsFfa;
+      const list = ffa ? this.opts.spawnsFfa! : actor.team === 'A' ? this.opts.spawnsA : this.opts.spawnsB;
+      const spot = list[(ffa ? f++ : actor.team === 'A' ? a++ : b++) % list.length];
       this.opts.motor.teleport(actor, spot.x, spot.y, spot.z);
       actor.yaw = spot.yaw; actor.pitch = 0; actor.intent.yaw = spot.yaw; actor.intent.pitch = 0;
       actor.hp = MATCH.maxHealth; actor.alive = true; actor.active = 0; actor.equipLeft = 0; actor.fireAnimLeft = 0;
       actor.sinceDamage = 99; actor.lastAttacker = -1;
       for (const s of actor.slots) resetSlot(s);
+      actor.hasPrimary = true; actor.boots = false; actor.healLeft = 0; actor.airJumpsLeft = 0;
+      if (corn) cornucopiaLoadout(actor);
       const brain = this.brains.get(actor.id);
       if (brain) {
         resetBrain(brain);
@@ -171,9 +193,7 @@ export class Simulation {
     const local = this.local;
     Object.assign(local.intent, localIntent);
 
-    let aliveA = 0, aliveB = 0, hpA = 0, hpB = 0;
-    for (const a of this.actors) if (a.alive) { if (a.team === 'A') { aliveA++; hpA += a.hp; } else { aliveB++; hpB += a.hp; } }
-    this.lastRoundEvent = tickRound(this.round, this.preset, dt, { aliveA, aliveB, hpA, hpB });
+    this.lastRoundEvent = tickModeRound(this.round, this.preset, dt, this.actors, this.ffa);
     if (this.lastRoundEvent === 'roundStart') this.respawnAll();
 
     const phase = this.round.phase;
@@ -198,6 +218,7 @@ export class Simulation {
       if (a.y < this.opts.killY) this.kill(a, null, false);
       if (!a.alive) continue;
       if (intent.use && combat) this.pickUp(a);
+      if (a.healLeft > 0) tickHeal(a, dt);
       this.updateWeapon(a, dt, combat);
       if (prof && clock) prof.weapons += clock() - t0;
     }
@@ -209,24 +230,30 @@ export class Simulation {
     return i >= 0 ? this.items[i] : null;
   }
 
-  /** E: swap the primary with the nearest weapon on the ground; the old one drops here. */
+  /** E: use the nearest item (weapon swap: the old one drops here; medkit; boots; ammo). */
   pickUp(a: Actor): boolean {
     const i = nearestItem(this.items, a.x, a.y, a.z);
     if (i < 0) return false;
     const it = this.items[i];
-    this.items.splice(i, 1);
-    this.drop(swapPrimary(a, it), a.x, a.y, a.z);
+    if (!useItem(a, it, (w) => this.dropLater.push(w))) return false;
+    this.items.splice(this.items.indexOf(it), 1);
+    for (const w of this.dropLater) this.drop(w, a.x, a.y, a.z);
+    this.dropLater.length = 0;
     return true;
   }
 
+  private readonly dropLater: WeaponState[] = [];
+
   private drop(w: WeaponState, x: number, y: number, z: number): void {
-    this.items.push({ id: this.nextItemId++, kind: 'weapon', weapon: w.weapon, mag: w.mag, reserve: w.reserve, x, y, z });
-    if (this.items.length > ITEMS.maxDropsPerRoom) this.items.shift();
+    this.items.push({ id: this.nextItemId++, kind: 'weapon', weapon: w.weapon, mag: w.mag, reserve: w.reserve, x, y, z, pedestal: false });
+    let drops = 0;
+    for (const it of this.items) if (!it.pedestal) drops++;
+    if (drops > ITEMS.maxDropsPerRoom) this.items.splice(this.items.findIndex((it) => !it.pedestal), 1);
   }
 
   private updateWeapon(a: Actor, dt: number, combat: boolean): void {
     const intent = a.intent;
-    if (intent.slot >= 0 && intent.slot < a.slots.length && intent.slot !== a.active) {
+    if (intent.slot >= 0 && intent.slot < a.slots.length && intent.slot !== a.active && (intent.slot !== 0 || a.hasPrimary)) {
       cancelReload(a.slots[a.active]);
       a.active = intent.slot;
       a.equipLeft = a.slots[a.active].stats.equipTime;
@@ -284,7 +311,7 @@ export class Simulation {
 
   private kill(victim: Actor, killer: Actor | null, headshot: boolean): void {
     if (!victim.alive) return;
-    this.drop(primaryState(victim), victim.x, victim.y, victim.z);
+    if (victim.hasPrimary) this.drop(primaryState(victim), victim.x, victim.y, victim.z);
     victim.alive = false; victim.hp = 0; victim.deaths++;
     victim.vx = 0; victim.vz = 0;
     if (killer) killer.kills++;

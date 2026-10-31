@@ -26,6 +26,8 @@ export interface HudView {
   feed: readonly KillFeedEntry[];
   /** Room / status line (top right, above the kill feed). */
   roomInfo: string;
+  /** Replaces the team score line (Cornucopia / free-for-all). */
+  scoreLine?: string;
   /** Pick-up hint near an item on the ground ('' = none). */
   hint?: string;
   fps: number;
@@ -94,7 +96,7 @@ export class Hud {
     this.set(this.ammo, v.melee ? '—' : `${v.mag} / ${v.reserve}`);
     const t = Math.max(0, Math.ceil(v.timeLeft));
     this.set(this.timer, v.phase === 'matchEnd' ? '--:--' : `${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}`);
-    this.set(this.score, `A ${v.scoreA} · round ${v.round} · ${v.scoreB} B    alive ${v.aliveA} v ${v.aliveB}`);
+    this.set(this.score, v.scoreLine || `A ${v.scoreA} · round ${v.round} · ${v.scoreB} B    alive ${v.aliveA} v ${v.aliveB}`);
     this.set(this.center, v.center);
     this.set(this.sub, v.sub);
     this.set(this.room, v.roomInfo);

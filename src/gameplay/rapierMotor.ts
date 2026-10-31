@@ -1,5 +1,6 @@
 // Player movement with Rapier's KinematicCharacterController (CLAUDE.md rule 3).
 // Velocity / gravity / jump / crouch rules come from src/config/movement.ts.
+import { CORNUCOPIA } from '../config/items.ts';
 import type { Capsule, Collider, ColliderDesc, KinematicCharacterController, Shape, World } from '@dimforge/rapier3d-compat';
 import { CAPSULE, KCC, MOVEMENT } from '../config/movement.ts';
 import type { Actor, PlayerIntent } from './actor.ts';
@@ -98,7 +99,13 @@ export class RapierMotor {
     if (!intent.jump) actor.jumpLatch = false;
     if (!frozen && intent.jump && !actor.jumpLatch && actor.grounded) {
       actor.vy = MOVEMENT.jumpVelocity; actor.grounded = false; actor.jumpLatch = true;
+      actor.airJumpsLeft = actor.boots ? CORNUCOPIA.bootsAirJumps : 0;
+    } else if (!frozen && intent.jump && !actor.jumpLatch && !actor.grounded && actor.boots && actor.airJumpsLeft > 0) {
+      // Rocket boots: a second jump in the air.
+      actor.airJumpsLeft--; actor.vy = CORNUCOPIA.bootsJumpVelocity; actor.jumpLatch = true; actor.sinceBoost = 0;
     }
+    actor.sinceBoost += dt;
+    if (actor.grounded && actor.boots) actor.airJumpsLeft = CORNUCOPIA.bootsAirJumps;
     actor.vy = Math.max(-MOVEMENT.maxFallSpeed, actor.vy - MOVEMENT.gravity * dt);
 
     this.desired.x = v.x * dt; this.desired.y = actor.vy * dt; this.desired.z = v.z * dt;

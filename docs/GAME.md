@@ -107,7 +107,7 @@ Interpolation for remote players; the local player is corrected only on a snap-b
 ### 6.2 Intents (client -> server), initial contract
 `move{seq, ack, x, y, z, vx, vy, vz, yaw, pitch, crouch, grounded, walk}` (client KCC result,
 sent at the net send rate; `ack` = last server correction the client has applied, older moves are
-ignored), room reducers `join_quick{name, character}`, `create_private_room{name, character, bots, difficulty}`,
+ignored), room reducers `join_quick{name, character}`, `create_private_room{name, character, bots, difficulty, mode, teams}` (mode `elimination` | `cornucopia`, teams=false = free-for-all),
 `join_by_code{code, name, character}`, `leave_room` (M2a), `fire{seq, yaw, pitch, viewTimeMs, scoped}` (server time of the world the client was showing, used for the
 rewind; scoped = sniper accuracy only), `reload`, `switch_weapon{slot}` (M2b), `set_primary_weapon{weapon}` (M3), `pick_up{itemId}` (drops: weapon swaps the primary, old one drops; live phase, range
 `ITEMS.pickupRadius` + server slack), `reload`, `switchWeapon{slot}`,
@@ -123,8 +123,11 @@ ground, round state, scores. Events: `hit`, `kill{killer, victim, weapon, head}`
 killed, rewindMs, hitWithoutRewind}` and `kill_event{roomId, killerId, victimId, headshot, weapon}`; round state
 in the `room` row: phase, round, scoreA/B, timeLeft, lastWinner, matchWinner),
 `roundStart/End`, `matchEnd`, `emote`, `ping`.
-Items on the ground: table `item{id, roomId, kind, weapon, mag, reserve, x, y, z}` (kind `weapon` = a dropped gun
-with its ammo; cleared when a round starts; at most `ITEMS.maxDropsPerRoom` per room).
+Items on the ground: table `item{id, roomId, kind, weapon, mag, reserve, x, y, z, pedestal}` (kind `weapon` = a gun
+with its ammo, `ammo` = pistol rounds in `reserve`, `medkit`, `boots`; pedestal = Cornucopia loot; drops are cleared
+when a round starts; at most `ITEMS.maxDropsPerRoom` drops per room). Room: `mode`, `teams`. Player: `healLeft`
+(medkit seconds left), `boots`; `primary` = '' while a Cornucopia player has no primary. Free-for-all: every player
+has its own team id `F1`, `F2`, ...; `matchWinner` is the winner's team id ('' = draw).
 Document the final field list in `docs/CONTRACTS.md` and generate client bindings
 before UI work (schema first, rendering after).
 

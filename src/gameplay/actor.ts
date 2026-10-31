@@ -66,6 +66,15 @@ export interface Actor extends HitTarget {
   sinceDamage: number;
   /** id of the actor that hit this one last, -1 = none. */
   lastAttacker: number;
+  /** Cornucopia: false until a primary is picked up (slot 0 cannot be drawn). */
+  hasPrimary: boolean;
+  /** Cornucopia: rocket boots (extra jumps in the air) and air jumps left until landing. */
+  boots: boolean;
+  airJumpsLeft: number;
+  /** Seconds since the last boost (glow box). */
+  sinceBoost: number;
+  /** Medkit healing: seconds left. */
+  healLeft: number;
   intent: PlayerIntent;
 }
 
@@ -84,7 +93,7 @@ export function createActor(id: number, team: TeamId, name: string, isBot: boole
     vx: 0, vy: 0, vz: 0, grounded: false, eyeHeight: CAPSULE.eyeHeight, hp: MATCH.maxHealth, alive: true,
     slots: loadoutFor(primary).map((w) => createSlot(WEAPON_STATS[w])), active: 0, equipLeft: 0, fireAnimLeft: 0,
     fireLatch: false, jumpLatch: false, kills: 0, deaths: 0, moveFraction: 0, moveLocalX: 0, moveLocalZ: -1,
-    sinceDamage: 99, lastAttacker: -1, intent: createIntent(),
+    sinceDamage: 99, lastAttacker: -1, hasPrimary: true, boots: false, airJumpsLeft: 0, sinceBoost: 99, healLeft: 0, intent: createIntent(),
   };
 }
 

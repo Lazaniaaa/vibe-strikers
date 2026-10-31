@@ -12,7 +12,9 @@ import { PoseHistory } from './rewind.ts';
 import { synth } from '../ui/sfxSynth.ts';
 import { SOUNDS } from '../config/audio.ts';
 import { createActor } from './actor.ts';
-import { nearestItem, primaryState, swapPrimary } from './items.ts';
+import { cornucopiaLoadout, nearestItem, primaryState, swapPrimary, tickHeal, useItem } from './items.ts';
+import { lootPlan, tickModeRound } from './mode.ts';
+import { CORNUCOPIA } from '../config/items.ts';
 import { buildNavGrid, findPath, groundAt, nearestWalkable, nodeY, pruneUnreachable, upperAreas } from './navGrid.ts';
 
 let passed = 0;
@@ -191,6 +193,33 @@ test('items: nearest in range, swap primary keeps ammo', () => {
   assert.equal(a.active, 0);
   assert.deepEqual(primaryState(a), { weapon: 'shotgun', mag: 4, reserve: 10 });
   assert.ok(a.equipLeft > 0);
+});
+
+test('cornucopia: loadout, items, healing, free-for-all winner, loot plan', () => {
+  const a = createActor(1, 'A', 'x', false, 0);
+  cornucopiaLoadout(a);
+  assert.equal(a.hasPrimary, false); assert.equal(a.active, 1);
+  assert.deepEqual([a.slots[1].mag, a.slots[1].reserve], [CORNUCOPIA.pistolMag, CORNUCOPIA.pistolReserve]);
+  const drops: unknown[] = [];
+  const put = (kind: string, weapon = '', mag = 0, reserve = 0) => useItem(a, { x: 0, y: 0, z: 0, kind, weapon, mag, reserve }, (w) => drops.push(w));
+  assert.ok(put('ammo', '', 0, 24)); assert.equal(a.slots[1].reserve, CORNUCOPIA.pistolReserve + 24);
+  assert.ok(put('weapon', 'shotgun', 6, 24)); assert.equal(a.hasPrimary, true); assert.equal(drops.length, 0, 'first weapon: nothing to drop');
+  assert.ok(put('weapon', 'rifle', 30, 90)); assert.equal(drops.length, 1, 'second weapon: the shotgun drops');
+  assert.equal(put('medkit'), false, 'full HP');
+  a.hp = 30;
+  assert.ok(put('medkit'));
+  for (let t = 0; t < 4; t += 0.1) tickHeal(a, 0.1);
+  assert.ok(Math.abs(a.hp - (30 + CORNUCOPIA.medkitHeal)) < 1e-6 && a.healLeft === 0);
+  assert.ok(put('boots')); assert.equal(a.boots, true); assert.equal(put('boots'), false, 'boots only once');
+  const st = createRoundState(ROUND_PRESETS.cornucopia);
+  st.phase = 'live'; st.timeLeft = 100;
+  const ps = [{ team: 'F1', alive: true, hp: 50 }, { team: 'F2', alive: true, hp: 80 }, { team: 'F3', alive: false, hp: 0 }];
+  assert.equal(tickModeRound(st, ROUND_PRESETS.cornucopia, 0.1, ps, true), 'none');
+  ps[1].alive = false;
+  assert.equal(tickModeRound(st, ROUND_PRESETS.cornucopia, 0.1, ps, true), 'matchEnd');
+  assert.equal(st.matchWinner, 'F1');
+  const loot = lootPlan([{ x: 0, y: 0, z: 0, tier: 'high' }, { x: 1, y: 0, z: 0, tier: 'high' }, { x: 2, y: 0, z: 0, tier: 'low' }]);
+  assert.deepEqual(loot.map((l) => l.kind + l.weapon), ['weaponsniper', 'boots', 'ammo']);
 });
 
 test('procedural sounds render audible, bounded samples', () => {

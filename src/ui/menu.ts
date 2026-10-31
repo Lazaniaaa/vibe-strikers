@@ -1,4 +1,5 @@
 import type { BotDifficulty } from '../config/bots.ts';
+import type { GameMode } from '../gameplay/mode.ts';
 // Start menu (plain DOM): nickname, character, Quick Play, private room, join by code, offline practice.
 
 /** What the menu needs to list a character (name + a colour swatch). */
@@ -6,9 +7,9 @@ export interface MenuCharacter { name: string; body: string; accent: string }
 
 export type MenuChoice =
   | { kind: 'quick'; name: string }
-  | { kind: 'create'; name: string; bots: boolean; difficulty: BotDifficulty }
+  | { kind: 'create'; name: string; bots: boolean; difficulty: BotDifficulty; mode: GameMode; teams: boolean }
   | { kind: 'join'; name: string; code: string }
-  | { kind: 'offline'; name: string; difficulty: BotDifficulty };
+  | { kind: 'offline'; name: string; difficulty: BotDifficulty; mode: GameMode; teams: boolean };
 
 export class Menu {
   readonly root: HTMLElement;
@@ -18,10 +19,14 @@ export class Menu {
   private resolve: ((c: MenuChoice) => void) | null = null;
   /** Index of the selected character. */
   character: number;
+  private savedMode: GameMode;
+  private onMode: (m: GameMode) => void;
 
   constructor(parent: HTMLElement, defaultName: string, list: readonly MenuCharacter[], selected: number, onCharacter: (i: number) => void,
-    difficulty: BotDifficulty = 'normal', onDifficulty: (d: BotDifficulty) => void = () => undefined) {
+    difficulty: BotDifficulty = 'normal', onDifficulty: (d: BotDifficulty) => void = () => undefined,
+    mode: GameMode = 'elimination', onMode: (m: GameMode) => void = () => undefined) {
     this.character = selected;
+    this.savedMode = mode; this.onMode = onMode;
     this.root = document.createElement('div');
     this.root.className = 'menu';
     this.root.innerHTML = `
@@ -35,6 +40,9 @@ export class Menu {
         <label class="menu-check"><input type="checkbox" class="menu-bots" checked /> fill the private room with bots</label>
         <label class="menu-check">Bot difficulty (practice and private rooms)
           <select class="menu-difficulty"><option value="easy">easy</option><option value="normal">normal</option><option value="hard">hard</option></select></label>
+        <label class="menu-check">Mode (private rooms and practice)
+          <select class="menu-mode"><option value="elimination">Elimination</option><option value="cornucopia">Cornucopia (Hunger Games)</option></select></label>
+        <label class="menu-check"><input type="checkbox" class="menu-teams" checked /> Cornucopia in teams (off = free-for-all)</label>
         <div class="menu-row"><input class="menu-code" maxlength="5" placeholder="CODE" /><button class="menu-btn menu-join">Join</button></div>
         <button class="menu-btn menu-offline">Practice offline (bots)</button>
         <div class="menu-settings-slot"></div>
@@ -69,9 +77,16 @@ export class Menu {
     level.value = difficulty;
     level.addEventListener('change', () => onDifficulty(level.value as BotDifficulty));
     const diff = () => level.value as BotDifficulty;
-    this.root.querySelector('.menu-create')!.addEventListener('click', () => pick({ kind: 'create', name: name(), bots: bots.checked, difficulty: diff() }));
+    const modeSel = this.root.querySelector<HTMLSelectElement>('.menu-mode')!;
+    const teamsBox = this.root.querySelector<HTMLInputElement>('.menu-teams')!;
+    modeSel.value = this.savedMode;
+    const modeNow = (): GameMode => (modeSel.value === 'cornucopia' ? 'cornucopia' : 'elimination');
+    modeSel.addEventListener('change', () => { this.savedMode = modeNow(); this.onMode(modeNow()); });
+    this.root.querySelector('.menu-create')!.addEventListener('click', () => pick({ kind: 'create', name: name(), bots: bots.checked, difficulty: diff(),
+      mode: modeNow(), teams: teamsBox.checked }));
     this.root.querySelector('.menu-join')!.addEventListener('click', () => pick({ kind: 'join', name: name(), code: this.codeInput.value.trim().toUpperCase() }));
-    this.root.querySelector('.menu-offline')!.addEventListener('click', () => pick({ kind: 'offline', name: name(), difficulty: diff() }));
+    this.root.querySelector('.menu-offline')!.addEventListener('click', () => pick({ kind: 'offline', name: name(), difficulty: diff(),
+      mode: modeNow(), teams: teamsBox.checked }));
   }
 
   /** Where the Settings button goes. */

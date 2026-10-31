@@ -15,4 +15,6 @@ export default {
   character: __t.u16(),
   bots: __t.bool(),
   difficulty: __t.string(),
+  mode: __t.string(),
+  teams: __t.bool(),
 };
