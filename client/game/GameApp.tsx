@@ -18,7 +18,7 @@ import { Input } from './input';
 import { AvatarRig, ShotEffects, ViewmodelRig } from './visuals';
 import { FramePerf } from './perf';
 
-export interface GameOptions { debug: boolean; freezeTime?: number }
+export interface GameOptions { debug: boolean; freezeTime?: number; /** Local player's character (menu). */ character?: number }
 
 const map = loadMapData(MAP_ID);
 const spawnsA = spawnPoints(map, 'A'), spawnsB = spawnPoints(map, 'B');
@@ -38,10 +38,10 @@ export interface GameDebug {
 declare global { interface Window { __game?: GameDebug } }
 
 /** Local player's character first, then bot characters (skipping ones that are too slow to pose). */
-function pickCharacters(): number[] {
-  const list: number[] = [LOCAL_PLAYER.characterIndex];
-  for (let i = 1; i < characters.length; i++) {
-    if (i !== LOCAL_PLAYER.characterIndex && !POSE.botCharacterExclude.includes(characters[i].id)) list.push(i);
+function pickCharacters(local: number): number[] {
+  const list: number[] = [local];
+  for (let i = 0; i < characters.length; i++) {
+    if (i !== local && !POSE.botCharacterExclude.includes(characters[i].id)) list.push(i);
   }
   return list;
 }
@@ -85,7 +85,7 @@ function GameDriver({ options }: { options: GameOptions }) {
     const motor = new RapierMotor(rapier, world);
     const perf = new FramePerf();
     const sim = new Simulation({ profile: perf.now, clock: () => performance.now(), blockers, spawnsA, spawnsB, goals, nav, motor, killY: map.killY,
-      localName: LOCAL_PLAYER.name, botNames: BOT_NAMES, characterIndices: pickCharacters(), freezeTime: options.freezeTime });
+      localName: LOCAL_PLAYER.name, botNames: BOT_NAMES, characterIndices: pickCharacters(options.character ?? LOCAL_PLAYER.characterIndex), freezeTime: options.freezeTime });
     const input = new Input(gl.domElement);
     const hudRoot = document.getElementById('hud')!;
     const hud = new Hud(hudRoot);

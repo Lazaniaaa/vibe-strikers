@@ -41,5 +41,6 @@ export default __t.row({
   reloading: __t.bool(),
   kills: __t.u32(),
   deaths: __t.u32(),
+  ping: __t.u16(),
   lastMoveAt: __t.timestamp().name("last_move_at"),
 });

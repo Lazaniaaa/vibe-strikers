@@ -1,4 +1,7 @@
-// Start menu (plain DOM): nickname, Quick Play, private room, join by code, offline practice.
+// Start menu (plain DOM): nickname, character, Quick Play, private room, join by code, offline practice.
+
+/** What the menu needs to list a character (name + a colour swatch). */
+export interface MenuCharacter { name: string; body: string; accent: string }
 
 export type MenuChoice =
   | { kind: 'quick'; name: string }
@@ -12,14 +15,19 @@ export class Menu {
   private nameInput: HTMLInputElement;
   private codeInput: HTMLInputElement;
   private resolve: ((c: MenuChoice) => void) | null = null;
+  /** Index of the selected character. */
+  character: number;
 
-  constructor(parent: HTMLElement, defaultName: string) {
+  constructor(parent: HTMLElement, defaultName: string, list: readonly MenuCharacter[], selected: number, onCharacter: (i: number) => void) {
+    this.character = selected;
     this.root = document.createElement('div');
     this.root.className = 'menu';
     this.root.innerHTML = `
       <div class="menu-card">
         <div class="menu-title">Voxel Arena</div>
         <label class="menu-label">Nickname <input class="menu-name" maxlength="16" /></label>
+        <div class="menu-label">Character <span class="menu-char-name"></span></div>
+        <div class="menu-chars"></div>
         <button class="menu-btn menu-quick">Quick Play</button>
         <button class="menu-btn menu-create">Create private room</button>
         <label class="menu-check"><input type="checkbox" class="menu-bots" checked /> fill the private room with bots</label>
@@ -32,6 +40,22 @@ export class Menu {
     this.nameInput = this.root.querySelector('.menu-name')!;
     this.codeInput = this.root.querySelector('.menu-code')!;
     this.nameInput.value = defaultName;
+    const grid = this.root.querySelector<HTMLElement>('.menu-chars')!, label = this.root.querySelector<HTMLElement>('.menu-char-name')!;
+    const buttons = list.map((c, i) => {
+      const b = document.createElement('button');
+      b.className = 'menu-char'; b.title = c.name;
+      b.style.background = `linear-gradient(135deg, ${c.body} 60%, ${c.accent} 60%)`;
+      b.addEventListener('click', () => select(i));
+      grid.appendChild(b);
+      return b;
+    });
+    const select = (i: number) => {
+      this.character = i;
+      buttons.forEach((b, j) => b.classList.toggle('selected', j === i));
+      label.textContent = list[i].name;
+      onCharacter(i);
+    };
+    select(Math.min(Math.max(0, selected), list.length - 1));
     const pick = (c: MenuChoice) => { const r = this.resolve; this.resolve = null; r?.(c); };
     const name = () => this.nameInput.value.trim();
     this.root.querySelector('.menu-quick')!.addEventListener('click', () => pick({ kind: 'quick', name: name() }));

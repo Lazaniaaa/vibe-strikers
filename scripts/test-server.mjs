@@ -41,6 +41,18 @@ try {
   const humans = [...a.players.values()].filter((p) => !p.isBot);
   check(a.players.size === MATCH.teamSize * 2 && humans.length === 2, `room has ${a.players.size} players, ${humans.length} humans`);
   check(a.me.team !== b.me.team, `humans on different teams (${a.me.team} / ${b.me.team})`);
+  const { characters } = await vite.ssrLoadModule('/src/characters/characters.ts');
+  const botChars = [...a.players.values()].filter((p) => p.isBot).map((p) => p.character);
+  check(a.players.get(b.me.id)?.character === 7 && botChars.every((c) => c >= 0 && c < characters.length),
+    `chosen character is shown to others (Bob = 7), bots get valid random characters (${botChars.join(',')})`);
+  // Subscriptions are per room: a client in another room is invisible here.
+  const d = await client();
+  await d.joinQuick('Dora', 1);
+  await waitFor(() => d.me && d.players.size === MATCH.teamSize * 2);
+  await sleep(500);
+  check(d.me.roomId !== a.me.roomId && a.knownRoomIds().length === 1 && d.knownRoomIds().length === 1,
+    `rows of other rooms are not sent (A knows ${a.knownRoomIds().length} room, D knows ${d.knownRoomIds().length})`);
+  d.disconnect();
   let wrong = null;
   try { await a.joinByCode('ZZZZZ', 'Alice', 3); } catch (e) { wrong = e; }
   check(!!wrong, `joining a missing code fails (${a.lastError})`);
@@ -176,6 +188,7 @@ try {
   check(a.room?.phase === 'freeze' && a.room.round === 2 && c.me.alive && c.me.hp === 100 && c.me.spawnCount === spawnBefore + 1,
     `round 2: Carl respawned with ${c.me.hp} HP`);
   check(a.me.weapon === 0 && a.me.mag === rifle.magSize && a.me.reserve === rifle.reserve, 'respawn resets weapons and ammo');
+  check(a.pingMs > 0 && a.me.ping > 0, `ping measured (${a.pingMs.toFixed(1)} ms) and reported to the server (${a.me.ping} ms)`);
 
   clearInterval(pump);
   for (const n of nets) n.disconnect();

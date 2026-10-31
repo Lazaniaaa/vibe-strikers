@@ -41,6 +41,7 @@ import JoinQuickReducer from "./join_quick_reducer";
 import LeaveRoomReducer from "./leave_room_reducer";
 import MoveReducer from "./move_reducer";
 import ReloadReducer from "./reload_reducer";
+import ReportPingReducer from "./report_ping_reducer";
 import SwitchWeaponReducer from "./switch_weapon_reducer";
 
 // Import all procedure arg schemas
@@ -114,6 +115,7 @@ const reducersSchema = __reducers(
   __reducerSchema("leave_room", LeaveRoomReducer),
   __reducerSchema("move", MoveReducer),
   __reducerSchema("reload", ReloadReducer),
+  __reducerSchema("report_ping", ReportPingReducer),
   __reducerSchema("switch_weapon", SwitchWeaponReducer),
 );
 

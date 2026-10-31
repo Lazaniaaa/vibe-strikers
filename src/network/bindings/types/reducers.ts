@@ -13,6 +13,7 @@ import JoinQuickReducer from "../join_quick_reducer";
 import LeaveRoomReducer from "../leave_room_reducer";
 import MoveReducer from "../move_reducer";
 import ReloadReducer from "../reload_reducer";
+import ReportPingReducer from "../report_ping_reducer";
 import SwitchWeaponReducer from "../switch_weapon_reducer";
 
 export type CreatePrivateRoomParams = __Infer<typeof CreatePrivateRoomReducer>;
@@ -22,5 +23,6 @@ export type JoinQuickParams = __Infer<typeof JoinQuickReducer>;
 export type LeaveRoomParams = __Infer<typeof LeaveRoomReducer>;
 export type MoveParams = __Infer<typeof MoveReducer>;
 export type ReloadParams = __Infer<typeof ReloadReducer>;
+export type ReportPingParams = __Infer<typeof ReportPingReducer>;
 export type SwitchWeaponParams = __Infer<typeof SwitchWeaponReducer>;
 

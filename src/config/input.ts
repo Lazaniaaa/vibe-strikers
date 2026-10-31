@@ -12,6 +12,7 @@ export const KEYS = {
   reload: 'KeyR',
   slot1: 'Digit1',
   slot2: 'Digit2',
+  scoreboard: 'Tab',
 } as const;
 
 export const MOUSE = {

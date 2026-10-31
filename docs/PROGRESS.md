@@ -3,7 +3,8 @@
 Date started: 2026-10-30. Credits expire 2026-11-05.
 
 ## State
-- M0, M1 DONE (2026-10-30). M2a DONE, M2b DONE 2026-10-31 (see "M2b result"). Next: M3 part 1 (owner approved).
+- M0, M1 DONE (2026-10-30). M2a, M2b and M3 part 1 DONE 2026-10-31 (see "M3 part 1 result").
+  STOPPED for the owner: next step is the rest of M3 (needs approval and a short plan).
 - Asset folders `src/characters/`, `src/weapons/`, `src/maps/` + Voxel Lab root files (owned by Codex).
 - Game: `client/index.html` (menu -> online game, or offline practice), `client/smoke.html` (M0),
   `client/game/*` (R3F apps, input, visuals, profiler), `src/gameplay/*` (shared pure code, also used by
@@ -21,10 +22,15 @@ Date started: 2026-10-30. Credits expire 2026-11-05.
   `spacetime logs --server local voxel-arena -f`. The spacetime CLI is in `~/.local/bin`.
 - `npm run typecheck` — strict tsc on game code AND the server module.
 - `npm run test:gameplay` — 13 unit checks (hitscan, hit boxes, weapons, rounds, nav, movement validation).
-- `node scripts/test-server.mjs` — server integration test with two Node clients (rooms by code, bots
-  move, legit moves accepted, teleport / too fast / flying / walking into a wall snapped back, refill).
+- `node scripts/test-server.mjs` — server integration test with Node clients (rooms by code, characters,
+  own-room rows only, bots move and kill, refill, movement cheats snapped back, legal long walk, hits,
+  fire-rate limit, ammo, reload, switch, kill -> round end -> respawn, ping).
 - `NODE_PATH=$(npm root -g) node scripts/e2e-m2a.mjs [lagMs] [shotPrefix]` — two real browser tabs in one
   room (+1 Node client); `GAME_BASE=http://127.0.0.1:5191/` to test the production build.
+- `NODE_PATH=$(npm root -g) node scripts/e2e-m2b.mjs [lagMs] [shot.jpg]` — lag compensation: a lagged tab
+  shoots a strafing Node client (server reports rewind per shot and hits that needed it).
+- `NODE_PATH=$(npm root -g) node scripts/e2e-m3a.mjs [shotPrefix]` — character select, chosen characters seen
+  by others, kill feed, TAB scoreboard, own-room rows only.
 - `NODE_PATH=$(npm root -g) node scripts/e2e-m1.cjs [shot.jpg]` — offline play test (M1).
 - `node scripts/profile-bots.cjs [seconds]`, `node scripts/bench-sim.mjs [seconds] [hz]` — performance.
 - Asset owner commands unchanged: `npm run dev`, `npm run build`, `npm run verify` (see the cloud-only
@@ -166,6 +172,12 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   over the last 64 updates) at (now - interpolationDelayMs); caps unchanged (250 public / 300 private).
 - 2026-10-31 M2b: online match restarts automatically 10 s after the match ends; joining mid-round spawns alive.
 - 2026-10-31 M2b: private rooms have a "fill with bots" option (GAME.md room config `fillBots`).
+- 2026-10-31 M3p1: character select = grid of colour swatches (body + glove colour) with the name of the
+  selected one; remembered in the browser; the server clamps the index; bots get a random character.
+- 2026-10-31 M3p1: ping = round trip of move acknowledgements (smoothed), reported to the server every 2 s
+  (`report_ping`), shown on the TAB scoreboard; bots show "BOT".
+- 2026-10-31 M3p1: client subscriptions: own player row first, then only its room's player / room /
+  shot_event / kill_event rows (old room dropped after the new subscription is live).
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 
@@ -322,6 +334,35 @@ is just over the 300 / 250 ms caps, so 200 ms players hit moving targets less of
 (protects the victim, current), raise them (e.g. 350), or lower `interpolationDelayMs` (GAME.md 17).
 Known limits: no spectate / killcam after death (M3); bots never use the pistol; the server trusts the
 client's yaw/pitch for shots (normal for hitscan games; plausibility checks later).
+
+## M3 part 1 result (2026-10-31)
+What works (evidence `docs/evidence/m3a-menu-scoreboard.jpg`: menu with the character grid, TAB scoreboard):
+- Character select on the menu: all 33 characters as colour swatches, the selected name is shown,
+  remembered in the browser (`?character=N` for tests). Sent with join; other players see it (real
+  character model + scoreboard). The offline practice also uses the chosen character. Bots get random characters.
+- Online kill feed (top right, last 4 kills: killer [weapon, HS] victim) from server kill events.
+- TAB scoreboard: two team tables with round score, name, character, kills, deaths, ping (bots: BOT),
+  sorted by kills; your row highlighted; dead players dimmed.
+- The client receives only its own room's rows and events (checked with two rooms at the same time).
+Tests (all pass 2026-10-31): typecheck, 14 unit checks, `test-server.mjs`, `e2e-m3a.mjs`, plus the regression
+runs `e2e-m1.cjs`, `e2e-m2a.mjs` (0 and 200 ms), `e2e-m2b.mjs` (100 ms), production build.
+What does NOT work yet / known limits:
+- No killcam / spectate after death, no sound, no settings screen, no ADS, only rifle + pistol (rest of M3).
+- Ping on the scoreboard is inflated in the headless test browser (it handles updates once per slow frame);
+  on a normal 60 FPS browser it is close to the real network round trip.
+- 200 ms ping vs the 250/300 ms rewind caps: see the open decision in "M2b result".
+- Playing with a friend on another computer still needs a hosted server (M3 item "hosting").
+
+## Run M2b + M3 part 1 on your laptop
+Needs Node.js 22+, git and the SpacetimeDB CLI (install commands in "Run M2a on your laptop").
+In the project folder: `git pull`, then `npm ci`, then:
+1. Terminal 1: `spacetime start`
+2. Terminal 2: `npm run server:reset` (the database schema changed; this deletes old test data), then
+   `npm run game:build` and `npm run game:preview`
+3. Open http://127.0.0.1:5191/ in two windows (one normal + one private window). Pick a character and a
+   nickname in each. Window 1: Create private room (bots on or off), read the code at the top right.
+   Window 2: type the code, Join. Shoot each other; hold TAB for the scoreboard.
+4. To feel latency: add `?lag=100` or `?lag=200` to the URL (round trip). Quick Play gives 4v4 with bots.
 
 ## Old M2 plan (kept for reference)
 Goal (GAME.md 16, owner decisions 2026-10-30): authoritative multiplayer on SpacetimeDB, small scope:

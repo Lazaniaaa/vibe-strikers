@@ -4,7 +4,7 @@
 // - remote players: snapshot buffers for interpolation
 // - lagMs: artificial latency, half on sending and half on receiving
 import { NET } from '../config/net.ts';
-import { DbConnection } from './bindings/index.ts';
+import { DbConnection, type SubscriptionHandle } from './bindings/index.ts';
 import type { Infer } from 'spacetimedb';
 import type PlayerRowDef from './bindings/player_table.ts';
 import type RoomRowDef from './bindings/room_table.ts';
@@ -18,6 +18,12 @@ export type KillEvent = Infer<typeof KillEventDef>;
 
 /** Samples kept for the server clock offset estimate (about 2 s of updates). */
 const OFFSET_SAMPLES = 64;
+/** Move seqs remembered for ping measurement. */
+const PING_RING = 128;
+/** Smoothing of the ping estimate (weight of a new sample). */
+const PING_SMOOTHING = 0.2;
+/** How often the measured ping is sent to the server (ms). */
+const PING_REPORT_MS = 2000;
 
 /** One received state of a player, stamped with the local receive time (ms). */
 export interface Snapshot {
@@ -134,6 +140,12 @@ export class GameNet {
   private offsetIndex = 0;
   private lastSpawnCount = 0;
   private fireSeq = 0;
+  private roomSub: { id: bigint; handle: SubscriptionHandle } | null = null;
+  /** Local send time per move seq (ring), to measure the round trip when the server acknowledges it. */
+  private sentAt = new Float64Array(PING_RING);
+  private lastPingReport = 0;
+  /** Smoothed round-trip time (ms), measured from move acknowledgements. */
+  pingMs = 0;
 
   constructor(opts: NetOptions = {}) {
     this.opts = opts;
@@ -152,8 +164,9 @@ export class GameNet {
           this.identityHex = identity.toHexString();
           this.opts.onToken?.(token);
           this.attach(c);
+          // Only my own row until I am in a room; then the rows and events of that room (subscribeRoom).
           c.subscriptionBuilder().onApplied(() => resolve()).onError((_ctx) => reject(new Error('subscription failed')))
-            .subscribe(['SELECT * FROM player', 'SELECT * FROM room', 'SELECT * FROM shot_event', 'SELECT * FROM kill_event']);
+            .subscribe(`SELECT * FROM player WHERE owner_hex = '${this.identityHex}'`);
         })
         .onConnectError((_ctx, err) => reject(err))
         .onDisconnect((_ctx, err) => { this.lastError = err ? String(err) : 'disconnected'; })
@@ -199,7 +212,9 @@ export class GameNet {
     else { this.offsets[this.offsetIndex] = sample; this.offsetIndex = (this.offsetIndex + 1) % OFFSET_SAMPLES; }
     if (row.ownerHex === this.identityHex && !row.isBot) {
       const roomChanged = !this.me || this.me.roomId !== row.roomId;
+      if (this.me && row.seq > this.me.seq) this.measurePing(row.seq, now);
       this.me = row;
+      if (roomChanged) this.subscribeRoom(row.roomId);
       if (roomChanged) {
         this.players.clear(); this.buffers.clear();
         for (const r of this.allPlayers.values()) if (r.roomId === row.roomId) this.track(r, now);
@@ -214,6 +229,36 @@ export class GameNet {
     if (this.me && row.roomId === this.me.roomId) this.track(row, now);
     else if (this.players.delete(row.id)) { this.buffers.delete(row.id); this.onPlayerRemoved?.(row.id); }
   }
+
+  private measurePing(seq: number, now: number): void {
+    const sent = this.sentAt[seq % PING_RING];
+    if (sent <= 0 || now < sent) return;
+    const rtt = now - sent;
+    this.pingMs = this.pingMs === 0 ? rtt : this.pingMs + (rtt - this.pingMs) * PING_SMOOTHING;
+    if (now - this.lastPingReport >= PING_REPORT_MS && this.conn) {
+      this.lastPingReport = now;
+      const ms = Math.min(65535, Math.round(this.pingMs));
+      void this.call(() => this.conn!.reducers.reportPing({ ms })).catch(() => undefined);
+    }
+  }
+
+  /** Subscribe to one room's rows and events; drop the previous room's subscription once the new one is live. */
+  private subscribeRoom(roomId: bigint): void {
+    if (!this.conn || this.roomSub?.id === roomId) return;
+    const old = this.roomSub;
+    const handle = this.conn.subscriptionBuilder()
+      .onApplied(() => { if (old && old.handle.isActive()) old.handle.unsubscribe(); })
+      .subscribe([
+        `SELECT * FROM player WHERE room_id = ${roomId}`,
+        `SELECT * FROM room WHERE id = ${roomId}`,
+        `SELECT * FROM shot_event WHERE room_id = ${roomId}`,
+        `SELECT * FROM kill_event WHERE room_id = ${roomId}`,
+      ]);
+    this.roomSub = { id: roomId, handle };
+  }
+
+  /** Room ids of all player rows this client has received (tests: only my room). */
+  knownRoomIds(): bigint[] { return [...new Set([...this.allPlayers.values()].map((r) => r.roomId))]; }
 
   private track(row: PlayerRow, now: number): void {
     this.players.set(row.id, row);
@@ -254,6 +299,7 @@ export class GameNet {
   sendMove(m: LocalMove): void {
     if (!this.conn) return;
     const msg = { seq: ++this.seq, ack: this.ackCorrection, ...m };
+    this.sentAt[msg.seq % PING_RING] = this.now();
     void this.call(() => this.conn!.reducers.move(msg)).catch(() => undefined);
   }
 

@@ -5,6 +5,7 @@
 //      rewound to the client's view time, capped by maxRewindMs), HP / kills, bots shoot, Elimination rounds.
 import { schema, table, t, SenderError, type InferSchema, type ReducerCtx } from 'spacetimedb/server';
 import { ScheduleAt } from 'spacetimedb';
+import { characters } from '../../src/characters/characters.ts';
 import { BOTS } from '../../src/config/bots.ts';
 import { HITBOXES } from '../../src/config/hitboxes.ts';
 import { CAPSULE, MOVEMENT } from '../../src/config/movement.ts';
@@ -68,6 +69,8 @@ const player = table({ name: 'player', public: true }, {
   reloading: t.bool(),
   kills: t.u32(),
   deaths: t.u32(),
+  /** Round-trip time reported by the client (ms); 0 for bots. */
+  ping: t.u16(),
   /** Server time of this pose (move accepted / bot tick); clients use it to map their view to server time. */
   lastMoveAt: t.timestamp(),
 });
@@ -154,10 +157,10 @@ function spawnRow(ctx: Ctx, roomId: bigint, team: TeamId, isBot: boolean, ownerH
   const s = spots[spawnIndex % spots.length];
   const ammo = fullAmmo(0);
   ctx.db.player.insert({
-    id: 0n, roomId, ownerHex, isBot, name, character, team, x: s.x, y: s.y, z: s.z, vx: 0, vy: 0, vz: 0,
+    id: 0n, roomId, ownerHex, isBot, name, character: character % characters.length, team, x: s.x, y: s.y, z: s.z, vx: 0, vy: 0, vz: 0,
     yaw: s.yaw, pitch: 0, crouch: false, grounded: true, walk: false, seq: 0, correctionSeq: 1, spawnCount: 1, violations: 0,
     hp: MATCH.maxHealth, alive: true, weapon: 0, mag: ammo.mag, reserve: ammo.reserve, reloading: false, kills: 0, deaths: 0,
-    lastMoveAt: ctx.timestamp,
+    ping: 0, lastMoveAt: ctx.timestamp,
   });
 }
 
@@ -168,7 +171,8 @@ function fillBots(ctx: Ctx, r: RoomRow): void {
   for (const team of ['A', 'B'] as const) {
     let count = rows.filter((p) => p.team === team).length;
     while (count < MATCH.teamSize) {
-      spawnRow(ctx, r.id, team, true, '', `Bot ${ctx.random.integerInRange(10, 99)}`, ctx.random.integerInRange(1, 64), count);
+      spawnRow(ctx, r.id, team, true, '', `Bot ${ctx.random.integerInRange(10, 99)}`,
+        ctx.random.integerInRange(0, characters.length - 1), count);
       count++;
     }
   }
@@ -419,6 +423,12 @@ export const fire = spacetimedb.reducer({ seq: t.u32(), yaw: t.f32(), pitch: t.f
   fireShot(ctx, r, row, a, m.yaw, Math.max(-89 * DEG, Math.min(89 * DEG, m.pitch)), rewind);
   const updated = ctx.db.player.id.find(row.id);
   if (updated) syncAmmo(ctx, updated, a);
+});
+
+/** The client's measured round-trip time, for the scoreboard. */
+export const reportPing = spacetimedb.reducer({ ms: t.u16() }, (ctx, { ms }) => {
+  const row = myRow(ctx);
+  if (row && row.ping !== ms) ctx.db.player.id.update({ ...row, ping: ms });
 });
 
 export const reload = spacetimedb.reducer((ctx) => {

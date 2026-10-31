@@ -16,7 +16,10 @@ import { RapierMotor } from '../../src/gameplay/rapierMotor';
 import type { TeamId } from '../../src/gameplay/round';
 import { canFire, cancelReload, consumeShot, resetSlot, spreadDeg, startReload, tickSlot } from '../../src/gameplay/weaponLogic';
 import type { GameNet, KillEvent, ShotEvent, Snapshot } from '../../src/network/client';
+import { KEYS } from '../../src/config/input';
 import { Hud, type HudView } from '../../src/ui/hud';
+import { Scoreboard, type ScoreRow } from '../../src/ui/scoreboard';
+import { characterLabel } from './characterLabel';
 import { MapView } from './GameApp';
 import { Input } from './input';
 import { FramePerf } from './perf';
@@ -37,6 +40,10 @@ export interface OnlineDebug {
   setAutoAim(id: string | null): void;
   /** Server rewind (ms) of my recent shots. */
   rewinds: number[];
+  /** What the TAB scoreboard shows. */
+  scoreRows(): ScoreRow[];
+  /** Kill feed lines. */
+  feed: string[];
   setFire(on: boolean): void;
 }
 declare global { interface Window { __online?: OnlineDebug } }
@@ -53,7 +60,9 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
     const motor = new RapierMotor(rapier, world);
     motor.add(local);
     const input = new Input(gl.domElement);
-    const hud = new Hud(document.getElementById('hud')!);
+    const hudRoot = document.getElementById('hud')!;
+    const hud = new Hud(hudRoot);
+    const scoreboard = new Scoreboard(hudRoot);
     const unitBox = new BoxGeometry(1, 1, 1);
     const tracerMat = new MeshBasicMaterial({ color: '#fff1a8', transparent: true, opacity: 0.85, depthWrite: false });
     const impactMat = new MeshBasicMaterial({ color: '#3a3a3a' });
@@ -113,7 +122,7 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
       feed.push(`${name(k.killerId)} [${k.weapon}${k.headshot ? ' HS' : ''}] ${name(k.victimId)}`);
       if (feed.length > 4) feed.shift();
     };
-    return { local, motor, input, hud, viewmodel, effects, remotes, perf, stats, sample, feed, scratch, rewinds, allyMat, allyGeo,
+    return { local, motor, input, hud, scoreboard, viewmodel, effects, remotes, perf, stats, sample, feed, scratch, rewinds, allyMat, allyGeo,
       disposables: [unitBox, tracerMat, impactMat, flashMat, flashGeo, allyMat, allyGeo] };
   }, [net, world, rapier, gl, scene, debug]);
 
@@ -142,6 +151,8 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
         setFire: (on: boolean) => { game.input.debugFire = on; },
         setAutoAim: (id: string | null) => { game.scratch.autoAim = id === null ? null : BigInt(id); },
         rewinds: game.rewinds,
+        scoreRows: () => scoreRows(net),
+        feed: game.feed,
       };
     }
     return () => {
@@ -288,13 +299,20 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
       timers.hud = 0.1;
       fillOnlineHud(view, net, local, game.feed);
       view.fps = stats.fps;
-      view.perf = `${Math.round(stats.triangles / 1000)}k tris · ${stats.calls} calls · worst ${Math.round(perf.displayWorstMs)} ms / 5 s · snap-backs ${net.corrections}`;
+      view.perf = `${Math.round(stats.triangles / 1000)}k tris · ${stats.calls} calls · worst ${Math.round(perf.displayWorstMs)} ms / 5 s · ping ${Math.round(net.pingMs)} · snap-backs ${net.corrections}`;
+      game.scoreboard.setVisible(input.isDown(KEYS.scoreboard));
+      if (game.scoreboard.isVisible) game.scoreboard.update(scoreRows(net), String(net.me?.id ?? ''), net.room?.scoreA ?? 0, net.room?.scoreB ?? 0);
       view.locked = input.locked || debug;
       hud.update(view);
     }
   }, 1);
 
   return null;
+}
+
+function scoreRows(net: GameNet): ScoreRow[] {
+  return [...net.players.values()].map((r) => ({ id: String(r.id), name: r.name, character: characterLabel(r.character), kills: r.kills,
+    deaths: r.deaths, ping: r.ping, isBot: r.isBot, alive: r.alive, team: r.team }));
 }
 
 function fillOnlineHud(v: HudView, net: GameNet, local: Actor, feed: readonly string[]): void {

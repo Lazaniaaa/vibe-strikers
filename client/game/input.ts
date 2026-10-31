@@ -31,6 +31,9 @@ export class Input {
     element.addEventListener('contextmenu', (e) => e.preventDefault());
   }
 
+  /** True while a key (KeyboardEvent.code) is held. */
+  isDown(code: string): boolean { return this.keys.has(code); }
+
   get locked(): boolean { return document.pointerLockElement === this.element; }
 
   requestLock(): void {
@@ -41,7 +44,7 @@ export class Input {
     if (e.code === KEYS.slot1) this.slotRequest = 0;
     if (e.code === KEYS.slot2) this.slotRequest = 1;
     if (e.code === 'Enter') this.onConfirm?.();
-    if (e.code === KEYS.jump || e.code === KEYS.crouch) e.preventDefault();
+    if (e.code === KEYS.jump || e.code === KEYS.crouch || e.code === KEYS.scoreboard) e.preventDefault();
     if (!e.repeat) this.pressed.add(e.code);
     this.keys.add(e.code);
   };

@@ -50,6 +50,7 @@ export const Player = __t.object("Player", {
   reloading: __t.bool(),
   kills: __t.u32(),
   deaths: __t.u32(),
+  ping: __t.u16(),
   lastMoveAt: __t.timestamp(),
 });
 export type Player = __Infer<typeof Player>;
