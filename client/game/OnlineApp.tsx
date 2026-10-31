@@ -26,6 +26,8 @@ import { MapView } from './GameApp';
 import { Input } from './input';
 import { FramePerf } from './perf';
 import { AvatarRig, ShotEffects, ViewmodelRig } from './visuals';
+import { AdsController } from './ads';
+import { onSettingsChange, settings } from '../../src/ui/settings';
 
 const map = loadMapData(MAP_ID);
 const blockers = mapShotBlockers(map).boxes;
@@ -47,6 +49,8 @@ export interface OnlineDebug {
   /** Kill feed lines. */
   feed: string[];
   setFire(on: boolean): void;
+  setAds(on: boolean | null): void;
+  view(): { ads: number; fov: number; weapon: string; viewmodelVisible: boolean; scope: string; crosshairHidden: boolean };
 }
 declare global { interface Window { __online?: OnlineDebug } }
 
@@ -62,6 +66,7 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
     const motor = new RapierMotor(rapier, world);
     motor.add(local);
     const input = new Input(gl.domElement);
+    input.debugUnlocked = debug;
     const hudRoot = document.getElementById('hud')!;
     const hud = new Hud(hudRoot);
     const scoreboard = new Scoreboard(hudRoot);
@@ -73,6 +78,10 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
     const allyMat = new MeshBasicMaterial({ color: '#46b4ff' });
     const allyGeo = new BoxGeometry(0.16, 0.16, 0.16);
     const viewmodel = new ViewmodelRig(local, flashMat, flashGeo);
+    const ads = new AdsController(hudRoot);
+    const applyStyle = () => hud.setCrosshairStyle(settings.crosshairColor, settings.crosshairSize);
+    applyStyle();
+    onSettingsChange(applyStyle);
     const effects = new ShotEffects(tracerMat, impactMat, unitBox);
     const remotes = new Map<bigint, Remote>();
     const perf = new FramePerf();
@@ -125,7 +134,7 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
       feed.push(`${name(k.killerId)} [${k.weapon}${k.headshot ? ' HS' : ''}] ${name(k.victimId)}`);
       if (feed.length > 4) feed.shift();
     };
-    return { local, motor, input, hud, scoreboard, viewmodel, effects, remotes, perf, stats, sample, feed, scratch, rewinds, allyMat, allyGeo,
+    return { local, motor, input, hud, scoreboard, viewmodel, ads, effects, remotes, perf, stats, sample, feed, scratch, rewinds, allyMat, allyGeo,
       disposables: [unitBox, tracerMat, impactMat, flashMat, flashGeo, allyMat, allyGeo] };
   }, [net, world, rapier, gl, scene, debug]);
 
@@ -152,6 +161,10 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
           return true;
         },
         setFire: (on: boolean) => { game.input.debugFire = on; },
+        setAds: (on: boolean | null) => { game.input.debugAds = on; },
+        view: () => ({ ads: game.ads.value, fov: (camera as PerspectiveCamera).fov, weapon: game.local.slots[game.local.active].stats.id,
+          viewmodelVisible: game.viewmodel.activeVisible(), scope: getComputedStyle(document.querySelector('.hud-scope')!).opacity,
+          crosshairHidden: document.getElementById('hud')!.classList.contains('hud-no-crosshair') }),
         setAutoAim: (id: string | null) => { game.scratch.autoAim = id === null ? null : BigInt(id); },
         rewinds: game.rewinds,
         scoreRows: () => scoreRows(net),
@@ -162,6 +175,7 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
       for (const r of game.remotes.values()) scene.remove(r.rig.root);
       scene.remove(game.effects.group);
       game.input.dispose();
+      game.ads.dispose();
       for (const d of game.disposables) d.dispose();
       if (window.__online?.net === net) delete window.__online;
     };
@@ -202,15 +216,20 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
           local.yaw = Math.atan2(-dx, -dz); local.pitch = Math.atan2(dy, Math.hypot(dx, dz));
         }
       }
-      const intent = input.sample(local.yaw, local.pitch);
+      const weaponNow = local.slots[local.active].stats;
+      const intent = input.sample(local.yaw, local.pitch, game.ads.sensitivity(weaponNow.id));
+      if (!local.alive) { input.cancelAds(); game.ads.reset(); }
+      game.ads.update(dt, input.wantAds(settings.adsMode) && local.alive && local.slots[local.active].reloadLeft <= 0, weaponNow.id);
       local.yaw = intent.yaw;
       local.pitch = clamp(intent.pitch, -89 * DEG, 89 * DEG);
       if (local.alive) {
-        motor.step(local, intent, dt, phase === 'freeze' || phase === 'matchEnd', local.slots[local.active].stats.moveSpeedScale);
+        motor.step(local, intent, dt, phase === 'freeze' || phase === 'matchEnd',
+          weaponNow.moveSpeedScale * (game.ads.scoped(weaponNow.id) ? weaponNow.adsSpeedScale : 1));
         net.tickSend(delta, { x: local.x, y: local.y, z: local.z, vx: local.vx, vy: local.vy, vz: local.vz, yaw: local.yaw,
           pitch: local.pitch, crouch: local.crouching, grounded: local.grounded, walk: intent.walk });
         // Weapon switch / reload / fire (the server repeats every check).
         if (intent.slot >= 0 && intent.slot < local.slots.length && intent.slot !== local.active) {
+          input.cancelAds();
           cancelReload(local.slots[local.active]);
           local.active = intent.slot; local.equipLeft = local.slots[intent.slot].stats.equipTime; local.fireLatch = false;
           net.switchWeapon(intent.slot);
@@ -218,13 +237,13 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
         const s = local.slots[local.active];
         tickSlot(s, dt);
         if (local.equipLeft > 0) local.equipLeft = Math.max(0, local.equipLeft - dt);
-        if (intent.reload && startReload(s)) net.reload();
+        if (intent.reload && startReload(s)) { net.reload(); input.cancelAds(); }
         if (!intent.fire) local.fireLatch = false;
         if (live && intent.fire && local.equipLeft <= 0) {
-          if (s.stats.magSize > 0 && s.mag === 0) { if (startReload(s)) net.reload(); }
+          if (s.stats.magSize > 0 && s.mag === 0) { if (startReload(s)) { net.reload(); input.cancelAds(); } }
           while (canFire(s) && (s.stats.automatic || !local.fireLatch)) {
             // Server time of the remote poses on screen right now (they are drawn interpolationDelayMs behind).
-            net.fire(local.yaw, local.pitch, net.serverTimeAt(performance.now() - NET.interpolationDelayMs));
+            net.fire(local.yaw, local.pitch, net.serverTimeAt(performance.now() - NET.interpolationDelayMs), game.ads.scoped(s.stats.id));
             const kick = consumeShot(s);
             stats.shots++; localFired = true;
             local.fireAnimLeft = s.stats.fireAnimTime; local.fireLatch = true;
@@ -289,7 +308,8 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
     } else {
       cam.position.y = Math.max(local.y + 0.6, cam.position.y - dt * 1.5);
     }
-    viewmodel.sync(local, state.clock.elapsedTime, size.width / Math.max(1, size.height));
+    viewmodel.sync(local, state.clock.elapsedTime, size.width / Math.max(1, size.height), game.ads.value);
+    game.ads.apply(cam, local.slots[local.active].stats.id);
     effects.update(dt);
 
     const renderStart = performance.now();
@@ -303,7 +323,8 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
     perf.now.render = performance.now() - renderStart;
 
     const s = local.slots[local.active];
-    const spread = spreadDeg(s, local.moveFraction, !local.grounded) * DEG;
+    const spread = spreadDeg(s, local.moveFraction, !local.grounded, game.ads.scoped(s.stats.id)) * DEG;
+    hud.setCrosshairHidden(game.ads.hideCrosshair || !local.alive);
     hud.frame(dt, 3 + Math.tan(spread) / Math.tan((cam.fov * DEG) / 2) * (size.height / 2));
     timers.fpsFrames++; timers.fpsTime += delta;
     if (timers.fpsTime >= 0.5) { stats.fps = Math.round(timers.fpsFrames / timers.fpsTime); timers.fpsFrames = 0; timers.fpsTime = 0; }

@@ -191,6 +191,12 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
 - 2026-10-31 M3p2a: bots keep the rifle (no loadout AI); the offline practice uses rifle + pistol + knife.
 - 2026-10-31 M3p2a: knife = hitscan with 1.6 m range, no tracer; bolt / pump animation (`cycle`) runs during
   the fire interval of sniper and shotgun.
+- 2026-10-31 M3p2b: ADS (local only): right mouse toggles (setting "hold" = hold to aim); full aim in ~0.18 s
+  (`ADS.blendSpeed`); world FOV = settings FOV x fovForAds(weapon, ads) / 70; mouse speed x
+  adsSensitivityScale; sniper scope overlay from the asset API, its viewmodel hidden at ads >= 0.9 (asset rule);
+  game crosshair hidden while ads > 0.5; knife never aims. Works online and in the offline practice.
+- 2026-10-31 M3p2b: default world FOV is now 90 (GAME.md 10 default; was 70 in M1). The viewmodel pass keeps
+  its fixed 70.
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 

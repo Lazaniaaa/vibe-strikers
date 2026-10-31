@@ -105,4 +105,12 @@ export class Hud {
   }
 
   damageFlash(time: number): void { this.damageLeft = time; }
+
+  setCrosshairHidden(hidden: boolean): void { this.root.classList.toggle('hud-no-crosshair', hidden); }
+
+  /** Crosshair colour and line length (settings). */
+  setCrosshairStyle(color: string, size: number): void {
+    this.crosshair.style.setProperty('--ch-color', color);
+    this.crosshair.style.setProperty('--ch-size', `${size}px`);
+  }
 }

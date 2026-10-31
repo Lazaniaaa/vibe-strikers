@@ -1,10 +1,10 @@
 html, body, #root { margin: 0; height: 100%; overflow: hidden; background: #000; }
 body { font-family: system-ui, 'Segoe UI', sans-serif; user-select: none; }
 .hud { position: fixed; inset: 0; pointer-events: none; color: #fff; text-shadow: 0 1px 2px #000a; z-index: 2; }
-.hud-crosshair { --gap: 4px; position: absolute; left: 50%; top: 50%; width: 0; height: 0; }
-.hud-ch { position: absolute; background: #fff; box-shadow: 0 0 1px #000; }
-.hud-ch-t, .hud-ch-b { width: 2px; height: 8px; left: -1px; }
-.hud-ch-l, .hud-ch-r { width: 8px; height: 2px; top: -1px; }
+.hud-crosshair { --gap: 4px; --ch-color: #fff; --ch-size: 8px; position: absolute; left: 50%; top: 50%; width: 0; height: 0; }
+.hud-ch { position: absolute; background: var(--ch-color); box-shadow: 0 0 1px #000; }
+.hud-ch-t, .hud-ch-b { width: 2px; height: var(--ch-size); left: -1px; }
+.hud-ch-l, .hud-ch-r { width: var(--ch-size); height: 2px; top: -1px; }
 .hud-ch-t { bottom: var(--gap); }
 .hud-ch-b { top: var(--gap); }
 .hud-ch-l { right: var(--gap); }
@@ -54,3 +54,5 @@ body { font-family: system-ui, 'Segoe UI', sans-serif; user-select: none; }
 .scoreboard tr.me td { color: #ffd28a; font-weight: 700; }
 .scoreboard tr.dead td { opacity: 0.5; }
 .scoreboard .team-a { color: #ffb08a; } .scoreboard .team-b { color: #8ad2ff; }
+.hud-scope { position: absolute; inset: 0; pointer-events: none; }
+.hud-no-crosshair .hud-crosshair { display: none; }

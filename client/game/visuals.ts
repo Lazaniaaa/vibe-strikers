@@ -103,6 +103,9 @@ export class ViewmodelRig {
     }
   }
 
+  /** Is the held weapon's viewmodel drawn (false when dead or scoped with the sniper)? */
+  activeVisible(): boolean { return this.active ? this.models.get(this.active)!.visible : false; }
+
   /** Show every model and flash (used once to pre-compile shaders), or hide them again. */
   setAllVisible(visible: boolean): void {
     for (const m of this.models.values()) m.visible = visible;
@@ -110,7 +113,7 @@ export class ViewmodelRig {
     if (!visible) this.active = null;
   }
 
-  sync(actor: Actor, time: number, aspect: number): void {
+  sync(actor: Actor, time: number, aspect: number, ads = 0): void {
     if (this.camera.aspect !== aspect) { this.camera.aspect = aspect; this.camera.updateProjectionMatrix(); }
     const slot = actor.slots[actor.active], id = slot.stats.id;
     if (id !== this.active) {
@@ -118,13 +121,14 @@ export class ViewmodelRig {
       this.active = id;
     }
     const vm = this.models.get(id)!;
-    vm.visible = actor.alive;
     const s = this.state, fireT = actor.fireAnimLeft / slot.stats.fireAnimTime;
     s.fire = fireT; s.reload = reloadProgress(slot); s.cycle = cycleProgress(slot);
     s.equip = slot.stats.equipTime > 0 ? 1 - actor.equipLeft / slot.stats.equipTime : 1;
+    s.ads = ads;
     s.moveSpeed = actor.moveFraction; s.strafe = actor.moveLocalX * actor.moveFraction;
     s.grounded = actor.grounded; s.crouching = actor.crouching; s.aimPitch = actor.pitch; s.time = time;
-    poseViewmodel(vm, s);
+    poseViewmodel(vm, s); // also hides the sniper viewmodel when scoped
+    if (!actor.alive) vm.visible = false;
     const flash = this.flashes.get(id);
     if (flash) {
       flash.visible = actor.alive && fireT > 1 - EFFECTS.muzzleFlashFraction;

@@ -19,6 +19,10 @@ export class Input {
   /** Debug overrides (tests). */
   debugFire: boolean | null = null;
   debugLook: { yaw: number; pitch: number } | null = null;
+  debugAds: boolean | null = null;
+  /** ADS (right mouse): toggled state and held state; which one counts depends on the ADS mode setting. */
+  private adsToggled = false;
+  private adsHeld = false;
   /** Called once per Enter / click while the match is over. */
   onConfirm: (() => void) | null = null;
 
@@ -38,7 +42,10 @@ export class Input {
   /** True while a key (KeyboardEvent.code) is held. */
   isDown(code: string): boolean { return this.keys.has(code); }
 
-  get locked(): boolean { return document.pointerLockElement === this.element; }
+  /** Tests: act as if the pointer were locked (headless browsers cannot lock it). */
+  debugUnlocked = false;
+
+  get locked(): boolean { return this.debugUnlocked || document.pointerLockElement === this.element; }
 
   requestLock(): void {
     try { const p = this.element.requestPointerLock() as unknown; if (p instanceof Promise) p.catch(() => undefined); } catch { /* not allowed here */ }
@@ -56,19 +63,29 @@ export class Input {
     this.keys.add(e.code);
   };
   private onKeyUp = (e: KeyboardEvent) => { this.keys.delete(e.code); };
-  private onBlur = () => { this.keys.clear(); this.pressed.clear(); this.fireHeld = false; };
+  private onBlur = () => { this.keys.clear(); this.pressed.clear(); this.fireHeld = false; this.adsHeld = false; };
   private onMouseDown = (e: MouseEvent) => {
     if (!this.locked) { this.requestLock(); this.onConfirm?.(); return; }
     if (e.button === 0) this.fireHeld = true;
+    if (e.button === 2) { this.adsHeld = true; this.adsToggled = !this.adsToggled; }
   };
-  private onMouseUp = (e: MouseEvent) => { if (e.button === 0) this.fireHeld = false; };
+  private onMouseUp = (e: MouseEvent) => {
+    if (e.button === 0) this.fireHeld = false;
+    if (e.button === 2) this.adsHeld = false;
+  };
+
+  /** Wants to aim down sights (debugAds overrides for tests). */
+  wantAds(mode: 'toggle' | 'hold'): boolean { return this.debugAds ?? (mode === 'hold' ? this.adsHeld : this.adsToggled); }
+
+  /** Weapon switch, reload start and death leave ADS (owner 2026-10-31). */
+  cancelAds(): void { this.adsToggled = false; }
   private onMouseMove = (e: MouseEvent) => {
     if (!this.locked) return;
     this.dx += e.movementX; this.dy += e.movementY;
   };
 
   /** Build this frame's intent starting from the actor's current (recoil-adjusted) view angles. */
-  sample(currentYaw: number, currentPitch: number): PlayerIntent {
+  sample(currentYaw: number, currentPitch: number, sensitivity: number = MOUSE.sensitivity): PlayerIntent {
     const k = this.keys, p = this.pressed, i = this.intent;
     i.forward = (k.has(KEYS.forward) ? 1 : 0) - (k.has(KEYS.back) ? 1 : 0);
     i.right = (k.has(KEYS.right) ? 1 : 0) - (k.has(KEYS.left) ? 1 : 0);
@@ -81,8 +98,8 @@ export class Input {
     i.slot = this.slotRequest; this.slotRequest = -1;
     if (this.debugLook) { i.yaw = this.debugLook.yaw; i.pitch = this.debugLook.pitch; }
     else {
-      i.yaw = currentYaw - this.dx * MOUSE.sensitivity;
-      i.pitch = clamp(currentPitch - this.dy * MOUSE.sensitivity, -MOUSE.maxPitchDeg * DEG, MOUSE.maxPitchDeg * DEG);
+      i.yaw = currentYaw - this.dx * sensitivity;
+      i.pitch = clamp(currentPitch - this.dy * sensitivity, -MOUSE.maxPitchDeg * DEG, MOUSE.maxPitchDeg * DEG);
     }
     this.dx = 0; this.dy = 0;
     return i;

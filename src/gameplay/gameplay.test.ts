@@ -5,7 +5,7 @@ import { HITBOXES } from '../config/hitboxes.ts';
 import { ROUND_PRESETS } from '../config/rounds.ts';
 import { createShotResult, rayAabb, rayPlayer, traceShot, type HitTarget } from './hitscan.ts';
 import { directionFromAngles, spreadDirection, vec3, DEG } from './math.ts';
-import { canFire, consumeShot, createSlot, startReload, tickSlot, damageAt } from './weaponLogic.ts';
+import { canFire, consumeShot, createSlot, startReload, tickSlot, damageAt, spreadDeg, cycleProgress } from './weaponLogic.ts';
 import { createRoundState, tickRound } from './round.ts';
 import { ClientValidatedMovement, capsuleInsideBoxes } from './movementCheck.ts';
 import { PoseHistory } from './rewind.ts';
@@ -152,6 +152,20 @@ test('pose history for lag compensation', () => {
   h.sampleAt(2000, out); assert.equal(out.x, 2); assert.equal(out.crouching, true);
   h.push(1066, 3, 0, 0, 0, true); h.sampleAt(2000, out); assert.equal(out.x, 3, 'same time overwrites');
   h.push(1100, 4, 0, 0, 0, false); h.push(1133, 5, 0, 0, 0, false); h.sampleAt(0, out); assert.equal(out.x, 1, 'ring keeps the newest 4');
+});
+
+test('sniper: accurate only when scoped; bolt cycle; knife has no magazine', () => {
+  const sn = createSlot(WEAPON_STATS.sniper);
+  assert.equal(spreadDeg(sn, 0, false, true), 0);
+  assert.equal(spreadDeg(sn, 0, false, false), 8);
+  consumeShot(sn);
+  tickSlot(sn, WEAPON_STATS.sniper.fireInterval / 2);
+  assert.ok(Math.abs((cycleProgress(sn) ?? -1) - 0.5) < 1e-6);
+  const rifle = createSlot(WEAPON_STATS.rifle);
+  assert.equal(spreadDeg(rifle, 0, false, true), spreadDeg(rifle, 0, false, false), 'ADS does not change rifle spread');
+  const knife = createSlot(WEAPON_STATS.knife);
+  for (let i = 0; i < 5; i++) { assert.ok(canFire(knife)); consumeShot(knife); tickSlot(knife, WEAPON_STATS.knife.fireInterval); }
+  assert.equal(WEAPON_STATS.shotgun.pellets * WEAPON_STATS.shotgun.damage, 96);
 });
 
 console.log(`${passed} gameplay checks passed`);

@@ -17,6 +17,8 @@ import { Hud, type HudView } from '../../src/ui/hud';
 import { Input } from './input';
 import { AvatarRig, ShotEffects, ViewmodelRig } from './visuals';
 import { FramePerf } from './perf';
+import { AdsController } from './ads';
+import { onSettingsChange, settings } from '../../src/ui/settings';
 
 export interface GameOptions { debug: boolean; freezeTime?: number; /** Local player's character (menu). */ character?: number }
 
@@ -105,9 +107,13 @@ function GameDriver({ options }: { options: GameOptions }) {
       rigs.set(a.id, new AvatarRig(a, marker));
     }
     const viewmodel = new ViewmodelRig(sim.local, flashMat, flashGeo);
+    const ads = new AdsController(hudRoot);
+    const applyStyle = () => hud.setCrosshairStyle(settings.crosshairColor, settings.crosshairSize);
+    applyStyle();
+    onSettingsChange(applyStyle);
     const stats = { frames: 0, localShots: 0, localHits: 0, localDamage: 0, triangles: 0, calls: 0, fps: 0 };
     input.onConfirm = () => { if (sim.round.phase === 'matchEnd') sim.restart(); };
-    return { sim, input, hud, effects, rigs, viewmodel, stats, perf, disposables: [unitBox, tracerMat, impactMat, flashMat, flashGeo, allyMat, allyGeo] };
+    return { sim, input, hud, effects, rigs, viewmodel, ads, stats, perf, disposables: [unitBox, tracerMat, impactMat, flashMat, flashGeo, allyMat, allyGeo] };
   }, [world, rapier, gl, options.freezeTime]);
 
   useEffect(() => {
@@ -145,6 +151,7 @@ function GameDriver({ options }: { options: GameOptions }) {
       for (const rig of game.rigs.values()) scene.remove(rig.root);
       scene.remove(game.effects.group);
       game.input.dispose();
+      game.ads.dispose();
       for (const d of game.disposables) d.dispose();
       if (window.__game?.sim === game.sim) delete window.__game;
     };
@@ -164,7 +171,10 @@ function GameDriver({ options }: { options: GameOptions }) {
     const local = sim.local;
     // Let Rapier step once so the static map is in the query structures before anyone moves.
     if (stats.frames > 2) {
-      const intent = input.sample(local.yaw, local.pitch);
+      const wid = local.slots[local.active].stats.id;
+      const intent = input.sample(local.yaw, local.pitch, game.ads.sensitivity(wid));
+      if (intent.slot >= 0 || intent.reload || !local.alive) input.cancelAds();
+      game.ads.update(dt, input.wantAds(settings.adsMode) && local.alive && local.slots[local.active].reloadLeft <= 0, wid);
       if (options.debug) input.debugLook = null;
       sim.update(dt, intent);
     }
@@ -216,7 +226,9 @@ function GameDriver({ options }: { options: GameOptions }) {
     } else {
       cam.position.y = Math.max(local.y + 0.6, cam.position.y - dt * 1.5);
     }
-    viewmodel.sync(local, state.clock.elapsedTime, size.width / Math.max(1, size.height));
+    viewmodel.sync(local, state.clock.elapsedTime, size.width / Math.max(1, size.height), game.ads.value);
+    game.ads.apply(cam, local.slots[local.active].stats.id);
+    hud.setCrosshairHidden(game.ads.hideCrosshair || !local.alive);
     effects.update(dt);
 
     const renderStart = performance.now();
