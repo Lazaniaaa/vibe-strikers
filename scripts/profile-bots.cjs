@@ -25,7 +25,7 @@ const seconds = Number(process.argv[2] || 25);
   await page.waitForTimeout(seconds * 1000);
   const { profile } = await cdp.send('Profiler.stop');
   if (process.argv[3]) fs.writeFileSync(process.argv[3], JSON.stringify(profile));
-  const res = await page.evaluate(() => ({ samples: window.__samples, long: window.__game.perf.longFrames, snap: window.__game.snapshot() }));
+  const res = await page.evaluate(() => ({ degraded: window.__game.degradedRigs(), samples: window.__samples, long: window.__game.perf.longFrames, snap: window.__game.snapshot() }));
 
   // Self time per function.
   const byId = new Map(profile.nodes.map((n) => [n.id, n]));
@@ -51,6 +51,7 @@ const seconds = Number(process.argv[2] || 25);
   console.log('frames with sim > 20 ms:', s.filter((r) => r[0] > 20).length, '| pose > 20 ms:', s.filter((r) => r[5] > 20).length, '| pose > 50 ms:', s.filter((r) => r[5] > 50).length);
   const rs = s.map((r, i) => [i, r[4]]).filter((x) => x[1] > 50);
   console.log('render > 50 ms at frames:', JSON.stringify(rs.map((x) => `${x[0]}:${Math.round(x[1])}`)));
+  console.log('degraded rigs (slow firearm pose):', JSON.stringify(res.degraded));
   console.log('kills', res.snap.actors.reduce((n, a) => n + a.kills, 0), 'round', res.snap.round, 'phase', res.snap.phase);
   console.log('errors', JSON.stringify(errors));
   await browser.close();

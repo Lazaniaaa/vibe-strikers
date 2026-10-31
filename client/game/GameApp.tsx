@@ -29,6 +29,8 @@ export interface GameDebug {
   input: Input;
   stats: { frames: number; localShots: number; localHits: number; localDamage: number; triangles: number; calls: number; fps: number };
   perf: FramePerf;
+  /** Ids of bots whose firearm pose was too slow and now use the no-weapon pose. */
+  degradedRigs(): number[];
   snapshot(): unknown;
   aimAt(actorId: number, head?: boolean): void;
   teleport(actorId: number, x: number, y: number, z: number, yaw: number): void;
@@ -121,6 +123,7 @@ function GameDriver({ options }: { options: GameOptions }) {
       const g = game;
       window.__game = {
         sim: g.sim, input: g.input, stats: g.stats, perf: g.perf,
+        degradedRigs: () => [...g.rigs.values()].filter((r) => r.degraded).map((r) => r.actorId),
         snapshot: () => ({
           phase: g.sim.round.phase, timeLeft: g.sim.round.timeLeft, round: g.sim.round.round,
           scoreA: g.sim.round.scoreA, scoreB: g.sim.round.scoreB, matchWinner: g.sim.round.matchWinner,

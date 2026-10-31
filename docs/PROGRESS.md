@@ -150,6 +150,10 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
 - 2026-10-30 owner: M2 movement = CLIENT movement (Rapier KCC) + SERVER validation; everything else
   server-authoritative; revisit after the cloud phase (CLAUDE.md rule 1, GAME.md 6.1 / 6.6).
 - 2026-10-30 owner: bots run on the server with the same brain, moving along the nav grid without Rapier.
+- 2026-10-31 asset owner fixed the slow holds; bot character exclusion removed (`POSE.botCharacterExclude`
+  empty), the 12 ms pose fallback stays as a silent safety net. Headless bot round with viber-142 as a
+  bot: posing max 1.5 ms per frame for 7 bots, no rig fell back.
+- 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 
 ## M1 result (2026-10-30)
 What works (seen in headless Chromium, `docs/evidence/m1-play.jpg`, 0 console errors in dev and

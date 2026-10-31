@@ -84,6 +84,10 @@ muzzle flash, tracer, hit marker, damage numbers (toggle) are part of the feel.
   `adsSensitivityScale(weaponId, ads)`. Sniper uses the 2D scope overlay
   (`scopeOverlay`) and hides the viewmodel when scoped. Shooting without ADS is
   always allowed; the crosshair is drawn by the game.
+- ADS input — DECIDED (owner 2026-10-31, build in M3): right mouse button is a TOGGLE
+  by default (click once to aim, click again to stop). Setting "ADS mode: toggle / hold"
+  switches to hold-to-aim. DEFAULT (proposed, owner may change): weapon switch, reload
+  start and death leave ADS.
 - "Second person" (`V`): camera in front of the player looking back at the character
   (like Minecraft F5 front view). Own character is rendered in the HIP hold. Distance
   2.5 m, shortened by a ray against walls. **Shooting disabled, reloading allowed.**
@@ -168,7 +172,8 @@ word filter). Voice chat LATER.
 HUD: crosshair, HP, ammo/weapon, round timer and score, kill feed, hit marker,
 damage direction, TAB scoreboard, killcam banner, spectate overlay, ping + FPS.
 Settings: mouse sensitivity, FOV (default 90, 70-110), volume (master/sfx/music),
-crosshair (color, size, style), second-view mode (toggle/hold), ping+FPS on/off.
+crosshair (color, size, style), second-view mode (toggle/hold), ADS mode (toggle
+default / hold, owner 2026-10-31, M3), ping+FPS on/off.
 Key rebinding LATER.
 
 ## 11. Visual style — DECIDED

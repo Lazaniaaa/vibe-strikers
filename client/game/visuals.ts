@@ -63,10 +63,7 @@ export class AvatarRig {
     if (this.deadFrames <= POSE.deadPoseFrames) {
       const t = performance.now();
       poseCharacter(this.root, p, dt);
-      if (!this.degraded && p.weapon && performance.now() - t > POSE.slowCallMs) {
-        this.degraded = true;
-        console.warn(`Character pose for ${characters[actor.characterIndex % characters.length].id} is slow; using the no-weapon pose.`);
-      }
+      if (!this.degraded && p.weapon && performance.now() - t > POSE.slowCallMs) this.degraded = true;
     }
     const wp = this.weaponPose;
     wp.fire = p.fire; wp.reload = p.reload;
