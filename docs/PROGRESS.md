@@ -3,8 +3,8 @@
 Date started: 2026-10-30. Credits expire 2026-11-05.
 
 ## State
-- M0, M1 DONE (2026-10-30). M2a, M2b and M3 part 1 DONE 2026-10-31 (see "M3 part 1 result").
-  STOPPED for the owner: next step is the rest of M3 (needs approval and a short plan).
+- M0, M1 DONE (2026-10-30). M2a, M2b, M3 part 1 and M3 part 2 DONE 2026-10-31 (see "M3 part 2 result").
+  STOPPED for the owner. Not started: hosting (playing with a friend on another computer), rest of "Later".
 - Asset folders `src/characters/`, `src/weapons/`, `src/maps/` + Voxel Lab root files (owned by Codex).
 - Game: `client/index.html` (menu -> online game, or offline practice), `client/smoke.html` (M0),
   `client/game/*` (R3F apps, input, visuals, profiler), `src/gameplay/*` (shared pure code, also used by
@@ -33,6 +33,10 @@ Date started: 2026-10-30. Credits expire 2026-11-05.
   shoots a strafing Node client (server reports rewind per shot and hits that needed it).
 - `NODE_PATH=$(npm root -g) node scripts/e2e-m3a.mjs [shotPrefix]` — character select, chosen characters seen
   by others, kill feed, TAB scoreboard, own-room rows only.
+- `NODE_PATH=$(npm root -g) node scripts/e2e-m3b.mjs [shot]` — ADS (real right click), FOV zoom, sniper scope.
+- `NODE_PATH=$(npm root -g) node scripts/e2e-m3c.mjs [shot]` — killcam 3 s, then spectate a teammate; heard sounds.
+- `NODE_PATH=$(npm root -g) node scripts/e2e-m3d.mjs [shot]` — settings panel saved and applied in game.
+- `NODE_PATH=$(npm root -g) node scripts/e2e-m3e.mjs` — sounds (steps, silent walk, shots, hits, reload, knife).
 - `NODE_PATH=$(npm root -g) node scripts/e2e-m1.cjs [shot.jpg]` — offline play test (M1).
 - `node scripts/profile-bots.cjs [seconds]`, `node scripts/bench-sim.mjs [seconds] [hz]` — performance.
 - Asset owner commands unchanged: `npm run dev`, `npm run build`, `npm run verify` (see the cloud-only
@@ -395,6 +399,46 @@ In the project folder: `git pull`, then `npm ci`, then:
    nickname in each. Window 1: Create private room (bots on or off), read the code at the top right.
    Window 2: type the code, Join. Shoot each other; hold TAB for the scoreboard.
 4. To feel latency: add `?lag=100` or `?lag=200` to the URL (round trip). Quick Play gives 4v4 with bots.
+
+## M3 part 2 result (2026-10-31)
+Owner decision first: lag compensation caps 300 public / 350 private (200 ms lag test: 4/4 hits).
+What works (evidence: `docs/evidence/m3b-sniper-scope.jpg`, `m3c-killcam.jpg`, `m3d-settings.jpg`):
+- a. Weapons: rifle, pistol, sniper (100 dmg, 1.4 s bolt, 5 rounds, scoped spread 0 / unscoped 8, move x0.7
+  scoped), shotgun (8 x 12, 0.9 s, 6 shells reloaded one by one, falloff after 8 m), knife (40, 0.6 s, 1.6 m).
+  Slots 1 primary / 2 pistol / 3 knife. Primary chosen with 7 / 8 / 9 (rifle / shotgun / sniper): at once in the
+  freeze phase, otherwise next round; max 1 sniper per team (server says "your team already has a sniper").
+  Bolt / pump animations, asset viewmodels for all five weapons, other players see the right weapon.
+- b. ADS for the local player only: right mouse toggles (or hold, in settings); FOV from fovForAds; mouse speed
+  from adsSensitivityScale; sniper scope overlay with the viewmodel hidden; crosshair hidden while aiming;
+  switching weapon, reloading or dying ends ADS. Nothing about ADS is sent to other players (the server only
+  gets "scoped" with sniper shots, for accuracy).
+- c. Killcam: 3 s from the killer's eyes with "Killed by X"; then spectate living teammates (click = next).
+- d. Settings panel (menu and Esc overlay): mouse sensitivity, FOV 70-110 (default 90), master volume,
+  crosshair colour and size, ADS toggle / hold. Saved in the browser, applied at once.
+- e. Procedural sounds (no audio files): shot per weapon, hit, headshot, kill, hurt, reload (2 clicks), running
+  footsteps (Shift walk and crouch silent), UI clicks; other players' shots and steps by distance with stereo pan.
+Tests (all pass 2026-10-31): typecheck, 16 unit checks, server test (now also: loadout, sniper limit, knife
+range, scoped sniper kill, shotgun 8 pellets), e2e M1, M2a (0 / 200 ms), M2b (100 / 200 ms), M3a, M3b, M3c,
+M3d, M3e; M3b and M3c also on the production build; game build and asset build.
+What does NOT work yet / known limits:
+- Playing with a friend on another computer needs a hosted server (not started).
+- Bots always use the rifle; offline practice has no loadout choice (rifle + pistol + knife).
+- Spectating shows the teammate's view without their weapon viewmodel; the killer's view in the killcam
+  follows their last movement direction for scripted test clients (real players send their aim).
+- Sounds are simple synth sounds; no music; volume is one master slider.
+- Hit-box sizes are still the first guesses (GAME.md 17).
+
+## Run M3 part 2 on your laptop
+Needs Node.js 22+, git and the SpacetimeDB CLI (install commands in "Run M2a on your laptop").
+In the project folder: `git pull`, then `npm ci`, then:
+1. Terminal 1: `spacetime start`
+2. Terminal 2: `npm run server:reset` (the database changed again; this deletes old test data), then
+   `npm run game:build` and `npm run game:preview`
+3. Open http://127.0.0.1:5191/ in two windows (one normal + one private). Pick character and nickname,
+   press Settings to set mouse speed / FOV / volume / aim mode. Window 1: Create private room; window 2:
+   type the code, Join. In the game: 1 / 2 / 3 weapons, 7 / 8 / 9 primary for the next round, right mouse to
+   aim (sniper scope), TAB scoreboard, Esc frees the mouse (Settings button there too).
+4. Sound starts after your first click (browser rule). `?lag=200` in the URL simulates a far server.
 
 ## Old M2 plan (kept for reference)
 Goal (GAME.md 16, owner decisions 2026-10-30): authoritative multiplayer on SpacetimeDB, small scope:
