@@ -23,7 +23,8 @@ import { AUDIO, type SoundName } from '../../src/config/audio';
 import { onSettingsChange, settings } from '../../src/ui/settings';
 import { getSettingsPanel, settingsButton } from '../../src/ui/settingsPanel';
 
-export interface GameOptions { debug: boolean; freezeTime?: number; /** Local player's character (menu). */ character?: number }
+export interface GameOptions { debug: boolean; freezeTime?: number; /** Local player's character (menu). */ character?: number;
+  /** Back to the menu (Esc overlay "Leave match"). */ onLeave?: () => void }
 
 const map = loadMapData(MAP_ID);
 const spawnsA = spawnPoints(map, 'A'), spawnsB = spawnPoints(map, 'B');
@@ -117,6 +118,7 @@ function GameDriver({ options }: { options: GameOptions }) {
     const viewmodel = new ViewmodelRig(sim.local, flashMat, flashGeo);
     const ads = new AdsController(hudRoot);
     settingsButton(hud.overlay, getSettingsPanel(), 'hud-settings-btn');
+    if (options.onLeave) hud.addLeaveButton(options.onLeave);
     const applyStyle = () => hud.setCrosshairStyle(settings.crosshairColor, settings.crosshairSize);
     applyStyle();
     onSettingsChange(applyStyle);
@@ -166,6 +168,7 @@ function GameDriver({ options }: { options: GameOptions }) {
       game.markers.dispose();
       game.input.dispose();
       game.ads.dispose();
+      game.hud.dispose();
       for (const d of game.disposables) d.dispose();
       if (window.__game?.sim === game.sim) delete window.__game;
     };

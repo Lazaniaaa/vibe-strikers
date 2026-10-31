@@ -108,6 +108,28 @@ export class Hud {
 
   damageFlash(time: number): void { this.damageLeft = time; }
 
+  /** "Leave match" with an "Are you sure?" step, on the Esc overlay. */
+  addLeaveButton(onLeave: () => void): void {
+    const wrap = el('div', 'hud-leave', this.overlay);
+    const leave = el('button', 'hud-settings-btn hud-leave-btn', wrap, 'Leave match');
+    const confirm = el('div', 'hud-leave-confirm', wrap);
+    el('span', '', confirm, 'Are you sure? ');
+    const yes = el('button', 'hud-settings-btn hud-leave-yes', confirm, 'Yes, leave');
+    const no = el('button', 'hud-settings-btn hud-leave-no', confirm, 'No');
+    confirm.style.display = 'none';
+    const stop = (e: Event) => e.stopPropagation();
+    for (const b of [leave, yes, no]) b.addEventListener('mousedown', stop);
+    leave.addEventListener('click', (e) => { stop(e); confirm.style.display = ''; leave.style.display = 'none'; });
+    no.addEventListener('click', (e) => { stop(e); confirm.style.display = 'none'; leave.style.display = ''; });
+    yes.addEventListener('click', (e) => { stop(e); onLeave(); });
+  }
+
+  /** Remove everything this HUD added (back to the menu). */
+  dispose(): void {
+    this.root.replaceChildren();
+    this.root.className = '';
+  }
+
   setCrosshairHidden(hidden: boolean): void { this.root.classList.toggle('hud-no-crosshair', hidden); }
 
   /** Crosshair colour and line length (settings). */

@@ -21,6 +21,8 @@ export class Scoreboard {
 
   get isVisible(): boolean { return this.visible; }
 
+  dispose(): void { this.root.remove(); }
+
   /** Throttled by the caller (~10 Hz while visible). */
   update(rows: readonly ScoreRow[], meId: string, scoreA: number, scoreB: number): void {
     const esc = (t: string) => t.replace(/[&<>"]/g, (c) => `&#${c.charCodeAt(0)};`);

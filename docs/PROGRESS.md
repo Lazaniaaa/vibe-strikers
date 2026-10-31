@@ -217,6 +217,9 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
 - 2026-10-31 fix 1: dead bodies keep the death pose 1 s (sinking during the last 0.35 s), then are hidden.
   A death marker (0.8 m translucent tile + white box cross, ally blue / enemy orange-red as seen by you,
   render-only, no shadows) stays until that player is alive again (next round). Online and offline.
+- 2026-10-31 fix 2: "Leave match" on the Esc overlay with "Are you sure? Yes / No". Online: `leave_room`
+  (server deletes the row, a bot refills), the client drops the room subscription and its rows, keeps the
+  connection; menu shows again and any join works without reloading. Offline: back to the menu.
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 

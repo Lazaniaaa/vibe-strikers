@@ -67,3 +67,6 @@ body { font-family: system-ui, 'Segoe UI', sans-serif; user-select: none; }
 .settings button, .hud-settings-btn { font-size: 14px; padding: 8px 14px; border-radius: 6px; border: 0; background: #ffb43c; color: #222; font-weight: 700; cursor: pointer; }
 .hud-settings-btn { pointer-events: auto; margin-top: 8px; }
 .menu-settings { background: #fff2 !important; color: #fff !important; width: 100%; }
+.hud-leave { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.hud-leave-confirm { pointer-events: auto; display: flex; gap: 6px; align-items: center; }
+.hud-leave-btn, .hud-leave-yes { background: #e8452c !important; color: #fff !important; }

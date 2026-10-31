@@ -75,4 +75,6 @@ export class Menu {
   setStatus(text: string): void { this.status.textContent = text; }
 
   hide(): void { this.root.style.display = 'none'; }
+
+  show(): void { this.root.style.display = ''; this.setStatus(''); }
 }

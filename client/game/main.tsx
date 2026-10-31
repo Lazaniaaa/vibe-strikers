@@ -28,8 +28,6 @@ document.addEventListener('click', (e) => { if ((e.target as HTMLElement).closes
 // No StrictMode: its double mount frees the Rapier world that the simulation holds.
 const root = createRoot(document.getElementById('root')!);
 
-function startOffline(character?: number): void { root.render(<GameApp options={{ ...options, character }} />); }
-
 async function joinWith(net: GameNet, choice: MenuChoice, character: number): Promise<void> {
   if (choice.kind === 'quick') await net.joinQuick(choice.name, character);
   else if (choice.kind === 'create') await net.createPrivateRoom(choice.name, character, choice.bots);
@@ -40,27 +38,42 @@ async function joinWith(net: GameNet, choice: MenuChoice, character: number): Pr
   if (!net.me) throw new Error('no answer from the server');
 }
 
-async function main(): Promise<void> {
-  // ?offline=1 skips the menu (M1 single player).
-  if (params.get('offline') === '1') { startOffline(); return; }
-  const savedName = storage('local')?.getItem('voxel-name') ?? '';
-  const savedCharacter = Number(params.get('character') ?? storage('local')?.getItem('voxel-character') ?? LOCAL_PLAYER.characterIndex);
-  const list = characters.map((c, i) => ({ name: characterLabel(i), body: c.colors.body, accent: c.colors.glove ?? c.colors.outline }));
-  const menu = new Menu(document.body, params.get('name') ?? savedName, list,
-    Number.isFinite(savedCharacter) ? savedCharacter : LOCAL_PLAYER.characterIndex,
-    (i) => storage('local')?.setItem('voxel-character', String(i)));
-  settingsButton(menu.settingsSlot, getSettingsPanel(), 'menu-btn menu-settings');
-  // Test shortcut: ?auto=quick | create (&bots=0) | join&code=XXXXX
-  const auto = params.get('auto');
-  const autoName = params.get('name') ?? 'Tester';
-  let net: GameNet | null = null;
+const savedName = storage('local')?.getItem('voxel-name') ?? '';
+const savedCharacter = Number(params.get('character') ?? storage('local')?.getItem('voxel-character') ?? LOCAL_PLAYER.characterIndex);
+const list = characters.map((c, i) => ({ name: characterLabel(i), body: c.colors.body, accent: c.colors.glove ?? c.colors.outline }));
+const menu = new Menu(document.body, params.get('name') ?? savedName, list,
+  Number.isFinite(savedCharacter) ? savedCharacter : LOCAL_PLAYER.characterIndex,
+  (i) => storage('local')?.setItem('voxel-character', String(i)));
+settingsButton(menu.settingsSlot, getSettingsPanel(), 'menu-btn menu-settings');
+// One connection for the whole page: leaving a match and joining another works without reloading.
+let net: GameNet | null = null;
+// Test shortcut, first round only: ?auto=quick | create (&bots=0) | join&code=XXXXX
+let auto = params.get('auto');
+
+/** Leave the current match (online or offline) and show the menu again. */
+function backToMenu(): void {
+  try { document.exitPointerLock?.(); } catch { /* not locked */ }
+  const leaving = net?.me ? net.leave() : Promise.resolve();
+  void leaving.then(() => { root.render(<></>); void menuLoop(); });
+}
+
+function startOffline(character?: number): void {
+  menu.hide();
+  root.render(<GameApp options={{ ...options, character, onLeave: backToMenu }} />);
+}
+
+async function menuLoop(): Promise<void> {
+  menu.show();
   for (;;) {
+    const autoName = params.get('name') ?? 'Tester';
     const choice: MenuChoice = auto === 'quick' ? { kind: 'quick', name: autoName }
       : auto === 'create' ? { kind: 'create', name: autoName, bots: params.get('bots') !== '0' }
       : auto === 'join' ? { kind: 'join', name: autoName, code: (params.get('code') ?? '').toUpperCase() }
       : await menu.choose();
+    const wasAuto = auto !== null;
+    auto = null;
     storage('local')?.setItem('voxel-name', choice.name);
-    if (choice.kind === 'offline') { menu.hide(); startOffline(menu.character); return; }
+    if (choice.kind === 'offline') { startOffline(menu.character); return; }
     try {
       menu.setStatus('Connecting...');
       if (!net) {
@@ -78,13 +91,15 @@ async function main(): Promise<void> {
       const savedPrimary = params.get('primary') ?? storage('local')?.getItem('voxel-primary');
       if (savedPrimary) await net.setPrimary(savedPrimary).catch(() => undefined);
       menu.hide();
-      root.render(<OnlineApp net={net} debug={debug} />);
+      root.render(<OnlineApp net={net} debug={debug} onLeave={backToMenu} />);
       return;
     } catch (e) {
       menu.setStatus(`Could not join: ${e instanceof Error ? e.message : String(e)}`);
-      if (auto) return;
+      if (wasAuto) return;
     }
   }
 }
 
-void main();
+// ?offline=1 skips the menu (M1 single player); leaving it shows the menu.
+if (params.get('offline') === '1') startOffline();
+else void menuLoop();

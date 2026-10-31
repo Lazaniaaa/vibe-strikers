@@ -212,7 +212,9 @@ export class GameNet {
     else { this.offsets[this.offsetIndex] = sample; this.offsetIndex = (this.offsetIndex + 1) % OFFSET_SAMPLES; }
     if (row.ownerHex === this.identityHex && !row.isBot) {
       const roomChanged = !this.me || this.me.roomId !== row.roomId;
-      if (this.me && row.seq > this.me.seq) this.measurePing(row.seq, now);
+      // A new player row (joined / rejoined a room) starts its own correction and spawn counters.
+      if (!this.me || this.me.id !== row.id) { this.ackCorrection = 0; this.lastSpawnCount = 0; this.corrections = 0; }
+      else if (row.seq > this.me.seq) this.measurePing(row.seq, now);
       this.me = row;
       if (roomChanged) this.subscribeRoom(row.roomId);
       if (roomChanged) {
@@ -284,7 +286,15 @@ export class GameNet {
     return this.call(() => this.conn!.reducers.createPrivateRoom({ name, character, bots }));
   }
   joinByCode(code: string, name: string, character: number): Promise<void> { return this.call(() => this.conn!.reducers.joinByCode({ code, name, character })); }
-  leave(): Promise<void> { return this.call(() => this.conn!.reducers.leaveRoom({})); }
+  /** Leave the room (the server gives the slot back to a bot) and forget its rows; the connection stays. */
+  async leave(): Promise<void> {
+    await this.call(() => this.conn!.reducers.leaveRoom({})).catch(() => undefined);
+    if (this.roomSub && this.roomSub.handle.isActive()) this.roomSub.handle.unsubscribe();
+    this.roomSub = null;
+    this.me = null; this.room = null;
+    this.players.clear(); this.buffers.clear(); this.allPlayers.clear(); this.pending.length = 0;
+    this.onCorrection = null; this.onSpawn = null; this.onShot = null; this.onKill = null; this.onPlayerRemoved = null;
+  }
 
   /** Send the local movement at NET.sendRateHz. Call every frame with the frame time. */
   tickSend(dt: number, m: LocalMove): void {

@@ -66,7 +66,7 @@ interface Remote { actor: Actor; rig: AvatarRig; stepDist: number }
 /** After death: 'killcam' follows the killer for KILLCAM.duration, then 'spectate' follows living teammates. */
 interface ViewState { mode: 'self' | 'killcam' | 'spectate'; target: bigint | null; until: number; killer: string; weapon: string; fireWas: boolean }
 
-function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
+function OnlineDriver({ net, debug, onLeave }: { net: GameNet; debug: boolean; onLeave: () => void }) {
   const { world, rapier } = useRapier();
   const { gl, scene, camera, size } = useThree();
 
@@ -80,6 +80,7 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
     const hudRoot = document.getElementById('hud')!;
     const hud = new Hud(hudRoot);
     const scoreboard = new Scoreboard(hudRoot);
+    hud.addLeaveButton(onLeave);
     settingsButton(hud.overlay, getSettingsPanel(), 'hud-settings-btn');
     const unitBox = new BoxGeometry(1, 1, 1);
     const tracerMat = new MeshBasicMaterial({ color: '#fff1a8', transparent: true, opacity: 0.85, depthWrite: false });
@@ -160,7 +161,7 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
     };
     return { local, motor, input, hud, scoreboard, viewmodel, ads, view, sfx, audio, markers, effects, remotes, perf, stats, sample, feed, scratch, rewinds, allyMat, allyGeo,
       disposables: [unitBox, tracerMat, impactMat, flashMat, flashGeo, allyMat, allyGeo] };
-  }, [net, world, rapier, gl, scene, debug]);
+  }, [net, world, rapier, gl, scene, debug, onLeave]);
 
   useEffect(() => {
     const cam = camera as PerspectiveCamera;
@@ -207,6 +208,8 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
       game.markers.dispose();
       game.input.dispose();
       game.ads.dispose();
+      game.scoreboard.dispose();
+      game.hud.dispose();
       for (const d of game.disposables) d.dispose();
       if (window.__online?.net === net) delete window.__online;
     };
@@ -455,7 +458,7 @@ function fillOnlineHud(v: HudView, net: GameNet, local: Actor, feed: readonly st
     `${net.lagMs ? ` · lag ${net.lagMs} ms` : ''}${feed.length ? `\n${feed.join('\n')}` : ''}${net.lastError ? `\n${net.lastError}` : ''}`;
 }
 
-export function OnlineApp({ net, debug }: { net: GameNet; debug: boolean }) {
+export function OnlineApp({ net, debug, onLeave }: { net: GameNet; debug: boolean; onLeave: () => void }) {
   const sceneSetup = useMemo(() => ({ background: new Color(map.sky.color), fog: new Fog(map.fog.color, map.fog.near, map.fog.far) }), []);
   return (
     <Canvas
@@ -466,7 +469,7 @@ export function OnlineApp({ net, debug }: { net: GameNet; debug: boolean }) {
     >
       <Physics gravity={[0, 0, 0]}>
         <MapView />
-        <OnlineDriver net={net} debug={debug} />
+        <OnlineDriver net={net} debug={debug} onLeave={onLeave} />
       </Physics>
     </Canvas>
   );
