@@ -6,6 +6,10 @@ import { resolve } from 'node:path';
 export default defineConfig({
   plugins: [react()],
   root: 'client',
+  // Relative asset paths: the built folder works from any static host, also in a sub-folder.
+  base: './',
+  // VITE_STDB_URI / VITE_STDB_DB come from .env.production.local in the project root (see docs/HOSTING.md).
+  envDir: import.meta.dirname,
   resolve: { dedupe: ['three', 'react', 'react-dom'] },
   server: { host: '127.0.0.1', port: 5190, strictPort: true },
   build: {

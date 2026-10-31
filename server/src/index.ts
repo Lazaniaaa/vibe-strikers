@@ -222,7 +222,15 @@ function joinRoom(ctx: Ctx, r: RoomRow, name: string, character: number): void {
   fillBots(ctx, r);
 }
 
+/** The 30 Hz tick runs only while rooms exist (no idle cost on a hosted server). */
+function ensureTick(ctx: Ctx): void {
+  if (ctx.db.tickTimer.iter().next().done) {
+    ctx.db.tickTimer.insert({ scheduledId: 0n, scheduledAt: ScheduleAt.interval(BigInt(Math.round(1_000_000 / NET.tickRateHz))) });
+  }
+}
+
 function createRoom(ctx: Ctx, isPrivate: boolean, bots: boolean, difficulty: BotDifficulty = DEFAULT_DIFFICULTY): RoomRow {
+  ensureTick(ctx);
   getNav(); // build the nav grid now, not during a tick
   return ctx.db.room.insert({ id: 0n, code: newRoomCode(ctx), isPrivate, bots, difficulty, phase: 'freeze', round: 1, scoreA: 0, scoreB: 0,
     timeLeft: PRESET.freezeTime, lastWinner: '', matchWinner: '', createdAt: ctx.timestamp });
@@ -364,7 +372,9 @@ function tickRoom(ctx: Ctx, r: RoomRow): RoomRow {
 // Reducers
 
 export const init = spacetimedb.init((ctx) => {
-  ctx.db.tickTimer.insert({ scheduledId: 0n, scheduledAt: ScheduleAt.interval(BigInt(Math.round(1_000_000 / NET.tickRateHz))) });
+  // The tick starts with the first room (ensureTick) and stops when the last room closes.
+  if (ctx.db.room.iter().next().done) return;
+  ensureTick(ctx);
 });
 
 export const onDisconnect = spacetimedb.clientDisconnected((ctx) => { removeOwnRows(ctx); });
@@ -492,9 +502,9 @@ export const switchWeapon = spacetimedb.reducer({ slot: t.u8() }, (ctx, { slot }
 });
 
 /** 30 Hz: rounds, weapon timers, pose history, bots of every room. */
-export const tick = spacetimedb.reducer({ onSchedule: tickTimer }, { timer: tickTimer.rowType }, (ctx) => {
+export const tick = spacetimedb.reducer({ onSchedule: tickTimer }, { timer: tickTimer.rowType }, (ctx, { timer }) => {
   const rooms = [...ctx.db.room.iter()];
-  if (rooms.length === 0) return;
+  if (rooms.length === 0) { ctx.db.tickTimer.scheduledId.delete(timer.scheduledId); return; }
   const world = getWorld(), nav = getNav();
   const tNow = nowMs(ctx);
   // A* budget per tick for the whole module (all rooms share the CPU).

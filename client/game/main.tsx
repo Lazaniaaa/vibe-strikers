@@ -86,7 +86,9 @@ async function menuLoop(): Promise<void> {
       menu.setStatus('Connecting...');
       if (!net) {
         net = new GameNet({
-          uri: params.get('server') ?? undefined,
+          // Server: ?server= (tests) > build-time VITE_STDB_URI (hosting) > local default in src/config/net.ts.
+          uri: params.get('server') ?? (import.meta.env.VITE_STDB_URI || undefined),
+          databaseName: params.get('db') ?? (import.meta.env.VITE_STDB_DB || undefined),
           // One identity per browser tab, so two tabs are two players.
           token: storage('session')?.getItem('stdb-token') ?? undefined,
           onToken: (t) => storage('session')?.setItem('stdb-token', t),

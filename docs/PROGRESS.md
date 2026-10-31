@@ -281,6 +281,12 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   error, head-aim chance, burst length / pause, turn rate, cover chance). Menu select (saved), used by offline
   practice and private rooms you create (`room.difficulty`); Quick Play = normal. Test: hard team vs easy team
   (240 s): 12 kills / 3 rounds vs 2 kills / 0 rounds. The menu scrolls on small windows.
+- 2026-10-31 solo 4: hosting prep (not deployed). Client server address / database from build-time
+  `VITE_STDB_URI` / `VITE_STDB_DB` (file `.env.production.local` in the project root, example committed,
+  `.env*.local` gitignored); defaults stay local; `?server=` / `?db=` override for tests. Build uses relative
+  paths (`base: './'`): checked from a sub-folder on a plain static server against a second database. The server
+  tick now starts with the first room and stops when the last room closes. Steps: `docs/HOSTING.md`
+  (Maincloud + Cloudflare Pages direct upload, Windows).
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 
