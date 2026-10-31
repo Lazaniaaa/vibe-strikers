@@ -86,8 +86,8 @@ muzzle flash, tracer, hit marker, damage numbers (toggle) are part of the feel.
   always allowed; the crosshair is drawn by the game.
 - ADS input — DECIDED (owner 2026-10-31, build in M3): right mouse button is a TOGGLE
   by default (click once to aim, click again to stop). Setting "ADS mode: toggle / hold"
-  switches to hold-to-aim. DEFAULT (proposed, owner may change): weapon switch, reload
-  start and death leave ADS.
+  switches to hold-to-aim. Weapon switch, reload start and death leave ADS (approved
+  2026-10-31).
 - "Second person" (`V`): camera in front of the player looking back at the character
   (like Minecraft F5 front view). Own character is rendered in the HIP hold. Distance
   2.5 m, shortened by a ray against walls. **Shooting disabled, reloading allowed.**
@@ -107,9 +107,9 @@ Interpolation for remote players; the local player is corrected only on a snap-b
 ### 6.2 Intents (client -> server), initial contract
 `move{seq, ack, x, y, z, vx, vy, vz, yaw, pitch, crouch, grounded, walk}` (client KCC result,
 sent at the net send rate; `ack` = last server correction the client has applied, older moves are
-ignored), room reducers `join_quick{name, character}`, `create_private_room{name, character}`,
-`join_by_code{code, name, character}`, `leave_room` (M2a), `fire{seq, yaw, pitch, viewTime}` (viewTime = server time of
-the world the client was showing, used for the rewind), `reload`, `switchWeapon{slot}`,
+ignored), room reducers `join_quick{name, character}`, `create_private_room{name, character, bots}`,
+`join_by_code{code, name, character}`, `leave_room` (M2a), `fire{seq, yaw, pitch, viewTimeMs}` (server time of the world the client was showing, used for the
+rewind), `reload`, `switch_weapon{slot}` (M2b), `reload`, `switchWeapon{slot}`,
 `pickup{itemId}`, `useHeal`, `emote{id}`, `ping{x,y,z,kind}`,
 `chat{text}` (private rooms only), `joinRoom{code|quick, nickname, characterId}`,
 `loadout{primary}`, `pingMeasure` (RTT every 1 s).
@@ -118,6 +118,9 @@ the world the client was showing, used for the rewind), `reload`, `switchWeapon{
 Snapshots of players (position, yaw, pitch, hp, weapon, pose flags: speed,
 moveDir, shooting, crouching, grounded, dead, emote, reloading), items on the
 ground, round state, scores. Events: `hit`, `kill{killer, victim, weapon, head}`,
+(M2b implemented: event tables `shot_event{roomId, shooterId, origin, end, hitKind, victimId, part, damage,
+killed, rewindMs, hitWithoutRewind}` and `kill_event{roomId, killerId, victimId, headshot, weapon}`; round state
+in the `room` row: phase, round, scoreA/B, timeLeft, lastWinner, matchWinner),
 `roundStart/End`, `matchEnd`, `emote`, `ping`.
 Document the final field list in `docs/CONTRACTS.md` and generate client bindings
 before UI work (schema first, rendering after).

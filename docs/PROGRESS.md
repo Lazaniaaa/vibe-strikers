@@ -3,7 +3,7 @@
 Date started: 2026-10-30. Credits expire 2026-11-05.
 
 ## State
-- M0, M1 DONE (2026-10-30). M2a DONE 2026-10-31 (see "M2a result"). WAITING for owner approval of M2b.
+- M0, M1 DONE (2026-10-30). M2a DONE, M2b DONE 2026-10-31 (see "M2b result"). Next: M3 part 1 (owner approved).
 - Asset folders `src/characters/`, `src/weapons/`, `src/maps/` + Voxel Lab root files (owned by Codex).
 - Game: `client/index.html` (menu -> online game, or offline practice), `client/smoke.html` (M0),
   `client/game/*` (R3F apps, input, visuals, profiler), `src/gameplay/*` (shared pure code, also used by
@@ -161,6 +161,12 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   bot: posing max 1.5 ms per frame for 7 bots, no rig fell back.
 - 2026-10-31 M2a: server module in TypeScript imports shared code from `src/` directly (no generated JSON).
 - 2026-10-31 M2a: one identity per browser tab (token in sessionStorage), so two tabs are two players.
+- 2026-10-31 M2b: fire-rate check = cooldown slack 0.12 s (one extra shot of burst for network bunching).
+- 2026-10-31 M2b: lag-comp view time = client's estimate of server time (max of row-time minus receive-time
+  over the last 64 updates) at (now - interpolationDelayMs); caps unchanged (250 public / 300 private).
+- 2026-10-31 M2b: online match restarts automatically 10 s after the match ends; joining mid-round spawns alive.
+- 2026-10-31 M2b: private rooms have a "fill with bots" option (GAME.md room config `fillBots`).
+- 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 
 ## M1 result (2026-10-30)
@@ -280,12 +286,42 @@ Then, in the project folder (after `git pull` and `npm ci`):
    the URL to simulate a far server.
 A friend on another computer needs a hosted server (M3).
 
-## Next step: M2b (needs owner approval)
-Scope (from the M2 plan): server-side fire (rate, ammo, reload, spread with the server RNG), hit boxes
-rewound to the client's view time (ring buffer, maxRewindMs 250 public / 300 private), HP / death /
-kill events, bots shoot, Elimination rounds on the server (`round.ts`), client tracers + hit markers
-+ kill feed from server events, latency tests at 100 / 200 ms with a strafing target. Subscribe by
-room instead of all rows. Estimate ~15-20% of the total budget.
+## M2b result (2026-10-31)
+What works (evidence `docs/evidence/m2b-lagcomp.jpg`: a 100 ms tab hitting a strafing player):
+- Server-authoritative weapons with the shared `weaponLogic`: fire rate (a shot is accepted while the
+  cooldown is <= `FIRE_CHECK.cooldownSlack` 0.12 s, so bunched packets pass but spamming does not:
+  10 messages at once -> 2 shots), magazine, reserve, reload, weapon switch with draw time, spread from
+  the server RNG (moving / airborne / bloom). Ammo and reload state mirrored in the player row.
+- Lag compensation: every player has a pose history (`src/gameplay/rewind.ts`, 16 samples at 30 Hz,
+  pushed on every accepted move and every tick). A `fire` carries `viewTimeMs` = server time of what the
+  client was drawing (client estimates the server clock from row timestamps, minus its 100 ms
+  interpolation delay). The server rewinds target hit boxes to that time, capped at 250 ms (public) /
+  300 ms (private), and raycasts map boxes + rewound boxes. Each shot event also records whether the
+  same ray would hit the CURRENT poses (`hitWithoutRewind`, test data).
+- HP, headshot x2.5, death, kills / deaths, kill events, shot events (tracers, impacts, hit markers,
+  damage flash, basic kill feed in the top right).
+- Server bots shoot (same brain: reaction time, aim error, bursts, reload) and kill.
+- Elimination rounds on the server with `round.ts` (test preset: freeze 5 s, round 45 s, round end 4 s,
+  first to 3; timeout by team HP); everyone respawns on a new round (HP, weapons, ammo reset); after the
+  match ends a new match starts in 10 s (`MATCH.matchRestartTime`). Joining mid-round spawns alive.
+- Client: local prediction of fire / recoil / ammo / reload / switch with reconciliation from the
+  server row; freeze phase blocks moving; death camera; round HUD (timer, score, alive counts, messages).
+- Private rooms can be created without bots (menu checkbox, `&bots=0`): used for clean 1v1 tests.
+Tests (all pass): typecheck (game + server), 14 unit checks, offline M1 e2e,
+`scripts/test-server.mjs` (rooms, bots move AND kill, refill, movement cheats, a legal 60 m walk with
+0 snap-backs, hit -> HP 73, fire-rate limit, ammo, kill -> round end -> reload -> pistol -> round 2 respawn),
+`scripts/e2e-m2a.mjs` at 0 / 200 ms (two tabs), `scripts/e2e-m2b.mjs` (lag compensation):
+| artificial round trip | needed rewind | server rewind | hit rate on 4.5 m/s strafe | hits that would land without rewind |
+|---|---|---|---|---|
+| 100 ms | ~205 ms | 202-206 ms | 67-80% (target killed) | 0 of 4 |
+| 200 ms | ~305 ms | clamped at 300 ms (private cap) | 44-57% (target killed) | 0 of 4 |
+| 200 ms, cap lifted to 600 (experiment, reverted) | ~305 ms | 304-352 ms | 67% | 1 of 4 |
+Headless renders at 5-13 FPS, so hit rates on a real 60 FPS laptop should be higher.
+OPEN DECISION for the owner (not changed): at 200 ms ping the needed rewind (ping + 100 ms interpolation)
+is just over the 300 / 250 ms caps, so 200 ms players hit moving targets less often. Options: keep the caps
+(protects the victim, current), raise them (e.g. 350), or lower `interpolationDelayMs` (GAME.md 17).
+Known limits: no spectate / killcam after death (M3); bots never use the pistol; the server trusts the
+client's yaw/pitch for shots (normal for hitscan games; plausibility checks later).
 
 ## Old M2 plan (kept for reference)
 Goal (GAME.md 16, owner decisions 2026-10-30): authoritative multiplayer on SpacetimeDB, small scope:

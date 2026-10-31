@@ -2,7 +2,7 @@
 
 export type MenuChoice =
   | { kind: 'quick'; name: string }
-  | { kind: 'create'; name: string }
+  | { kind: 'create'; name: string; bots: boolean }
   | { kind: 'join'; name: string; code: string }
   | { kind: 'offline'; name: string };
 
@@ -22,6 +22,7 @@ export class Menu {
         <label class="menu-label">Nickname <input class="menu-name" maxlength="16" /></label>
         <button class="menu-btn menu-quick">Quick Play</button>
         <button class="menu-btn menu-create">Create private room</button>
+        <label class="menu-check"><input type="checkbox" class="menu-bots" checked /> fill the private room with bots</label>
         <div class="menu-row"><input class="menu-code" maxlength="5" placeholder="CODE" /><button class="menu-btn menu-join">Join</button></div>
         <button class="menu-btn menu-offline">Practice offline (bots)</button>
         <div class="menu-status"></div>
@@ -34,7 +35,8 @@ export class Menu {
     const pick = (c: MenuChoice) => { const r = this.resolve; this.resolve = null; r?.(c); };
     const name = () => this.nameInput.value.trim();
     this.root.querySelector('.menu-quick')!.addEventListener('click', () => pick({ kind: 'quick', name: name() }));
-    this.root.querySelector('.menu-create')!.addEventListener('click', () => pick({ kind: 'create', name: name() }));
+    const bots = this.root.querySelector<HTMLInputElement>('.menu-bots')!;
+    this.root.querySelector('.menu-create')!.addEventListener('click', () => pick({ kind: 'create', name: name(), bots: bots.checked }));
     this.root.querySelector('.menu-join')!.addEventListener('click', () => pick({ kind: 'join', name: name(), code: this.codeInput.value.trim().toUpperCase() }));
     this.root.querySelector('.menu-offline')!.addEventListener('click', () => pick({ kind: 'offline', name: name() }));
   }

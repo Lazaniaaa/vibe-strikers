@@ -26,7 +26,7 @@ function startOffline(): void { root.render(<GameApp options={options} />); }
 async function joinWith(net: GameNet, choice: MenuChoice): Promise<void> {
   const character = LOCAL_PLAYER.characterIndex;
   if (choice.kind === 'quick') await net.joinQuick(choice.name, character);
-  else if (choice.kind === 'create') await net.createPrivateRoom(choice.name, character);
+  else if (choice.kind === 'create') await net.createPrivateRoom(choice.name, character, choice.bots);
   else if (choice.kind === 'join') await net.joinByCode(choice.code, choice.name, character);
   // Wait until my row has arrived (after artificial lag too).
   const end = performance.now() + 10000;
@@ -39,12 +39,14 @@ async function main(): Promise<void> {
   if (params.get('offline') === '1') { startOffline(); return; }
   const savedName = storage('local')?.getItem('voxel-name') ?? '';
   const menu = new Menu(document.body, params.get('name') ?? savedName);
-  // Test shortcut: ?auto=quick | create | join&code=XXXXX
+  // Test shortcut: ?auto=quick | create (&bots=0) | join&code=XXXXX
   const auto = params.get('auto');
+  const autoName = params.get('name') ?? 'Tester';
   let net: GameNet | null = null;
   for (;;) {
-    const choice: MenuChoice = auto === 'quick' || auto === 'create' ? { kind: auto, name: params.get('name') ?? 'Tester' }
-      : auto === 'join' ? { kind: 'join', name: params.get('name') ?? 'Tester', code: (params.get('code') ?? '').toUpperCase() }
+    const choice: MenuChoice = auto === 'quick' ? { kind: 'quick', name: autoName }
+      : auto === 'create' ? { kind: 'create', name: autoName, bots: params.get('bots') !== '0' }
+      : auto === 'join' ? { kind: 'join', name: autoName, code: (params.get('code') ?? '').toUpperCase() }
       : await menu.choose();
     storage('local')?.setItem('voxel-name', choice.name);
     if (choice.kind === 'offline') { menu.hide(); startOffline(); return; }

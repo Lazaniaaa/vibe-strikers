@@ -52,6 +52,13 @@ try {
   const movedBots = [...a.players.values()].filter((p) => p.isBot && Math.hypot(p.x - bots0.get(p.id).x, p.z - bots0.get(p.id).z) > 1).length;
   check(movedBots >= 3, `server bots move (${movedBots} of ${bots0.size} moved > 1 m in 2.5 s)`);
   check([...a.players.values()].filter((p) => p.isBot && capsuleInsideBoxes(p.x, p.y, p.z, false, colliders)).length === 0, 'no bot is inside a wall');
+  // Bots shoot: within 40 s some bot kills someone (bots fight each other and the idle humans).
+  const botKills = [];
+  a.onKill = (k) => botKills.push(k);
+  await waitFor(() => botKills.length > 0, 40000);
+  const killer = botKills[0] && a.players.get(botKills[0].killerId);
+  check(botKills.length > 0 && killer?.isBot, `bots shoot and kill (${botKills.length} kill(s), first by ${killer?.name})`);
+  a.onKill = null;
   b.disconnect();
   await waitFor(() => [...a.players.values()].filter((p) => !p.isBot).length === 1 && a.players.size === MATCH.teamSize * 2, 4000);
   check([...a.players.values()].filter((p) => !p.isBot).length === 1 && a.players.size === MATCH.teamSize * 2, 'after a client leaves, bots refill the room');

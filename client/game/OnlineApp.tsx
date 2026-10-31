@@ -33,6 +33,10 @@ export interface OnlineDebug {
   snapshot(): unknown;
   /** Aim at the interpolated (rendered) position of a remote player: what a perfect human would aim at. */
   aimAtRemote(id: string, head?: boolean): boolean;
+  /** Same, but every frame right before the weapon fires (tests at low frame rates). null = off. */
+  setAutoAim(id: string | null): void;
+  /** Server rewind (ms) of my recent shots. */
+  rewinds: number[];
   setFire(on: boolean): void;
 }
 declare global { interface Window { __online?: OnlineDebug } }
@@ -64,7 +68,8 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
     const stats = { frames: 0, fps: 0, triangles: 0, calls: 0, remotes: 0, shots: 0, hits: 0, hitsWithoutRewind: 0, kills: 0, deaths: 0, serverShots: 0 };
     const sample: Snapshot = { t: 0, x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0, yaw: 0, pitch: 0, crouch: false, grounded: true, alive: true };
     const feed: string[] = [];
-    const scratch = { from: vec3(), dir: vec3(), punch: 0 };
+    const scratch = { from: vec3(), dir: vec3(), punch: 0, autoAim: null as bigint | null };
+    const rewinds: number[] = [];
     const spawn = (row: { x: number; y: number; z: number; yaw: number }) => {
       motor.teleport(local, row.x, row.y, row.z);
       local.yaw = row.yaw; local.intent.yaw = row.yaw; local.pitch = 0;
@@ -86,6 +91,9 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
       if (mine) {
         if (e.hitKind === 'player') {
           stats.hits++; if (e.hitWithoutRewind) stats.hitsWithoutRewind++;
+        }
+        if (debug) { rewinds.push(Math.round(e.rewindMs)); if (rewinds.length > 50) rewinds.shift(); }
+        if (e.hitKind === 'player') {
           hud.hitMarker(e.part === 'head', e.killed, EFFECTS.hitMarkerTime);
         }
       } else {
@@ -105,9 +113,9 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
       feed.push(`${name(k.killerId)} [${k.weapon}${k.headshot ? ' HS' : ''}] ${name(k.victimId)}`);
       if (feed.length > 4) feed.shift();
     };
-    return { local, motor, input, hud, viewmodel, effects, remotes, perf, stats, sample, feed, scratch, allyMat, allyGeo,
+    return { local, motor, input, hud, viewmodel, effects, remotes, perf, stats, sample, feed, scratch, rewinds, allyMat, allyGeo,
       disposables: [unitBox, tracerMat, impactMat, flashMat, flashGeo, allyMat, allyGeo] };
-  }, [net, world, rapier, gl, scene]);
+  }, [net, world, rapier, gl, scene, debug]);
 
   useEffect(() => {
     const cam = camera as PerspectiveCamera;
@@ -132,6 +140,8 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
           return true;
         },
         setFire: (on: boolean) => { game.input.debugFire = on; },
+        setAutoAim: (id: string | null) => { game.scratch.autoAim = id === null ? null : BigInt(id); },
+        rewinds: game.rewinds,
       };
     }
     return () => {
@@ -163,6 +173,13 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
     // Local movement (client authority, server validation) and predicted weapon.
     let localFired = false;
     if (stats.frames > 2 && me) {
+      if (scratch.autoAim !== null) {
+        const buf = net.buffers.get(scratch.autoAim);
+        if (buf && buf.sample(performance.now() - NET.interpolationDelayMs, sample)) {
+          const dx = sample.x - local.x, dz = sample.z - local.z, dy = sample.y + 0.6 - (local.y + local.eyeHeight);
+          local.yaw = Math.atan2(-dx, -dz); local.pitch = Math.atan2(dy, Math.hypot(dx, dz));
+        }
+      }
       const intent = input.sample(local.yaw, local.pitch);
       local.yaw = intent.yaw;
       local.pitch = clamp(intent.pitch, -89 * DEG, 89 * DEG);
