@@ -81,3 +81,20 @@ export const DEATH = {
   sinkDepth: 0.7,
   marker: { size: 0.8, height: 0.02, opacity: 0.5, crossLength: 0.55, crossWidth: 0.1, crossOpacity: 0.85, lift: 0.02 },
 } as const;
+
+/** Name tags above players (ally: always, through walls; enemy: only in line of sight near the crosshair). */
+export const NAME_TAGS = {
+  /** Tag anchor above the feet, metres (above the ally marker). */
+  height: 2.45,
+  /** Tags fade out between fadeStart and maxDistance (metres). */
+  fadeStart: 30,
+  maxDistance: 40,
+  /** Scale 1 at refDistance, clamped to [minScale, maxScale]. */
+  refDistance: 8,
+  minScale: 0.6,
+  maxScale: 1,
+  /** Enemy tag only within this angle from the crosshair (degrees). */
+  enemyMaxAngleDeg: 7,
+  /** Line-of-sight target on the enemy: this height above the feet. */
+  enemyAimHeight: 1.35,
+} as const;

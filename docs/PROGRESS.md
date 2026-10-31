@@ -38,6 +38,10 @@ Date started: 2026-10-30. Credits expire 2026-11-05.
 - `NODE_PATH=$(npm root -g) node scripts/e2e-m3d.mjs [shot]` — settings panel saved and applied in game.
 - `NODE_PATH=$(npm root -g) node scripts/e2e-m3e.mjs` — sounds (steps, silent walk, shots, hits, reload, knife).
 - `NODE_PATH=$(npm root -g) node scripts/e2e-m1.cjs [shot.jpg]` — offline play test (M1).
+- `NODE_PATH=$(npm root -g) node scripts/e2e-fixes.mjs [shot]` — dead body removed after ~1 s, death marker until the next round.
+- `NODE_PATH=$(npm root -g) node scripts/e2e-leave.mjs` — Leave match (confirm), bot refills, rejoin without reload, offline leave.
+- `NODE_PATH=$(npm root -g) node scripts/e2e-tags.mjs [shot]` — name tags (ally through walls, enemy only in sight near the
+  crosshair, 40 m fade) and kill feed colours.
 - `node scripts/find-prop-overlaps.mjs [minOverlap]` — read-only map check: prop instances whose boxes intersect walls.
 - `node scripts/test-stairs.mjs [mapId]` — finds every stair flight in the map data and walks the Rapier KCC up
   and down each one, checking every 30 Hz sample with the server movement validation (0 corrections).
@@ -244,6 +248,13 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
 - 2026-10-31 fix 3: bots do NOT use stairs: the nav grid has one height level per cell, the landings sit above
   walkable ground, and higher steps count as obstacles (bots reach at most the 4th step, a dead end they do not
   plan into). Needs a multi-level nav grid: later (not cheap).
+- 2026-10-31 fix 5: team identification. Colours (`TEAM_COLORS`, relative to the viewer): ally light blue
+  #4fb6ff, enemy orange-red #e8452c (blue vs orange-red with different brightness: readable with common colour
+  blindness). Name tags = DOM labels 2.45 m above the feet, scale 8 m / distance clamped 0.6-1, fade 30 -> 40 m,
+  hidden beyond 40 m (`NAME_TAGS`). Allies: tag + blue diamond always, drawn through walls. Enemies: tag only
+  when within 7 deg of the crosshair AND a ray from the camera to their head is not blocked by a map box;
+  no enemy marker. Same colours in the kill feed (names), TAB scoreboard (names + "yours"/"enemy" headers) and
+  death markers. Online and offline.
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 

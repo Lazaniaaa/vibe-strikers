@@ -5,10 +5,11 @@ import { CuboidCollider, Physics, RigidBody, useRapier } from '@react-three/rapi
 import { BoxGeometry, Color, Fog, Mesh, MeshBasicMaterial, PerspectiveCamera, Vector3, type DirectionalLight } from 'three';
 import { buildMap, loadMapData, mapColliders, mapShotBlockers, spawnPoints } from '../../src/maps';
 import { characters } from '../../src/characters';
-import { CAMERA, EFFECTS, LOCAL_PLAYER, MAP_ID, POSE, RENDER } from '../../src/config/game';
+import { CAMERA, EFFECTS, LOCAL_PLAYER, MAP_ID, POSE, RENDER, TEAM_COLORS } from '../../src/config/game';
 import { BOT_NAMES } from '../../src/config/bots';
 import { MAX_FRAME_DT } from '../../src/config/movement';
 import { DEG } from '../../src/gameplay/math';
+import { lineOfSight } from '../../src/gameplay/hitscan';
 import { buildNavGrid, pruneUnreachable } from '../../src/gameplay/navGrid';
 import { RapierMotor } from '../../src/gameplay/rapierMotor';
 import { LOCAL_ID, Simulation } from '../../src/gameplay/simulation';
@@ -18,6 +19,8 @@ import { Input } from './input';
 import { AvatarRig, DeathMarkers, ShotEffects, ViewmodelRig } from './visuals';
 import { FramePerf } from './perf';
 import { AdsController } from './ads';
+import { TagProjector } from './nameTagProjector';
+import { NameTags } from '../../src/ui/nameTags';
 import { getSfx } from '../../src/ui/sfx';
 import { AUDIO, type SoundName } from '../../src/config/audio';
 import { onSettingsChange, settings } from '../../src/ui/settings';
@@ -27,6 +30,7 @@ export interface GameOptions { debug: boolean; freezeTime?: number; /** Local pl
   /** Back to the menu (Esc overlay "Leave match"). */ onLeave?: () => void }
 
 const map = loadMapData(MAP_ID);
+const blockersForDebug = mapShotBlockers(map).boxes;
 const spawnsA = spawnPoints(map, 'A'), spawnsB = spawnPoints(map, 'B');
 
 /** Shared debug/test surface (only exposed with ?debug=1). */
@@ -39,6 +43,9 @@ export interface GameDebug {
   /** Visible death markers / dead bodies still shown (tests). */
   markers(): number;
   bodies(): number;
+  tags(): { id: number; name: string; ally: boolean; opacity: number }[];
+  /** Line of sight between two points against the map's shot blockers (tests). */
+  los(ax: number, ay: number, az: number, bx: number, by: number, bz: number): boolean;
   /** Ids of bots whose firearm pose was too slow and now use the no-weapon pose. */
   degradedRigs(): number[];
   snapshot(): unknown;
@@ -104,15 +111,18 @@ function GameDriver({ options }: { options: GameOptions }) {
     const impactMat = new MeshBasicMaterial({ color: '#3a3a3a' });
     const flashMat = new MeshBasicMaterial({ color: '#ffd36b', transparent: true, opacity: 0.9, depthWrite: false });
     const flashGeo = new BoxGeometry(0.09, 0.09, 0.02);
-    const allyMat = new MeshBasicMaterial({ color: '#46b4ff' });
+    // Ally marker is drawn through walls (always know where your team is).
+    const allyMat = new MeshBasicMaterial({ color: TEAM_COLORS.ally, depthTest: false, depthWrite: false, transparent: true });
     const allyGeo = new BoxGeometry(0.16, 0.16, 0.16);
     const effects = new ShotEffects(tracerMat, impactMat, unitBox);
     const markers = new DeathMarkers();
+    const nameTags = new NameTags(hudRoot);
+    const tagger = new TagProjector(nameTags, blockers);
     const rigs = new Map<number, AvatarRig>();
     for (const a of sim.actors) {
       if (a.id === LOCAL_ID) continue;
       const marker = a.team === sim.local.team ? new Mesh(allyGeo, allyMat) : null;
-      if (marker) marker.rotation.set(Math.PI / 4, 0, Math.PI / 4);
+      if (marker) { marker.rotation.set(Math.PI / 4, 0, Math.PI / 4); marker.renderOrder = 10; }
       rigs.set(a.id, new AvatarRig(a, marker));
     }
     const viewmodel = new ViewmodelRig(sim.local, flashMat, flashGeo);
@@ -124,7 +134,7 @@ function GameDriver({ options }: { options: GameOptions }) {
     onSettingsChange(applyStyle);
     const stats = { frames: 0, localShots: 0, localHits: 0, localDamage: 0, triangles: 0, calls: 0, fps: 0, localSteps: 0 };
     input.onConfirm = () => { if (sim.round.phase === 'matchEnd') sim.restart(); };
-    return { sim, input, hud, effects, rigs, viewmodel, ads, markers, stats, perf, disposables: [unitBox, tracerMat, impactMat, flashMat, flashGeo, allyMat, allyGeo] };
+    return { sim, input, hud, effects, rigs, viewmodel, ads, markers, nameTags, tagger, stats, perf, disposables: [unitBox, tracerMat, impactMat, flashMat, flashGeo, allyMat, allyGeo] };
   }, [world, rapier, gl, options.freezeTime]);
 
   useEffect(() => {
@@ -142,6 +152,9 @@ function GameDriver({ options }: { options: GameOptions }) {
       window.__game = {
         sim: g.sim, input: g.input, stats: g.stats, perf: g.perf, sounds: getSfx().played,
         markers: () => g.markers.count,
+        tags: () => g.nameTags.visible(),
+        los: (ax: number, ay: number, az: number, bx: number, by: number, bz: number) =>
+          lineOfSight({ x: ax, y: ay, z: az }, { x: bx, y: by, z: bz }, blockersForDebug, { x: 0, y: 0, z: 0 }),
         bodies: () => [...g.rigs.values()].filter((r) => !g.sim.actors[r.actorId].alive && r.root.visible).length,
         degradedRigs: () => [...g.rigs.values()].filter((r) => r.degraded).map((r) => r.actorId),
         snapshot: () => ({
@@ -169,6 +182,7 @@ function GameDriver({ options }: { options: GameOptions }) {
       game.input.dispose();
       game.ads.dispose();
       game.hud.dispose();
+      game.nameTags.dispose();
       for (const d of game.disposables) d.dispose();
       if (window.__game?.sim === game.sim) delete window.__game;
     };
@@ -177,7 +191,7 @@ function GameDriver({ options }: { options: GameOptions }) {
   const scratch = useMemo(() => ({ from: new Vector3(), fwd: new Vector3(), right: new Vector3(), hudTimer: 0, fpsFrames: 0, fpsTimer: 0, punch: 0,
     audio: { prevReload: 0, steps: new Map<number, number>() } }), []);
   const view = useMemo<HudView>(() => ({ hp: 100, alive: true, weapon: '', mag: 0, reserve: 0, reloading: false, phase: 'freeze',
-    timeLeft: 0, round: 1, scoreA: 0, scoreB: 0, aliveA: 0, aliveB: 0, center: '', sub: '', killFeed: '', fps: 0, perf: '', locked: false }), []);
+    timeLeft: 0, round: 1, scoreA: 0, scoreB: 0, aliveA: 0, aliveB: 0, center: '', sub: '', feed: [], roomInfo: 'Offline practice', fps: 0, perf: '', locked: false }), []);
 
   useFrame((state, delta) => {
     const { sim, input, hud, effects, rigs, viewmodel, stats, perf } = game;
@@ -267,6 +281,11 @@ function GameDriver({ options }: { options: GameOptions }) {
     }
     viewmodel.sync(local, state.clock.elapsedTime, size.width / Math.max(1, size.height), game.ads.value);
     game.ads.apply(cam, local.slots[local.active].stats.id);
+    game.tagger.begin(cam);
+    for (const a of sim.actors) {
+      if (a.id === LOCAL_ID) continue;
+      game.tagger.place(cam, size.width, size.height, a.id, a.name, a.team === local.team, a.x, a.y, a.z, !a.alive);
+    }
     hud.setCrosshairHidden(game.ads.hideCrosshair || !local.alive);
     effects.update(dt);
 
@@ -313,7 +332,9 @@ function fillHudView(v: HudView, sim: Simulation, locked: boolean, stats: GameDe
   else if (!local.alive) { v.center = 'You died'; v.sub = 'Wait for the round to end'; }
   else { v.center = ''; v.sub = ''; }
   const names = (id: number) => (id < 0 ? 'world' : sim.actors[id].name);
-  v.killFeed = sim.kills.slice(-4).map((k) => `${names(k.killerId)} [${k.weapon}${k.headshot ? ' HS' : ''}] ${names(k.victimId)}`).join('\n');
+  const ally = (id: number) => id >= 0 && sim.actors[id].team === local.team;
+  v.feed = sim.kills.slice(-4).map((k) => ({ killer: names(k.killerId), killerAlly: ally(k.killerId), victim: names(k.victimId),
+    victimAlly: ally(k.victimId), weapon: k.weapon, headshot: k.headshot }));
   v.fps = stats.fps;
   v.perf = `${Math.round(stats.triangles / 1000)}k tris · ${stats.calls} calls`;
   v.locked = locked;

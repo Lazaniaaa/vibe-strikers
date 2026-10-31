@@ -1,5 +1,8 @@
+import { TEAM_COLORS } from '../config/game.ts';
 // Plain-DOM HUD. The game loop writes into it directly (no React state in the frame loop).
 // Text updates are throttled by the caller; only changed values touch the DOM.
+
+export interface KillFeedEntry { killer: string; killerAlly: boolean; victim: string; victimAlly: boolean; weapon: string; headshot: boolean }
 
 export interface HudView {
   hp: number;
@@ -19,7 +22,10 @@ export interface HudView {
   aliveB: number;
   center: string;
   sub: string;
-  killFeed: string;
+  /** Last kills, newest last. Names are coloured ally / enemy as seen by the local player. */
+  feed: readonly KillFeedEntry[];
+  /** Room / status line (top right, above the kill feed). */
+  roomInfo: string;
   fps: number;
   perf: string;
   locked: boolean;
@@ -38,6 +44,8 @@ export class Hud {
   /** The "click to play" overlay (shown while the mouse is not captured); extra buttons can be added to it. */
   readonly overlay: HTMLElement;
   private last = new Map<HTMLElement, string>();
+  private room: HTMLElement;
+  private lastFeed = '';
   private lastGap = -1;
   private hitLeft = 0;
   private damageLeft = 0;
@@ -54,7 +62,10 @@ export class Hud {
     this.timer = el('div', 'hud-timer', top);
     this.center = el('div', 'hud-center', root);
     this.sub = el('div', 'hud-sub', root);
+    this.room = el('div', 'hud-room', root);
     this.feed = el('div', 'hud-feed', root);
+    root.style.setProperty('--ally', TEAM_COLORS.ally);
+    root.style.setProperty('--enemy', TEAM_COLORS.enemy);
     const bottom = el('div', 'hud-bottom', root);
     this.hp = el('div', 'hud-hp', bottom);
     const right = el('div', 'hud-right', bottom);
@@ -82,7 +93,12 @@ export class Hud {
     this.set(this.score, `A ${v.scoreA} · round ${v.round} · ${v.scoreB} B    alive ${v.aliveA} v ${v.aliveB}`);
     this.set(this.center, v.center);
     this.set(this.sub, v.sub);
-    this.set(this.feed, v.killFeed);
+    this.set(this.room, v.roomInfo);
+    const esc = (t: string) => t.replace(/[&<>"]/g, (c) => `&#${c.charCodeAt(0)};`);
+    const side = (ally: boolean) => (ally ? 'ally' : 'enemy');
+    const html = v.feed.map((k) => `<div><span class="${side(k.killerAlly)}">${esc(k.killer)}</span> [${esc(k.weapon)}${k.headshot ? ' HS' : ''}] ` +
+      `<span class="${side(k.victimAlly)}">${esc(k.victim)}</span></div>`).join('');
+    if (html !== this.lastFeed) { this.lastFeed = html; this.feed.innerHTML = html; }
     this.set(this.perf, `FPS ${v.fps} · ${v.perf}`);
     const overlay = v.locked ? 'none' : 'flex';
     if (this.overlay.style.display !== overlay) this.overlay.style.display = overlay;

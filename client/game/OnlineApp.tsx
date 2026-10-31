@@ -6,7 +6,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Physics, useRapier } from '@react-three/rapier';
 import { BoxGeometry, Color, Fog, Mesh, MeshBasicMaterial, PerspectiveCamera } from 'three';
 import { loadMapData, mapShotBlockers } from '../../src/maps';
-import { CAMERA, EFFECTS, KILLCAM, MAP_ID, RENDER } from '../../src/config/game';
+import { CAMERA, EFFECTS, KILLCAM, MAP_ID, RENDER, TEAM_COLORS } from '../../src/config/game';
 import { CAPSULE } from '../../src/config/movement';
 import { MAX_FRAME_DT, MOVEMENT } from '../../src/config/movement';
 import { NET } from '../../src/config/net';
@@ -20,7 +20,7 @@ import type { GameNet, KillEvent, ShotEvent, Snapshot } from '../../src/network/
 import { KEYS } from '../../src/config/input';
 import { LOADOUT, loadoutFor } from '../../src/config/weapons';
 import type { WeaponId } from '../../src/weapons';
-import { Hud, type HudView } from '../../src/ui/hud';
+import { Hud, type HudView, type KillFeedEntry } from '../../src/ui/hud';
 import { Scoreboard, type ScoreRow } from '../../src/ui/scoreboard';
 import { characterLabel } from './characterLabel';
 import { MapView } from './GameApp';
@@ -28,6 +28,8 @@ import { Input } from './input';
 import { FramePerf } from './perf';
 import { AvatarRig, DeathMarkers, ShotEffects, ViewmodelRig } from './visuals';
 import { AdsController } from './ads';
+import { TagProjector } from './nameTagProjector';
+import { NameTags } from '../../src/ui/nameTags';
 import { getSfx } from '../../src/ui/sfx';
 import { AUDIO, type SoundName } from '../../src/config/audio';
 import { onSettingsChange, settings } from '../../src/ui/settings';
@@ -57,7 +59,8 @@ export interface OnlineDebug {
   setFire(on: boolean): void;
   setAds(on: boolean | null): void;
   view(): { ads: number; fov: number; weapon: string; viewmodelVisible: boolean; scope: string; crosshairHidden: boolean;
-    camMode: string; camTarget: string | null; markers: number; bodies: number };
+    camMode: string; camTarget: string | null; markers: number; bodies: number;
+    tags: { id: number; name: string; ally: boolean; opacity: number }[] };
 }
 declare global { interface Window { __online?: OnlineDebug } }
 
@@ -87,7 +90,8 @@ function OnlineDriver({ net, debug, onLeave }: { net: GameNet; debug: boolean; o
     const impactMat = new MeshBasicMaterial({ color: '#3a3a3a' });
     const flashMat = new MeshBasicMaterial({ color: '#ffd36b', transparent: true, opacity: 0.9, depthWrite: false });
     const flashGeo = new BoxGeometry(0.09, 0.09, 0.02);
-    const allyMat = new MeshBasicMaterial({ color: '#46b4ff' });
+    // Ally marker is drawn through walls (always know where your team is).
+    const allyMat = new MeshBasicMaterial({ color: TEAM_COLORS.ally, depthTest: false, depthWrite: false, transparent: true });
     const allyGeo = new BoxGeometry(0.16, 0.16, 0.16);
     const viewmodel = new ViewmodelRig(local, flashMat, flashGeo);
     const ads = new AdsController(hudRoot);
@@ -96,11 +100,14 @@ function OnlineDriver({ net, debug, onLeave }: { net: GameNet; debug: boolean; o
     onSettingsChange(applyStyle);
     const effects = new ShotEffects(tracerMat, impactMat, unitBox);
     const markers = new DeathMarkers();
+    const nameTags = new NameTags(hudRoot);
+    const tagger = new TagProjector(nameTags, blockers);
     const remotes = new Map<bigint, Remote>();
     const perf = new FramePerf();
     const stats = { frames: 0, fps: 0, triangles: 0, calls: 0, remotes: 0, shots: 0, hits: 0, hitsWithoutRewind: 0, kills: 0, deaths: 0, serverShots: 0 };
     const sample: Snapshot = { t: 0, x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0, yaw: 0, pitch: 0, crouch: false, grounded: true, alive: true };
     const feed: string[] = [];
+    const feedEntries: KillFeedEntry[] = [];
     const scratch = { from: vec3(), dir: vec3(), punch: 0, autoAim: null as bigint | null };
     const rewinds: number[] = [];
     const sfx = getSfx();
@@ -122,6 +129,7 @@ function OnlineDriver({ net, debug, onLeave }: { net: GameNet; debug: boolean; o
       const r = remotes.get(id);
       if (r) { scene.remove(r.rig.root); remotes.delete(id); }
       markers.remove(Number(id));
+      nameTags.remove(Number(id));
     };
     const name = (id: bigint) => net.players.get(id)?.name ?? '?';
     net.onShot = (e: ShotEvent) => {
@@ -158,8 +166,12 @@ function OnlineDriver({ net, debug, onLeave }: { net: GameNet; debug: boolean; o
         view.until = performance.now() + KILLCAM.duration * 1000; view.killer = name(k.killerId); view.weapon = k.weapon;
       }
       if (feed.length > 4) feed.shift();
+      const myTeam = net.me?.team, ally = (id: bigint) => net.players.get(id)?.team === myTeam;
+      feedEntries.push({ killer: name(k.killerId), killerAlly: ally(k.killerId), victim: name(k.victimId), victimAlly: ally(k.victimId),
+        weapon: k.weapon, headshot: k.headshot });
+      if (feedEntries.length > 4) feedEntries.shift();
     };
-    return { local, motor, input, hud, scoreboard, viewmodel, ads, view, sfx, audio, markers, effects, remotes, perf, stats, sample, feed, scratch, rewinds, allyMat, allyGeo,
+    return { local, motor, input, hud, scoreboard, viewmodel, ads, view, sfx, audio, markers, feedEntries, nameTags, tagger, effects, remotes, perf, stats, sample, feed, scratch, rewinds, allyMat, allyGeo,
       disposables: [unitBox, tracerMat, impactMat, flashMat, flashGeo, allyMat, allyGeo] };
   }, [net, world, rapier, gl, scene, debug, onLeave]);
 
@@ -193,6 +205,7 @@ function OnlineDriver({ net, debug, onLeave }: { net: GameNet; debug: boolean; o
           crosshairHidden: document.getElementById('hud')!.classList.contains('hud-no-crosshair'),
           camMode: game.view.mode, camTarget: game.view.target === null ? null : String(game.view.target),
           markers: game.markers.count,
+          tags: game.nameTags.visible(),
           bodies: [...game.remotes.values()].filter((r) => !r.actor.alive && r.rig.root.visible).length }),
         setAutoAim: (id: string | null) => { game.scratch.autoAim = id === null ? null : BigInt(id); },
         rewinds: game.rewinds,
@@ -209,6 +222,7 @@ function OnlineDriver({ net, debug, onLeave }: { net: GameNet; debug: boolean; o
       game.input.dispose();
       game.ads.dispose();
       game.scoreboard.dispose();
+      game.nameTags.dispose();
       game.hud.dispose();
       for (const d of game.disposables) d.dispose();
       if (window.__online?.net === net) delete window.__online;
@@ -216,7 +230,7 @@ function OnlineDriver({ net, debug, onLeave }: { net: GameNet; debug: boolean; o
   }, [game, net, scene, camera, debug]);
 
   const view = useMemo<HudView>(() => ({ hp: 100, alive: true, weapon: '', mag: 0, reserve: 0, reloading: false, phase: 'live',
-    timeLeft: 0, round: 1, scoreA: 0, scoreB: 0, aliveA: 0, aliveB: 0, center: '', sub: '', killFeed: '', fps: 0, perf: '', locked: false }), []);
+    timeLeft: 0, round: 1, scoreA: 0, scoreB: 0, aliveA: 0, aliveB: 0, center: '', sub: '', feed: [], roomInfo: '', fps: 0, perf: '', locked: false }), []);
   const timers = useMemo(() => ({ hud: 0, fpsFrames: 0, fpsTime: 0 }), []);
 
   useFrame((state, delta) => {
@@ -325,7 +339,7 @@ function OnlineDriver({ net, debug, onLeave }: { net: GameNet; debug: boolean; o
       if (!r) {
         const actor = createActor(Number(id), row.team as TeamId, row.name, row.isBot, row.character);
         const marker = row.team === myTeam ? new Mesh(game.allyGeo, game.allyMat) : null;
-        if (marker) marker.rotation.set(Math.PI / 4, 0, Math.PI / 4);
+        if (marker) { marker.rotation.set(Math.PI / 4, 0, Math.PI / 4); marker.renderOrder = 10; }
         r = { actor, rig: new AvatarRig(actor, marker), stepDist: 0 };
         remotes.set(id, r);
         scene.add(r.rig.root);
@@ -384,6 +398,14 @@ function OnlineDriver({ net, debug, onLeave }: { net: GameNet; debug: boolean; o
     }
     viewmodel.sync(local, state.clock.elapsedTime, size.width / Math.max(1, size.height), game.ads.value);
     game.ads.apply(cam, local.slots[local.active].stats.id);
+    // Name tags (after the camera is placed).
+    game.tagger.begin(cam);
+    for (const [id, r] of remotes) {
+      const row = net.players.get(id);
+      if (!row) continue;
+      const a = r.actor;
+      game.tagger.place(cam, size.width, size.height, Number(id), row.name, row.team === myTeam, a.x, a.y, a.z, !a.alive || r.rig.hiddenByCamera);
+    }
     effects.update(dt);
 
     const renderStart = performance.now();
@@ -405,7 +427,7 @@ function OnlineDriver({ net, debug, onLeave }: { net: GameNet; debug: boolean; o
     timers.hud -= delta;
     if (timers.hud <= 0) {
       timers.hud = 0.1;
-      fillOnlineHud(view, net, local, game.feed);
+      fillOnlineHud(view, net, local, game.feedEntries);
       // Killcam banner even if the round just ended; spectate hint only while the round is live.
       if (me && !me.alive && (game.view.mode === 'killcam' || room?.phase === 'live')) {
         const target = game.view.target !== null ? net.players.get(game.view.target)?.name : undefined;
@@ -425,11 +447,12 @@ function OnlineDriver({ net, debug, onLeave }: { net: GameNet; debug: boolean; o
 }
 
 function scoreRows(net: GameNet): ScoreRow[] {
+  const mine = net.me?.team;
   return [...net.players.values()].map((r) => ({ id: String(r.id), name: r.name, character: characterLabel(r.character), kills: r.kills,
-    deaths: r.deaths, ping: r.ping, isBot: r.isBot, alive: r.alive, team: r.team }));
+    deaths: r.deaths, ping: r.ping, isBot: r.isBot, alive: r.alive, team: r.team, ally: r.team === mine }));
 }
 
-function fillOnlineHud(v: HudView, net: GameNet, local: Actor, feed: readonly string[]): void {
+function fillOnlineHud(v: HudView, net: GameNet, local: Actor, feed: readonly KillFeedEntry[]): void {
   const me = net.me, r = net.room, s = local.slots[local.active];
   v.hp = me?.hp ?? 0; v.alive = me?.alive ?? false;
   v.weapon = s.stats.id.toUpperCase(); v.mag = s.mag; v.reserve = s.reserve; v.reloading = s.reloadLeft > 0;
@@ -454,8 +477,9 @@ function fillOnlineHud(v: HudView, net: GameNet, local: Actor, feed: readonly st
     const next = loadoutFor(me.nextPrimary as WeaponId)[0];
     v.sub += `${v.sub ? '\n' : ''}Primary: ${LOADOUT.primaries.map((w, i) => `${7 + i} ${w}${w === next ? ' ✓' : ''}`).join(' · ')}`;
   }
-  v.killFeed = `Room ${r?.code ?? '-----'}${r?.isPrivate ? ' (private)' : ''} · ${humans} players + ${bots} bots · team ${mine ?? '-'}` +
-    `${net.lagMs ? ` · lag ${net.lagMs} ms` : ''}${feed.length ? `\n${feed.join('\n')}` : ''}${net.lastError ? `\n${net.lastError}` : ''}`;
+  v.roomInfo = `Room ${r?.code ?? '-----'}${r?.isPrivate ? ' (private)' : ''} · ${humans} players + ${bots} bots · team ${mine ?? '-'}` +
+    `${net.lagMs ? ` · lag ${net.lagMs} ms` : ''}${net.lastError ? `\n${net.lastError}` : ''}`;
+  v.feed = feed;
 }
 
 export function OnlineApp({ net, debug, onLeave }: { net: GameNet; debug: boolean; onLeave: () => void }) {
