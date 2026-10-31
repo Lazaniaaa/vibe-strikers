@@ -100,6 +100,26 @@ One-time owner exception (2026-10-30, start of M1): type-only fixes for strict `
 - Note: `node src/maps/verify.mjs` (not part of `npm run verify`) fails before AND after this change
   because `src/maps/reports/m2/color-geometry-guard.json` was left out of the repo on purpose.
 
+Asset owner update (2026-10-31, imported by the owner's assistant, not by the game agent):
+- Codex fixed the slow two-handed hold solver. Files replaced/added from the Codex project:
+  `src/characters/{armVariants,poseCharacter,types}.ts`, `src/weapons/{supportPose,holdCache,holdSolve}.ts`,
+  `src/weapons/holdProfiles.json` (required at runtime), `src/weapons/hold-pose-baselines.json.gz`,
+  `src/weapons/{verify,verifyHolds,verifyHoldPerf,verifyHoldSweep}.mjs`, `src/weapons/round5-*.json`.
+- The hold is solved once per character + weapon and cached; no search in the frame loop.
+  Owner laptop (Ryzen 5 4600H): first call <= 3.4 ms, then <= 0.18 ms per call for all 33 characters.
+- Armed HIP poses of most characters changed slightly (owner allowed smooth holds over the old exact
+  checkpoint poses); bureau-8 arms fixed. Unarmed poses and all geometry hashes unchanged.
+- The two strict-type casts in `armVariants.ts` (lines 23 and 27, see above) were re-applied on top of the
+  Codex version. Strict `tsc`: 0 errors.
+- Owner laptop test of the game build with viber-142 allowed as a bot: steady 60 fps, worst frame 17 ms
+  over 15 s of combat (was 300-350 ms spikes).
+- KNOWN CLOUD-ONLY FAILURE: `npm run verify` ends with `HOLD TIMING ACCEPTANCE FAILED` in the cloud
+  container (hot call max 6-8 ms vs the 0.5 ms gate) because the shared CPU is noisy. All geometry,
+  pose, clearance and hash checks PASS there (`failedRows 0`), and the timing gate passes on the owner's
+  laptop. Treat that single timing failure as expected in the cloud; do not try to fix it, do not edit
+  the asset folders for it. Any OTHER verify failure is real.
+- `npm run verify` now writes reports into `outputs/` (gitignored).
+
 ## Requests to asset owner
 - **Slow firearm hold for 2 characters (found 2026-10-30, M1 step 0).** `poseCharacter` with a firearm
   takes 100-1200 ms per call (others: under 10 ms, most under 2 ms) for

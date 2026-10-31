@@ -37,7 +37,7 @@ export function selectArmGeometry(d: CharacterRuntime, state?: PoseState): void 
   const active = firearm;
   const a = d.armVariants;
   a.active = active;
-  const lengths=a.holdLengths;
+  const lengths=(firearm&&d.firearmHolds?.[state!.weapon!]?.lengths)||a.holdLengths;
   a.selectedL=a.variantsL[lengths.L];a.selectedR=a.variantsR[lengths.R];
   a.handL=a.selectedL.hand;a.handR=a.selectedR.hand;
   a.meshL.geometry = active ? a.selectedL.geometry : a.normalL;

@@ -1,4 +1,5 @@
 import type { BufferGeometry, Group, Mesh, Object3D } from 'three';
+import type { WeaponId } from '../weapons/types';
 
 export type HexColor = `#${string}`;
 export type Vec3 = readonly [number, number, number];
@@ -82,6 +83,8 @@ export interface CharacterParts {
   weaponSocketL: Object3D;
 }
 export interface CharacterRuntime extends CharacterParts {
+  /** Construction/first-use cache; a HIP solution never retries in the frame loop. */
+  firearmHolds?: Partial<Record<WeaponId, FirearmHoldCache>>;
   weaponSocketRest: {R:Vec3;L:Vec3};
   weaponBinding?: { mount: Group; weapon: Group; id: string; side: 'right'; mirrored: false };
   armVariants: {
@@ -116,6 +119,17 @@ export interface CharacterRuntime extends CharacterParts {
   };
   bodyExtents: BodyExtents;
   flags: readonly string[];
+}
+export interface FirearmHoldCache {
+  goal: Vec3;
+  support: Vec3;
+  yaw: number;
+  aimScale: number;
+  lengths: {L:number;R:number};
+  offsetL: Vec3; offsetR: Vec3;
+  twistL: number; twistR: number;
+  quality: {minClearance:number;maxFistError:number};
+  solves: number;
 }
 export interface ArmLengthVariant {
   collisionPoints: Float32Array;

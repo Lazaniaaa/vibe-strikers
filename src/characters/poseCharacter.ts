@@ -23,14 +23,6 @@ export function restoreReferencePose(group: Group): void {
   resetJoint(d.armL, d.restPose.armL); resetJoint(d.armR, d.restPose.armR);
   resetJoint(d.legL, d.restPose.legL); resetJoint(d.legR, d.restPose.legR);
 }
-/** Analytic support of the existing foot box after Rx*Rz and leg Y scaling. */
-function footBottom(b: Extent, rx: number, rz: number, scaleY: number): number {
-  const a = Math.cos(rx) * Math.sin(rz);
-  const c = -Math.sin(rx);
-  const y = Math.cos(rx) * Math.cos(rz) * scaleY;
-  return a * (a >= 0 ? b.min[0] : b.max[0]) +
-    y * (y >= 0 ? b.min[1] : b.max[1]) + c * (c >= 0 ? b.min[2] : b.max[2]);
-}
 /** Conservative rig-space AABB top after Rx*Rz, using cached BASE-body extents. */
 function torsoTop(data: CharacterRuntime): number {
   const t = data.torso;
@@ -43,7 +35,8 @@ function torsoTop(data: CharacterRuntime): number {
     z * ((z >= 0 ? b.max[2] : b.min[2]) - rest[2]);
 }
 /** Raise the existing neck pivot just enough; no geometry edits or temporary objects. */
-function clearHead(data: CharacterRuntime, angle: number): void {
+function clearHead(data: CharacterRuntime): void {
+  const angle = data.head.rotation.x;
   const b = data.bodyExtents.parts.head;
   const rest = data.restPose.head;
   const sin = Math.sin(angle);
@@ -69,7 +62,9 @@ export function poseCharacter(group: Group, state: PoseState, dt: number): void 
   const armAim = headPitch + (pitch - headPitch) * 0.72 + aimLean;
   let dx = Number.isFinite(state.moveDir.x) ? state.moveDir.x : 0;
   let dz = Number.isFinite(state.moveDir.z) ? state.moveDir.z : 0;
-  const length = Math.hypot(dx, dz);
+  // Math.hypot's native argument packing allocates in this V8. Keep the
+  // archived unarmed arithmetic exact; the firearm path uses scalar sqrt.
+  const length = state.weapon && state.weapon !== 'knife' ? Math.sqrt(dx * dx + dz * dz) : Math.hypot(dx, dz);
   if (length > 0.0001) { dx /= length; dz /= length; } else { dx = 0; dz = -1; }
   const crouch = state.crouching ? 1 : 0;
   const airborne = state.grounded ? 0 : 1;
@@ -79,26 +74,31 @@ export function poseCharacter(group: Group, state: PoseState, dt: number): void 
   const recoil = state.shooting ? Math.max(0, 1 - shotPhase / 1.15) : 0;
   restoreReferencePose(group);
   selectArmGeometry(data, state);
-  rig.position.set(0, bob, recoil * 0.012);
+  rig.position.x = 0; rig.position.y = bob; rig.position.z = recoil * 0.012;
   head.rotation.x = headPitch;
   torso.rotation.set(crouch * 0.07 + aimLean, 0, -dx * speed * 0.025);
-  clearHead(data, headPitch);
+  clearHead(data);
+  if (!state.weapon || state.weapon === 'knife') {
   armL.rotation.set(1.43 + armAim * 0.92 + stride * dz * 0.16 + airborne * 0.16 + recoil * 0.08,
     0, 0.94 + stride * dx * 0.10);
   armR.rotation.set(Math.PI / 2 + armAim - stride * dz * 0.16 + airborne * 0.12 + recoil * 0.15,
     0, -0.47 - stride * dx * 0.10);
+  }
   legL.rotation.set(-stride * dz + crouch - airborne * 0.28, 0, -stride * dx + airborne * 0.15);
   legR.rotation.set(stride * dz + crouch + airborne * 0.24, 0, stride * dx - airborne * 0.15);
   legL.scale.y = crouch ? 0.72 : 1;
   legR.scale.y = crouch ? 0.72 : 1;
   if (state.crouching && state.grounded) {
     // This responds to actual short/tall/asymmetric feet and hip pivots.
-    const bottomL = legL.position.y + footBottom(data.dimensions.footL, legL.rotation.x, legL.rotation.z, legL.scale.y);
-    const bottomR = legR.position.y + footBottom(data.dimensions.footR, legR.rotation.x, legR.rotation.z, legR.scale.y);
+    const fl=data.dimensions.footL, fr=data.dimensions.footR;
+    const la=Math.cos(legL.rotation.x)*Math.sin(legL.rotation.z), lc=-Math.sin(legL.rotation.x), ly=Math.cos(legL.rotation.x)*Math.cos(legL.rotation.z)*legL.scale.y;
+    const ra=Math.cos(legR.rotation.x)*Math.sin(legR.rotation.z), rc=-Math.sin(legR.rotation.x), ry=Math.cos(legR.rotation.x)*Math.cos(legR.rotation.z)*legR.scale.y;
+    const bottomL=legL.position.y+(la*(la>=0?fl.min[0]:fl.max[0])+ly*(ly>=0?fl.min[1]:fl.max[1])+lc*(lc>=0?fl.min[2]:fl.max[2]));
+    const bottomR=legR.position.y+(ra*(ra>=0?fr.min[0]:fr.max[0])+ry*(ry>=0?fr.min[1]:fr.max[1])+rc*(rc>=0?fr.min[2]:fr.max[2]));
     rig.position.y = -Math.min(bottomL, bottomR) + bob;
   }
   const ready=readyProfile(state.weapon);
-  if(ready&&!state.dead&&ready.config.kind!=='knife')poseFirearmArms(data,state,pitch);
+  if(ready&&!state.dead&&ready.config.kind!=='knife')poseFirearmArms(data,state);
   if(ready&&!state.dead&&ready.config.kind==='knife'){
     // Temporary Stage A ready: the fixed outward roll is cancelled by hold.rotation.
     armR.rotation.set(clamp(READY_PITCH+pitch*.10-stride*dz*.025+recoil*.012,
@@ -133,7 +133,7 @@ export function poseCharacter(group: Group, state: PoseState, dt: number): void 
     legL.rotation.set(0, 0, 0); legR.rotation.set(0, 0, 0);
     legL.scale.set(1, 1, 1); legR.scale.set(1, 1, 1);
     rig.rotation.set(0, 0, -Math.PI / 2);
-    rig.position.set(0, data.dimensions.deathSupport, 0);
-    if (ready && ready.config.kind !== 'knife') poseFirearmArms(data,state,0);
+    rig.position.x=0;rig.position.y=data.dimensions.deathSupport;rig.position.z=0;
+    if (ready && ready.config.kind !== 'knife') poseFirearmArms(data,state);
   }
 }

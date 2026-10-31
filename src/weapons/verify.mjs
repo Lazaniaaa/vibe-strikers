@@ -7,6 +7,8 @@ import { Box3, Mesh, MeshBasicMaterial, MeshLambertMaterial, Vector3 } from 'thr
 import { verifyHolds } from './verifyHolds.mjs';
 import { verifySniper } from './verifySniper.mjs';
 import { verifyScope } from './verifyScope.mjs';
+import { verifyHoldPerf } from './verifyHoldPerf.mjs';
+import { verifyHoldSweep } from './verifyHoldSweep.mjs';
 
 const hashGeometry=g=>{
  const h=createHash('sha256');
@@ -28,6 +30,9 @@ export async function verifyWeapons(){
   await verifyScope(api,await server.ssrLoadModule('../weapons/scopeOverlay.ts'),characters);
   const {createCharacter,disposeCharacterResources}=await server.ssrLoadModule('/createCharacter.ts');
   const {poseCharacter}=await server.ssrLoadModule('/poseCharacter.ts');
+  const performanceFailures=[];
+  try{await verifyHoldPerf(api,characters,createCharacter,poseCharacter);}catch(e){performanceFailures.push(e);console.error('FAILED HOLD PERFORMANCE:',e.message);}
+  try{await verifyHoldSweep(api,characters,createCharacter,poseCharacter);}catch(e){performanceFailures.push(e);console.error('FAILED FINE HOLD SWEEP:',e.message);}
   const baseline=JSON.parse(await readFile(new URL('./character-baselines.json',import.meta.url),'utf8'));
   const longBaseline=JSON.parse(await readFile(new URL('./arm-long-baselines.json',import.meta.url),'utf8'));
   const bankBaseline=JSON.parse(await readFile(new URL('./arm-length-baselines.json',import.meta.url),'utf8'));
@@ -81,9 +86,9 @@ export async function verifyWeapons(){
    }
   }
   console.log('PASS: 33 default geometry baselines, 66 long-arm hashes, 396 approved old poses, continuous joints, unchanged glove sizes.');
-  for(const file of ['../characters/poseCharacter.ts','../characters/armVariants.ts','./supportPose.ts','./viewmodel.ts']){
+  for(const file of ['../characters/poseCharacter.ts','../characters/armVariants.ts','./supportPose.ts','./holdSolve.ts','./viewmodel.ts']){
    const source=await readFile(new URL(file,import.meta.url),'utf8');
-   const marker=file.includes('supportPose')?'function center':file.includes('armVariants')?'function selectArmGeometry':file.includes('viewmodel')?'function poseViewmodel':'function ';
+   const marker=file.includes('supportPose')?'function poseFirearmArms':file.includes('holdSolve')?'function center':file.includes('armVariants')?'function selectArmGeometry':file.includes('viewmodel')?'function poseViewmodel':'function ';
    const functions=source.slice(source.indexOf(marker));
    assert.doesNotMatch(functions,/\bnew\s+|\.clone\s*\(|\.map\s*\(|\.filter\s*\(|\.toArray\s*\(/,'No frame constructors, cloned objects or array factories');
   }
@@ -188,6 +193,7 @@ export async function verifyWeapons(){
   console.table(report);
   console.log(`PASS INDEPENDENT WEAPON CHECKS: 5 weapons, ${poses} weapon poses, ${viewPoses} viewmodel poses, closest near-plane Z ${nearMax.toFixed(4)}m; dispose/cache/materials pass.`);
   if(holdFailure)throw holdFailure;
+  if(performanceFailures.length)throw new AggregateError(performanceFailures,'HOLD TIMING ACCEPTANCE FAILED; raw numbers retained in outputs/hold-performance');
   return report;
  }finally{await server.close();}
 }
