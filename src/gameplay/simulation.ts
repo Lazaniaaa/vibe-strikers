@@ -8,7 +8,7 @@ import { ITEMS } from '../config/items.ts';
 import type { WeaponId } from '../weapons/types.ts';
 import { createActor, setPrimary, type Actor, type PlayerIntent } from './actor.ts';
 import { nearestItem, primaryState, swapPrimary, type WeaponState } from './items.ts';
-import { createBrain, resetBrain, updateBot, type BotBrain, type BotWorld } from './botBrain.ts';
+import { createBrain, pickBotPrimary, resetBrain, updateBot, type BotBrain, type BotWorld } from './botBrain.ts';
 import type { BotSkill } from '../config/bots.ts';
 import { createShotResult, traceShot, type AabbBox } from './hitscan.ts';
 import { clamp, DEG, directionFromAngles, spreadDirection, vec3, type Vec3 } from './math.ts';
@@ -27,6 +27,8 @@ export interface SimulationOptions {
   /** Cover spots and route goals for the bots (from buildMapNav). */
   cover?: readonly Vec3[];
   routes?: readonly (readonly Vec3[])[];
+  /** Sniper spots (balconies, long sight lines) from buildMapNav. */
+  perches?: readonly (Vec3 & { yaw: number })[];
   nav: NavGrid;
   motor: RapierMotor;
   killY: number;
@@ -101,10 +103,14 @@ export class Simulation {
     this.round = createRoundState(this.preset);
     let id = 0;
     for (const team of ['A', 'B'] as const) {
+      let sniper = false;
       for (let i = 0; i < MATCH.teamSize; i++) {
         const isLocal = id === LOCAL_ID;
+        // Bots get random primaries (at most one sniper per team).
+        const primary = isLocal ? undefined : pickBotPrimary(this.random, sniper);
+        if (primary === 'sniper') sniper = true;
         const actor = createActor(id, team, isLocal ? opts.localName : opts.botNames[(id - 1) % opts.botNames.length], !isLocal,
-          opts.characterIndices[id % opts.characterIndices.length]);
+          opts.characterIndices[id % opts.characterIndices.length], primary);
         this.actors.push(actor);
         this.loadout.set(id, actor.slots[0].stats.id);
         opts.motor.add(actor);
@@ -115,7 +121,7 @@ export class Simulation {
     for (let i = 0; i < MAX_SHOT_EVENTS; i++) {
       this.shots.push({ shooterId: 0, ox: 0, oy: 0, oz: 0, ex: 0, ey: 0, ez: 0, hitKind: 'none', victimId: -1, part: 'body', damage: 0, killed: false });
     }
-    this.botWorld = { actors: this.actors, blockers: opts.blockers, nav: opts.nav, goals: opts.goals, cover: opts.cover, routes: opts.routes,
+    this.botWorld = { actors: this.actors, blockers: opts.blockers, nav: opts.nav, goals: opts.goals, cover: opts.cover, routes: opts.routes, perches: opts.perches,
       spawns: { A: opts.spawnsA[0], B: opts.spawnsB[0] }, random: this.random, pathBudget: 0 };
     this.respawnAll();
   }
@@ -244,7 +250,7 @@ export class Simulation {
 
   private fire(a: Actor): void {
     const slot = a.slots[a.active], s = slot.stats;
-    const spread = spreadDeg(slot, a.moveFraction, !a.grounded) * DEG;
+    const spread = spreadDeg(slot, a.moveFraction, !a.grounded, a.intent.aim) * DEG;
     const kick = consumeShot(slot);
     a.fireAnimLeft = s.fireAnimTime;
     this.origin.x = a.x; this.origin.y = a.y + a.eyeHeight; this.origin.z = a.z;

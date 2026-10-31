@@ -45,6 +45,16 @@ try {
   const botChars = [...a.players.values()].filter((p) => p.isBot).map((p) => p.character);
   check(a.players.get(b.me.id)?.character === 7 && botChars.every((c) => c >= 0 && c < characters.length),
     `chosen character is shown to others (Bob = 7), bots get valid random characters (${botChars.join(',')})`);
+  // Bots: random primaries, at most one sniper per team; a human choosing the sniper takes it from a bot.
+  const botsBy = (team) => [...a.players.values()].filter((p) => p.isBot && p.team === team);
+  check(['A', 'B'].every((t) => botsBy(t).filter((p) => p.nextPrimary === 'sniper').length <= 1) &&
+    [...a.players.values()].every((p) => !p.isBot || ['rifle', 'shotgun', 'sniper'].includes(p.primary)),
+    `bot primaries ${[...a.players.values()].filter((p) => p.isBot).map((p) => p.primary).join(',')} (max 1 sniper per team)`);
+  await a.setPrimary('sniper');
+  await waitFor(() => a.me.nextPrimary === 'sniper', 2000);
+  await sleep(200);
+  check(a.me.nextPrimary === 'sniper' && botsBy(a.me.team).every((p) => p.nextPrimary !== 'sniper'), 'a human may take the sniper; a bot sniper switches to the rifle');
+  await a.setPrimary('rifle');
   // Subscriptions are per room: a client in another room is invisible here.
   const d = await client();
   await d.joinQuick('Dora', 1);

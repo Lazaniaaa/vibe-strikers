@@ -8,7 +8,7 @@ import type { AabbBox } from '../../src/gameplay/hitscan.ts';
 import type { Vec3 } from '../../src/gameplay/math.ts';
 import { ClientValidatedMovement, type MovementAuthority } from '../../src/gameplay/movementCheck.ts';
 import type { NavGrid } from '../../src/gameplay/navGrid.ts';
-import { buildMapNav } from '../../src/gameplay/mapNav.ts';
+import { buildMapNav, type Perch } from '../../src/gameplay/mapNav.ts';
 import type { TeamId } from '../../src/gameplay/round.ts';
 import { PoseHistory } from '../../src/gameplay/rewind.ts';
 import { NET } from '../../src/config/net.ts';
@@ -25,6 +25,8 @@ export interface World {
   /** Bot cover spots and route goals (filled with the nav grid). */
   cover: Vec3[];
   routes: Vec3[][];
+  /** Sniper spots (balconies, long sight lines). */
+  perches: Perch[];
   nav: NavGrid | null;
 }
 
@@ -39,7 +41,7 @@ export function getWorld(): World {
     world = {
       mapId: MAP_ID, colliders, blockers: mapShotBlockers(map).boxes, spawns: { A: spawnsA, B: spawnsB },
       goals: [...map.zones.map((z) => ({ x: z.x, y: 0, z: z.z })), ...spawnsA, ...spawnsB],
-      killY: map.killY, movement: new ClientValidatedMovement(colliders, map.bounds, map.killY), nav: null, cover: [], routes: [],
+      killY: map.killY, movement: new ClientValidatedMovement(colliders, map.bounds, map.killY), nav: null, cover: [], routes: [], perches: [],
     };
   }
   return world;
@@ -50,8 +52,9 @@ export function getNav(): NavGrid {
   const w = getWorld();
   if (!w.nav) {
     const map = loadMapData(w.mapId);
-    const { nav, upper, cover, routes } = buildMapNav(w.colliders, map.bounds, map.boxes.filter((b) => b.kind === 'stair'), w.spawns.A[0], map.zones);
+    const { nav, upper, cover, routes, perches } = buildMapNav(w.colliders, map.bounds, map.boxes.filter((b) => b.kind === 'stair'), w.spawns.A[0], map.zones);
     w.goals.push(...upper);
+    w.perches = perches;
     w.cover = cover; w.routes = routes;
     w.nav = nav;
   }

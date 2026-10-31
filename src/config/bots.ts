@@ -86,6 +86,35 @@ export const BOT_TACTICS = {
   routeGoalChance: 0.8,
 } as const;
 
+/** Bot primaries (owner 2026-11-01): random, at most LOADOUT.maxSnipersPerTeam snipers per team. */
+export const BOT_LOADOUT = {
+  /** Relative chance of each primary. */
+  weights: { rifle: 0.5, shotgun: 0.3, sniper: 0.2 },
+} as const;
+
+/** Weapon roles: snipers hold balconies and long sight lines, shotguns push close. */
+export const BOT_ROLES = {
+  /** Sniper: switch to the pistol when the target is closer than this (m). */
+  sniperPistolRange: 7,
+  /** Sniper: seconds to hold a perch (balcony) before moving to another. */
+  sniperHoldMin: 6,
+  sniperHoldMax: 12,
+  /** Sniper: chance to pick a perch (balcony) as the next roam goal instead of a route point. */
+  sniperPerchChance: 0.85,
+  /** Sniper spots: sheltered spots (cover points) with a clear view at least this long (m) along one direction. */
+  sniperMinSight: 22,
+  sniperSightMax: 60,
+  /** At most this many sniper spots, at least this far apart (m). */
+  sniperSpots: 16,
+  sniperSpotSpacing: 5,
+  /** A sniper spot is used by a team if its view points toward the enemy spawn (cosine at least this). */
+  sniperFacingCos: 0.6,
+  /** Shotgun: keep pushing toward the target until this close (m). */
+  shotgunPushRange: 4,
+  /** Shotgun: do not shoot from farther than this (m). */
+  shotgunFireRange: 14,
+} as const;
+
 export type BotDifficulty = 'easy' | 'normal' | 'hard';
 
 /** Per-difficulty skill (owner 2026-10-31): Quick Play uses normal. */

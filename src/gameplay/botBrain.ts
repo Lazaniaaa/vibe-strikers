@@ -1,7 +1,8 @@
 // Bot AI (offline and server): roam the multi-level nav graph along one of three routes, spot enemies with
 // line-of-sight rays, turn and shoot in bursts; fight from cover (peek out, shoot, hide; hide to reload or when
 // low on HP). It only writes a PlayerIntent, exactly like a human client (server authority stays the same).
-import { BOT_SKILLS, BOT_TACTICS, BOTS, DEFAULT_DIFFICULTY, type BotSkill } from '../config/bots.ts';
+import { BOT_LOADOUT, BOT_ROLES, BOT_SKILLS, BOT_TACTICS, BOTS, DEFAULT_DIFFICULTY, type BotSkill } from '../config/bots.ts';
+import type { WeaponId } from '../weapons/types.ts';
 import { HITBOXES } from '../config/hitboxes.ts';
 import type { Actor } from './actor.ts';
 import { lineOfSight, type AabbBox } from './hitscan.ts';
@@ -17,6 +18,8 @@ export interface BotWorld {
   /** Cover spots (see mapNav) and the three route goal lists; optional (empty = old roaming). */
   cover?: readonly Vec3[];
   routes?: readonly (readonly Vec3[])[];
+  /** Sniper perches: balconies and long sight lines (see mapNav; yaw NaN = face the enemy spawn). */
+  perches?: readonly (Vec3 & { yaw: number })[];
   /** Team spawn centres (bots aim for the enemy side). */
   spawns?: { A: Vec3; B: Vec3 };
   random: () => number;
@@ -60,13 +63,28 @@ export interface BotBrain {
   coverCheckLeft: number;
   /** HP was low at the last step (first time low -> hide at once). */
   wasLow: boolean;
+  /** Sniper: the roam goal is a perch; seconds left to hold it after arriving. */
+  atPerch: boolean;
+  holdLeft: number;
+  /** Direction to watch from the perch (NaN = toward the enemy spawn). */
+  holdYaw: number;
+}
+
+/** Random bot primary (BOT_LOADOUT weights); no sniper when the team already has one. */
+export function pickBotPrimary(random: () => number, sniperTaken: boolean): WeaponId {
+  const w = BOT_LOADOUT.weights;
+  let r = random() * (w.rifle + w.shotgun + (sniperTaken ? 0 : w.sniper));
+  if ((r -= w.rifle) < 0) return 'rifle';
+  if ((r -= w.shotgun) < 0 || sniperTaken) return 'shotgun';
+  return 'sniper';
 }
 
 export function createBrain(skill: BotSkill = BOT_SKILLS[DEFAULT_DIFFICULTY]): BotBrain {
   return { skill, thinkLeft: 0, targetId: -1, targetVisible: false, lastSeen: vec3(), memoryLeft: 0, reactionLeft: 0,
     aimHead: false, aimErrYaw: 0, aimErrPitch: 0, burstLeft: 0, pauseLeft: 0, strafeSign: 1, strafeLeft: 0,
     path: [], pathIndex: 0, goalCell: -1, repathLeft: 0, stuckLeft: BOTS.stuckTime, stuckX: 0, stuckZ: 0, jumpLeft: 0,
-    engaged: false, useCover: false, hasCover: false, cover: vec3(), peekSpot: vec3(), phase: 'none', phaseLeft: 0, coverCheckLeft: 0, wasLow: false };
+    engaged: false, useCover: false, hasCover: false, cover: vec3(), peekSpot: vec3(), phase: 'none', phaseLeft: 0, coverCheckLeft: 0, wasLow: false,
+    atPerch: false, holdLeft: 0, holdYaw: NaN };
 }
 
 /** Forget everything (new round). */
@@ -74,6 +92,7 @@ export function resetBrain(b: BotBrain): void {
   b.thinkLeft = 0; b.targetId = -1; b.targetVisible = false; b.memoryLeft = 0; b.burstLeft = 0; b.pauseLeft = 0;
   b.path.length = 0; b.pathIndex = 0; b.goalCell = -1; b.repathLeft = 0; b.stuckLeft = BOTS.stuckTime; b.jumpLeft = 0;
   b.engaged = false; b.hasCover = false; b.phase = 'none'; b.phaseLeft = 0; b.coverCheckLeft = 0; b.wasLow = false;
+  b.atPerch = false; b.holdLeft = 0;
 }
 
 const eye = vec3(), aimPoint = vec3(), dirScratch = vec3(), threatEye = vec3(), probe = vec3();
@@ -143,6 +162,29 @@ function setGoal(b: BotBrain, w: BotWorld, x: number, y: number, z: number): voi
 
 /** Roam: a point of this bot's route on the enemy side (bots spread over the three routes), else the enemy spawn. */
 function pickRoamGoal(self: Actor, b: BotBrain, w: BotWorld): void {
+  b.atPerch = false;
+  // Snipers hold balconies and long sight lines that look toward the enemy side, not deep in enemy land.
+  const perches = w.perches, sp = w.spawns;
+  if (self.slots[0].stats.id === 'sniper' && perches && perches.length && sp && w.random() < BOT_ROLES.sniperPerchChance) {
+    const enemy = self.team === 'A' ? sp.B : sp.A, home = self.team === 'A' ? sp.A : sp.B;
+    let count = 0;
+    for (let pass = 0; pass < 2; pass++) {
+      let pick = Math.floor(w.random() * count);
+      for (const p of perches) {
+        if (Math.hypot(p.x - home.x, p.z - home.z) > Math.hypot(p.x - enemy.x, p.z - enemy.z) + 4) continue;
+        if (!Number.isNaN(p.yaw)) {
+          const ex = enemy.x - p.x, ez = enemy.z - p.z, len = Math.hypot(ex, ez) || 1;
+          if ((-Math.sin(p.yaw) * ex - Math.cos(p.yaw) * ez) / len < BOT_ROLES.sniperFacingCos) continue;
+        }
+        if (pass === 0) { count++; continue; }
+        if (pick-- > 0) continue;
+        setGoal(b, w, p.x, p.y, p.z);
+        b.atPerch = true; b.holdYaw = p.yaw; b.holdLeft = rand(w, BOT_ROLES.sniperHoldMin, BOT_ROLES.sniperHoldMax);
+        return;
+      }
+      if (count === 0) break;
+    }
+  }
   const routes = w.routes, spawns = w.spawns;
   if (routes && routes.length && spawns) {
     const enemy = self.team === 'A' ? spawns.B : spawns.A, home = self.team === 'A' ? spawns.A : spawns.B;
@@ -223,7 +265,7 @@ function steer(self: Actor, yaw: number): void {
 /** Writes the bot's intent for this step. */
 export function updateBot(self: Actor, b: BotBrain, w: BotWorld, dt: number): void {
   const intent = self.intent, skill = b.skill;
-  intent.fire = false; intent.reload = false; intent.jump = false; intent.crouch = false; intent.walk = false; intent.slot = -1;
+  intent.fire = false; intent.reload = false; intent.aim = false; intent.use = false; intent.jump = false; intent.crouch = false; intent.walk = false; intent.slot = -1;
   intent.forward = 0; intent.right = 0;
   if (!self.alive) { b.engaged = false; return; }
 
@@ -237,6 +279,14 @@ export function updateBot(self: Actor, b: BotBrain, w: BotWorld, dt: number): vo
   let target: Actor | null = null;
   if (b.targetVisible) for (const a of w.actors) if (a.id === b.targetId) { target = a.alive ? a : null; break; }
   if (!target) b.targetVisible = false;
+  // Weapon: snipers draw the pistol up close; an empty primary -> pistol; otherwise the primary.
+  const role = self.slots[0].stats.id, primary = self.slots[0];
+  const dist = target ? Math.hypot(target.x - self.x, target.z - self.z) : Infinity;
+  const primaryEmpty = primary.stats.magSize > 0 && primary.mag + primary.reserve === 0;
+  const wantSlot = primaryEmpty || (role === 'sniper' && dist < BOT_ROLES.sniperPistolRange) ? 1 : 0;
+  if (self.active !== wantSlot) intent.slot = wantSlot;
+  const sniping = self.active === 0 && role === 'sniper';
+  intent.aim = sniping;
   // In a fight, a nearly empty magazine is reloaded in cover too.
   const needReload = slot.stats.magSize > 0 && (slot.mag === 0 || slot.reloadLeft > 0 ||
     (b.engaged && slot.mag < slot.stats.magSize * BOT_TACTICS.reloadInCoverBelow && slot.reserve > 0));
@@ -244,7 +294,8 @@ export function updateBot(self: Actor, b: BotBrain, w: BotWorld, dt: number): vo
 
   // Fight state: start an engagement at the first sighting (that spot is where the bot peeks from).
   if (target && !b.engaged) {
-    b.engaged = true; b.useCover = w.random() < skill.coverChance; b.hasCover = false; b.coverCheckLeft = 0;
+    // Cover + peek is for rifles; snipers stand and shoot scoped, shotguns push.
+    b.engaged = true; b.useCover = role === 'rifle' && w.random() < skill.coverChance; b.hasCover = false; b.coverCheckLeft = 0;
     b.peekSpot.x = self.x; b.peekSpot.y = self.y; b.peekSpot.z = self.z;
     b.phase = 'expose'; b.phaseLeft = rand(w, BOT_TACTICS.exposeTimeMin, BOT_TACTICS.exposeTimeMax);
   }
@@ -283,7 +334,8 @@ export function updateBot(self: Actor, b: BotBrain, w: BotWorld, dt: number): vo
     const err = Math.hypot(angleDelta(intent.yaw, wantYaw), intent.pitch - wantPitch);
     b.reactionLeft -= dt;
     if (b.pauseLeft > 0) b.pauseLeft -= dt;
-    if (b.reactionLeft <= 0 && b.pauseLeft <= 0 && err < BOTS.fireConeDeg * DEG && slot.mag > 0) {
+    const inRange = !(self.active === 0 && role === 'shotgun' && dist > BOT_ROLES.shotgunFireRange);
+    if (b.reactionLeft <= 0 && b.pauseLeft <= 0 && err < BOTS.fireConeDeg * DEG && slot.mag > 0 && inRange && self.equipLeft <= 0) {
       if (b.burstLeft <= 0) b.burstLeft = Math.round(rand(w, skill.burstMin, skill.burstMax)) * slot.stats.fireInterval;
       intent.fire = slot.stats.automatic ? true : !self.fireLatch;
       b.burstLeft -= dt;
@@ -298,6 +350,14 @@ export function updateBot(self: Actor, b: BotBrain, w: BotWorld, dt: number): vo
       followPath(self, b, w, dt);
       steer(self, intent.yaw);
       intent.walk = b.phase === 'expose';
+      return;
+    }
+    // Sniper: stand still (scoped accuracy). Shotgun: push until close.
+    if (sniping) return;
+    if (self.active === 0 && role === 'shotgun' && dist > BOT_ROLES.shotgunPushRange) {
+      setGoal(b, w, target.x, target.y, target.z);
+      followPath(self, b, w, dt);
+      steer(self, intent.yaw);
       return;
     }
     // No cover nearby: strafe in the open while shooting.
@@ -317,8 +377,20 @@ export function updateBot(self: Actor, b: BotBrain, w: BotWorld, dt: number): vo
       // Peeked and the enemy is gone: chase the last seen position instead.
       b.engaged = false; b.phase = 'none';
     }
-  } else if (b.memoryLeft > 0) setGoal(b, w, b.lastSeen.x, b.lastSeen.y, b.lastSeen.z);
-  else if (b.goalCell < 0 || (b.path.length > 0 && b.pathIndex >= b.path.length)) pickRoamGoal(self, b, w);
+  } else if (b.memoryLeft > 0 && !b.atPerch) setGoal(b, w, b.lastSeen.x, b.lastSeen.y, b.lastSeen.z); // snipers keep their perch
+  else if (b.goalCell < 0 || (b.path.length > 0 && b.pathIndex >= b.path.length)) {
+    // A sniper on its perch holds it for a while, looking toward the enemy side.
+    if (b.atPerch && b.holdLeft > 0) {
+      b.holdLeft -= dt;
+      const enemy = w.spawns ? (self.team === 'A' ? w.spawns.B : w.spawns.A) : null;
+      const look = !Number.isNaN(b.holdYaw) ? b.holdYaw : enemy ? yawTo(enemy.x - self.x, enemy.z - self.z) : self.yaw;
+      intent.yaw = turnToward(self.yaw, look, turn);
+      intent.pitch = self.pitch * 0.9;
+      b.stuckLeft = BOTS.stuckTime; b.stuckX = self.x; b.stuckZ = self.z;
+      return;
+    }
+    pickRoamGoal(self, b, w);
+  }
 
   const repathing = b.repathLeft - dt <= 0 && w.pathBudget > 0;
   followPath(self, b, w, dt);

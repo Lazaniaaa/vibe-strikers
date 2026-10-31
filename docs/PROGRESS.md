@@ -295,6 +295,15 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   cleared when the next round starts (loadout primary comes back). Max `ITEMS.maxDropsPerRoom` per room (oldest
   removed). A picked-up sniper does not count for the 1-sniper limit (the limit is on the loadout choice). Bots do not
   pick up drops in Elimination. Offline practice has the same drops (shared `src/gameplay/items.ts`).
+- 2026-11-01 features 2: bots use random primaries (`BOT_LOADOUT.weights` rifle 0.5 / shotgun 0.3 / sniper 0.2, at most
+  one sniper per team; kept for the whole match; same in offline practice). A human choosing the sniper takes it from
+  a bot (the bot gets a rifle). Roles (`BOT_ROLES`): snipers go to "sniper spots" = balconies + sheltered cover
+  points with a clear view of >= 22 m that looks toward the enemy spawn (not deep in enemy land), hold them 6-12 s,
+  shoot standing and scoped (bots fire with ADS accuracy only when standing with the sniper), switch to the pistol
+  under 7 m and do not chase; shotguns push until 4 m and do not fire beyond 14 m; only rifles use cover + peek.
+  Server bots now switch weapons (intent.slot) and respect the draw time. Offline: local ADS now gives the scoped
+  sniper accuracy too (was server-only). Test `scripts/test-bot-roles.mjs` (180 s): snipers 40% of live time at
+  sniper spots (rifles 0%), sniper hits 18.4 m vs rifle 14.0 m vs shotgun 8.4 m.
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 

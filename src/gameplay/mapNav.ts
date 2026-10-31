@@ -1,6 +1,6 @@
 // One place that builds the bot navigation for a map (offline game, server, tests).
-import { BOT_TACTICS, NAV_GRID } from '../config/bots.ts';
-import type { AabbBox } from './hitscan.ts';
+import { BOT_ROLES, BOT_TACTICS, NAV_GRID } from '../config/bots.ts';
+import { rayBlockers, type AabbBox } from './hitscan.ts';
 import type { Vec3 } from './math.ts';
 import { buildNavGrid, nodeX, nodeY, nodeZ, pruneUnreachable, upperAreas, type NavGrid } from './navGrid.ts';
 
@@ -12,6 +12,32 @@ export interface MapNav {
   cover: Vec3[];
   /** Three route lists (north, middle, south): zone centres and upper areas, so bots spread over the map. */
   routes: Vec3[][];
+  /** Sniper spots: balconies (yaw NaN = face the enemy spawn) and sheltered spots with a long clear view along `yaw`. */
+  perches: Perch[];
+}
+
+export interface Perch extends Vec3 { yaw: number; sight: number }
+
+/** Cover points with the longest clear view (eye height, 8 directions), spaced apart. */
+function sightSpots(cover: readonly Vec3[], colliders: readonly AabbBox[]): Perch[] {
+  const cand: Perch[] = [], o = { x: 0, y: 0, z: 0 }, d = { x: 0, y: 0, z: 0 };
+  for (const c of cover) {
+    o.x = c.x; o.y = c.y + 1.6; o.z = c.z;
+    let best = 0, yaw = 0;
+    for (const [dx, dz] of DIRS) {
+      d.x = dx; d.z = dz;
+      const len = rayBlockers(o, d, BOT_ROLES.sniperSightMax, colliders);
+      if (len > best) { best = len; yaw = Math.atan2(-dx, -dz); }
+    }
+    if (best >= BOT_ROLES.sniperMinSight) cand.push({ x: c.x, y: c.y, z: c.z, yaw, sight: best });
+  }
+  cand.sort((a, b) => b.sight - a.sight);
+  const out: Perch[] = [];
+  for (const p of cand) {
+    if (out.length >= BOT_ROLES.sniperSpots) break;
+    if (out.every((q) => Math.hypot(q.x - p.x, q.z - p.z) >= BOT_ROLES.sniperSpotSpacing)) out.push(p);
+  }
+  return out;
 }
 
 const DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1], [0.7071, 0.7071], [0.7071, -0.7071], [-0.7071, 0.7071], [-0.7071, -0.7071]];
@@ -47,5 +73,7 @@ export function buildMapNav(colliders: readonly AabbBox[], bounds: { x: number; 
   const route = (z: number) => (z > BOT_TACTICS.routeSplitZ ? 0 : z < -BOT_TACTICS.routeSplitZ ? 2 : 1);
   for (const zone of zones) if (!zone.name.toLowerCase().includes('spawn')) routes[route(zone.z)].push({ x: zone.x, y: 0, z: zone.z });
   for (const u of upper) routes[route(u.z)].push(u);
-  return { nav, upper, cover: coverPoints(nav, colliders), routes: routes.filter((r) => r.length > 0) };
+  const cover = coverPoints(nav, colliders);
+  const perches: Perch[] = [...upper.map((u) => ({ ...u, yaw: NaN, sight: 0 })), ...sightSpots(cover, colliders)];
+  return { nav, upper, cover, routes: routes.filter((r) => r.length > 0), perches };
 }

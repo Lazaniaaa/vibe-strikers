@@ -15,7 +15,7 @@ import { ITEMS } from '../../src/config/items.ts';
 import { LOADOUT, loadoutFor, WEAPON_STATS } from '../../src/config/weapons.ts';
 import type { WeaponId } from '../../src/weapons/types.ts';
 import { setPrimary, type Actor } from '../../src/gameplay/actor.ts';
-import { resetBrain, updateBot, type BotWorld } from '../../src/gameplay/botBrain.ts';
+import { pickBotPrimary, resetBrain, updateBot, type BotWorld } from '../../src/gameplay/botBrain.ts';
 import { inPickupRange, primaryState, swapPrimary, type WeaponState } from '../../src/gameplay/items.ts';
 import { createShotResult, traceShot, type HitTarget } from '../../src/gameplay/hitscan.ts';
 import { DEG, directionFromAngles, spreadDirection, vec3 } from '../../src/gameplay/math.ts';
@@ -178,14 +178,14 @@ function fullAmmo(primary: WeaponId): { mag: number; reserve: number } {
 }
 
 function spawnRow(ctx: Ctx, roomId: bigint, team: TeamId, isBot: boolean, ownerHex: string, name: string, character: number,
-  spawnIndex: number): void {
+  spawnIndex: number, primary: WeaponId = LOADOUT.defaultPrimary): void {
   const spots = getWorld().spawns[team];
   const s = spots[spawnIndex % spots.length];
-  const ammo = fullAmmo(LOADOUT.defaultPrimary);
+  const ammo = fullAmmo(primary);
   ctx.db.player.insert({
     id: 0n, roomId, ownerHex, isBot, name, character: character % characters.length, team, x: s.x, y: s.y, z: s.z, vx: 0, vy: 0, vz: 0,
     yaw: s.yaw, pitch: 0, crouch: false, grounded: true, walk: false, seq: 0, correctionSeq: 1, spawnCount: 1, violations: 0,
-    hp: MATCH.maxHealth, alive: true, weapon: 0, primary: LOADOUT.defaultPrimary, nextPrimary: LOADOUT.defaultPrimary,
+    hp: MATCH.maxHealth, alive: true, weapon: 0, primary, nextPrimary: primary,
     mag: ammo.mag, reserve: ammo.reserve, reloading: false, kills: 0, deaths: 0, ping: 0, lastMoveAt: ctx.timestamp,
   });
 }
@@ -196,9 +196,13 @@ function fillBots(ctx: Ctx, r: RoomRow): void {
   const rows = playersIn(ctx, r.id);
   for (const team of ['A', 'B'] as const) {
     let count = rows.filter((p) => p.team === team).length;
+    // Random primaries, at most LOADOUT.maxSnipersPerTeam snipers per team.
+    let snipers = rows.filter((p) => p.team === team && p.nextPrimary === 'sniper').length;
     while (count < MATCH.teamSize) {
+      const primary = pickBotPrimary(() => ctx.random(), snipers >= LOADOUT.maxSnipersPerTeam);
+      if (primary === 'sniper') snipers++;
       spawnRow(ctx, r.id, team, true, '', `Bot ${ctx.random.integerInRange(10, 99)}`,
-        ctx.random.integerInRange(0, characters.length - 1), count);
+        ctx.random.integerInRange(0, characters.length - 1), count, primary);
       count++;
     }
   }
@@ -493,9 +497,16 @@ export const setPrimaryWeapon = spacetimedb.reducer({ weapon: t.string() }, (ctx
   const want = weapon as WeaponId;
   if (!LOADOUT.primaries.includes(want)) throw new SenderError('not a primary weapon');
   if (want === 'sniper') {
-    const snipers = playersIn(ctx, row.roomId).filter((p) => p.id !== row.id && p.team === row.team &&
-      p.nextPrimary === 'sniper').length; // picked-up snipers do not count
-    if (snipers >= LOADOUT.maxSnipersPerTeam) throw new SenderError('your team already has a sniper');
+    // Picked-up snipers do not count; a bot sniper gives its place to a human (takes a rifle).
+    const mates = playersIn(ctx, row.roomId).filter((p) => p.id !== row.id && p.team === row.team && p.nextPrimary === 'sniper');
+    if (mates.filter((p) => !p.isBot).length >= LOADOUT.maxSnipersPerTeam) throw new SenderError('your team already has a sniper');
+    const phase = ctx.db.room.id.find(row.roomId)?.phase;
+    for (const bot of mates.filter((p) => p.isBot)) {
+      const swap = phase === 'freeze' && bot.primary === 'sniper';
+      if (swap) { const ba = actorFor(Number(bot.id), bot.team as TeamId, true); setPrimary(ba, 'rifle'); ba.active = 0; }
+      const ammo = fullAmmo('rifle');
+      ctx.db.player.id.update({ ...bot, nextPrimary: 'rifle', ...(swap ? { primary: 'rifle', weapon: 0, mag: ammo.mag, reserve: ammo.reserve } : {}) });
+    }
   }
   const r = ctx.db.room.id.find(row.roomId);
   if (r && r.phase === 'freeze' && row.alive) {
@@ -578,7 +589,7 @@ export const tick = spacetimedb.reducer({ onSchedule: tickTimer }, { timer: tick
       if (!rows[i].isBot) syncAmmo(ctx, rows[i], a);
     }
     if (r.phase === 'freeze' || r.phase === 'matchEnd') continue;
-    const botWorld: BotWorld = { actors, blockers: world.blockers, nav, goals: world.goals, cover: world.cover, routes: world.routes,
+    const botWorld: BotWorld = { actors, blockers: world.blockers, nav, goals: world.goals, cover: world.cover, routes: world.routes, perches: world.perches,
       spawns: { A: world.spawns.A[0], B: world.spawns.B[0] }, random, pathBudget };
     for (let i = 0; i < rows.length; i++) {
       const row = ctx.db.player.id.find(rows[i].id);
@@ -589,11 +600,16 @@ export const tick = spacetimedb.reducer({ onSchedule: tickTimer }, { timer: tick
       brain.skill = BOT_SKILLS[(r.difficulty in BOT_SKILLS ? r.difficulty : DEFAULT_DIFFICULTY) as BotDifficulty];
       updateBot(a, brain, botWorld, TICK_DT);
       a.yaw = a.intent.yaw; a.pitch = a.intent.pitch;
+      const sw = a.intent.slot;
+      if (sw >= 0 && sw < a.slots.length && sw !== a.active) {
+        cancelReload(a.slots[a.active]);
+        a.active = sw; a.equipLeft = a.slots[sw].stats.equipTime; a.fireLatch = false;
+      }
       const slot = a.slots[a.active];
       if (a.intent.reload) startReload(slot);
       if (!a.intent.fire) a.fireLatch = false;
-      if (live && a.intent.fire && canFire(slot) && (slot.stats.automatic || !a.fireLatch)) {
-        fireShot(ctx, r, { ...row, yaw: a.yaw, pitch: a.pitch }, a, a.yaw, a.pitch, 0, false);
+      if (live && a.intent.fire && a.equipLeft <= 0 && canFire(slot) && (slot.stats.automatic || !a.fireLatch)) {
+        fireShot(ctx, r, { ...row, yaw: a.yaw, pitch: a.pitch }, a, a.yaw, a.pitch, 0, a.intent.aim);
         a.fireLatch = true;
       }
       stepOnGrid(a, nav, TICK_DT, slot.stats.moveSpeedScale, world.colliders);
