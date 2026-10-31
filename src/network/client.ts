@@ -282,8 +282,8 @@ export class GameNet {
   }
 
   joinQuick(name: string, character: number): Promise<void> { return this.call(() => this.conn!.reducers.joinQuick({ name, character })); }
-  createPrivateRoom(name: string, character: number, bots = true): Promise<void> {
-    return this.call(() => this.conn!.reducers.createPrivateRoom({ name, character, bots }));
+  createPrivateRoom(name: string, character: number, bots = true, difficulty = 'normal'): Promise<void> {
+    return this.call(() => this.conn!.reducers.createPrivateRoom({ name, character, bots, difficulty }));
   }
   joinByCode(code: string, name: string, character: number): Promise<void> { return this.call(() => this.conn!.reducers.joinByCode({ code, name, character })); }
   /** Leave the room (the server gives the slot back to a bot) and forget its rows; the connection stays. */

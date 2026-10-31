@@ -6,7 +6,7 @@
 import { schema, table, t, SenderError, type InferSchema, type ReducerCtx } from 'spacetimedb/server';
 import { ScheduleAt } from 'spacetimedb';
 import { characters } from '../../src/characters/characters.ts';
-import { BOTS } from '../../src/config/bots.ts';
+import { BOT_SKILLS, BOTS, DEFAULT_DIFFICULTY, type BotDifficulty } from '../../src/config/bots.ts';
 import { HITBOXES } from '../../src/config/hitboxes.ts';
 import { CAPSULE, MOVEMENT } from '../../src/config/movement.ts';
 import { FIRE_CHECK, NET } from '../../src/config/net.ts';
@@ -29,6 +29,8 @@ const room = table({ name: 'room', public: true }, {
   isPrivate: t.bool(),
   /** Fill empty slots with bots (quick play: always; private rooms: chosen by the creator). */
   bots: t.bool(),
+  /** Bot difficulty: 'easy' | 'normal' | 'hard' (quick play: normal). */
+  difficulty: t.string(),
   phase: t.string(),
   round: t.u32(),
   scoreA: t.u32(),
@@ -220,9 +222,9 @@ function joinRoom(ctx: Ctx, r: RoomRow, name: string, character: number): void {
   fillBots(ctx, r);
 }
 
-function createRoom(ctx: Ctx, isPrivate: boolean, bots: boolean): RoomRow {
+function createRoom(ctx: Ctx, isPrivate: boolean, bots: boolean, difficulty: BotDifficulty = DEFAULT_DIFFICULTY): RoomRow {
   getNav(); // build the nav grid now, not during a tick
-  return ctx.db.room.insert({ id: 0n, code: newRoomCode(ctx), isPrivate, bots, phase: 'freeze', round: 1, scoreA: 0, scoreB: 0,
+  return ctx.db.room.insert({ id: 0n, code: newRoomCode(ctx), isPrivate, bots, difficulty, phase: 'freeze', round: 1, scoreA: 0, scoreB: 0,
     timeLeft: PRESET.freezeTime, lastWinner: '', matchWinner: '', createdAt: ctx.timestamp });
 }
 
@@ -377,8 +379,10 @@ export const joinQuick = spacetimedb.reducer({ name: t.string(), character: t.u1
   joinRoom(ctx, target ?? createRoom(ctx, false, true), name, character);
 });
 
-export const createPrivateRoom = spacetimedb.reducer({ name: t.string(), character: t.u16(), bots: t.bool() }, (ctx, { name, character, bots }) => {
-  joinRoom(ctx, createRoom(ctx, true, bots), name, character);
+export const createPrivateRoom = spacetimedb.reducer({ name: t.string(), character: t.u16(), bots: t.bool(), difficulty: t.string() },
+  (ctx, { name, character, bots, difficulty }) => {
+    const level: BotDifficulty = difficulty in BOT_SKILLS ? (difficulty as BotDifficulty) : DEFAULT_DIFFICULTY;
+    joinRoom(ctx, createRoom(ctx, true, bots, level), name, character);
 });
 
 export const joinByCode = spacetimedb.reducer({ code: t.string(), name: t.string(), character: t.u16() }, (ctx, { code, name, character }) => {
@@ -519,7 +523,9 @@ export const tick = spacetimedb.reducer({ onSchedule: tickTimer }, { timer: tick
       const a = actors[i];
       if (!row || !row.isBot || !row.alive) continue;
       a.alive = row.alive; a.hp = row.hp;
-      updateBot(a, brainFor(Number(row.id)), botWorld, TICK_DT);
+      const brain = brainFor(Number(row.id));
+      brain.skill = BOT_SKILLS[(r.difficulty in BOT_SKILLS ? r.difficulty : DEFAULT_DIFFICULTY) as BotDifficulty];
+      updateBot(a, brain, botWorld, TICK_DT);
       a.yaw = a.intent.yaw; a.pitch = a.intent.pitch;
       const slot = a.slots[a.active];
       if (a.intent.reload) startReload(slot);

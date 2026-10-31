@@ -477,7 +477,7 @@ function fillOnlineHud(v: HudView, net: GameNet, local: Actor, feed: readonly Ki
     const next = loadoutFor(me.nextPrimary as WeaponId)[0];
     v.sub += `${v.sub ? '\n' : ''}Primary: ${LOADOUT.primaries.map((w, i) => `${7 + i} ${w}${w === next ? ' ✓' : ''}`).join(' · ')}`;
   }
-  v.roomInfo = `Room ${r?.code ?? '-----'}${r?.isPrivate ? ' (private)' : ''} · ${humans} players + ${bots} bots · team ${mine ?? '-'}` +
+  v.roomInfo = `Room ${r?.code ?? '-----'}${r?.isPrivate ? ' (private)' : ''} · ${humans} players + ${bots} bots (${r?.difficulty ?? 'normal'}) · team ${mine ?? '-'}` +
     `${net.lagMs ? ` · lag ${net.lagMs} ms` : ''}${net.lastError ? `\n${net.lastError}` : ''}`;
   v.feed = feed;
 }

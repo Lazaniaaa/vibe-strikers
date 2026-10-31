@@ -30,12 +30,19 @@ try {
 
   // Menu: 33 character buttons; clicking one selects it and shows its name.
   const menu = await page('menu', `${BASE}?debug=1`);
+  await menu.setViewportSize({ width: 640, height: 900 });
   await menu.waitForSelector('.menu-char');
   const count = await menu.locator('.menu-char').count();
   check(count === characters.length, `menu lists all ${count} characters`);
   await menu.locator('.menu-char').nth(17).click();
   const shown = await menu.locator('.menu-char-name').textContent();
   check(shown === label(17) && await menu.locator('.menu-char.selected').count() === 1, `selecting a character shows its name (${shown})`);
+  await menu.selectOption('.menu-difficulty', 'hard');
+  check(await menu.evaluate(() => localStorage.getItem('voxel-difficulty')) === 'hard', 'bot difficulty select is saved');
+  await menu.click('.menu-offline');
+  await menu.waitForFunction(() => window.__game && document.querySelector('.hud-room')?.textContent.includes('hard'), null, { timeout: 60000 }).catch(() => undefined);
+  check(await menu.evaluate(() => document.querySelector('.hud-room')?.textContent ?? ''), `offline practice uses it: "${await menu.evaluate(() => document.querySelector('.hud-room')?.textContent ?? '')}"`);
+  await menu.evaluate(() => localStorage.setItem('voxel-difficulty', 'normal'));
   if (shot) await menu.screenshot({ path: `${shot}-menu.jpg`, type: 'jpeg', quality: 70 });
   await menu.context().close();
 

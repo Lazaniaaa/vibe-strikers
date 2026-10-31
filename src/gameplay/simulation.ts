@@ -6,6 +6,7 @@ import { MATCH, ROUND_PRESETS, type RoundPreset } from '../config/rounds.ts';
 import type { HitPart } from '../config/hitboxes.ts';
 import { createActor, type Actor, type PlayerIntent } from './actor.ts';
 import { createBrain, resetBrain, updateBot, type BotBrain, type BotWorld } from './botBrain.ts';
+import type { BotSkill } from '../config/bots.ts';
 import { createShotResult, traceShot, type AabbBox } from './hitscan.ts';
 import { clamp, DEG, directionFromAngles, spreadDirection, vec3, type Vec3 } from './math.ts';
 import type { NavGrid } from './navGrid.ts';
@@ -31,6 +32,8 @@ export interface SimulationOptions {
   /** Character indices (visual only) for: [0] the local player, then bots in order. */
   characterIndices: readonly number[];
   random?: () => number;
+  /** Bot skill (difficulty); default normal. */
+  botSkill?: BotSkill;
   /** Override the freeze time (tests). */
   freezeTime?: number;
   /** Optional profiler: milliseconds spent per section are added here (needs `clock`). */
@@ -93,7 +96,7 @@ export class Simulation {
           opts.characterIndices[id % opts.characterIndices.length]);
         this.actors.push(actor);
         opts.motor.add(actor);
-        if (!isLocal) this.brains.set(id, createBrain());
+        if (!isLocal) this.brains.set(id, createBrain(opts.botSkill));
         id++;
       }
     }

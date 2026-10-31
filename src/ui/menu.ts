@@ -1,3 +1,4 @@
+import type { BotDifficulty } from '../config/bots.ts';
 // Start menu (plain DOM): nickname, character, Quick Play, private room, join by code, offline practice.
 
 /** What the menu needs to list a character (name + a colour swatch). */
@@ -5,9 +6,9 @@ export interface MenuCharacter { name: string; body: string; accent: string }
 
 export type MenuChoice =
   | { kind: 'quick'; name: string }
-  | { kind: 'create'; name: string; bots: boolean }
+  | { kind: 'create'; name: string; bots: boolean; difficulty: BotDifficulty }
   | { kind: 'join'; name: string; code: string }
-  | { kind: 'offline'; name: string };
+  | { kind: 'offline'; name: string; difficulty: BotDifficulty };
 
 export class Menu {
   readonly root: HTMLElement;
@@ -18,7 +19,8 @@ export class Menu {
   /** Index of the selected character. */
   character: number;
 
-  constructor(parent: HTMLElement, defaultName: string, list: readonly MenuCharacter[], selected: number, onCharacter: (i: number) => void) {
+  constructor(parent: HTMLElement, defaultName: string, list: readonly MenuCharacter[], selected: number, onCharacter: (i: number) => void,
+    difficulty: BotDifficulty = 'normal', onDifficulty: (d: BotDifficulty) => void = () => undefined) {
     this.character = selected;
     this.root = document.createElement('div');
     this.root.className = 'menu';
@@ -31,6 +33,8 @@ export class Menu {
         <button class="menu-btn menu-quick">Quick Play</button>
         <button class="menu-btn menu-create">Create private room</button>
         <label class="menu-check"><input type="checkbox" class="menu-bots" checked /> fill the private room with bots</label>
+        <label class="menu-check">Bot difficulty (practice and private rooms)
+          <select class="menu-difficulty"><option value="easy">easy</option><option value="normal">normal</option><option value="hard">hard</option></select></label>
         <div class="menu-row"><input class="menu-code" maxlength="5" placeholder="CODE" /><button class="menu-btn menu-join">Join</button></div>
         <button class="menu-btn menu-offline">Practice offline (bots)</button>
         <div class="menu-settings-slot"></div>
@@ -61,9 +65,13 @@ export class Menu {
     const name = () => this.nameInput.value.trim();
     this.root.querySelector('.menu-quick')!.addEventListener('click', () => pick({ kind: 'quick', name: name() }));
     const bots = this.root.querySelector<HTMLInputElement>('.menu-bots')!;
-    this.root.querySelector('.menu-create')!.addEventListener('click', () => pick({ kind: 'create', name: name(), bots: bots.checked }));
+    const level = this.root.querySelector<HTMLSelectElement>('.menu-difficulty')!;
+    level.value = difficulty;
+    level.addEventListener('change', () => onDifficulty(level.value as BotDifficulty));
+    const diff = () => level.value as BotDifficulty;
+    this.root.querySelector('.menu-create')!.addEventListener('click', () => pick({ kind: 'create', name: name(), bots: bots.checked, difficulty: diff() }));
     this.root.querySelector('.menu-join')!.addEventListener('click', () => pick({ kind: 'join', name: name(), code: this.codeInput.value.trim().toUpperCase() }));
-    this.root.querySelector('.menu-offline')!.addEventListener('click', () => pick({ kind: 'offline', name: name() }));
+    this.root.querySelector('.menu-offline')!.addEventListener('click', () => pick({ kind: 'offline', name: name(), difficulty: diff() }));
   }
 
   /** Where the Settings button goes. */

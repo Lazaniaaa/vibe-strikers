@@ -32,7 +32,9 @@ try {
     motor: new RapierMotor(RAPIER, world), killY: map.killY, localName: 'bot0', botNames: ['b'], characterIndices: [0], freezeTime: 1 });
   // All 8 actors are bots with the chosen skill (the local slot too).
   sim.actors[0].isBot = true;
-  for (const a of sim.actors) sim.brains.set(a.id, createBrain(BOT_SKILLS[difficulty]));
+  // 'mixed': team A hard vs team B easy (difficulty must matter).
+  const skillOf = (team) => BOT_SKILLS[difficulty === 'mixed' ? (team === 'A' ? 'hard' : 'easy') : difficulty];
+  for (const a of sim.actors) sim.brains.set(a.id, createBrain(skillOf(a.team)));
   const intent = createIntent();
   const band = (z) => (z > BOT_TACTICS.routeSplitZ ? 'north' : z < -BOT_TACTICS.routeSplitZ ? 'south' : 'mid');
   const bandsByRound = new Map(); // round -> Set of `${team}:${band}` reached in the first 12 s of the round
@@ -70,8 +72,13 @@ try {
   console.log(`engagements ${stats.engagements}, with cover ${stats.withCover}, peeks ${stats.peeks}, hide time ${(stats.hideTicks * dt).toFixed(1)} s (reloading in cover ${(stats.hideWhileReloading * dt).toFixed(1)} s)`);
   console.log(`tick: median ${times[times.length >> 1].toFixed(3)} ms, p99 ${times[Math.floor(times.length * 0.99)].toFixed(3)} ms`);
   check(avgRoutes >= 2, `bots spread over the routes: ${avgRoutes.toFixed(2)} of 3 routes used per team per round on average`);
-  check(stats.withCover > 0 && stats.peeks > 0, 'bots fight from cover and peek');
-  check(stats.hideWhileReloading > 0, 'bots reload in cover');
+  if (difficulty === 'mixed') {
+    const killsA = sim.actors.filter((a) => a.team === 'A').reduce((n, a) => n + a.kills, 0), killsB = stats.kills - killsA;
+    console.log(`mixed: hard team A ${killsA} kills, ${sim.round.scoreA} rounds; easy team B ${killsB} kills, ${sim.round.scoreB} rounds`);
+    check(killsA > killsB * 1.5 && sim.round.scoreA > sim.round.scoreB, 'hard bots clearly beat easy bots');
+  }
+  check(difficulty === 'easy' || (stats.withCover > 0 && stats.peeks > 0), 'bots fight from cover and peek');
+  check(difficulty === 'easy' || stats.hideWhileReloading > 0, 'bots reload in cover');
   check(stats.kills > 0, 'bots still kill each other');
   check(times[Math.floor(times.length * 0.99)] < 5, 'tick p99 under 5 ms');
   console.log(failed ? `BOT BEHAVIOUR TEST FAILED (${failed})` : 'BOT BEHAVIOUR TEST PASS');

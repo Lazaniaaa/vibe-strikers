@@ -62,6 +62,7 @@ export const Room = __t.object("Room", {
   code: __t.string(),
   isPrivate: __t.bool(),
   bots: __t.bool(),
+  difficulty: __t.string(),
   phase: __t.string(),
   round: __t.u32(),
   scoreA: __t.u32(),

@@ -6,7 +6,7 @@ import { BoxGeometry, Color, Fog, Mesh, MeshBasicMaterial, PerspectiveCamera, Ve
 import { buildMap, loadMapData, mapColliders, mapShotBlockers, spawnPoints } from '../../src/maps';
 import { characters } from '../../src/characters';
 import { CAMERA, EFFECTS, LOCAL_PLAYER, MAP_ID, POSE, RENDER, TEAM_COLORS } from '../../src/config/game';
-import { BOT_NAMES } from '../../src/config/bots';
+import { BOT_NAMES, BOT_SKILLS, DEFAULT_DIFFICULTY, type BotDifficulty } from '../../src/config/bots';
 import { MAX_FRAME_DT } from '../../src/config/movement';
 import { DEG } from '../../src/gameplay/math';
 import { lineOfSight } from '../../src/gameplay/hitscan';
@@ -27,7 +27,8 @@ import { onSettingsChange, settings } from '../../src/ui/settings';
 import { getSettingsPanel, settingsButton } from '../../src/ui/settingsPanel';
 
 export interface GameOptions { debug: boolean; freezeTime?: number; /** Local player's character (menu). */ character?: number;
-  /** Back to the menu (Esc overlay "Leave match"). */ onLeave?: () => void }
+  /** Back to the menu (Esc overlay "Leave match"). */ onLeave?: () => void;
+  /** Bot difficulty (menu). */ difficulty?: BotDifficulty }
 
 const map = loadMapData(MAP_ID);
 const blockersForDebug = mapShotBlockers(map).boxes;
@@ -101,7 +102,7 @@ function GameDriver({ options }: { options: GameOptions }) {
     const motor = new RapierMotor(rapier, world);
     const perf = new FramePerf();
     const sim = new Simulation({ profile: perf.now, clock: () => performance.now(), blockers, spawnsA, spawnsB, goals, cover, routes, nav, motor, killY: map.killY,
-      localName: LOCAL_PLAYER.name, botNames: BOT_NAMES, characterIndices: pickCharacters(options.character ?? LOCAL_PLAYER.characterIndex), freezeTime: options.freezeTime });
+      localName: LOCAL_PLAYER.name, botNames: BOT_NAMES, botSkill: BOT_SKILLS[options.difficulty ?? DEFAULT_DIFFICULTY], characterIndices: pickCharacters(options.character ?? LOCAL_PLAYER.characterIndex), freezeTime: options.freezeTime });
     const input = new Input(gl.domElement);
     const hudRoot = document.getElementById('hud')!;
     const hud = new Hud(hudRoot);
@@ -190,7 +191,7 @@ function GameDriver({ options }: { options: GameOptions }) {
   const scratch = useMemo(() => ({ from: new Vector3(), fwd: new Vector3(), right: new Vector3(), hudTimer: 0, fpsFrames: 0, fpsTimer: 0, punch: 0,
     audio: { prevReload: 0, steps: new Map<number, number>() } }), []);
   const view = useMemo<HudView>(() => ({ hp: 100, alive: true, weapon: '', mag: 0, reserve: 0, reloading: false, phase: 'freeze',
-    timeLeft: 0, round: 1, scoreA: 0, scoreB: 0, aliveA: 0, aliveB: 0, center: '', sub: '', feed: [], roomInfo: 'Offline practice', fps: 0, perf: '', locked: false }), []);
+    timeLeft: 0, round: 1, scoreA: 0, scoreB: 0, aliveA: 0, aliveB: 0, center: '', sub: '', feed: [], roomInfo: `Offline practice · bots ${options.difficulty ?? DEFAULT_DIFFICULTY}`, fps: 0, perf: '', locked: false }), []);
 
   useFrame((state, delta) => {
     const { sim, input, hud, effects, rigs, viewmodel, stats, perf } = game;

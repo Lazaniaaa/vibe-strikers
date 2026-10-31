@@ -76,12 +76,13 @@ try {
   check([...a.players.values()].filter((p) => !p.isBot).length === 1 && a.players.size === MATCH.teamSize * 2, 'after a client leaves, bots refill the room');
 
   // ---------------- Part 2: 1v1 room without bots
-  await a.createPrivateRoom('Alice', 3, false);
+  await a.createPrivateRoom('Alice', 3, false, 'hard');
   await waitFor(() => a.room && !a.room.bots && a.players.size === 1);
   const c = await client();
   await c.joinByCode(a.room.code, 'Carl', 12);
   await waitFor(() => c.me && a.players.size === 2);
   check(a.players.size === 2 && !a.room.bots, `room without bots: ${a.players.size} players`);
+  check(a.room.difficulty === 'hard' && roomA.difficulty === 'normal', `room difficulty stored (private 'hard'; default '${roomA.difficulty}')`);
 
   // Movement validation.
   const me = { ...a.me };

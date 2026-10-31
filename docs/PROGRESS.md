@@ -277,6 +277,10 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   the magazine is below 25%) and when HP first drops below 45 (then hides 2.5 s per cycle). No cover nearby: strafes
   in the open as before. Test `scripts/test-bot-behaviour.mjs` (180 s, 8 bots): routes 2.92 of 3 per team per
   round, 31 of 71 fights from cover, 9 peeks, 26 s of reloading in cover, tick p99 1.5 ms.
+- 2026-10-31 solo 3: bot difficulty easy / normal / hard (`BOT_SKILLS` in src/config/bots.ts: reaction time, aim
+  error, head-aim chance, burst length / pause, turn rate, cover chance). Menu select (saved), used by offline
+  practice and private rooms you create (`room.difficulty`); Quick Play = normal. Test: hard team vs easy team
+  (240 s): 12 kills / 3 rounds vs 2 kills / 0 rounds. The menu scrolls on small windows.
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 
