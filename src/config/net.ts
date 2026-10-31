@@ -9,8 +9,8 @@ export const NET = {
   /** Server tick (bots, rounds) per second. */
   tickRateHz: 30,
   interpolationDelayMs: 100,
-  maxRewindMsPublic: 250,
-  maxRewindMsPrivate: 300,
+  maxRewindMsPublic: 300,
+  maxRewindMsPrivate: 350,
   roomCodeLength: 5,
   /** Characters used in room codes (no 0/O/1/I). */
   roomCodeAlphabet: 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789',

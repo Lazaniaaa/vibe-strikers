@@ -17,6 +17,8 @@ Date started: 2026-10-30. Credits expire 2026-11-05.
   `/smoke.html` (M0). URL params: `?server=ws://host:3000`, `?lag=200` (artificial latency, round trip),
   `?debug=1` (exposes `window.__game` / `window.__online`), `?auto=quick|create|join&code=XXXXX&name=N`.
 - `npm run game:build` then `npm run game:preview` — production build on http://127.0.0.1:5191/
+- After a fresh `game:dev` start, open the page once (Vite optimizes deps; the first browser test can
+  fail with "504 Outdated Optimize Dep" otherwise).
 - Server: `spacetime start` (local, 127.0.0.1:3000), `npm run server:publish` (module "voxel-arena"),
   `npm run server:reset` (publish + delete data), `npm run server:bindings` (after schema changes),
   `spacetime logs --server local voxel-arena -f`. The spacetime CLI is in `~/.local/bin`.
@@ -178,6 +180,8 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   (`report_ping`), shown on the TAB scoreboard; bots show "BOT".
 - 2026-10-31 M3p1: client subscriptions: own player row first, then only its room's player / room /
   shot_event / kill_event rows (old room dropped after the new subscription is live).
+- 2026-10-31 owner: maxRewindMs raised to 300 public / 350 private; interpolationDelayMs stays 100 (test 75
+  later on a real network). After the change: 200 ms lag test 4/4 hits (rewind 304-350 ms).
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 
@@ -329,7 +333,7 @@ Tests (all pass): typecheck (game + server), 14 unit checks, offline M1 e2e,
 | 200 ms | ~305 ms | clamped at 300 ms (private cap) | 44-57% (target killed) | 0 of 4 |
 | 200 ms, cap lifted to 600 (experiment, reverted) | ~305 ms | 304-352 ms | 67% | 1 of 4 |
 Headless renders at 5-13 FPS, so hit rates on a real 60 FPS laptop should be higher.
-OPEN DECISION for the owner (not changed): at 200 ms ping the needed rewind (ping + 100 ms interpolation)
+DECIDED 2026-10-31 (owner): caps raised to 300 / 350 ms (see Decisions log). Was: at 200 ms ping the needed rewind (ping + 100 ms interpolation)
 is just over the 300 / 250 ms caps, so 200 ms players hit moving targets less often. Options: keep the caps
 (protects the victim, current), raise them (e.g. 350), or lower `interpolationDelayMs` (GAME.md 17).
 Known limits: no spectate / killcam after death (M3); bots never use the pistol; the server trusts the

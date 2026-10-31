@@ -128,8 +128,10 @@ before UI work (schema first, rendering after).
 ### 6.4 Lag compensation (hit validation) — DECIDED
 - Server keeps a ring buffer of recent hit-volume positions per player.
 - On `fire`, rewind to (shooter's latency + interpolation delay), capped by
-  `maxRewindMs`: **250 public rooms, 300 private rooms** (config).
-- `interpolationDelayMs` is a separate config value (start 100, test lower).
+  `maxRewindMs`: **300 public rooms, 350 private rooms** (config; owner 2026-10-31, was 250 / 300:
+  at 200 ms ping the needed rewind is ~305 ms).
+- `interpolationDelayMs` is a separate config value (start 100; owner 2026-10-31: keep 100, test 75 later
+  on a real network).
 - Raycast against rewound head/body boxes and the map boxes; apply damage now.
 - Show ping (RTT) and FPS in the HUD (setting, default on).
 - Test with artificial latency 100 and 200 ms (a tester far from the server had
