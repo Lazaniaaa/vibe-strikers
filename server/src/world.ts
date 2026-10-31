@@ -9,6 +9,8 @@ import type { Vec3 } from '../../src/gameplay/math.ts';
 import { ClientValidatedMovement, type MovementAuthority } from '../../src/gameplay/movementCheck.ts';
 import { buildNavGrid, pruneUnreachable, type NavGrid } from '../../src/gameplay/navGrid.ts';
 import type { TeamId } from '../../src/gameplay/round.ts';
+import { PoseHistory } from '../../src/gameplay/rewind.ts';
+import { NET } from '../../src/config/net.ts';
 
 export interface World {
   mapId: string;
@@ -70,4 +72,13 @@ export function brainFor(id: number): BotBrain {
   return b;
 }
 
-export function forgetActor(id: number): void { actors.delete(id); brains.delete(id); }
+/** Recent hit-volume poses per player (lag compensation). */
+const histories = new Map<number, PoseHistory>();
+
+export function historyFor(id: number): PoseHistory {
+  let h = histories.get(id);
+  if (!h) { h = new PoseHistory(NET.rewindHistory); histories.set(id, h); }
+  return h;
+}
+
+export function forgetActor(id: number): void { actors.delete(id); brains.delete(id); histories.delete(id); }

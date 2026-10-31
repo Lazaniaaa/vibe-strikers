@@ -14,6 +14,13 @@ export default __t.row({
   id: __t.u64().primaryKey(),
   code: __t.string(),
   isPrivate: __t.bool().name("is_private"),
+  bots: __t.bool(),
   phase: __t.string(),
+  round: __t.u32(),
+  scoreA: __t.u32().name("score_a"),
+  scoreB: __t.u32().name("score_b"),
+  timeLeft: __t.f32().name("time_left"),
+  lastWinner: __t.string().name("last_winner"),
+  matchWinner: __t.string().name("match_winner"),
   createdAt: __t.timestamp().name("created_at"),
 });

@@ -21,4 +21,6 @@ export const MATCH = {
   teamSize: 4,
   friendlyFire: false,
   maxHealth: 100,
+  /** Online: seconds after the match ends before a new match starts in the same room. */
+  matchRestartTime: 10,
 } as const;

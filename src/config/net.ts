@@ -14,6 +14,8 @@ export const NET = {
   roomCodeLength: 5,
   /** Characters used in room codes (no 0/O/1/I). */
   roomCodeAlphabet: 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789',
+  /** Pose history kept per player for lag compensation (must cover maxRewindMs at tickRateHz). */
+  rewindHistory: 16,
   nameMinLength: 3,
   nameMaxLength: 16,
 } as const;
@@ -32,4 +34,10 @@ export const MOVE_CHECK = {
   verticalSlack: 0.45,
   /** The capsule may touch a box by this much (KCC skin offset + float error). */
   capsulePenetration: 0.08,
+} as const;
+
+/** Server-side fire checks. */
+export const FIRE_CHECK = {
+  /** A shot is accepted while the weapon cooldown is at most this many seconds (network bunching). */
+  cooldownSlack: 0.12,
 } as const;

@@ -35,21 +35,34 @@ import {
 
 // Import all reducer arg schemas
 import CreatePrivateRoomReducer from "./create_private_room_reducer";
+import FireReducer from "./fire_reducer";
 import JoinByCodeReducer from "./join_by_code_reducer";
 import JoinQuickReducer from "./join_quick_reducer";
 import LeaveRoomReducer from "./leave_room_reducer";
 import MoveReducer from "./move_reducer";
+import ReloadReducer from "./reload_reducer";
+import SwitchWeaponReducer from "./switch_weapon_reducer";
 
 // Import all procedure arg schemas
 
 // Import all table schema definitions
+import KillEventRow from "./kill_event_table";
 import PlayerRow from "./player_table";
 import RoomRow from "./room_table";
+import ShotEventRow from "./shot_event_table";
 
 /** Type-only namespace exports for generated type groups. */
 
 /** The schema information for all tables in this module. This is defined the same was as the tables would have been defined in the server. */
 const tablesSchema = __schema({
+  killEvent: __table({
+    name: 'kill_event',
+    indexes: [
+    ],
+    constraints: [
+    ],
+    event: true,
+  }, KillEventRow),
   player: __table({
     name: 'player',
     indexes: [
@@ -82,15 +95,26 @@ const tablesSchema = __schema({
       { name: 'room_id_key', constraint: 'unique', columns: ['id'] },
     ],
   }, RoomRow),
+  shotEvent: __table({
+    name: 'shot_event',
+    indexes: [
+    ],
+    constraints: [
+    ],
+    event: true,
+  }, ShotEventRow),
 });
 
 /** The schema information for all reducers in this module. This is defined the same way as the reducers would have been defined in the server, except the body of the reducer is omitted in code generation. */
 const reducersSchema = __reducers(
   __reducerSchema("create_private_room", CreatePrivateRoomReducer),
+  __reducerSchema("fire", FireReducer),
   __reducerSchema("join_by_code", JoinByCodeReducer),
   __reducerSchema("join_quick", JoinQuickReducer),
   __reducerSchema("leave_room", LeaveRoomReducer),
   __reducerSchema("move", MoveReducer),
+  __reducerSchema("reload", ReloadReducer),
+  __reducerSchema("switch_weapon", SwitchWeaponReducer),
 );
 
 /** The schema information for all procedures in this module. This is defined the same way as the procedures would have been defined in the server. */

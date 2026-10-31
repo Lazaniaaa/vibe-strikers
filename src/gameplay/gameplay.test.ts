@@ -8,6 +8,7 @@ import { directionFromAngles, spreadDirection, vec3, DEG } from './math.ts';
 import { canFire, consumeShot, createSlot, startReload, tickSlot, damageAt } from './weaponLogic.ts';
 import { createRoundState, tickRound } from './round.ts';
 import { ClientValidatedMovement, capsuleInsideBoxes } from './movementCheck.ts';
+import { PoseHistory } from './rewind.ts';
 import { buildNavGrid, cellIndex, findPath, nearestWalkable, pruneUnreachable } from './navGrid.ts';
 
 let passed = 0;
@@ -141,6 +142,16 @@ test('movement validation (GAME.md 6.6)', () => {
   assert.equal(v.check({ ...p, x: 3.5 }, { ...p, x: 4.3 }, 0.2, 1), 'inside-wall');
   assert.equal(capsuleInsideBoxes(4.1, 0, 0, false, [wall]), false, 'touching the wall face is fine');
   assert.equal(v.check(p, { ...p, x: 40 }, 99, 1), 'teleport');
+});
+
+test('pose history for lag compensation', () => {
+  const h = new PoseHistory(4), out: HitTarget = { id: 1, x: 0, y: 0, z: 0, yaw: 0, crouching: false };
+  h.push(1000, 0, 0, 0, 0, false); h.push(1033, 1, 0, 0, 0, false); h.push(1066, 2, 0, 0, 0, true);
+  h.sampleAt(1050, out); assert.ok(Math.abs(out.x - (1 + 17 / 33)) < 1e-9);
+  h.sampleAt(500, out); assert.equal(out.x, 0, 'clamped to the oldest');
+  h.sampleAt(2000, out); assert.equal(out.x, 2); assert.equal(out.crouching, true);
+  h.push(1066, 3, 0, 0, 0, true); h.sampleAt(2000, out); assert.equal(out.x, 3, 'same time overwrites');
+  h.push(1100, 4, 0, 0, 0, false); h.push(1133, 5, 0, 0, 0, false); h.sampleAt(0, out); assert.equal(out.x, 1, 'ring keeps the newest 4');
 });
 
 console.log(`${passed} gameplay checks passed`);

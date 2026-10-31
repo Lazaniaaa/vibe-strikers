@@ -13,4 +13,5 @@ import {
 export default {
   name: __t.string(),
   character: __t.u16(),
+  bots: __t.bool(),
 };

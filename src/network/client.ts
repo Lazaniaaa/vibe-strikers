@@ -8,9 +8,16 @@ import { DbConnection } from './bindings/index.ts';
 import type { Infer } from 'spacetimedb';
 import type PlayerRowDef from './bindings/player_table.ts';
 import type RoomRowDef from './bindings/room_table.ts';
+import type ShotEventDef from './bindings/shot_event_table.ts';
+import type KillEventDef from './bindings/kill_event_table.ts';
 
 export type PlayerRow = Infer<typeof PlayerRowDef>;
 export type RoomRow = Infer<typeof RoomRowDef>;
+export type ShotEvent = Infer<typeof ShotEventDef>;
+export type KillEvent = Infer<typeof KillEventDef>;
+
+/** Samples kept for the server clock offset estimate (about 2 s of updates). */
+const OFFSET_SAMPLES = 64;
 
 /** One received state of a player, stamped with the local receive time (ms). */
 export interface Snapshot {
@@ -90,7 +97,8 @@ export interface NetOptions {
   now?: () => number;
 }
 
-type Pending = { at: number; kind: 'upsert' | 'delete'; row: PlayerRow } | { at: number; kind: 'room'; row: RoomRow | null };
+type Pending = { at: number; kind: 'upsert' | 'delete'; row: PlayerRow }
+  | { at: number; kind: 'shot'; row: ShotEvent } | { at: number; kind: 'kill'; row: KillEvent };
 
 export class GameNet {
   conn: DbConnection | null = null;
@@ -104,6 +112,11 @@ export class GameNet {
   /** Called when the server moved me (spawn or snap-back). */
   onCorrection: ((row: PlayerRow) => void) | null = null;
   onPlayerRemoved: ((id: bigint) => void) | null = null;
+  /** Server events of my room (after artificial lag). */
+  onShot: ((e: ShotEvent) => void) | null = null;
+  onKill: ((e: KillEvent) => void) | null = null;
+  /** Called when I (re)spawn: take position AND view direction from the row. */
+  onSpawn: ((row: PlayerRow) => void) | null = null;
   lastError = '';
   /** Corrections seen (spawns included). */
   corrections = 0;
@@ -116,6 +129,11 @@ export class GameNet {
   private allRooms = new Map<bigint, RoomRow>();
   /** Every player row we know (callbacks arrive in any order; the room view is rebuilt from this). */
   private allPlayers = new Map<bigint, PlayerRow>();
+  /** (server pose time - local receive time) samples; their max approximates server clock - one-way delay. */
+  private offsets: number[] = [];
+  private offsetIndex = 0;
+  private lastSpawnCount = 0;
+  private fireSeq = 0;
 
   constructor(opts: NetOptions = {}) {
     this.opts = opts;
@@ -135,7 +153,7 @@ export class GameNet {
           this.opts.onToken?.(token);
           this.attach(c);
           c.subscriptionBuilder().onApplied(() => resolve()).onError((_ctx) => reject(new Error('subscription failed')))
-            .subscribe(['SELECT * FROM player', 'SELECT * FROM room']);
+            .subscribe(['SELECT * FROM player', 'SELECT * FROM room', 'SELECT * FROM shot_event', 'SELECT * FROM kill_event']);
         })
         .onConnectError((_ctx, err) => reject(err))
         .onDisconnect((_ctx, err) => { this.lastError = err ? String(err) : 'disconnected'; })
@@ -151,6 +169,8 @@ export class GameNet {
     c.db.player.onInsert((_ctx, row) => this.queue({ at: delay(), kind: 'upsert', row }));
     c.db.player.onUpdate((_ctx, _old, row) => this.queue({ at: delay(), kind: 'upsert', row }));
     c.db.player.onDelete((_ctx, row) => this.queue({ at: delay(), kind: 'delete', row }));
+    c.db.shotEvent.onInsert((_ctx, row) => this.queue({ at: delay(), kind: 'shot', row }));
+    c.db.killEvent.onInsert((_ctx, row) => this.queue({ at: delay(), kind: 'kill', row }));
     c.db.room.onInsert((_ctx, row) => { this.allRooms.set(row.id, row); });
     c.db.room.onUpdate((_ctx, _old, row) => { this.allRooms.set(row.id, row); });
     c.db.room.onDelete((_ctx, row) => { this.allRooms.delete(row.id); });
@@ -165,6 +185,8 @@ export class GameNet {
       n++;
       if (p.kind === 'upsert') this.applyRow(p.row, now);
       else if (p.kind === 'delete') this.removeRow(p.row);
+      else if (p.kind === 'shot') { if (this.me && p.row.roomId === this.me.roomId) this.onShot?.(p.row); }
+      else if (p.kind === 'kill') { if (this.me && p.row.roomId === this.me.roomId) this.onKill?.(p.row); }
     }
     if (n > 0) this.pending.splice(0, n);
     this.room = this.me ? this.allRooms.get(this.me.roomId) ?? null : null;
@@ -172,6 +194,9 @@ export class GameNet {
 
   private applyRow(row: PlayerRow, now: number): void {
     this.allPlayers.set(row.id, row);
+    const sample = Number(row.lastMoveAt.microsSinceUnixEpoch) / 1000 - now;
+    if (this.offsets.length < OFFSET_SAMPLES) this.offsets.push(sample);
+    else { this.offsets[this.offsetIndex] = sample; this.offsetIndex = (this.offsetIndex + 1) % OFFSET_SAMPLES; }
     if (row.ownerHex === this.identityHex && !row.isBot) {
       const roomChanged = !this.me || this.me.roomId !== row.roomId;
       this.me = row;
@@ -181,8 +206,8 @@ export class GameNet {
       }
       if (row.correctionSeq > this.ackCorrection) {
         this.ackCorrection = row.correctionSeq;
-        this.corrections++;
-        this.onCorrection?.(row);
+        if (row.spawnCount !== this.lastSpawnCount) { this.lastSpawnCount = row.spawnCount; this.onSpawn?.(row); }
+        else { this.corrections++; this.onCorrection?.(row); }
       }
       if (roomChanged) return;
     }
@@ -210,7 +235,9 @@ export class GameNet {
   }
 
   joinQuick(name: string, character: number): Promise<void> { return this.call(() => this.conn!.reducers.joinQuick({ name, character })); }
-  createPrivateRoom(name: string, character: number): Promise<void> { return this.call(() => this.conn!.reducers.createPrivateRoom({ name, character })); }
+  createPrivateRoom(name: string, character: number, bots = true): Promise<void> {
+    return this.call(() => this.conn!.reducers.createPrivateRoom({ name, character, bots }));
+  }
   joinByCode(code: string, name: string, character: number): Promise<void> { return this.call(() => this.conn!.reducers.joinByCode({ code, name, character })); }
   leave(): Promise<void> { return this.call(() => this.conn!.reducers.leaveRoom({})); }
 
@@ -229,6 +256,24 @@ export class GameNet {
     const msg = { seq: ++this.seq, ack: this.ackCorrection, ...m };
     void this.call(() => this.conn!.reducers.move(msg)).catch(() => undefined);
   }
+
+  /** Server time (ms) that corresponds to a local time on the receive clock (e.g. the interpolated render time). */
+  serverTimeAt(localMs: number): number {
+    let best = -Infinity;
+    for (const o of this.offsets) if (o > best) best = o;
+    return localMs + (best === -Infinity ? 0 : best);
+  }
+
+  /** One trigger pull at (yaw, pitch); viewTimeMs = server time of what the player was seeing. */
+  fire(yaw: number, pitch: number, viewTimeMs: number): void {
+    if (!this.conn) return;
+    const msg = { seq: ++this.fireSeq, yaw, pitch, viewTimeMs };
+    void this.call(() => this.conn!.reducers.fire(msg)).catch(() => undefined);
+  }
+
+  reload(): void { if (this.conn) void this.call(() => this.conn!.reducers.reload({})).catch(() => undefined); }
+
+  switchWeapon(slot: number): void { if (this.conn) void this.call(() => this.conn!.reducers.switchWeapon({ slot })).catch(() => undefined); }
 
   disconnect(): void { this.conn?.disconnect(); }
 }

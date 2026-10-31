@@ -1,32 +1,39 @@
-// M2a online view: the local player moves with the Rapier KCC and sends its state; the server
-// validates it (snap-back on violation). Remote players and server bots are interpolated real characters.
-// Shooting, hits and rounds come in M2b.
+// Online view. The local player moves with the Rapier KCC and sends its state; the server validates it
+// (snap-back on violation). Shots are predicted locally (animation, recoil, ammo) and decided by the
+// server (hits with lag compensation, HP, kills, rounds). Remote players and bots are interpolated.
 import { useEffect, useMemo } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Physics, useRapier } from '@react-three/rapier';
 import { BoxGeometry, Color, Fog, Mesh, MeshBasicMaterial, PerspectiveCamera } from 'three';
-import { loadMapData } from '../../src/maps';
-import { CAMERA, MAP_ID, RENDER } from '../../src/config/game';
+import { loadMapData, mapShotBlockers } from '../../src/maps';
+import { CAMERA, EFFECTS, MAP_ID, RENDER } from '../../src/config/game';
 import { MAX_FRAME_DT, MOVEMENT } from '../../src/config/movement';
 import { NET } from '../../src/config/net';
 import { createActor, setMotionFromVelocity, type Actor } from '../../src/gameplay/actor';
-import { clamp, DEG } from '../../src/gameplay/math';
+import { rayBlockers } from '../../src/gameplay/hitscan';
+import { clamp, DEG, directionFromAngles, vec3 } from '../../src/gameplay/math';
 import { RapierMotor } from '../../src/gameplay/rapierMotor';
 import type { TeamId } from '../../src/gameplay/round';
-import type { GameNet, Snapshot } from '../../src/network/client';
+import { canFire, cancelReload, consumeShot, resetSlot, spreadDeg, startReload, tickSlot } from '../../src/gameplay/weaponLogic';
+import type { GameNet, KillEvent, ShotEvent, Snapshot } from '../../src/network/client';
 import { Hud, type HudView } from '../../src/ui/hud';
 import { MapView } from './GameApp';
 import { Input } from './input';
 import { FramePerf } from './perf';
-import { AvatarRig, ViewmodelRig } from './visuals';
+import { AvatarRig, ShotEffects, ViewmodelRig } from './visuals';
 
 const map = loadMapData(MAP_ID);
+const blockers = mapShotBlockers(map).boxes;
 
 export interface OnlineDebug {
   net: GameNet;
   local: Actor;
-  stats: { frames: number; fps: number; triangles: number; calls: number; remotes: number };
+  stats: { frames: number; fps: number; triangles: number; calls: number; remotes: number;
+    shots: number; hits: number; hitsWithoutRewind: number; kills: number; deaths: number; serverShots: number };
   snapshot(): unknown;
+  /** Aim at the interpolated (rendered) position of a remote player: what a perfect human would aim at. */
+  aimAtRemote(id: string, head?: boolean): boolean;
+  setFire(on: boolean): void;
 }
 declare global { interface Window { __online?: OnlineDebug } }
 
@@ -43,45 +50,93 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
     motor.add(local);
     const input = new Input(gl.domElement);
     const hud = new Hud(document.getElementById('hud')!);
-    const flashMat = new MeshBasicMaterial({ color: '#ffd36b' });
+    const unitBox = new BoxGeometry(1, 1, 1);
+    const tracerMat = new MeshBasicMaterial({ color: '#fff1a8', transparent: true, opacity: 0.85, depthWrite: false });
+    const impactMat = new MeshBasicMaterial({ color: '#3a3a3a' });
+    const flashMat = new MeshBasicMaterial({ color: '#ffd36b', transparent: true, opacity: 0.9, depthWrite: false });
     const flashGeo = new BoxGeometry(0.09, 0.09, 0.02);
     const allyMat = new MeshBasicMaterial({ color: '#46b4ff' });
     const allyGeo = new BoxGeometry(0.16, 0.16, 0.16);
     const viewmodel = new ViewmodelRig(local, flashMat, flashGeo);
+    const effects = new ShotEffects(tracerMat, impactMat, unitBox);
     const remotes = new Map<bigint, Remote>();
     const perf = new FramePerf();
-    const stats = { frames: 0, fps: 0, triangles: 0, calls: 0, remotes: 0 };
+    const stats = { frames: 0, fps: 0, triangles: 0, calls: 0, remotes: 0, shots: 0, hits: 0, hitsWithoutRewind: 0, kills: 0, deaths: 0, serverShots: 0 };
     const sample: Snapshot = { t: 0, x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0, yaw: 0, pitch: 0, crouch: false, grounded: true, alive: true };
-    const teleportTo = (x: number, y: number, z: number, yaw: number | null) => {
-      motor.teleport(local, x, y, z);
-      if (yaw !== null) { local.yaw = yaw; local.intent.yaw = yaw; local.pitch = 0; }
+    const feed: string[] = [];
+    const scratch = { from: vec3(), dir: vec3(), punch: 0 };
+    const spawn = (row: { x: number; y: number; z: number; yaw: number }) => {
+      motor.teleport(local, row.x, row.y, row.z);
+      local.yaw = row.yaw; local.intent.yaw = row.yaw; local.pitch = 0;
+      for (const s of local.slots) resetSlot(s);
+      local.active = 0; local.equipLeft = 0; local.fireAnimLeft = 0; local.alive = true;
     };
-    // Spawn (first correction) sets the view too; a snap-back keeps where the player is looking.
-    net.onCorrection = (row) => teleportTo(row.x, row.y, row.z, net.corrections === 1 ? row.yaw : null);
-    teleportTo(me.x, me.y, me.z, me.yaw);
+    net.onSpawn = spawn;
+    // A snap-back keeps where the player is looking.
+    net.onCorrection = (row) => motor.teleport(local, row.x, row.y, row.z);
+    spawn(me);
     net.onPlayerRemoved = (id) => {
       const r = remotes.get(id);
       if (r) { scene.remove(r.rig.root); remotes.delete(id); }
     };
-    return { local, motor, input, hud, viewmodel, remotes, perf, stats, sample, allyMat, allyGeo,
-      disposables: [flashMat, flashGeo, allyMat, allyGeo] };
+    const name = (id: bigint) => net.players.get(id)?.name ?? '?';
+    net.onShot = (e: ShotEvent) => {
+      stats.serverShots++;
+      const mine = net.me && e.shooterId === net.me.id;
+      if (mine) {
+        if (e.hitKind === 'player') {
+          stats.hits++; if (e.hitWithoutRewind) stats.hitsWithoutRewind++;
+          hud.hitMarker(e.part === 'head', e.killed, EFFECTS.hitMarkerTime);
+        }
+      } else {
+        const r = remotes.get(e.shooterId);
+        if (r) r.actor.fireAnimLeft = r.actor.slots[r.actor.active].stats.fireAnimTime;
+        const from = effects.scratchStart;
+        if (!r || !r.rig.muzzleWorld(from)) from.set(e.ox, e.oy, e.oz);
+        effects.addShot({ shooterId: Number(e.shooterId), ox: e.ox, oy: e.oy, oz: e.oz, ex: e.ex, ey: e.ey, ez: e.ez,
+          hitKind: e.hitKind as 'none' | 'world' | 'player', victimId: Number(e.victimId), part: e.part as 'head' | 'body',
+          damage: e.damage, killed: e.killed }, from);
+      }
+      if (net.me && e.victimId === net.me.id && e.hitKind === 'player') hud.damageFlash(EFFECTS.damageFlashTime);
+    };
+    net.onKill = (k: KillEvent) => {
+      if (net.me && k.killerId === net.me.id) stats.kills++;
+      if (net.me && k.victimId === net.me.id) stats.deaths++;
+      feed.push(`${name(k.killerId)} [${k.weapon}${k.headshot ? ' HS' : ''}] ${name(k.victimId)}`);
+      if (feed.length > 4) feed.shift();
+    };
+    return { local, motor, input, hud, viewmodel, effects, remotes, perf, stats, sample, feed, scratch, allyMat, allyGeo,
+      disposables: [unitBox, tracerMat, impactMat, flashMat, flashGeo, allyMat, allyGeo] };
   }, [net, world, rapier, gl, scene]);
 
   useEffect(() => {
     const cam = camera as PerspectiveCamera;
     cam.rotation.order = 'YXZ';
+    scene.add(game.effects.group);
     if (debug) {
       window.__online = {
         net, local: game.local, stats: game.stats,
         snapshot: () => ({
-          room: net.room?.code, me: net.me && { id: String(net.me.id), team: net.me.team, x: net.me.x, z: net.me.z, violations: net.me.violations },
-          local: { x: game.local.x, y: game.local.y, z: game.local.z, grounded: game.local.grounded },
-          snapBacks: Math.max(0, net.corrections - 1), players: net.players.size, remotes: game.remotes.size, stats: { ...game.stats },
+          room: net.room?.code, phase: net.room?.phase, round: net.room?.round, scoreA: net.room?.scoreA, scoreB: net.room?.scoreB,
+          me: net.me && { id: String(net.me.id), team: net.me.team, x: net.me.x, z: net.me.z, hp: net.me.hp, alive: net.me.alive,
+            mag: net.me.mag, reserve: net.me.reserve, violations: net.me.violations, kills: net.me.kills, deaths: net.me.deaths },
+          local: { x: game.local.x, y: game.local.y, z: game.local.z, grounded: game.local.grounded, mag: game.local.slots[game.local.active].mag },
+          snapBacks: net.corrections, players: net.players.size, remotes: game.remotes.size, stats: { ...game.stats },
         }),
+        aimAtRemote: (id: string, head = false) => {
+          const r = game.remotes.get(BigInt(id));
+          if (!r) return false;
+          const l = game.local, a = r.actor;
+          const dx = a.x - l.x, dz = a.z - l.z, dy = a.y + (head ? 1.35 : 0.6) - (l.y + l.eyeHeight);
+          l.yaw = Math.atan2(-dx, -dz); l.pitch = Math.atan2(dy, Math.hypot(dx, dz));
+          return true;
+        },
+        setFire: (on: boolean) => { game.input.debugFire = on; },
       };
     }
     return () => {
       for (const r of game.remotes.values()) scene.remove(r.rig.root);
+      scene.remove(game.effects.group);
       game.input.dispose();
       for (const d of game.disposables) d.dispose();
       if (window.__online?.net === net) delete window.__online;
@@ -93,32 +148,75 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
   const timers = useMemo(() => ({ hud: 0, fpsFrames: 0, fpsTime: 0 }), []);
 
   useFrame((state, delta) => {
-    const { local, motor, input, hud, viewmodel, remotes, perf, stats, sample } = game;
+    const { local, motor, input, hud, viewmodel, effects, remotes, perf, stats, sample, scratch } = game;
     const cam = camera as PerspectiveCamera;
     const dt = Math.min(delta, MAX_FRAME_DT);
     const frameStart = performance.now();
     perf.beginFrame(frameStart);
     stats.frames++;
     net.update();
+    const room = net.room, me = net.me;
+    const phase = room?.phase ?? 'freeze';
+    const live = phase === 'live';
+    local.alive = me?.alive ?? false;
 
-    // Local movement (client authority, server validation).
-    if (stats.frames > 2 && net.me) {
+    // Local movement (client authority, server validation) and predicted weapon.
+    let localFired = false;
+    if (stats.frames > 2 && me) {
       const intent = input.sample(local.yaw, local.pitch);
       local.yaw = intent.yaw;
       local.pitch = clamp(intent.pitch, -89 * DEG, 89 * DEG);
-      motor.step(local, intent, dt, false, 1);
-      net.tickSend(delta, { x: local.x, y: local.y, z: local.z, vx: local.vx, vy: local.vy, vz: local.vz, yaw: local.yaw,
-        pitch: local.pitch, crouch: local.crouching, grounded: local.grounded, walk: intent.walk });
+      if (local.alive) {
+        motor.step(local, intent, dt, phase === 'freeze' || phase === 'matchEnd', local.slots[local.active].stats.moveSpeedScale);
+        net.tickSend(delta, { x: local.x, y: local.y, z: local.z, vx: local.vx, vy: local.vy, vz: local.vz, yaw: local.yaw,
+          pitch: local.pitch, crouch: local.crouching, grounded: local.grounded, walk: intent.walk });
+        // Weapon switch / reload / fire (the server repeats every check).
+        if (intent.slot >= 0 && intent.slot < local.slots.length && intent.slot !== local.active) {
+          cancelReload(local.slots[local.active]);
+          local.active = intent.slot; local.equipLeft = local.slots[intent.slot].stats.equipTime; local.fireLatch = false;
+          net.switchWeapon(intent.slot);
+        }
+        const s = local.slots[local.active];
+        tickSlot(s, dt);
+        if (local.equipLeft > 0) local.equipLeft = Math.max(0, local.equipLeft - dt);
+        if (intent.reload && startReload(s)) net.reload();
+        if (!intent.fire) local.fireLatch = false;
+        if (live && intent.fire && local.equipLeft <= 0) {
+          if (s.stats.magSize > 0 && s.mag === 0) { if (startReload(s)) net.reload(); }
+          while (canFire(s) && (s.stats.automatic || !local.fireLatch)) {
+            // Server time of the remote poses on screen right now (they are drawn interpolationDelayMs behind).
+            net.fire(local.yaw, local.pitch, net.serverTimeAt(performance.now() - NET.interpolationDelayMs));
+            const kick = consumeShot(s);
+            stats.shots++; localFired = true;
+            local.fireAnimLeft = s.stats.fireAnimTime; local.fireLatch = true;
+            // Predicted tracer along the aim, to the first map box.
+            directionFromAngles(local.yaw, local.pitch, scratch.dir);
+            scratch.from.x = local.x; scratch.from.y = local.y + local.eyeHeight; scratch.from.z = local.z;
+            const dist = Math.min(s.stats.range, rayBlockers(scratch.from, scratch.dir, s.stats.range, blockers));
+            const from = effects.scratchStart;
+            from.set(local.x - Math.sin(local.yaw) * 0.55 + Math.cos(local.yaw) * 0.17, local.y + local.eyeHeight - 0.14,
+              local.z - Math.cos(local.yaw) * 0.55 - Math.sin(local.yaw) * 0.17);
+            effects.addShot({ shooterId: 0, ox: 0, oy: 0, oz: 0, ex: scratch.from.x + scratch.dir.x * dist, ey: scratch.from.y + scratch.dir.y * dist,
+              ez: scratch.from.z + scratch.dir.z * dist, hitKind: dist < s.stats.range ? 'world' : 'none', victimId: -1, part: 'body',
+              damage: 0, killed: false }, from);
+            local.pitch = clamp(local.pitch + kick.pitchDeg * DEG, -89 * DEG, 89 * DEG);
+            local.yaw += (kick.yawDeg + (Math.random() * 2 - 1) * s.stats.recoilYawJitterDeg) * DEG;
+          }
+        }
+        // Reconcile ammo with the server when both sides are idle.
+        if (me.weapon === local.active && !me.reloading && s.reloadLeft <= 0 && Math.abs(me.mag - s.mag) > 1) { s.mag = me.mag; s.reserve = me.reserve; }
+      }
+      if (local.fireAnimLeft > 0) local.fireAnimLeft = Math.max(0, local.fireAnimLeft - dt);
     }
     perf.now.sim = performance.now() - frameStart;
     perf.endSim();
 
     // Remote players at (now - interpolation delay).
     const renderTime = performance.now() - NET.interpolationDelayMs;
-    const myTeam = net.me?.team;
+    const myTeam = me?.team;
     const poseStart = performance.now();
     for (const [id, row] of net.players) {
-      if (net.me && id === net.me.id) continue;
+      if (me && id === me.id) continue;
       let r = remotes.get(id);
       if (!r) {
         const actor = createActor(Number(id), row.team as TeamId, row.name, row.isBot, row.character);
@@ -133,15 +231,25 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
       const a = r.actor;
       a.x = sample.x; a.y = sample.y; a.z = sample.z; a.yaw = sample.yaw; a.pitch = sample.pitch;
       a.crouching = sample.crouch; a.grounded = sample.grounded; a.alive = sample.alive;
+      if (row.weapon < a.slots.length) a.active = row.weapon;
+      if (a.fireAnimLeft > 0) a.fireAnimLeft = Math.max(0, a.fireAnimLeft - dt);
       setMotionFromVelocity(a, sample.vx, sample.vz, MOVEMENT.runSpeed);
       r.rig.sync(a, dt);
     }
     stats.remotes = remotes.size;
     perf.now.pose = performance.now() - poseStart;
 
-    cam.position.set(local.x, local.y + local.eyeHeight, local.z);
-    cam.rotation.set(local.pitch, local.yaw, 0);
+    // Camera: eye of the local player; after death it stays where the player fell.
+    if (localFired) scratch.punch += local.slots[local.active].stats.viewPunchDeg * DEG;
+    scratch.punch *= Math.exp(-EFFECTS.viewPunchRecover * dt);
+    if (local.alive) {
+      cam.position.set(local.x, local.y + local.eyeHeight, local.z);
+      cam.rotation.set(local.pitch + scratch.punch, local.yaw, 0);
+    } else {
+      cam.position.y = Math.max(local.y + 0.6, cam.position.y - dt * 1.5);
+    }
     viewmodel.sync(local, state.clock.elapsedTime, size.width / Math.max(1, size.height));
+    effects.update(dt);
 
     const renderStart = performance.now();
     gl.autoClear = true;
@@ -153,31 +261,47 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
     stats.triangles += gl.info.render.triangles; stats.calls += gl.info.render.calls;
     perf.now.render = performance.now() - renderStart;
 
-    hud.frame(dt, 4);
+    const s = local.slots[local.active];
+    const spread = spreadDeg(s, local.moveFraction, !local.grounded) * DEG;
+    hud.frame(dt, 3 + Math.tan(spread) / Math.tan((cam.fov * DEG) / 2) * (size.height / 2));
     timers.fpsFrames++; timers.fpsTime += delta;
     if (timers.fpsTime >= 0.5) { stats.fps = Math.round(timers.fpsFrames / timers.fpsTime); timers.fpsFrames = 0; timers.fpsTime = 0; }
     timers.hud -= delta;
     if (timers.hud <= 0) {
       timers.hud = 0.1;
-      let humans = 0, bots = 0, aliveA = 0, aliveB = 0;
-      for (const row of net.players.values()) {
-        if (row.isBot) bots++; else humans++;
-        if (row.alive) { if (row.team === 'A') aliveA++; else aliveB++; }
-      }
-      view.aliveA = aliveA; view.aliveB = aliveB; view.phase = 'matchEnd'; // no rounds before M2b: hide the timer
-      view.hp = net.me?.hp ?? 0; view.alive = net.me?.alive ?? false;
-      view.weapon = 'RIFLE'; view.mag = local.slots[0].mag; view.reserve = local.slots[0].reserve;
-      view.center = ''; view.sub = '';
-      view.killFeed = `Room ${net.room?.code ?? '-----'}${net.room?.isPrivate ? ' (private)' : ''}\n${humans} players + ${bots} bots\n` +
-        `team ${myTeam ?? '-'}${net.lagMs ? ` · lag ${net.lagMs} ms` : ''}${net.lastError ? `\n${net.lastError}` : ''}`;
+      fillOnlineHud(view, net, local, game.feed);
       view.fps = stats.fps;
-      view.perf = `${Math.round(stats.triangles / 1000)}k tris · ${stats.calls} calls · worst ${Math.round(perf.displayWorstMs)} ms / 5 s · corrections ${net.corrections - 1}`;
+      view.perf = `${Math.round(stats.triangles / 1000)}k tris · ${stats.calls} calls · worst ${Math.round(perf.displayWorstMs)} ms / 5 s · snap-backs ${net.corrections}`;
       view.locked = input.locked || debug;
       hud.update(view);
     }
   }, 1);
 
   return null;
+}
+
+function fillOnlineHud(v: HudView, net: GameNet, local: Actor, feed: readonly string[]): void {
+  const me = net.me, r = net.room, s = local.slots[local.active];
+  v.hp = me?.hp ?? 0; v.alive = me?.alive ?? false;
+  v.weapon = s.stats.id.toUpperCase(); v.mag = s.mag; v.reserve = s.reserve; v.reloading = s.reloadLeft > 0;
+  let humans = 0, bots = 0, aliveA = 0, aliveB = 0;
+  for (const row of net.players.values()) {
+    if (row.isBot) bots++; else humans++;
+    if (row.alive) { if (row.team === 'A') aliveA++; else aliveB++; }
+  }
+  v.aliveA = aliveA; v.aliveB = aliveB;
+  v.phase = (r?.phase ?? 'freeze') as HudView['phase']; v.timeLeft = r?.timeLeft ?? 0; v.round = r?.round ?? 1;
+  v.scoreA = r?.scoreA ?? 0; v.scoreB = r?.scoreB ?? 0;
+  const mine = me?.team;
+  const winText = (w: string) => (w === 'draw' ? 'Draw' : w === mine ? 'Your team wins the round' : 'Enemy team wins the round');
+  if (!r) { v.center = 'Connecting...'; v.sub = ''; }
+  else if (r.phase === 'freeze') { v.center = `Round ${r.round}`; v.sub = `starts in ${Math.ceil(r.timeLeft)}`; }
+  else if (r.phase === 'roundEnd') { v.center = winText(r.lastWinner); v.sub = `${r.scoreA} : ${r.scoreB}`; }
+  else if (r.phase === 'matchEnd') { v.center = r.matchWinner === mine ? 'VICTORY' : 'DEFEAT'; v.sub = `new match in ${Math.ceil(r.timeLeft)}`; }
+  else if (me && !me.alive) { v.center = 'You died'; v.sub = 'Wait for the next round'; }
+  else { v.center = ''; v.sub = ''; }
+  v.killFeed = `Room ${r?.code ?? '-----'}${r?.isPrivate ? ' (private)' : ''} · ${humans} players + ${bots} bots · team ${mine ?? '-'}` +
+    `${net.lagMs ? ` · lag ${net.lagMs} ms` : ''}${feed.length ? `\n${feed.join('\n')}` : ''}${net.lastError ? `\n${net.lastError}` : ''}`;
 }
 
 export function OnlineApp({ net, debug }: { net: GameNet; debug: boolean }) {

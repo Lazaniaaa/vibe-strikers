@@ -10,6 +10,15 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
+export const KillEvent = __t.object("KillEvent", {
+  roomId: __t.u64(),
+  killerId: __t.u64(),
+  victimId: __t.u64(),
+  headshot: __t.bool(),
+  weapon: __t.string(),
+});
+export type KillEvent = __Infer<typeof KillEvent>;
+
 export const Player = __t.object("Player", {
   id: __t.u64(),
   roomId: __t.u64(),
@@ -31,10 +40,16 @@ export const Player = __t.object("Player", {
   walk: __t.bool(),
   seq: __t.u32(),
   correctionSeq: __t.u32(),
+  spawnCount: __t.u32(),
   violations: __t.u32(),
   hp: __t.f32(),
   alive: __t.bool(),
   weapon: __t.u8(),
+  mag: __t.u16(),
+  reserve: __t.u16(),
+  reloading: __t.bool(),
+  kills: __t.u32(),
+  deaths: __t.u32(),
   lastMoveAt: __t.timestamp(),
 });
 export type Player = __Infer<typeof Player>;
@@ -43,10 +58,36 @@ export const Room = __t.object("Room", {
   id: __t.u64(),
   code: __t.string(),
   isPrivate: __t.bool(),
+  bots: __t.bool(),
   phase: __t.string(),
+  round: __t.u32(),
+  scoreA: __t.u32(),
+  scoreB: __t.u32(),
+  timeLeft: __t.f32(),
+  lastWinner: __t.string(),
+  matchWinner: __t.string(),
   createdAt: __t.timestamp(),
 });
 export type Room = __Infer<typeof Room>;
+
+export const ShotEvent = __t.object("ShotEvent", {
+  roomId: __t.u64(),
+  shooterId: __t.u64(),
+  ox: __t.f32(),
+  oy: __t.f32(),
+  oz: __t.f32(),
+  ex: __t.f32(),
+  ey: __t.f32(),
+  ez: __t.f32(),
+  hitKind: __t.string(),
+  victimId: __t.u64(),
+  part: __t.string(),
+  damage: __t.f32(),
+  killed: __t.bool(),
+  rewindMs: __t.f32(),
+  hitWithoutRewind: __t.bool(),
+});
+export type ShotEvent = __Infer<typeof ShotEvent>;
 
 export const TickTimer = __t.object("TickTimer", {
   scheduledId: __t.u64(),

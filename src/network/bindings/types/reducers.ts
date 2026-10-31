@@ -7,14 +7,20 @@ import { type Infer as __Infer } from "spacetimedb";
 
 // Import all reducer arg schemas
 import CreatePrivateRoomReducer from "../create_private_room_reducer";
+import FireReducer from "../fire_reducer";
 import JoinByCodeReducer from "../join_by_code_reducer";
 import JoinQuickReducer from "../join_quick_reducer";
 import LeaveRoomReducer from "../leave_room_reducer";
 import MoveReducer from "../move_reducer";
+import ReloadReducer from "../reload_reducer";
+import SwitchWeaponReducer from "../switch_weapon_reducer";
 
 export type CreatePrivateRoomParams = __Infer<typeof CreatePrivateRoomReducer>;
+export type FireParams = __Infer<typeof FireReducer>;
 export type JoinByCodeParams = __Infer<typeof JoinByCodeReducer>;
 export type JoinQuickParams = __Infer<typeof JoinQuickReducer>;
 export type LeaveRoomParams = __Infer<typeof LeaveRoomReducer>;
 export type MoveParams = __Infer<typeof MoveReducer>;
+export type ReloadParams = __Infer<typeof ReloadReducer>;
+export type SwitchWeaponParams = __Infer<typeof SwitchWeaponReducer>;
 
