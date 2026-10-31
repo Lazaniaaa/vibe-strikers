@@ -1,7 +1,7 @@
 // M1 end-to-end check in headless Chromium (needs `npm run game:dev` running and Playwright installed).
 // Usage: node scripts/e2e-m1.cjs [screenshot.jpg]
 const { chromium } = require('playwright');
-const URL = process.env.GAME_URL || 'http://127.0.0.1:5190/?debug=1&freeze=1';
+const URL = process.env.GAME_URL || 'http://127.0.0.1:5190/?offline=1&debug=1&freeze=1';
 
 function check(cond, msg) { if (!cond) throw new Error('FAIL: ' + msg); console.log('ok', msg); }
 

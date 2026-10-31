@@ -46,7 +46,7 @@ function pickCharacters(): number[] {
   return list;
 }
 
-function MapView() {
+export function MapView() {
   const group = useMemo(() => buildMap(map), []);
   const colliders = useMemo(() => mapColliders(map).boxes, []);
   const sunRef = useRef<DirectionalLight>(null);

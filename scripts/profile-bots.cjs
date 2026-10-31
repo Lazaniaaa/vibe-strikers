@@ -2,7 +2,7 @@
 // Usage: node scripts/profile-bots.cjs [seconds] [profile.cpuprofile]
 const { chromium } = require('playwright');
 const fs = require('fs');
-const URL = process.env.GAME_URL || 'http://127.0.0.1:5190/?debug=1&freeze=1';
+const URL = process.env.GAME_URL || 'http://127.0.0.1:5190/?offline=1&debug=1&freeze=1';
 const seconds = Number(process.argv[2] || 25);
 
 (async () => {

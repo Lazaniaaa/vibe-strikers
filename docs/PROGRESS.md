@@ -3,26 +3,32 @@
 Date started: 2026-10-30. Credits expire 2026-11-05.
 
 ## State
-- M0 DONE, M1 DONE (2026-10-30). M1 long-frame fix ("Step 0") DONE 2026-10-30, see below.
-- M2 plan written at the end of this file; WAITING for owner approval.
+- M0, M1 DONE (2026-10-30). M2a DONE 2026-10-31 (see "M2a result"). WAITING for owner approval of M2b.
 - Asset folders `src/characters/`, `src/weapons/`, `src/maps/` + Voxel Lab root files (owned by Codex).
-- Game: `client/index.html` (game), `client/smoke.html` (M0 smoke page), `client/game/*` (R3F app,
-  input, visuals, frame profiler), `src/gameplay/*` (pure simulation code), `src/ui/hud.ts`, `src/config/*`.
+- Game: `client/index.html` (menu -> online game, or offline practice), `client/smoke.html` (M0),
+  `client/game/*` (R3F apps, input, visuals, profiler), `src/gameplay/*` (shared pure code, also used by
+  the server), `src/network/*` (SpacetimeDB client + generated bindings), `src/ui/*` (HUD, menu),
+  `src/config/*`, `server/` (SpacetimeDB TypeScript module).
 - Map in use: `toy-town-l1-r1` (`MAP_ID` in `src/config/game.ts`). Owner has not chosen a lane variant yet.
 
 ## Commands
-- `npm run game:dev` — game dev server: http://127.0.0.1:5190/ (game), `/smoke.html` (M0 smoke page)
+- `npm run game:dev` — game dev server: http://127.0.0.1:5190/ (menu), `/?offline=1` (M1 offline),
+  `/smoke.html` (M0). URL params: `?server=ws://host:3000`, `?lag=200` (artificial latency, round trip),
+  `?debug=1` (exposes `window.__game` / `window.__online`), `?auto=quick|create|join&code=XXXXX&name=N`.
 - `npm run game:build` then `npm run game:preview` — production build on http://127.0.0.1:5191/
-- `npm run typecheck` — strict tsc on game code (`scripts/typecheck-game.mjs`)
-- `npm run test:gameplay` — 12 unit checks (hitscan, headshot, rotated hit boxes, weapons, rounds, nav)
-- `node scripts/e2e-m1.cjs [shot.jpg]` — headless play test (needs `game:dev` running and Playwright;
-  in the cloud container: `NODE_PATH=$(npm root -g) node scripts/e2e-m1.cjs`). URL params:
-  `?debug=1` exposes `window.__game` and hides the click overlay, `?freeze=1` shortens freeze time.
-- `node scripts/profile-bots.cjs [seconds]` — headless CPU profile + per-section frame times of a bot round
-  (same `NODE_PATH` note as e2e). `node scripts/bench-sim.mjs [seconds] [hz]` — simulation tick cost in
-  Node without rendering (what the server will pay).
-- HUD (top left): `FPS · tris · calls · worst <frame ms> (sim <ms>) / 5 s`.
-- Asset owner commands unchanged: `npm run dev`, `npm run build`, `npm run verify`.
+- Server: `spacetime start` (local, 127.0.0.1:3000), `npm run server:publish` (module "voxel-arena"),
+  `npm run server:reset` (publish + delete data), `npm run server:bindings` (after schema changes),
+  `spacetime logs --server local voxel-arena -f`. The spacetime CLI is in `~/.local/bin`.
+- `npm run typecheck` — strict tsc on game code AND the server module.
+- `npm run test:gameplay` — 13 unit checks (hitscan, hit boxes, weapons, rounds, nav, movement validation).
+- `node scripts/test-server.mjs` — server integration test with two Node clients (rooms by code, bots
+  move, legit moves accepted, teleport / too fast / flying / walking into a wall snapped back, refill).
+- `NODE_PATH=$(npm root -g) node scripts/e2e-m2a.mjs [lagMs] [shotPrefix]` — two real browser tabs in one
+  room (+1 Node client); `GAME_BASE=http://127.0.0.1:5191/` to test the production build.
+- `NODE_PATH=$(npm root -g) node scripts/e2e-m1.cjs [shot.jpg]` — offline play test (M1).
+- `node scripts/profile-bots.cjs [seconds]`, `node scripts/bench-sim.mjs [seconds] [hz]` — performance.
+- Asset owner commands unchanged: `npm run dev`, `npm run build`, `npm run verify` (see the cloud-only
+  timing note in "Changes made in asset folders").
 
 ## Environment (M0 results, 2026-10-30)
 - node v22.22.0 / npm 10.9.4. `npm install` works (npm registry reachable).
@@ -121,7 +127,7 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
 - `npm run verify` now writes reports into `outputs/` (gitignored).
 
 ## Requests to asset owner
-- **Slow firearm hold for 2 characters (found 2026-10-30, M1 step 0).** `poseCharacter` with a firearm
+- RESOLVED 2026-10-31 by the asset owner (cached holds). **Slow firearm hold for 2 characters (found 2026-10-30, M1 step 0).** `poseCharacter` with a firearm
   takes 100-1200 ms per call (others: under 10 ms, most under 2 ms) for
   `vibe-vibers-bureau-roll-40-10` (index 17) and `vibe-vibers-viber-142` (index 3), in every state,
   also `dead: true`. Profile: almost all time in `src/weapons/supportPose.ts` `bodyDistance` /
@@ -153,6 +159,8 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
 - 2026-10-31 asset owner fixed the slow holds; bot character exclusion removed (`POSE.botCharacterExclude`
   empty), the 12 ms pose fallback stays as a silent safety net. Headless bot round with viber-142 as a
   bot: posing max 1.5 ms per frame for 7 bots, no rig fell back.
+- 2026-10-31 M2a: server module in TypeScript imports shared code from `src/` directly (no generated JSON).
+- 2026-10-31 M2a: one identity per browser tab (token in sessionStorage), so two tabs are two players.
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 
 ## M1 result (2026-10-30)
@@ -224,7 +232,62 @@ Results after the fix:
 - Please re-test on the laptop with the same steps as before (`git pull`, `npm ci`, `npm run game:build`,
   `npm run game:preview`) and read `worst … ms` in the HUD.
 
-## Next step: M2 plan (needs owner approval)
+## M2a result (2026-10-31)
+What works (evidence `docs/evidence/m2a-two-tabs.jpg`: two production-build tabs, 200 ms artificial
+latency, each sees the other's character; 0 console errors):
+- Feasibility (checked first): SpacetimeDB 2.14 TypeScript module imports `src/maps` (with three.js),
+  `src/config` and `src/gameplay` directly; module-level caches survive between reducer calls (the nav
+  grid is built once, ~0.8 s, when a room is created); a scheduled 30 Hz tick is steady (300 ticks:
+  median 33.3 ms, max 36 ms); A* costs ~0.4 ms per search inside the module.
+- Server `server/`: tables `room` (code, private flag), `player` (one row per human or bot), scheduled
+  tick. Reducers `join_quick`, `create_private_room`, `join_by_code` (case-insensitive), `leave_room`,
+  `move`; disconnect = leave. Teams are balanced by humans; humans replace bots; a leaving human is
+  replaced by a bot; an empty room is deleted.
+- Movement (owner decision): the client's Rapier KCC result is validated by `ClientValidatedMovement`
+  (`src/gameplay/movementCheck.ts`, behind the `MovementAuthority` interface): teleport cap, horizontal
+  speed with burst slack, one jump up / free fall down, capsule-vs-`mapColliders` boxes, map bounds. On a
+  violation the server keeps the last valid position, bumps `correctionSeq` and counts the violation;
+  the client snaps; moves sent before the client saw the correction (`ack`) are ignored.
+- Server bots: same `botBrain` as offline, movement on the nav grid (`src/gameplay/navMotor.ts`), also
+  checked by the same validation. They roam and turn to enemies; they do not shoot yet (M2b).
+- Client: menu (nickname, Quick Play, Create private room, Join by code, Practice offline), local KCC
+  movement sent at 30 Hz, remote players and bots as real characters interpolated 100 ms behind,
+  ally markers, HUD with room code, player/bot count, lag, snap-back counter.
+- Tests: typecheck (game + server), 13 unit checks, server integration test (all cheats snapped back:
+  teleport, too fast, flying 3 m, walking into a wall; violations counted), two-tab e2e at 0 / 100 /
+  200 ms lag (real walking + jumping gives 0 false snap-backs; the other tab sees the new position;
+  closing a tab refills a bot), offline M1 e2e still passes.
+- Budget with 8 players (headless): 53-59k triangles, 90-96 draw calls (under 200k / 120).
+Known limits / notes for M2b:
+- Clients subscribe to all `player` and `room` rows (fine for a few rooms; filter by room later).
+- No shooting, HP, rounds or lag compensation yet (M2b). The HUD round line is a placeholder online.
+- Server tick time inside the module cannot be measured directly (no clock in reducers); the tick
+  interval stays steady, and the same code costs ~0.1 ms median per tick in Node.
+- If the module restarts, the first tick rebuilds the nav grid (~0.8 s pause once).
+- Both players currently use character 01 (character select is M3).
+
+## Run M2a on your laptop
+Needs Node.js 22+, git, and the SpacetimeDB CLI:
+- macOS / Linux: `curl -sSf https://install.spacetimedb.com | sh`
+- Windows (PowerShell): `iwr https://windows.spacetimedb.com -useb | iex`
+Then, in the project folder (after `git pull` and `npm ci`):
+1. Terminal 1: `spacetime start`
+2. Terminal 2: `npm run server:publish` (if it asks about a server or login, use the local server:
+   `spacetime server set-default local`), then `npm run game:build` and `npm run game:preview`
+3. Open http://127.0.0.1:5191/ in two browser windows (or one normal + one private window). In the
+   first: Create private room, read the code (top right). In the second: type the code, Join.
+4. Walk around; the HUD shows `corrections 0` if the server accepted all movement. Add `?lag=200` to
+   the URL to simulate a far server.
+A friend on another computer needs a hosted server (M3).
+
+## Next step: M2b (needs owner approval)
+Scope (from the M2 plan): server-side fire (rate, ammo, reload, spread with the server RNG), hit boxes
+rewound to the client's view time (ring buffer, maxRewindMs 250 public / 300 private), HP / death /
+kill events, bots shoot, Elimination rounds on the server (`round.ts`), client tracers + hit markers
++ kill feed from server events, latency tests at 100 / 200 ms with a strafing target. Subscribe by
+room instead of all rows. Estimate ~15-20% of the total budget.
+
+## Old M2 plan (kept for reference)
 Goal (GAME.md 16, owner decisions 2026-10-30): authoritative multiplayer on SpacetimeDB, small scope:
 rooms by code + quick play filled with bots, no lobby polish.
 

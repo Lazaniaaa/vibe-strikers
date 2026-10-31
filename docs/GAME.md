@@ -105,8 +105,10 @@ Interpolation for remote players; the local player is corrected only on a snap-b
 (by input sequence number). Keep the real values in `config/net.ts`.
 
 ### 6.2 Intents (client -> server), initial contract
-`move{seq, x, y, z, vx, vy, vz, yaw, pitch, crouch, grounded, walk}` (client KCC result,
-sent at the net send rate), `fire{seq, yaw, pitch, viewTime}` (viewTime = server time of
+`move{seq, ack, x, y, z, vx, vy, vz, yaw, pitch, crouch, grounded, walk}` (client KCC result,
+sent at the net send rate; `ack` = last server correction the client has applied, older moves are
+ignored), room reducers `join_quick{name, character}`, `create_private_room{name, character}`,
+`join_by_code{code, name, character}`, `leave_room` (M2a), `fire{seq, yaw, pitch, viewTime}` (viewTime = server time of
 the world the client was showing, used for the rewind), `reload`, `switchWeapon{slot}`,
 `pickup{itemId}`, `useHeal`, `emote{id}`, `ping{x,y,z,kind}`,
 `chat{text}` (private rooms only), `joinRoom{code|quick, nickname, characterId}`,

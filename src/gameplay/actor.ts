@@ -73,3 +73,15 @@ export function createActor(id: number, team: TeamId, name: string, isBot: boole
     sinceDamage: 99, lastAttacker: -1, intent: createIntent(),
   };
 }
+
+/** Animation fields (moveFraction, moveLocalX/Z) from a horizontal velocity, e.g. for remote players. */
+export function setMotionFromVelocity(a: Actor, vx: number, vz: number, runSpeed: number): void {
+  const hs = Math.hypot(vx, vz);
+  a.vx = vx; a.vz = vz;
+  a.moveFraction = Math.min(1, hs / runSpeed);
+  if (hs > 0.05) {
+    const fx = -Math.sin(a.yaw), fz = -Math.cos(a.yaw);
+    a.moveLocalX = (vx * -fz + vz * fx) / hs;
+    a.moveLocalZ = -(vx * fx + vz * fz) / hs;
+  } else { a.moveLocalX = 0; a.moveLocalZ = -1; }
+}
