@@ -56,3 +56,14 @@ body { font-family: system-ui, 'Segoe UI', sans-serif; user-select: none; }
 .scoreboard .team-a { color: #ffb08a; } .scoreboard .team-b { color: #8ad2ff; }
 .hud-scope { position: absolute; inset: 0; pointer-events: none; }
 .hud-no-crosshair .hud-crosshair { display: none; }
+.settings { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 10; background: #0008;
+  pointer-events: auto; color: #fff; font-family: system-ui, 'Segoe UI', sans-serif; }
+.settings-card { display: flex; flex-direction: column; gap: 10px; width: 340px; padding: 20px; background: #1c2430; border-radius: 10px; }
+.settings-title { font-size: 22px; font-weight: 800; }
+.settings label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; }
+.settings label span { float: right; opacity: 0.8; }
+.settings select, .settings input[type=color] { font-size: 14px; padding: 4px; }
+.settings-row { display: flex; gap: 8px; justify-content: flex-end; }
+.settings button, .hud-settings-btn { font-size: 14px; padding: 8px 14px; border-radius: 6px; border: 0; background: #ffb43c; color: #222; font-weight: 700; cursor: pointer; }
+.hud-settings-btn { pointer-events: auto; margin-top: 8px; }
+.menu-settings { background: #fff2 !important; color: #fff !important; width: 100%; }

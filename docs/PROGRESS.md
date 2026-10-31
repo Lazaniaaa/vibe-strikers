@@ -201,6 +201,9 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   banner "Killed by X"; it continues into round end. After 3 s (`KILLCAM.duration`): spectate living
   teammates in id order, left click = next; nobody alive = camera stays where you died. Suicide / world
   death skips the killcam.
+- 2026-10-31 M3p2d: settings panel opens from a Settings button on the menu and on the "click to play"
+  overlay (Esc frees the mouse); sliders apply at once and save to localStorage ("Defaults" resets).
+  Sensitivity shown x1000 (0.5-6.0), FOV 70-110, volume 0-100%, crosshair colour + size 4-20 px, ADS toggle/hold.
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 

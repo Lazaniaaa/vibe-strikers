@@ -19,6 +19,7 @@ import { AvatarRig, ShotEffects, ViewmodelRig } from './visuals';
 import { FramePerf } from './perf';
 import { AdsController } from './ads';
 import { onSettingsChange, settings } from '../../src/ui/settings';
+import { getSettingsPanel, settingsButton } from '../../src/ui/settingsPanel';
 
 export interface GameOptions { debug: boolean; freezeTime?: number; /** Local player's character (menu). */ character?: number }
 
@@ -108,6 +109,7 @@ function GameDriver({ options }: { options: GameOptions }) {
     }
     const viewmodel = new ViewmodelRig(sim.local, flashMat, flashGeo);
     const ads = new AdsController(hudRoot);
+    settingsButton(hud.overlay, getSettingsPanel(), 'hud-settings-btn');
     const applyStyle = () => hud.setCrosshairStyle(settings.crosshairColor, settings.crosshairSize);
     applyStyle();
     onSettingsChange(applyStyle);

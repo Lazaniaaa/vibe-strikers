@@ -29,6 +29,7 @@ import { FramePerf } from './perf';
 import { AvatarRig, ShotEffects, ViewmodelRig } from './visuals';
 import { AdsController } from './ads';
 import { onSettingsChange, settings } from '../../src/ui/settings';
+import { getSettingsPanel, settingsButton } from '../../src/ui/settingsPanel';
 
 const map = loadMapData(MAP_ID);
 const blockers = mapShotBlockers(map).boxes;
@@ -75,6 +76,7 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
     const hudRoot = document.getElementById('hud')!;
     const hud = new Hud(hudRoot);
     const scoreboard = new Scoreboard(hudRoot);
+    settingsButton(hud.overlay, getSettingsPanel(), 'hud-settings-btn');
     const unitBox = new BoxGeometry(1, 1, 1);
     const tracerMat = new MeshBasicMaterial({ color: '#fff1a8', transparent: true, opacity: 0.85, depthWrite: false });
     const impactMat = new MeshBasicMaterial({ color: '#3a3a3a' });

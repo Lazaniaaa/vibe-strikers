@@ -33,6 +33,7 @@ export class Menu {
         <label class="menu-check"><input type="checkbox" class="menu-bots" checked /> fill the private room with bots</label>
         <div class="menu-row"><input class="menu-code" maxlength="5" placeholder="CODE" /><button class="menu-btn menu-join">Join</button></div>
         <button class="menu-btn menu-offline">Practice offline (bots)</button>
+        <div class="menu-settings-slot"></div>
         <div class="menu-status"></div>
       </div>`;
     parent.appendChild(this.root);
@@ -64,6 +65,9 @@ export class Menu {
     this.root.querySelector('.menu-join')!.addEventListener('click', () => pick({ kind: 'join', name: name(), code: this.codeInput.value.trim().toUpperCase() }));
     this.root.querySelector('.menu-offline')!.addEventListener('click', () => pick({ kind: 'offline', name: name() }));
   }
+
+  /** Where the Settings button goes. */
+  get settingsSlot(): HTMLElement { return this.root.querySelector('.menu-settings-slot')!; }
 
   /** Wait for the next button press. */
   choose(): Promise<MenuChoice> { return new Promise((r) => { this.resolve = r; }); }

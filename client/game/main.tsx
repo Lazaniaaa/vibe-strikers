@@ -3,6 +3,7 @@ import { characters } from '../../src/characters';
 import { LOCAL_PLAYER } from '../../src/config/game';
 import { GameNet } from '../../src/network/client';
 import { Menu, type MenuChoice } from '../../src/ui/menu';
+import { getSettingsPanel, settingsButton } from '../../src/ui/settingsPanel';
 import { GameApp, type GameOptions } from './GameApp';
 import { OnlineApp } from './OnlineApp';
 import { characterLabel } from './characterLabel';
@@ -44,6 +45,7 @@ async function main(): Promise<void> {
   const menu = new Menu(document.body, params.get('name') ?? savedName, list,
     Number.isFinite(savedCharacter) ? savedCharacter : LOCAL_PLAYER.characterIndex,
     (i) => storage('local')?.setItem('voxel-character', String(i)));
+  settingsButton(menu.settingsSlot, getSettingsPanel(), 'menu-btn menu-settings');
   // Test shortcut: ?auto=quick | create (&bots=0) | join&code=XXXXX
   const auto = params.get('auto');
   const autoName = params.get('name') ?? 'Tester';

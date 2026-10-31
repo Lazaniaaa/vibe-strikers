@@ -34,7 +34,9 @@ export class Hud {
   private hp: HTMLElement; private ammo: HTMLElement; private weapon: HTMLElement;
   private timer: HTMLElement; private score: HTMLElement; private center: HTMLElement; private sub: HTMLElement;
   private feed: HTMLElement; private perf: HTMLElement; private crosshair: HTMLElement; private hit: HTMLElement;
-  private damage: HTMLElement; private overlay: HTMLElement;
+  private damage: HTMLElement;
+  /** The "click to play" overlay (shown while the mouse is not captured); extra buttons can be added to it. */
+  readonly overlay: HTMLElement;
   private last = new Map<HTMLElement, string>();
   private lastGap = -1;
   private hitLeft = 0;
