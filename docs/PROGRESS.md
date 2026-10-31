@@ -38,6 +38,7 @@ Date started: 2026-10-30. Credits expire 2026-11-05.
 - `NODE_PATH=$(npm root -g) node scripts/e2e-m3d.mjs [shot]` — settings panel saved and applied in game.
 - `NODE_PATH=$(npm root -g) node scripts/e2e-m3e.mjs` — sounds (steps, silent walk, shots, hits, reload, knife).
 - `NODE_PATH=$(npm root -g) node scripts/e2e-m1.cjs [shot.jpg]` — offline play test (M1).
+- `node scripts/find-prop-overlaps.mjs [minOverlap]` — read-only map check: prop instances whose boxes intersect walls.
 - `node scripts/test-stairs.mjs [mapId]` — finds every stair flight in the map data and walks the Rapier KCC up
   and down each one, checking every 30 Hz sample with the server movement validation (0 corrections).
 - `node scripts/profile-bots.cjs [seconds]`, `node scripts/bench-sim.mjs [seconds] [hz]` — performance.
@@ -141,6 +142,15 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
 - `npm run verify` now writes reports into `outputs/` (gitignored).
 
 ## Requests to asset owner
+- **Props inside walls (found 2026-10-31 by `node scripts/find-prop-overlaps.mjs`, owner screenshot = bench).**
+  Map in use `toy-town-l1-r1` (same in l1-r2, l2-r1, l2-r2; overlap x / y / z in metres):
+  - benchA at (-26.5, 8) and (-26.5, -8), yaw -90 -> wall at (-26.82, +-8): 0.65 / 0.18 / 0.55 (half inside the wall)
+  - benchB at (26.5, 8) and (26.5, -8), yaw 90 -> wall at (26.82, +-8): 0.65 / 0.18 / 0.55
+  - lampA at (-28.5, +-8) / lampB at (28.5, +-8) -> walls at (-+26.82, +-8): 0.17 / 3.59 / 0.17
+  - crateA at (-7.7, -22) / crateB at (7.7, -22) -> walls at (-+7, -22.15): 1 / 1 / 1 (crate fully inside a wall)
+  - base map `toy-town` has the same benches and lamps, plus screenA/screenB at (-+25.03, +-20) -> walls at
+    (-+23, +-18.43): 0.8 / 3 / 0.4 (no crate overlaps there).
+  The game does not change the map; please move these props.
 - **Blocked stairs (found 2026-10-31 by `scripts/test-stairs.mjs`):** the two 3-step flights at (-20.6, -29.3) and
   (20.6, -29.3) (map `toy-town-l1-r1`) cannot be entered: a wall box 3.00 x 1.00 m, 1.61 m high, centre
   (-20.90, -28.70) / (20.90, -28.70), stands right in front of the first step (too high to step or jump). Please
