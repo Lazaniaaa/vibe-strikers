@@ -57,5 +57,63 @@ export const NAV_GRID = {
   upperMinNodes: 12,
 } as const;
 
+/** Cover, peeking and routes (GAME.md 7 / owner 2026-10-31). */
+export const BOT_TACTICS = {
+  /** Go to cover below this HP (and while reloading). */
+  lowHp: 45,
+  coverCheckInterval: 0.5,
+  /** Cover used for peeking must be this close to where the fight started. */
+  peekCoverRadius: 6,
+  /** Cover searched this far when low on HP. */
+  coverSearchRadius: 12,
+  /** At most this many cover candidates get a line-of-sight check per search. */
+  coverCandidates: 12,
+  exposeTimeMin: 1.0,
+  exposeTimeMax: 1.8,
+  hideTimeMin: 0.6,
+  hideTimeMax: 1.2,
+  /** In a fight, go to cover to reload when the magazine is below this fraction. */
+  reloadInCoverBelow: 0.25,
+  /** Seconds to stay hidden when low on HP before peeking again. */
+  lowHpHideTime: 2.5,
+  /** Cover points: a box at least coverMinHeight above the floor within coverDistance, every coverStride cells. */
+  coverDistance: 0.9,
+  coverMinHeight: 1.3,
+  coverStride: 3,
+  /** Routes: zones are north / middle / south of +-routeSplitZ. */
+  routeSplitZ: 9,
+  /** When picking a roam goal: chance for a point of the bot's route on the enemy side, else the enemy spawn. */
+  routeGoalChance: 0.8,
+} as const;
+
+export type BotDifficulty = 'easy' | 'normal' | 'hard';
+
+/** Per-difficulty skill (owner 2026-10-31): Quick Play uses normal. */
+export interface BotSkill {
+  reactionTimeMin: number;
+  reactionTimeMax: number;
+  /** Random aim error, degrees. */
+  aimErrorDeg: number;
+  headAimChance: number;
+  burstMin: number;
+  burstMax: number;
+  burstPause: number;
+  turnRateDeg: number;
+  /** Chance to fight from cover (peek / hide) instead of standing in the open. */
+  coverChance: number;
+}
+
+export const BOT_SKILLS: Readonly<Record<BotDifficulty, BotSkill>> = {
+  easy: { reactionTimeMin: 0.6, reactionTimeMax: 0.95, aimErrorDeg: 3.2, headAimChance: 0.05, burstMin: 4, burstMax: 9, burstPause: 0.25,
+    turnRateDeg: 220, coverChance: 0.25 },
+  normal: { reactionTimeMin: BOTS.reactionTimeMin, reactionTimeMax: BOTS.reactionTimeMax, aimErrorDeg: BOTS.aimErrorDeg,
+    headAimChance: BOTS.headAimChance, burstMin: BOTS.burstMin, burstMax: BOTS.burstMax, burstPause: BOTS.burstPause,
+    turnRateDeg: BOTS.turnRateDeg, coverChance: 0.65 },
+  hard: { reactionTimeMin: 0.22, reactionTimeMax: 0.38, aimErrorDeg: 0.9, headAimChance: 0.35, burstMin: 2, burstMax: 4, burstPause: 0.4,
+    turnRateDeg: 480, coverChance: 0.9 },
+};
+
+export const DEFAULT_DIFFICULTY: BotDifficulty = 'normal';
+
 /** Display names for offline bots. */
 export const BOT_NAMES = ['Bolt', 'Pixel', 'Nova', 'Rook', 'Vexa', 'Mango', 'Juno', 'Ziggy'] as const;

@@ -512,7 +512,8 @@ export const tick = spacetimedb.reducer({ onSchedule: tickTimer }, { timer: tick
       if (!rows[i].isBot) syncAmmo(ctx, rows[i], a);
     }
     if (r.phase === 'freeze' || r.phase === 'matchEnd') continue;
-    const botWorld: BotWorld = { actors, blockers: world.blockers, nav, goals: world.goals, random, pathBudget };
+    const botWorld: BotWorld = { actors, blockers: world.blockers, nav, goals: world.goals, cover: world.cover, routes: world.routes,
+      spawns: { A: world.spawns.A[0], B: world.spawns.B[0] }, random, pathBudget };
     for (let i = 0; i < rows.length; i++) {
       const row = ctx.db.player.id.find(rows[i].id);
       const a = actors[i];

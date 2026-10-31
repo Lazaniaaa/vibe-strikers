@@ -20,6 +20,9 @@ export interface SimulationOptions {
   spawnsA: readonly SpawnSpot[];
   spawnsB: readonly SpawnSpot[];
   goals: readonly Vec3[];
+  /** Cover spots and route goals for the bots (from buildMapNav). */
+  cover?: readonly Vec3[];
+  routes?: readonly (readonly Vec3[])[];
   nav: NavGrid;
   motor: RapierMotor;
   killY: number;
@@ -97,7 +100,8 @@ export class Simulation {
     for (let i = 0; i < MAX_SHOT_EVENTS; i++) {
       this.shots.push({ shooterId: 0, ox: 0, oy: 0, oz: 0, ex: 0, ey: 0, ez: 0, hitKind: 'none', victimId: -1, part: 'body', damage: 0, killed: false });
     }
-    this.botWorld = { actors: this.actors, blockers: opts.blockers, nav: opts.nav, goals: opts.goals, random: this.random, pathBudget: 0 };
+    this.botWorld = { actors: this.actors, blockers: opts.blockers, nav: opts.nav, goals: opts.goals, cover: opts.cover, routes: opts.routes,
+      spawns: { A: opts.spawnsA[0], B: opts.spawnsB[0] }, random: this.random, pathBudget: 0 };
     this.respawnAll();
   }
 

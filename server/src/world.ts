@@ -22,6 +22,9 @@ export interface World {
   goals: Vec3[];
   killY: number;
   movement: MovementAuthority;
+  /** Bot cover spots and route goals (filled with the nav grid). */
+  cover: Vec3[];
+  routes: Vec3[][];
   nav: NavGrid | null;
 }
 
@@ -36,7 +39,7 @@ export function getWorld(): World {
     world = {
       mapId: MAP_ID, colliders, blockers: mapShotBlockers(map).boxes, spawns: { A: spawnsA, B: spawnsB },
       goals: [...map.zones.map((z) => ({ x: z.x, y: 0, z: z.z })), ...spawnsA, ...spawnsB],
-      killY: map.killY, movement: new ClientValidatedMovement(colliders, map.bounds, map.killY), nav: null,
+      killY: map.killY, movement: new ClientValidatedMovement(colliders, map.bounds, map.killY), nav: null, cover: [], routes: [],
     };
   }
   return world;
@@ -47,8 +50,9 @@ export function getNav(): NavGrid {
   const w = getWorld();
   if (!w.nav) {
     const map = loadMapData(w.mapId);
-    const { nav, upper } = buildMapNav(w.colliders, map.bounds, map.boxes.filter((b) => b.kind === 'stair'), w.spawns.A[0]);
+    const { nav, upper, cover, routes } = buildMapNav(w.colliders, map.bounds, map.boxes.filter((b) => b.kind === 'stair'), w.spawns.A[0], map.zones);
     w.goals.push(...upper);
+    w.cover = cover; w.routes = routes;
     w.nav = nav;
   }
   return w.nav;

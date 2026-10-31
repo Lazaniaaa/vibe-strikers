@@ -20,13 +20,13 @@ try {
   let t = performance.now();
   const spawnsA = M.spawnPoints(map, 'A'), spawnsB = M.spawnPoints(map, 'B');
   const { buildMapNav } = await server.ssrLoadModule('/src/gameplay/mapNav.ts');
-  const { nav: grid, upper } = buildMapNav(M.mapColliders(map).boxes, map.bounds, map.boxes.filter((b) => b.kind === 'stair'), spawnsA[0]);
+  const { nav: grid, upper, cover, routes } = buildMapNav(M.mapColliders(map).boxes, map.bounds, map.boxes.filter((b) => b.kind === 'stair'), spawnsA[0], map.zones);
   const navMs = performance.now() - t;
   let walkable = 0; for (const g of grid.ground) if (!Number.isNaN(g)) walkable++;
   // Instrument findPath through the module object used by botBrain.
   const profile = { bots: 0, motor: 0, weapons: 0 };
   const sim = new Simulation({ blockers: M.mapShotBlockers(map).boxes, spawnsA, spawnsB,
-    goals: [...map.zones.map((z) => ({ x: z.x, y: 0, z: z.z })), ...spawnsA, ...spawnsB, ...upper], nav: grid, motor: new RapierMotor(RAPIER, world),
+    goals: [...map.zones.map((z) => ({ x: z.x, y: 0, z: z.z })), ...spawnsA, ...spawnsB, ...upper], cover, routes, nav: grid, motor: new RapierMotor(RAPIER, world),
     killY: map.killY, localName: 'idle', botNames: ['b'], characterIndices: [0], freezeTime: 0.1, profile, clock: () => performance.now() });
   // Make the local player a bot too, so all 8 actors think.
   sim.actors[0].isBot = true;

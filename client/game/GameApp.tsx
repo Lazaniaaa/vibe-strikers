@@ -96,11 +96,11 @@ function GameDriver({ options }: { options: GameOptions }) {
 
   const game = useMemo(() => {
     const blockers = mapShotBlockers(map).boxes;
-    const { nav, upper } = buildMapNav(mapColliders(map).boxes, map.bounds, map.boxes.filter((b) => b.kind === 'stair'), spawnsA[0]);
+    const { nav, upper, cover, routes } = buildMapNav(mapColliders(map).boxes, map.bounds, map.boxes.filter((b) => b.kind === 'stair'), spawnsA[0], map.zones);
     const goals = [...map.zones.map((z) => ({ x: z.x, y: 0, z: z.z })), ...spawnsA, ...spawnsB, ...upper];
     const motor = new RapierMotor(rapier, world);
     const perf = new FramePerf();
-    const sim = new Simulation({ profile: perf.now, clock: () => performance.now(), blockers, spawnsA, spawnsB, goals, nav, motor, killY: map.killY,
+    const sim = new Simulation({ profile: perf.now, clock: () => performance.now(), blockers, spawnsA, spawnsB, goals, cover, routes, nav, motor, killY: map.killY,
       localName: LOCAL_PLAYER.name, botNames: BOT_NAMES, characterIndices: pickCharacters(options.character ?? LOCAL_PLAYER.characterIndex), freezeTime: options.freezeTime });
     const input = new Input(gl.domElement);
     const hudRoot = document.getElementById('hud')!;

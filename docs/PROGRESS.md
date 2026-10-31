@@ -43,6 +43,8 @@ Date started: 2026-10-30. Credits expire 2026-11-05.
 - `NODE_PATH=$(npm root -g) node scripts/e2e-tags.mjs [shot]` — name tags (ally through walls, enemy only in sight near the
   crosshair, 40 m fade) and kill feed colours.
 - `node scripts/find-prop-overlaps.mjs [minOverlap]` — read-only map check: prop instances whose boxes intersect walls.
+- `node scripts/test-bot-behaviour.mjs [seconds] [easy|normal|hard]` — offline sim, 8 bots: route spread, cover, peeks,
+  reloading in cover, kills, tick cost.
 - `node scripts/test-bot-levels.mjs` — bots (server nav-grid motor and offline Rapier KCC) walk from each spawn to
   each balcony / raised area and back; every 30 Hz sample checked with the server validation (0 corrections).
 - `node scripts/test-stairs.mjs [mapId]` — finds every stair flight in the map data and walks the Rapier KCC up
@@ -267,6 +269,14 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   is within autostep height (0.35 m), anything higher blocks, and it checks the same capsule-vs-box rule the server
   validates with. Test `scripts/test-bot-levels.mjs`: from each spawn to each upper area and back with both bot
   motors (server nav grid and offline Rapier KCC): 12/12, 0 corrections. Replaces "bots do NOT use stairs".
+- 2026-10-31 solo 2: bot behaviour. Routes: map zones (and balconies) split into north / middle / south by z
+  (+-9 m); each bot takes route `id % 3` and mostly roams to that route's points on the enemy side, else the enemy
+  spawn. Cover: 255 cover spots precomputed (walkable spot with a >= 1.3 m box within 0.9 m). In a fight a bot
+  fights from cover with chance `coverChance`: it peeks from the spot where it saw the enemy (expose 1-1.8 s, shoot)
+  and hides at the nearest cover within 6 m the enemy cannot see (0.6-1.2 s); it hides at once to reload (also when
+  the magazine is below 25%) and when HP first drops below 45 (then hides 2.5 s per cycle). No cover nearby: strafes
+  in the open as before. Test `scripts/test-bot-behaviour.mjs` (180 s, 8 bots): routes 2.92 of 3 per team per
+  round, 31 of 71 fights from cover, 9 peeks, 26 s of reloading in cover, tick p99 1.5 ms.
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 
