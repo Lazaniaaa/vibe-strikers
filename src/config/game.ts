@@ -61,3 +61,6 @@ export const POSE = {
   /** Dead bodies are posed this many frames, then left alone. */
   deadPoseFrames: 2,
 } as const;
+
+/** After death (GAME.md 2.1): killcam from the killer's view, then spectate living teammates. */
+export const KILLCAM = { duration: 3 } as const;

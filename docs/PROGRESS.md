@@ -197,6 +197,10 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   game crosshair hidden while ads > 0.5; knife never aims. Works online and in the offline practice.
 - 2026-10-31 M3p2b: default world FOV is now 90 (GAME.md 10 default; was 70 in M1). The viewmodel pass keeps
   its fixed 70.
+- 2026-10-31 M3p2c: killcam = camera at the killer's interpolated eye (their model hidden), no viewmodel,
+  banner "Killed by X"; it continues into round end. After 3 s (`KILLCAM.duration`): spectate living
+  teammates in id order, left click = next; nobody alive = camera stays where you died. Suicide / world
+  death skips the killcam.
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 

@@ -6,7 +6,8 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Physics, useRapier } from '@react-three/rapier';
 import { BoxGeometry, Color, Fog, Mesh, MeshBasicMaterial, PerspectiveCamera } from 'three';
 import { loadMapData, mapShotBlockers } from '../../src/maps';
-import { CAMERA, EFFECTS, MAP_ID, RENDER } from '../../src/config/game';
+import { CAMERA, EFFECTS, KILLCAM, MAP_ID, RENDER } from '../../src/config/game';
+import { CAPSULE } from '../../src/config/movement';
 import { MAX_FRAME_DT, MOVEMENT } from '../../src/config/movement';
 import { NET } from '../../src/config/net';
 import { createActor, setMotionFromVelocity, setPrimary, type Actor } from '../../src/gameplay/actor';
@@ -50,11 +51,15 @@ export interface OnlineDebug {
   feed: string[];
   setFire(on: boolean): void;
   setAds(on: boolean | null): void;
-  view(): { ads: number; fov: number; weapon: string; viewmodelVisible: boolean; scope: string; crosshairHidden: boolean };
+  view(): { ads: number; fov: number; weapon: string; viewmodelVisible: boolean; scope: string; crosshairHidden: boolean;
+    camMode: string; camTarget: string | null };
 }
 declare global { interface Window { __online?: OnlineDebug } }
 
 interface Remote { actor: Actor; rig: AvatarRig }
+
+/** After death: 'killcam' follows the killer for KILLCAM.duration, then 'spectate' follows living teammates. */
+interface ViewState { mode: 'self' | 'killcam' | 'spectate'; target: bigint | null; until: number; killer: string; weapon: string; fireWas: boolean }
 
 function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
   const { world, rapier } = useRapier();
@@ -90,12 +95,14 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
     const feed: string[] = [];
     const scratch = { from: vec3(), dir: vec3(), punch: 0, autoAim: null as bigint | null };
     const rewinds: number[] = [];
+    const view: ViewState = { mode: 'self', target: null, until: 0, killer: '', weapon: '', fireWas: false };
     const spawn = (row: { x: number; y: number; z: number; yaw: number; primary: string }) => {
       setPrimary(local, row.primary as WeaponId);
       motor.teleport(local, row.x, row.y, row.z);
       local.yaw = row.yaw; local.intent.yaw = row.yaw; local.pitch = 0;
       for (const s of local.slots) resetSlot(s);
       local.active = 0; local.equipLeft = 0; local.fireAnimLeft = 0; local.alive = true;
+      view.mode = 'self'; view.target = null;
     };
     net.onSpawn = spawn;
     // A snap-back keeps where the player is looking.
@@ -132,9 +139,14 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
       if (net.me && k.killerId === net.me.id) stats.kills++;
       if (net.me && k.victimId === net.me.id) stats.deaths++;
       feed.push(`${name(k.killerId)} [${k.weapon}${k.headshot ? ' HS' : ''}] ${name(k.victimId)}`);
+      if (net.me && k.victimId === net.me.id) {
+        const byOther = k.killerId !== net.me.id && net.players.has(k.killerId);
+        view.mode = byOther ? 'killcam' : 'spectate'; view.target = byOther ? k.killerId : null;
+        view.until = performance.now() + KILLCAM.duration * 1000; view.killer = name(k.killerId); view.weapon = k.weapon;
+      }
       if (feed.length > 4) feed.shift();
     };
-    return { local, motor, input, hud, scoreboard, viewmodel, ads, effects, remotes, perf, stats, sample, feed, scratch, rewinds, allyMat, allyGeo,
+    return { local, motor, input, hud, scoreboard, viewmodel, ads, view, effects, remotes, perf, stats, sample, feed, scratch, rewinds, allyMat, allyGeo,
       disposables: [unitBox, tracerMat, impactMat, flashMat, flashGeo, allyMat, allyGeo] };
   }, [net, world, rapier, gl, scene, debug]);
 
@@ -164,7 +176,8 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
         setAds: (on: boolean | null) => { game.input.debugAds = on; },
         view: () => ({ ads: game.ads.value, fov: (camera as PerspectiveCamera).fov, weapon: game.local.slots[game.local.active].stats.id,
           viewmodelVisible: game.viewmodel.activeVisible(), scope: getComputedStyle(document.querySelector('.hud-scope')!).opacity,
-          crosshairHidden: document.getElementById('hud')!.classList.contains('hud-no-crosshair') }),
+          crosshairHidden: document.getElementById('hud')!.classList.contains('hud-no-crosshair'),
+          camMode: game.view.mode, camTarget: game.view.target === null ? null : String(game.view.target) }),
         setAutoAim: (id: string | null) => { game.scratch.autoAim = id === null ? null : BigInt(id); },
         rewinds: game.rewinds,
         scoreRows: () => scoreRows(net),
@@ -302,9 +315,29 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
     // Camera: eye of the local player; after death it stays where the player fell.
     if (localFired) scratch.punch += local.slots[local.active].stats.viewPunchDeg * DEG;
     scratch.punch *= Math.exp(-EFFECTS.viewPunchRecover * dt);
+    const vs = game.view;
+    if (local.alive) vs.mode = 'self';
+    else {
+      // Killcam ends after its time or when the killer is gone; then spectate a living teammate (click = next).
+      const fire = input.intent.fire, click = fire && !vs.fireWas;
+      vs.fireWas = fire;
+      if (vs.mode === 'killcam' && (performance.now() >= vs.until || !remotes.has(vs.target!))) { vs.mode = 'spectate'; vs.target = null; }
+      if (vs.mode === 'spectate') {
+        const mates = [...net.players.values()].filter((p) => p.team === myTeam && p.alive && p.id !== me?.id).map((p) => p.id)
+          .sort((a, b) => (a < b ? -1 : 1));
+        const at = vs.target === null ? -1 : mates.indexOf(vs.target);
+        if (at < 0 || click) vs.target = mates.length ? mates[(at + 1) % mates.length] : null;
+      }
+    }
+    const followed = vs.mode !== 'self' && vs.target !== null ? remotes.get(vs.target) : undefined;
+    for (const [id, r] of remotes) r.rig.root.visible = !(followed && id === vs.target);
     if (local.alive) {
       cam.position.set(local.x, local.y + local.eyeHeight, local.z);
       cam.rotation.set(local.pitch + scratch.punch, local.yaw, 0);
+    } else if (followed) {
+      const a = followed.actor;
+      cam.position.set(a.x, a.y + (a.crouching ? CAPSULE.crouchEyeHeight : CAPSULE.eyeHeight), a.z);
+      cam.rotation.set(a.pitch, a.yaw, 0);
     } else {
       cam.position.y = Math.max(local.y + 0.6, cam.position.y - dt * 1.5);
     }
@@ -332,6 +365,12 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
     if (timers.hud <= 0) {
       timers.hud = 0.1;
       fillOnlineHud(view, net, local, game.feed);
+      // Killcam banner even if the round just ended; spectate hint only while the round is live.
+      if (me && !me.alive && (game.view.mode === 'killcam' || room?.phase === 'live')) {
+        const target = game.view.target !== null ? net.players.get(game.view.target)?.name : undefined;
+        if (game.view.mode === 'killcam') { view.center = `Killed by ${game.view.killer}`; view.sub = `${game.view.weapon} · killcam`; }
+        else { view.center = 'You died'; view.sub = target ? `Spectating ${target} · click: next teammate` : 'No teammates alive'; }
+      }
       view.fps = stats.fps;
       view.perf = `${Math.round(stats.triangles / 1000)}k tris · ${stats.calls} calls · worst ${Math.round(perf.displayWorstMs)} ms / 5 s · ping ${Math.round(net.pingMs)} · snap-backs ${net.corrections}`;
       game.scoreboard.setVisible(input.isDown(KEYS.scoreboard));
