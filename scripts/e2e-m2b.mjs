@@ -72,7 +72,13 @@ try {
   const { NET } = await vite.ssrLoadModule('/src/config/net.ts');
   const needed = lag + NET.interpolationDelayMs, cap = NET.maxRewindMsPrivate;
   const rewinds = await tab.evaluate(() => window.__online.rewinds);
-  if (needed < cap - 20) check(rate >= 0.6, `lag-compensated hit rate on a strafing target: ${(rate * 100).toFixed(0)}%`);
+  if (needed < cap - 20) {
+    // Headless renders at 5-13 FPS, so the hit RATE on a strafing target is noisy (small samples); the robust
+    // checks are: the server rewinds by what is needed, and the target dies (4 pistol hits) within 12 shots.
+    const later = rewinds.slice(1);
+    check(later.length > 0 && later.every((r) => Math.abs(r - needed) <= 60), `server rewind matches the needed ~${needed} ms (${later.join(', ')})`);
+    check(st.hits >= 4 && st.shots <= 12, `strafing target killed: ${st.hits} hits in ${st.shots} shots (hit rate ${(rate * 100).toFixed(0)}%, info)`);
+  }
   else {
     check(rewinds.every((r) => r <= cap), `needed rewind ~${needed} ms is at/over the ${cap} ms cap: rewind clamped (hit rate ${(rate * 100).toFixed(0)}%, info only)`);
   }

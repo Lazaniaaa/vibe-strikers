@@ -3,8 +3,8 @@
 Date started: 2026-10-30. Credits expire 2026-11-05.
 
 ## State
-- M0, M1 DONE (2026-10-30). M2a, M2b, M3 part 1 and M3 part 2 DONE 2026-10-31 (see "M3 part 2 result").
-  STOPPED for the owner. Not started: hosting (playing with a friend on another computer), rest of "Later".
+- M0, M1 DONE (2026-10-30). M2a, M2b, M3 part 1, M3 part 2 and the playtest fixes 1-5 DONE 2026-10-31
+  (see "Playtest fixes result"). STOPPED for the owner. Not started: hosting, map redesign (owner: later).
 - Asset folders `src/characters/`, `src/weapons/`, `src/maps/` + Voxel Lab root files (owned by Codex).
 - Game: `client/index.html` (menu -> online game, or offline practice), `client/smoke.html` (M0),
   `client/game/*` (R3F apps, input, visuals, profiler), `src/gameplay/*` (shared pure code, also used by
@@ -480,6 +480,40 @@ In the project folder: `git pull`, then `npm ci`, then:
    type the code, Join. In the game: 1 / 2 / 3 weapons, 7 / 8 / 9 primary for the next round, right mouse to
    aim (sniper scope), TAB scoreboard, Esc frees the mouse (Settings button there too).
 4. Sound starts after your first click (browser rule). `?lag=200` in the URL simulates a far server.
+
+## Playtest fixes result (2026-10-31)
+Owner laptop feedback on the M3 part 2 build, fixed in order (one commit each):
+1. Dead bodies: death pose ~1 s (sinking at the end), then the body disappears; a flat translucent 0.8 m tile
+   with a white box cross stays where the player died (ally blue / enemy orange-red), render-only (no collision,
+   no shot blocking, no shadows), cleared when the player respawns (next round). Online + offline, players + bots.
+   Evidence `docs/evidence/fix1-death-marker.jpg`.
+2. Leave match: Esc overlay -> "Leave match" -> "Are you sure? Yes / No". Online the server frees the slot and a
+   bot takes it; the client returns to the menu and can join again without reloading. Offline -> menu.
+3. Stairs: climbing was slow because every step edge stopped the player (velocity taken from the blocked
+   movement). Now 10 steps up in 1.37 s (was 2.2-2.7 s; down 1.25 s). KCC settings checked (autostep 0.35 m,
+   dynamic bodies off, min width 0.15 m, snap 0.3 m). `scripts/test-stairs.mjs`: every reachable flight up and
+   down with 0 server corrections. Two small flights are blocked by a wall in the map (request below).
+   Bots do not use stairs (needs a multi-level nav grid; logged).
+4. Props inside walls: `scripts/find-prop-overlaps.mjs` lists them per map; the bench from the screenshot is
+   benchA/benchB at (+-26.5, +-8), 0.65 m inside the wall. Full list under "Requests to asset owner".
+5. Team identification: ally = light blue, enemy = orange-red (colour-blind safe pair, different brightness).
+   Teammates: name tag + diamond through walls. Enemies: red name tag only in direct line of sight near the
+   crosshair. Tags scale with distance and fade out 30-40 m. Same colours in kill feed, scoreboard, death markers.
+   Evidence `docs/evidence/fix5-name-tags.jpg`.
+Tests (all pass 2026-10-31): typecheck, 16 unit checks, server test, stairs test, e2e M1, M2a (0 / 200 ms),
+M2b (100 / 200 ms), M3a-e, fixes, leave, tags; leave + tags also on the production build; game + asset builds.
+Test change: the lag-compensation check now asserts "server rewind = round trip + 100 ms (+-60)" and "target
+killed within 12 shots"; the raw hit rate is printed as info (it is noisy at 5-13 headless FPS).
+Known limits: bots never climb stairs; the map needs more cover (owner: redesign later).
+
+## Run the playtest-fix build on your laptop
+In the project folder: `git pull`, then `npm ci`, then:
+1. Terminal 1: `spacetime start`
+2. Terminal 2: `npm run server:publish` (no schema change since M3 part 2; use `npm run server:reset` if you
+   skipped that update), then `npm run game:build` and `npm run game:preview`
+3. Open http://127.0.0.1:5191/ (two windows for two players). Try: die and look for the death tile; Esc ->
+   Leave match -> Yes, then join again; run up the big stairs at the square; look at teammates through walls
+   (blue names) and at an enemy in the open near your crosshair (red name).
 
 ## Old M2 plan (kept for reference)
 Goal (GAME.md 16, owner decisions 2026-10-30): authoritative multiplayer on SpacetimeDB, small scope:
