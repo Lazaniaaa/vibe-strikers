@@ -64,3 +64,20 @@ export const POSE = {
 
 /** After death (GAME.md 2.1): killcam from the killer's view, then spectate living teammates. */
 export const KILLCAM = { duration: 3 } as const;
+
+/**
+ * Team colours as seen by the local player (same in name tags, kill feed, scoreboard, death markers).
+ * Blue vs orange-red with different brightness stays distinguishable for common colour blindness.
+ */
+export const TEAM_COLORS = {
+  ally: '#4fb6ff',
+  enemy: '#e8452c',
+} as const;
+
+/** Dead bodies: death pose for bodyTime, sinking during the last sinkTime, then hidden (marker stays). */
+export const DEATH = {
+  bodyTime: 1.0,
+  sinkTime: 0.35,
+  sinkDepth: 0.7,
+  marker: { size: 0.8, height: 0.02, opacity: 0.5, crossLength: 0.55, crossWidth: 0.1, crossOpacity: 0.85, lift: 0.02 },
+} as const;

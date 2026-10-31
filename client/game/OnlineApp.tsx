@@ -26,7 +26,7 @@ import { characterLabel } from './characterLabel';
 import { MapView } from './GameApp';
 import { Input } from './input';
 import { FramePerf } from './perf';
-import { AvatarRig, ShotEffects, ViewmodelRig } from './visuals';
+import { AvatarRig, DeathMarkers, ShotEffects, ViewmodelRig } from './visuals';
 import { AdsController } from './ads';
 import { getSfx } from '../../src/ui/sfx';
 import { AUDIO, type SoundName } from '../../src/config/audio';
@@ -57,7 +57,7 @@ export interface OnlineDebug {
   setFire(on: boolean): void;
   setAds(on: boolean | null): void;
   view(): { ads: number; fov: number; weapon: string; viewmodelVisible: boolean; scope: string; crosshairHidden: boolean;
-    camMode: string; camTarget: string | null };
+    camMode: string; camTarget: string | null; markers: number; bodies: number };
 }
 declare global { interface Window { __online?: OnlineDebug } }
 
@@ -94,6 +94,7 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
     applyStyle();
     onSettingsChange(applyStyle);
     const effects = new ShotEffects(tracerMat, impactMat, unitBox);
+    const markers = new DeathMarkers();
     const remotes = new Map<bigint, Remote>();
     const perf = new FramePerf();
     const stats = { frames: 0, fps: 0, triangles: 0, calls: 0, remotes: 0, shots: 0, hits: 0, hitsWithoutRewind: 0, kills: 0, deaths: 0, serverShots: 0 };
@@ -119,6 +120,7 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
     net.onPlayerRemoved = (id) => {
       const r = remotes.get(id);
       if (r) { scene.remove(r.rig.root); remotes.delete(id); }
+      markers.remove(Number(id));
     };
     const name = (id: bigint) => net.players.get(id)?.name ?? '?';
     net.onShot = (e: ShotEvent) => {
@@ -156,7 +158,7 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
       }
       if (feed.length > 4) feed.shift();
     };
-    return { local, motor, input, hud, scoreboard, viewmodel, ads, view, sfx, audio, effects, remotes, perf, stats, sample, feed, scratch, rewinds, allyMat, allyGeo,
+    return { local, motor, input, hud, scoreboard, viewmodel, ads, view, sfx, audio, markers, effects, remotes, perf, stats, sample, feed, scratch, rewinds, allyMat, allyGeo,
       disposables: [unitBox, tracerMat, impactMat, flashMat, flashGeo, allyMat, allyGeo] };
   }, [net, world, rapier, gl, scene, debug]);
 
@@ -164,6 +166,7 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
     const cam = camera as PerspectiveCamera;
     cam.rotation.order = 'YXZ';
     scene.add(game.effects.group);
+    scene.add(game.markers.group);
     if (debug) {
       window.__online = {
         net, local: game.local, stats: game.stats,
@@ -187,7 +190,9 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
         view: () => ({ ads: game.ads.value, fov: (camera as PerspectiveCamera).fov, weapon: game.local.slots[game.local.active].stats.id,
           viewmodelVisible: game.viewmodel.activeVisible(), scope: getComputedStyle(document.querySelector('.hud-scope')!).opacity,
           crosshairHidden: document.getElementById('hud')!.classList.contains('hud-no-crosshair'),
-          camMode: game.view.mode, camTarget: game.view.target === null ? null : String(game.view.target) }),
+          camMode: game.view.mode, camTarget: game.view.target === null ? null : String(game.view.target),
+          markers: game.markers.count,
+          bodies: [...game.remotes.values()].filter((r) => !r.actor.alive && r.rig.root.visible).length }),
         setAutoAim: (id: string | null) => { game.scratch.autoAim = id === null ? null : BigInt(id); },
         rewinds: game.rewinds,
         sounds: game.sfx.played,
@@ -198,6 +203,8 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
     return () => {
       for (const r of game.remotes.values()) scene.remove(r.rig.root);
       scene.remove(game.effects.group);
+      scene.remove(game.markers.group);
+      game.markers.dispose();
       game.input.dispose();
       game.ads.dispose();
       for (const d of game.disposables) d.dispose();
@@ -330,6 +337,7 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
       if (a.fireAnimLeft > 0) a.fireAnimLeft = Math.max(0, a.fireAnimLeft - dt);
       setMotionFromVelocity(a, sample.vx, sample.vz, MOVEMENT.runSpeed);
       r.rig.sync(a, dt);
+      game.markers.update(Number(id), a.alive, a.x, a.y, a.z, row.team === myTeam);
       if (a.alive && a.grounded && !row.walk && !a.crouching && a.moveFraction >= AUDIO.stepMinMoveFraction) {
         r.stepDist += Math.hypot(a.vx, a.vz) * dt;
         if (r.stepDist >= AUDIO.stride) { r.stepDist = 0; game.sfx.playAt('step', a.x, a.z, local.x, local.z, local.yaw); }
@@ -356,7 +364,11 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
       }
     }
     const followed = vs.mode !== 'self' && vs.target !== null ? remotes.get(vs.target) : undefined;
-    for (const [id, r] of remotes) r.rig.root.visible = !(followed && id === vs.target);
+    for (const [id, r] of remotes) {
+      r.rig.hiddenByCamera = !!followed && id === vs.target;
+      if (r.rig.hiddenByCamera) r.rig.root.visible = false;
+    }
+    if (me) game.markers.update(Number(me.id), me.alive, local.x, local.y, local.z, true);
     if (local.alive) {
       cam.position.set(local.x, local.y + local.eyeHeight, local.z);
       cam.rotation.set(local.pitch + scratch.punch, local.yaw, 0);

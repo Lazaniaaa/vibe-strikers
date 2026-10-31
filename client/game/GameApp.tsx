@@ -15,7 +15,7 @@ import { LOCAL_ID, Simulation } from '../../src/gameplay/simulation';
 import { spreadDeg } from '../../src/gameplay/weaponLogic';
 import { Hud, type HudView } from '../../src/ui/hud';
 import { Input } from './input';
-import { AvatarRig, ShotEffects, ViewmodelRig } from './visuals';
+import { AvatarRig, DeathMarkers, ShotEffects, ViewmodelRig } from './visuals';
 import { FramePerf } from './perf';
 import { AdsController } from './ads';
 import { getSfx } from '../../src/ui/sfx';
@@ -35,6 +35,9 @@ export interface GameDebug {
   stats: { frames: number; localShots: number; localHits: number; localDamage: number; triangles: number; calls: number; fps: number; localSteps: number };
   perf: FramePerf;
   sounds: Record<string, number>;
+  /** Visible death markers / dead bodies still shown (tests). */
+  markers(): number;
+  bodies(): number;
   /** Ids of bots whose firearm pose was too slow and now use the no-weapon pose. */
   degradedRigs(): number[];
   snapshot(): unknown;
@@ -103,6 +106,7 @@ function GameDriver({ options }: { options: GameOptions }) {
     const allyMat = new MeshBasicMaterial({ color: '#46b4ff' });
     const allyGeo = new BoxGeometry(0.16, 0.16, 0.16);
     const effects = new ShotEffects(tracerMat, impactMat, unitBox);
+    const markers = new DeathMarkers();
     const rigs = new Map<number, AvatarRig>();
     for (const a of sim.actors) {
       if (a.id === LOCAL_ID) continue;
@@ -118,12 +122,13 @@ function GameDriver({ options }: { options: GameOptions }) {
     onSettingsChange(applyStyle);
     const stats = { frames: 0, localShots: 0, localHits: 0, localDamage: 0, triangles: 0, calls: 0, fps: 0, localSteps: 0 };
     input.onConfirm = () => { if (sim.round.phase === 'matchEnd') sim.restart(); };
-    return { sim, input, hud, effects, rigs, viewmodel, ads, stats, perf, disposables: [unitBox, tracerMat, impactMat, flashMat, flashGeo, allyMat, allyGeo] };
+    return { sim, input, hud, effects, rigs, viewmodel, ads, markers, stats, perf, disposables: [unitBox, tracerMat, impactMat, flashMat, flashGeo, allyMat, allyGeo] };
   }, [world, rapier, gl, options.freezeTime]);
 
   useEffect(() => {
     for (const rig of game.rigs.values()) scene.add(rig.root);
     scene.add(game.effects.group);
+    scene.add(game.markers.group);
     const cam = camera as PerspectiveCamera;
     cam.rotation.order = 'YXZ';
     // Compile every material now so the first shot / tracer / flash does not stall a frame.
@@ -134,6 +139,8 @@ function GameDriver({ options }: { options: GameOptions }) {
       const g = game;
       window.__game = {
         sim: g.sim, input: g.input, stats: g.stats, perf: g.perf, sounds: getSfx().played,
+        markers: () => g.markers.count,
+        bodies: () => [...g.rigs.values()].filter((r) => !g.sim.actors[r.actorId].alive && r.root.visible).length,
         degradedRigs: () => [...g.rigs.values()].filter((r) => r.degraded).map((r) => r.actorId),
         snapshot: () => ({
           phase: g.sim.round.phase, timeLeft: g.sim.round.timeLeft, round: g.sim.round.round,
@@ -155,6 +162,8 @@ function GameDriver({ options }: { options: GameOptions }) {
     return () => {
       for (const rig of game.rigs.values()) scene.remove(rig.root);
       scene.remove(game.effects.group);
+      scene.remove(game.markers.group);
+      game.markers.dispose();
       game.input.dispose();
       game.ads.dispose();
       for (const d of game.disposables) d.dispose();
@@ -230,6 +239,7 @@ function GameDriver({ options }: { options: GameOptions }) {
     }
 
     for (const a of sim.actors) {
+      game.markers.update(a.id, a.alive, a.x, a.y, a.z, a.team === local.team);
       const rig = rigs.get(a.id);
       if (!rig) continue;
       const t = performance.now();

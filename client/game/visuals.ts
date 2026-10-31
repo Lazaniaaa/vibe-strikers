@@ -4,7 +4,7 @@ import {
 } from 'three';
 import { characters, createCharacter, poseCharacter, type PoseState } from '../../src/characters';
 import { attachWeapon, createViewmodel, createWeapon, poseViewmodel, poseWeapon, weaponIds, type ViewmodelState, type WeaponId, type WeaponState } from '../../src/weapons';
-import { EFFECTS, POSE, VIEWMODEL_CAMERA } from '../../src/config/game';
+import { DEATH, EFFECTS, POSE, TEAM_COLORS, VIEWMODEL_CAMERA } from '../../src/config/game';
 import type { Actor } from '../../src/gameplay/actor';
 import { cycleProgress, reloadProgress } from '../../src/gameplay/weaponLogic';
 import type { ShotEvent } from '../../src/gameplay/simulation';
@@ -21,6 +21,10 @@ export class AvatarRig {
   /** True after a slow firearm pose: the rig uses the cheap no-weapon pose from then on. */
   degraded = false;
   private deadFrames = 0;
+  /** Seconds since death (0 while alive). */
+  private deadTime = 0;
+  /** Set by the driver while the camera is inside this player (killcam / spectate). */
+  hiddenByCamera = false;
   readonly pose: PoseState = { weapon: 'rifle', fire: 0, reload: null, cycle: null, speed: 0, moveDir: { x: 0, z: -1 },
     aimPitch: 0, shooting: false, crouching: false, grounded: true, dead: false };
   private readonly weaponPose: WeaponState = { fire: 0, reload: null, cycle: null, equip: 1 };
@@ -50,7 +54,12 @@ export class AvatarRig {
       attachWeapon(this.root, w);
       this.currentWeapon = id;
     }
-    this.root.position.set(actor.x, actor.y, actor.z);
+    // Death: pose for DEATH.bodyTime, sink during the last part, then hide the body (a marker stays).
+    this.deadTime = actor.alive ? 0 : this.deadTime + dt;
+    const sinkStart = DEATH.bodyTime - DEATH.sinkTime;
+    const sink = this.deadTime > sinkStart ? Math.min(1, (this.deadTime - sinkStart) / DEATH.sinkTime) * DEATH.sinkDepth : 0;
+    this.root.visible = !this.hiddenByCamera && (actor.alive || this.deadTime < DEATH.bodyTime);
+    this.root.position.set(actor.x, actor.y - sink, actor.z);
     this.root.rotation.y = actor.yaw;
     const p = this.pose;
     p.weapon = id; p.speed = actor.alive ? actor.moveFraction : 0;
@@ -191,4 +200,68 @@ export class ShotEffects {
 
   /** Scratch start vector for callers. */
   get scratchStart(): Vector3 { return this.start; }
+}
+
+interface Marker { group: Group; tile: Mesh }
+
+/**
+ * Death markers: a flat translucent tile with a box cross where a player died, until they respawn.
+ * Render-only (not in physics or hit tests), no shadows. Colour = ally / enemy as seen by the local player.
+ */
+export class DeathMarkers {
+  readonly group = new Group();
+  private markers = new Map<number, Marker>();
+  private readonly tileGeo: BoxGeometry;
+  private readonly barGeo: BoxGeometry;
+  private readonly allyMat: MeshBasicMaterial;
+  private readonly enemyMat: MeshBasicMaterial;
+  private readonly crossMat: MeshBasicMaterial;
+
+  constructor() {
+    const m = DEATH.marker;
+    this.tileGeo = new BoxGeometry(m.size, m.height, m.size);
+    this.barGeo = new BoxGeometry(m.crossLength, m.height * 2, m.crossWidth);
+    const mat = (color: string, opacity: number) => new MeshBasicMaterial({ color, transparent: true, opacity, depthWrite: false });
+    this.allyMat = mat(TEAM_COLORS.ally, m.opacity);
+    this.enemyMat = mat(TEAM_COLORS.enemy, m.opacity);
+    this.crossMat = mat('#ffffff', m.crossOpacity);
+  }
+
+  private create(): Marker {
+    const group = new Group(), tile = new Mesh(this.tileGeo, this.allyMat);
+    group.add(tile);
+    for (const angle of [Math.PI / 4, -Math.PI / 4]) {
+      const bar = new Mesh(this.barGeo, this.crossMat);
+      bar.rotation.y = angle; bar.position.y = DEATH.marker.height;
+      group.add(bar);
+    }
+    group.traverse((o) => { o.castShadow = false; o.receiveShadow = false; });
+    this.group.add(group);
+    return { group, tile };
+  }
+
+  /** Call every frame for every player. Places the marker once at death, removes it when alive again. */
+  update(id: number, alive: boolean, x: number, y: number, z: number, ally: boolean): void {
+    let m = this.markers.get(id);
+    if (alive) { if (m) m.group.visible = false; return; }
+    if (!m) { m = this.create(); this.markers.set(id, m); m.group.visible = false; }
+    if (!m.group.visible) {
+      m.group.position.set(x, y + DEATH.marker.lift, z);
+      m.tile.material = ally ? this.allyMat : this.enemyMat;
+      m.group.visible = true;
+    }
+  }
+
+  /** Remove the marker of a player who left. */
+  remove(id: number): void {
+    const m = this.markers.get(id);
+    if (m) { this.group.remove(m.group); this.markers.delete(id); }
+  }
+
+  /** Visible markers (tests). */
+  get count(): number { let n = 0; for (const m of this.markers.values()) if (m.group.visible) n++; return n; }
+
+  dispose(): void {
+    this.tileGeo.dispose(); this.barGeo.dispose(); this.allyMat.dispose(); this.enemyMat.dispose(); this.crossMat.dispose();
+  }
 }

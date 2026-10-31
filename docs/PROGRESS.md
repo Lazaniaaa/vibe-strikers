@@ -214,6 +214,9 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   full volume within 4 m, then 4/d, silent beyond 70 m, stereo pan from the listener's yaw. Footsteps every
   2.2 m only when running (Shift walk and crouch are silent, GAME.md 3). Reload = two clicks. UI click on
   every button (the first click also unlocks audio). No zzfx package: the synth is ~40 lines.
+- 2026-10-31 fix 1: dead bodies keep the death pose 1 s (sinking during the last 0.35 s), then are hidden.
+  A death marker (0.8 m translucent tile + white box cross, ally blue / enemy orange-red as seen by you,
+  render-only, no shadows) stays until that player is alive again (next round). Online and offline.
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 
