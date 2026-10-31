@@ -21,12 +21,14 @@ export interface PlayerIntent {
   walk: boolean;
   fire: boolean;
   reload: boolean;
+  /** Pick up / use the nearest item (one per key press). */
+  use: boolean;
   /** Weapon slot to switch to, -1 = keep. */
   slot: number;
 }
 
 export function createIntent(): PlayerIntent {
-  return { forward: 0, right: 0, yaw: 0, pitch: 0, jump: false, crouch: false, walk: false, fire: false, reload: false, slot: -1 };
+  return { forward: 0, right: 0, yaw: 0, pitch: 0, jump: false, crouch: false, walk: false, fire: false, reload: false, use: false, slot: -1 };
 }
 
 export interface Actor extends HitTarget {

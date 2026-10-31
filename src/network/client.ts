@@ -10,11 +10,13 @@ import type PlayerRowDef from './bindings/player_table.ts';
 import type RoomRowDef from './bindings/room_table.ts';
 import type ShotEventDef from './bindings/shot_event_table.ts';
 import type KillEventDef from './bindings/kill_event_table.ts';
+import type ItemRowDef from './bindings/item_table.ts';
 
 export type PlayerRow = Infer<typeof PlayerRowDef>;
 export type RoomRow = Infer<typeof RoomRowDef>;
 export type ShotEvent = Infer<typeof ShotEventDef>;
 export type KillEvent = Infer<typeof KillEventDef>;
+export type ItemRow = Infer<typeof ItemRowDef>;
 
 /** Samples kept for the server clock offset estimate (about 2 s of updates). */
 const OFFSET_SAMPLES = 64;
@@ -104,7 +106,8 @@ export interface NetOptions {
 }
 
 type Pending = { at: number; kind: 'upsert' | 'delete'; row: PlayerRow }
-  | { at: number; kind: 'shot'; row: ShotEvent } | { at: number; kind: 'kill'; row: KillEvent };
+  | { at: number; kind: 'shot'; row: ShotEvent } | { at: number; kind: 'kill'; row: KillEvent }
+  | { at: number; kind: 'item' | 'itemDelete'; row: ItemRow };
 
 export class GameNet {
   conn: DbConnection | null = null;
@@ -115,6 +118,8 @@ export class GameNet {
   /** Rows of players in my room, by id (includes me). */
   readonly players = new Map<bigint, PlayerRow>();
   readonly buffers = new Map<bigint, SnapshotBuffer>();
+  /** Items on the ground in my room, by id. */
+  readonly items = new Map<bigint, ItemRow>();
   /** Called when the server moved me (spawn or snap-back). */
   onCorrection: ((row: PlayerRow) => void) | null = null;
   onPlayerRemoved: ((id: bigint) => void) | null = null;
@@ -184,6 +189,9 @@ export class GameNet {
     c.db.player.onDelete((_ctx, row) => this.queue({ at: delay(), kind: 'delete', row }));
     c.db.shotEvent.onInsert((_ctx, row) => this.queue({ at: delay(), kind: 'shot', row }));
     c.db.killEvent.onInsert((_ctx, row) => this.queue({ at: delay(), kind: 'kill', row }));
+    c.db.item.onInsert((_ctx, row) => this.queue({ at: delay(), kind: 'item', row }));
+    c.db.item.onUpdate((_ctx, _old, row) => this.queue({ at: delay(), kind: 'item', row }));
+    c.db.item.onDelete((_ctx, row) => this.queue({ at: delay(), kind: 'itemDelete', row }));
     c.db.room.onInsert((_ctx, row) => { this.allRooms.set(row.id, row); });
     c.db.room.onUpdate((_ctx, _old, row) => { this.allRooms.set(row.id, row); });
     c.db.room.onDelete((_ctx, row) => { this.allRooms.delete(row.id); });
@@ -200,6 +208,8 @@ export class GameNet {
       else if (p.kind === 'delete') this.removeRow(p.row);
       else if (p.kind === 'shot') { if (this.me && p.row.roomId === this.me.roomId) this.onShot?.(p.row); }
       else if (p.kind === 'kill') { if (this.me && p.row.roomId === this.me.roomId) this.onKill?.(p.row); }
+      else if (p.kind === 'item') { if (this.me && p.row.roomId === this.me.roomId) this.items.set(p.row.id, p.row); }
+      else if (p.kind === 'itemDelete') this.items.delete(p.row.id);
     }
     if (n > 0) this.pending.splice(0, n);
     this.room = this.me ? this.allRooms.get(this.me.roomId) ?? null : null;
@@ -218,7 +228,7 @@ export class GameNet {
       this.me = row;
       if (roomChanged) this.subscribeRoom(row.roomId);
       if (roomChanged) {
-        this.players.clear(); this.buffers.clear();
+        this.players.clear(); this.buffers.clear(); this.items.clear();
         for (const r of this.allPlayers.values()) if (r.roomId === row.roomId) this.track(r, now);
       }
       if (row.correctionSeq > this.ackCorrection) {
@@ -255,6 +265,7 @@ export class GameNet {
         `SELECT * FROM room WHERE id = ${roomId}`,
         `SELECT * FROM shot_event WHERE room_id = ${roomId}`,
         `SELECT * FROM kill_event WHERE room_id = ${roomId}`,
+        `SELECT * FROM item WHERE room_id = ${roomId}`,
       ]);
     this.roomSub = { id: roomId, handle };
   }
@@ -292,7 +303,7 @@ export class GameNet {
     if (this.roomSub && this.roomSub.handle.isActive()) this.roomSub.handle.unsubscribe();
     this.roomSub = null;
     this.me = null; this.room = null;
-    this.players.clear(); this.buffers.clear(); this.allPlayers.clear(); this.pending.length = 0;
+    this.players.clear(); this.buffers.clear(); this.allPlayers.clear(); this.items.clear(); this.pending.length = 0;
     this.onCorrection = null; this.onSpawn = null; this.onShot = null; this.onKill = null; this.onPlayerRemoved = null;
   }
 
@@ -329,6 +340,9 @@ export class GameNet {
 
   /** Choose the primary (rifle / shotgun / sniper); rejects if the team already has a sniper. */
   setPrimary(weapon: string): Promise<void> { return this.call(() => this.conn!.reducers.setPrimaryWeapon({ weapon })); }
+
+  /** E on an item on the ground (the server checks range and phase). */
+  pickUp(itemId: bigint): void { if (this.conn) void this.call(() => this.conn!.reducers.pickUp({ itemId })).catch(() => undefined); }
 
   reload(): void { if (this.conn) void this.call(() => this.conn!.reducers.reload({})).catch(() => undefined); }
 

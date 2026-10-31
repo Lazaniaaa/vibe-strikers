@@ -10,6 +10,8 @@ export const KEYS = {
   crouch: 'ControlLeft',
   crouchAlt: 'KeyC',
   reload: 'KeyR',
+  /** Pick up / use an item on the ground. */
+  use: 'KeyE',
   slot1: 'Digit1',
   slot2: 'Digit2',
   slot3: 'Digit3',

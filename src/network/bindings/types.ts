@@ -10,6 +10,19 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
+export const Item = __t.object("Item", {
+  id: __t.u64(),
+  roomId: __t.u64(),
+  kind: __t.string(),
+  weapon: __t.string(),
+  mag: __t.u16(),
+  reserve: __t.u16(),
+  x: __t.f32(),
+  y: __t.f32(),
+  z: __t.f32(),
+});
+export type Item = __Infer<typeof Item>;
+
 export const KillEvent = __t.object("KillEvent", {
   roomId: __t.u64(),
   killerId: __t.u64(),

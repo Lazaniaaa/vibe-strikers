@@ -26,6 +26,8 @@ export interface HudView {
   feed: readonly KillFeedEntry[];
   /** Room / status line (top right, above the kill feed). */
   roomInfo: string;
+  /** Pick-up hint near an item on the ground ('' = none). */
+  hint?: string;
   fps: number;
   perf: string;
   locked: boolean;
@@ -45,6 +47,7 @@ export class Hud {
   readonly overlay: HTMLElement;
   private last = new Map<HTMLElement, string>();
   private room: HTMLElement;
+  private hint: HTMLElement;
   private lastFeed = '';
   private lastGap = -1;
   private hitLeft = 0;
@@ -63,6 +66,7 @@ export class Hud {
     this.center = el('div', 'hud-center', root);
     this.sub = el('div', 'hud-sub', root);
     this.room = el('div', 'hud-room', root);
+    this.hint = el('div', 'hud-hint', root);
     this.feed = el('div', 'hud-feed', root);
     root.style.setProperty('--ally', TEAM_COLORS.ally);
     root.style.setProperty('--enemy', TEAM_COLORS.enemy);
@@ -75,7 +79,7 @@ export class Hud {
     this.overlay = el('div', 'hud-overlay', root);
     el('div', 'hud-overlay-title', this.overlay, 'Click to play');
     el('div', 'hud-overlay-keys', this.overlay,
-      'WASD move · Mouse aim · LMB fire · R reload · 1 primary · 2 pistol · 3 knife · 7/8/9 rifle/shotgun/sniper · RMB aim · Tab scores · Space jump · C / Ctrl crouch · Shift walk · Esc release mouse');
+      'WASD move · Mouse aim · LMB fire · R reload · 1 primary · 2 pistol · 3 knife · 7/8/9 rifle/shotgun/sniper · RMB aim · E pick up · Tab scores · Space jump · C / Ctrl crouch · Shift walk · Esc release mouse');
   }
 
   private set(e: HTMLElement, text: string): void {
@@ -94,6 +98,7 @@ export class Hud {
     this.set(this.center, v.center);
     this.set(this.sub, v.sub);
     this.set(this.room, v.roomInfo);
+    this.set(this.hint, v.hint ?? '');
     const esc = (t: string) => t.replace(/[&<>"]/g, (c) => `&#${c.charCodeAt(0)};`);
     const side = (ally: boolean) => (ally ? 'ally' : 'enemy');
     const html = v.feed.map((k) => `<div><span class="${side(k.killerAlly)}">${esc(k.killer)}</span> [${esc(k.weapon)}${k.headshot ? ' HS' : ''}] ` +

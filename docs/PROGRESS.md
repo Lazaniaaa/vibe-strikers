@@ -289,6 +289,12 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   paths (`base: './'`): checked from a sub-folder on a plain static server against a second database. The server
   tick now starts with the first room and stops when the last room closes. Steps: `docs/HOSTING.md`
   (Maincloud + Cloudflare Pages direct upload, Windows).
+- 2026-11-01 features 1: weapon drops (Elimination). On death the primary drops with its ammo (table `item`,
+  server-authoritative), E (`pick_up{itemId}`) within `ITEMS.pickupRadius` (+ server slack) swaps the primary and
+  draws it; the old one drops at the feet. Pick-up only while the round is live; drops stay during round end and are
+  cleared when the next round starts (loadout primary comes back). Max `ITEMS.maxDropsPerRoom` per room (oldest
+  removed). A picked-up sniper does not count for the 1-sniper limit (the limit is on the loadout choice). Bots do not
+  pick up drops in Elimination. Offline practice has the same drops (shared `src/gameplay/items.ts`).
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 

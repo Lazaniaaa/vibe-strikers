@@ -40,6 +40,7 @@ import JoinByCodeReducer from "./join_by_code_reducer";
 import JoinQuickReducer from "./join_quick_reducer";
 import LeaveRoomReducer from "./leave_room_reducer";
 import MoveReducer from "./move_reducer";
+import PickUpReducer from "./pick_up_reducer";
 import ReloadReducer from "./reload_reducer";
 import ReportPingReducer from "./report_ping_reducer";
 import SetPrimaryWeaponReducer from "./set_primary_weapon_reducer";
@@ -48,6 +49,7 @@ import SwitchWeaponReducer from "./switch_weapon_reducer";
 // Import all procedure arg schemas
 
 // Import all table schema definitions
+import ItemRow from "./item_table";
 import KillEventRow from "./kill_event_table";
 import PlayerRow from "./player_table";
 import RoomRow from "./room_table";
@@ -57,6 +59,20 @@ import ShotEventRow from "./shot_event_table";
 
 /** The schema information for all tables in this module. This is defined the same was as the tables would have been defined in the server. */
 const tablesSchema = __schema({
+  item: __table({
+    name: 'item',
+    indexes: [
+      { accessor: 'id', name: 'item_id_idx_btree', algorithm: 'btree', columns: [
+        'id',
+      ] },
+      { accessor: 'roomId', name: 'item_room_id_idx_btree', algorithm: 'btree', columns: [
+        'roomId',
+      ] },
+    ],
+    constraints: [
+      { name: 'item_id_key', constraint: 'unique', columns: ['id'] },
+    ],
+  }, ItemRow),
   killEvent: __table({
     name: 'kill_event',
     indexes: [
@@ -115,6 +131,7 @@ const reducersSchema = __reducers(
   __reducerSchema("join_quick", JoinQuickReducer),
   __reducerSchema("leave_room", LeaveRoomReducer),
   __reducerSchema("move", MoveReducer),
+  __reducerSchema("pick_up", PickUpReducer),
   __reducerSchema("reload", ReloadReducer),
   __reducerSchema("report_ping", ReportPingReducer),
   __reducerSchema("set_primary_weapon", SetPrimaryWeaponReducer),

@@ -28,6 +28,8 @@ import { Input } from './input';
 import { FramePerf } from './perf';
 import { AvatarRig, DeathMarkers, ShotEffects, ViewmodelRig } from './visuals';
 import { AdsController } from './ads';
+import { ItemViews } from './items';
+import { itemHint, nearestOf } from '../../src/gameplay/items';
 import { TagProjector } from './nameTagProjector';
 import { NameTags } from '../../src/ui/nameTags';
 import { getSfx } from '../../src/ui/sfx';
@@ -100,6 +102,7 @@ function OnlineDriver({ net, debug, onLeave }: { net: GameNet; debug: boolean; o
     onSettingsChange(applyStyle);
     const effects = new ShotEffects(tracerMat, impactMat, unitBox);
     const markers = new DeathMarkers();
+    const items = new ItemViews();
     const nameTags = new NameTags(hudRoot);
     const tagger = new TagProjector(nameTags, blockers);
     const remotes = new Map<bigint, Remote>();
@@ -171,7 +174,7 @@ function OnlineDriver({ net, debug, onLeave }: { net: GameNet; debug: boolean; o
         weapon: k.weapon, headshot: k.headshot });
       if (feedEntries.length > 4) feedEntries.shift();
     };
-    return { local, motor, input, hud, scoreboard, viewmodel, ads, view, sfx, audio, markers, feedEntries, nameTags, tagger, effects, remotes, perf, stats, sample, feed, scratch, rewinds, allyMat, allyGeo,
+    return { local, motor, input, hud, scoreboard, viewmodel, ads, view, sfx, audio, markers, items, feedEntries, nameTags, tagger, effects, remotes, perf, stats, sample, feed, scratch, rewinds, allyMat, allyGeo,
       disposables: [unitBox, tracerMat, impactMat, flashMat, flashGeo, allyMat, allyGeo] };
   }, [net, world, rapier, gl, scene, debug, onLeave]);
 
@@ -180,6 +183,7 @@ function OnlineDriver({ net, debug, onLeave }: { net: GameNet; debug: boolean; o
     cam.rotation.order = 'YXZ';
     scene.add(game.effects.group);
     scene.add(game.markers.group);
+    scene.add(game.items.group);
     if (debug) {
       window.__online = {
         net, local: game.local, stats: game.stats,
@@ -188,6 +192,8 @@ function OnlineDriver({ net, debug, onLeave }: { net: GameNet; debug: boolean; o
           me: net.me && { id: String(net.me.id), team: net.me.team, x: net.me.x, z: net.me.z, hp: net.me.hp, alive: net.me.alive,
             mag: net.me.mag, reserve: net.me.reserve, violations: net.me.violations, kills: net.me.kills, deaths: net.me.deaths },
           local: { x: game.local.x, y: game.local.y, z: game.local.z, grounded: game.local.grounded, mag: game.local.slots[game.local.active].mag },
+          items: [...net.items.values()].map((i) => ({ id: String(i.id), kind: i.kind, weapon: i.weapon, mag: i.mag, reserve: i.reserve, x: i.x, y: i.y, z: i.z })),
+          itemViews: game.items.count, hint: view.hint ?? '', primary: game.local.slots[0].stats.id,
           snapBacks: net.corrections, players: net.players.size, remotes: game.remotes.size, stats: { ...game.stats },
         }),
         aimAtRemote: (id: string, head = false) => {
@@ -218,6 +224,7 @@ function OnlineDriver({ net, debug, onLeave }: { net: GameNet; debug: boolean; o
       for (const r of game.remotes.values()) scene.remove(r.rig.root);
       scene.remove(game.effects.group);
       scene.remove(game.markers.group);
+      scene.remove(game.items.group);
       game.markers.dispose();
       game.input.dispose();
       game.ads.dispose();
@@ -246,7 +253,11 @@ function OnlineDriver({ net, debug, onLeave }: { net: GameNet; debug: boolean; o
     const live = phase === 'live';
     local.alive = me?.alive ?? false;
     // The server applied a new primary during the freeze phase.
-    if (me && setPrimary(local, me.primary as WeaponId)) { if (local.active === 0) local.equipLeft = local.slots[0].stats.equipTime; }
+    // (A pick-up also swaps the primary and draws it: take its ammo from the row.)
+    if (me && setPrimary(local, me.primary as WeaponId)) {
+      if (me.weapon === 0) { cancelReload(local.slots[local.active]); local.active = 0; local.slots[0].mag = me.mag; local.slots[0].reserve = me.reserve; }
+      if (local.active === 0) local.equipLeft = local.slots[0].stats.equipTime;
+    }
     const primaryChoice = input.takePrimaryRequest();
     if (primaryChoice >= 0 && me) {
       const want = LOADOUT.primaries[primaryChoice];
@@ -275,6 +286,8 @@ function OnlineDriver({ net, debug, onLeave }: { net: GameNet; debug: boolean; o
           weaponNow.moveSpeedScale * (game.ads.scoped(weaponNow.id) ? weaponNow.adsSpeedScale : 1));
         net.tickSend(delta, { x: local.x, y: local.y, z: local.z, vx: local.vx, vy: local.vy, vz: local.vz, yaw: local.yaw,
           pitch: local.pitch, crouch: local.crouching, grounded: local.grounded, walk: intent.walk });
+        // E: pick up the nearest item (the server checks range and swaps the primary).
+        if (intent.use && live) { const it = nearestOf(net.items.values(), local.x, local.y, local.z); if (it) net.pickUp(it.id); }
         // Weapon switch / reload / fire (the server repeats every check).
         if (intent.slot >= 0 && intent.slot < local.slots.length && intent.slot !== local.active) {
           input.cancelAds();
@@ -407,6 +420,7 @@ function OnlineDriver({ net, debug, onLeave }: { net: GameNet; debug: boolean; o
       game.tagger.place(cam, size.width, size.height, Number(id), row.name, row.team === myTeam, a.x, a.y, a.z, !a.alive || r.rig.hiddenByCamera);
     }
     effects.update(dt);
+    game.items.sync(net.items, state.clock.elapsedTime);
 
     const renderStart = performance.now();
     gl.autoClear = true;
@@ -434,6 +448,8 @@ function OnlineDriver({ net, debug, onLeave }: { net: GameNet; debug: boolean; o
         if (game.view.mode === 'killcam') { view.center = `Killed by ${game.view.killer}`; view.sub = `${game.view.weapon} · killcam`; }
         else { view.center = 'You died'; view.sub = target ? `Spectating ${target} · click: next teammate` : 'No teammates alive'; }
       }
+      const near = local.alive && room?.phase === 'live' ? nearestOf(net.items.values(), local.x, local.y, local.z) : null;
+      view.hint = near ? itemHint(near) : '';
       view.fps = stats.fps;
       view.perf = `${Math.round(stats.triangles / 1000)}k tris · ${stats.calls} calls · worst ${Math.round(perf.displayWorstMs)} ms / 5 s · ping ${Math.round(net.pingMs)} · snap-backs ${net.corrections}`;
       game.scoreboard.setVisible(input.isDown(KEYS.scoreboard));

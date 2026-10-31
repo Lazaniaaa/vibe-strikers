@@ -109,7 +109,8 @@ Interpolation for remote players; the local player is corrected only on a snap-b
 sent at the net send rate; `ack` = last server correction the client has applied, older moves are
 ignored), room reducers `join_quick{name, character}`, `create_private_room{name, character, bots, difficulty}`,
 `join_by_code{code, name, character}`, `leave_room` (M2a), `fire{seq, yaw, pitch, viewTimeMs, scoped}` (server time of the world the client was showing, used for the
-rewind; scoped = sniper accuracy only), `reload`, `switch_weapon{slot}` (M2b), `set_primary_weapon{weapon}` (M3), `reload`, `switchWeapon{slot}`,
+rewind; scoped = sniper accuracy only), `reload`, `switch_weapon{slot}` (M2b), `set_primary_weapon{weapon}` (M3), `pick_up{itemId}` (drops: weapon swaps the primary, old one drops; live phase, range
+`ITEMS.pickupRadius` + server slack), `reload`, `switchWeapon{slot}`,
 `pickup{itemId}`, `useHeal`, `emote{id}`, `ping{x,y,z,kind}`,
 `chat{text}` (private rooms only), `joinRoom{code|quick, nickname, characterId}`,
 `loadout{primary}`, `pingMeasure` (RTT every 1 s).
@@ -122,6 +123,8 @@ ground, round state, scores. Events: `hit`, `kill{killer, victim, weapon, head}`
 killed, rewindMs, hitWithoutRewind}` and `kill_event{roomId, killerId, victimId, headshot, weapon}`; round state
 in the `room` row: phase, round, scoreA/B, timeLeft, lastWinner, matchWinner),
 `roundStart/End`, `matchEnd`, `emote`, `ping`.
+Items on the ground: table `item{id, roomId, kind, weapon, mag, reserve, x, y, z}` (kind `weapon` = a dropped gun
+with its ammo; cleared when a round starts; at most `ITEMS.maxDropsPerRoom` per room).
 Document the final field list in `docs/CONTRACTS.md` and generate client bindings
 before UI work (schema first, rendering after).
 

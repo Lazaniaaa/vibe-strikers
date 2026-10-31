@@ -11,6 +11,8 @@ import { ClientValidatedMovement, capsuleInsideBoxes } from './movementCheck.ts'
 import { PoseHistory } from './rewind.ts';
 import { synth } from '../ui/sfxSynth.ts';
 import { SOUNDS } from '../config/audio.ts';
+import { createActor } from './actor.ts';
+import { nearestItem, primaryState, swapPrimary } from './items.ts';
 import { buildNavGrid, findPath, groundAt, nearestWalkable, nodeY, pruneUnreachable, upperAreas } from './navGrid.ts';
 
 let passed = 0;
@@ -176,6 +178,19 @@ test('sniper: accurate only when scoped; bolt cycle; knife has no magazine', () 
   const knife = createSlot(WEAPON_STATS.knife);
   for (let i = 0; i < 5; i++) { assert.ok(canFire(knife)); consumeShot(knife); tickSlot(knife, WEAPON_STATS.knife.fireInterval); }
   assert.equal(WEAPON_STATS.shotgun.pellets * WEAPON_STATS.shotgun.damage, 96);
+});
+
+test('items: nearest in range, swap primary keeps ammo', () => {
+  const a = createActor(1, 'A', 'x', false, 0, 'rifle');
+  a.slots[0].mag = 7; a.active = 1;
+  const items = [{ x: 5, y: 0, z: 0 }, { x: 1, y: 0, z: 0.5 }, { x: 0.5, y: 3, z: 0 }];
+  assert.equal(nearestItem(items, 0, 0, 0), 1);
+  assert.equal(nearestItem([{ x: 3, y: 0, z: 0 }], 0, 0, 0), -1, 'out of range');
+  const old = swapPrimary(a, { weapon: 'shotgun', mag: 4, reserve: 10 });
+  assert.deepEqual(old, { weapon: 'rifle', mag: 7, reserve: WEAPON_STATS.rifle.reserve });
+  assert.equal(a.active, 0);
+  assert.deepEqual(primaryState(a), { weapon: 'shotgun', mag: 4, reserve: 10 });
+  assert.ok(a.equipLeft > 0);
 });
 
 test('procedural sounds render audible, bounded samples', () => {

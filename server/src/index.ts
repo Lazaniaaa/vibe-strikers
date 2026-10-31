@@ -11,10 +11,12 @@ import { HITBOXES } from '../../src/config/hitboxes.ts';
 import { CAPSULE, MOVEMENT } from '../../src/config/movement.ts';
 import { FIRE_CHECK, NET } from '../../src/config/net.ts';
 import { MATCH, ROUND_PRESETS } from '../../src/config/rounds.ts';
+import { ITEMS } from '../../src/config/items.ts';
 import { LOADOUT, loadoutFor, WEAPON_STATS } from '../../src/config/weapons.ts';
 import type { WeaponId } from '../../src/weapons/types.ts';
 import { setPrimary, type Actor } from '../../src/gameplay/actor.ts';
 import { resetBrain, updateBot, type BotWorld } from '../../src/gameplay/botBrain.ts';
+import { inPickupRange, primaryState, swapPrimary, type WeaponState } from '../../src/gameplay/items.ts';
 import { createShotResult, traceShot, type HitTarget } from '../../src/gameplay/hitscan.ts';
 import { DEG, directionFromAngles, spreadDirection, vec3 } from '../../src/gameplay/math.ts';
 import { stepOnGrid } from '../../src/gameplay/navMotor.ts';
@@ -111,12 +113,26 @@ const killEvent = table({ name: 'kill_event', public: true, event: true }, {
   weapon: t.string(),
 });
 
+/** Items on the ground: weapon drops (GAME.md 2.1). Cleared when a round starts. */
+const item = table({ name: 'item', public: true }, {
+  id: t.u64().primaryKey().autoInc(),
+  roomId: t.u64().index('btree'),
+  /** 'weapon' */
+  kind: t.string(),
+  /** Weapon id for kind 'weapon'. */
+  weapon: t.string(),
+  mag: t.u16(),
+  reserve: t.u16(),
+  /** Floor position (feet height). */
+  x: t.f32(), y: t.f32(), z: t.f32(),
+});
+
 const tickTimer = table({ name: 'tick_timer' }, {
   scheduledId: t.u64().primaryKey().autoInc(),
   scheduledAt: t.scheduleAt(),
 });
 
-const spacetimedb = schema({ room, player, shotEvent, killEvent, tickTimer });
+const spacetimedb = schema({ room, player, shotEvent, killEvent, item, tickTimer });
 export default spacetimedb;
 
 type Ctx = ReducerCtx<InferSchema<typeof spacetimedb>>;
@@ -205,6 +221,7 @@ function closeRoomIfEmpty(ctx: Ctx, roomId: bigint): void {
     return;
   }
   for (const p of rows) { ctx.db.player.id.delete(p.id); forgetActor(Number(p.id)); }
+  clearItems(ctx, roomId);
   if (r) ctx.db.room.id.delete(roomId);
 }
 
@@ -255,11 +272,28 @@ function syncAmmo(ctx: Ctx, row: PlayerRow, a: Actor): PlayerRow {
 function kill(ctx: Ctx, r: RoomRow, victimId: bigint, killerId: bigint, headshot: boolean, weapon: string): void {
   const v = ctx.db.player.id.find(victimId);
   if (!v || !v.alive) return;
+  dropItem(ctx, r.id, primaryState(actorOf(v)), v.x, v.y, v.z);
   ctx.db.player.id.update({ ...v, hp: 0, alive: false, deaths: v.deaths + 1, vx: 0, vy: 0, vz: 0, reloading: false });
   actorFor(Number(v.id), v.team as TeamId, v.isBot).alive = false;
   const k = ctx.db.player.id.find(killerId);
   if (k && k.id !== v.id) ctx.db.player.id.update({ ...k, kills: k.kills + 1 });
   ctx.db.killEvent.insert({ roomId: r.id, killerId, victimId, headshot, weapon });
+}
+
+// ---------------------------------------------------------------------------------------------
+// Items on the ground
+
+/** A weapon with its ammo on the floor at (x, y, z). Keeps at most ITEMS.maxDropsPerRoom (oldest go first). */
+function dropItem(ctx: Ctx, roomId: bigint, w: WeaponState, x: number, y: number, z: number): void {
+  ctx.db.item.insert({ id: 0n, roomId, kind: 'weapon', weapon: w.weapon, mag: w.mag, reserve: w.reserve, x, y, z });
+  const all = [...ctx.db.item.roomId.filter(roomId)];
+  if (all.length <= ITEMS.maxDropsPerRoom) return;
+  all.sort((a, b) => (a.id < b.id ? -1 : 1));
+  for (let i = 0; i < all.length - ITEMS.maxDropsPerRoom; i++) ctx.db.item.id.delete(all[i].id);
+}
+
+function clearItems(ctx: Ctx, roomId: bigint): void {
+  for (const it of [...ctx.db.item.roomId.filter(roomId)]) ctx.db.item.id.delete(it.id);
 }
 
 /**
@@ -319,6 +353,7 @@ function fireShot(ctx: Ctx, r: RoomRow, shooter: PlayerRow, a: Actor, yaw: numbe
 
 /** Everyone back to the team spawns with full HP and ammo. */
 function respawnAll(ctx: Ctx, r: RoomRow, resetScores: boolean): void {
+  clearItems(ctx, r.id);
   const rows = playersIn(ctx, r.id).sort((p, q) => (p.id < q.id ? -1 : 1));
   const index = { A: 0, B: 0 };
   for (const p of rows) {
@@ -459,7 +494,7 @@ export const setPrimaryWeapon = spacetimedb.reducer({ weapon: t.string() }, (ctx
   if (!LOADOUT.primaries.includes(want)) throw new SenderError('not a primary weapon');
   if (want === 'sniper') {
     const snipers = playersIn(ctx, row.roomId).filter((p) => p.id !== row.id && p.team === row.team &&
-      (p.primary === 'sniper' || p.nextPrimary === 'sniper')).length;
+      p.nextPrimary === 'sniper').length; // picked-up snipers do not count
     if (snipers >= LOADOUT.maxSnipersPerTeam) throw new SenderError('your team already has a sniper');
   }
   const r = ctx.db.room.id.find(row.roomId);
@@ -474,6 +509,23 @@ export const setPrimaryWeapon = spacetimedb.reducer({ weapon: t.string() }, (ctx
   } else {
     ctx.db.player.id.update({ ...row, nextPrimary: want });
   }
+});
+
+/** E on an item: a weapon swaps the primary (the old one drops where the player stands). Live phase only. */
+export const pickUp = spacetimedb.reducer({ itemId: t.u64() }, (ctx, { itemId }) => {
+  const row = myRow(ctx);
+  if (!row || !row.alive) return;
+  const it = ctx.db.item.id.find(itemId);
+  const r = ctx.db.room.id.find(row.roomId);
+  if (!it || it.roomId !== row.roomId || !r || r.phase !== 'live') return;
+  if (!inPickupRange(it, row.x, row.y, row.z, ITEMS.serverSlack)) return;
+  if (it.kind !== 'weapon' || !LOADOUT.primaries.includes(it.weapon as WeaponId)) return;
+  const a = actorOf(row);
+  ctx.db.item.id.delete(it.id);
+  const old = swapPrimary(a, { weapon: it.weapon as WeaponId, mag: it.mag, reserve: it.reserve });
+  dropItem(ctx, r.id, old, row.x, row.y, row.z);
+  const slot = a.slots[0];
+  ctx.db.player.id.update({ ...row, primary: slot.stats.id, weapon: 0, mag: slot.mag, reserve: slot.reserve, reloading: false });
 });
 
 /** The client's measured round-trip time, for the scoreboard. */

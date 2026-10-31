@@ -4,7 +4,10 @@ import { BOTS } from '../config/bots.ts';
 import { HITBOXES } from '../config/hitboxes.ts';
 import { MATCH, ROUND_PRESETS, type RoundPreset } from '../config/rounds.ts';
 import type { HitPart } from '../config/hitboxes.ts';
-import { createActor, type Actor, type PlayerIntent } from './actor.ts';
+import { ITEMS } from '../config/items.ts';
+import type { WeaponId } from '../weapons/types.ts';
+import { createActor, setPrimary, type Actor, type PlayerIntent } from './actor.ts';
+import { nearestItem, primaryState, swapPrimary, type WeaponState } from './items.ts';
 import { createBrain, resetBrain, updateBot, type BotBrain, type BotWorld } from './botBrain.ts';
 import type { BotSkill } from '../config/bots.ts';
 import { createShotResult, traceShot, type AabbBox } from './hitscan.ts';
@@ -54,6 +57,9 @@ export interface ShotEvent {
   killed: boolean;
 }
 
+/** An item on the ground (offline). */
+export interface SimItem extends WeaponState { id: number; kind: 'weapon'; x: number; y: number; z: number }
+
 export interface KillEvent { killerId: number; victimId: number; headshot: boolean; weapon: string }
 
 const MAX_SHOT_EVENTS = 128;
@@ -66,6 +72,11 @@ export class Simulation {
   readonly shots: ShotEvent[] = [];
   shotCount = 0;
   readonly kills: KillEvent[] = [];
+  /** Items on the ground (weapon drops); cleared when a round starts. */
+  readonly items: SimItem[] = [];
+  private nextItemId = 1;
+  /** Primary each actor starts a round with (pick-ups only last for the round). */
+  private readonly loadout = new Map<number, WeaponId>();
   lastRoundEvent: RoundEvent = 'none';
   time = 0;
   private brains = new Map<number, BotBrain>();
@@ -95,6 +106,7 @@ export class Simulation {
         const actor = createActor(id, team, isLocal ? opts.localName : opts.botNames[(id - 1) % opts.botNames.length], !isLocal,
           opts.characterIndices[id % opts.characterIndices.length]);
         this.actors.push(actor);
+        this.loadout.set(id, actor.slots[0].stats.id);
         opts.motor.add(actor);
         if (!isLocal) this.brains.set(id, createBrain(opts.botSkill));
         id++;
@@ -112,7 +124,9 @@ export class Simulation {
 
   private respawnAll(): void {
     let a = 0, b = 0;
+    this.items.length = 0;
     for (const actor of this.actors) {
+      setPrimary(actor, this.loadout.get(actor.id) ?? actor.slots[0].stats.id);
       const list = actor.team === 'A' ? this.opts.spawnsA : this.opts.spawnsB;
       const spot = list[(actor.team === 'A' ? a++ : b++) % list.length];
       this.opts.motor.teleport(actor, spot.x, spot.y, spot.z);
@@ -177,9 +191,31 @@ export class Simulation {
       if (prof && clock) { const t = clock(); prof.motor += t - t0; t0 = t; }
       if (a.y < this.opts.killY) this.kill(a, null, false);
       if (!a.alive) continue;
+      if (intent.use && combat) this.pickUp(a);
       this.updateWeapon(a, dt, combat);
       if (prof && clock) prof.weapons += clock() - t0;
     }
+  }
+
+  /** The nearest item in range (or null). */
+  itemNear(a: Actor): SimItem | null {
+    const i = nearestItem(this.items, a.x, a.y, a.z);
+    return i >= 0 ? this.items[i] : null;
+  }
+
+  /** E: swap the primary with the nearest weapon on the ground; the old one drops here. */
+  pickUp(a: Actor): boolean {
+    const i = nearestItem(this.items, a.x, a.y, a.z);
+    if (i < 0) return false;
+    const it = this.items[i];
+    this.items.splice(i, 1);
+    this.drop(swapPrimary(a, it), a.x, a.y, a.z);
+    return true;
+  }
+
+  private drop(w: WeaponState, x: number, y: number, z: number): void {
+    this.items.push({ id: this.nextItemId++, kind: 'weapon', weapon: w.weapon, mag: w.mag, reserve: w.reserve, x, y, z });
+    if (this.items.length > ITEMS.maxDropsPerRoom) this.items.shift();
   }
 
   private updateWeapon(a: Actor, dt: number, combat: boolean): void {
@@ -242,6 +278,7 @@ export class Simulation {
 
   private kill(victim: Actor, killer: Actor | null, headshot: boolean): void {
     if (!victim.alive) return;
+    this.drop(primaryState(victim), victim.x, victim.y, victim.z);
     victim.alive = false; victim.hp = 0; victim.deaths++;
     victim.vx = 0; victim.vz = 0;
     if (killer) killer.kills++;

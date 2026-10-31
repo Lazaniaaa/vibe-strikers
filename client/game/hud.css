@@ -76,3 +76,5 @@ body { font-family: system-ui, 'Segoe UI', sans-serif; user-select: none; }
 .ally { color: var(--ally); } .enemy { color: var(--enemy); }
 .hud-room { position: absolute; top: 52px; right: 12px; text-align: right; font-size: 12px; opacity: 0.85; white-space: pre; }
 .menu-check select { margin-left: 6px; font-size: 13px; padding: 2px 4px; }
+.hud-hint { position: absolute; top: 62%; left: 0; right: 0; text-align: center; font-size: 18px; font-weight: 700; text-shadow: 0 1px 3px #000; }
+.hud-hint:empty { display: none; }

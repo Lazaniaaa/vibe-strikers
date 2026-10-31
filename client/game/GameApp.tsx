@@ -19,6 +19,8 @@ import { Input } from './input';
 import { AvatarRig, DeathMarkers, ShotEffects, ViewmodelRig } from './visuals';
 import { FramePerf } from './perf';
 import { AdsController } from './ads';
+import { ItemViews } from './items';
+import { itemHint } from '../../src/gameplay/items';
 import { TagProjector } from './nameTagProjector';
 import { NameTags } from '../../src/ui/nameTags';
 import { getSfx } from '../../src/ui/sfx';
@@ -134,13 +136,15 @@ function GameDriver({ options }: { options: GameOptions }) {
     onSettingsChange(applyStyle);
     const stats = { frames: 0, localShots: 0, localHits: 0, localDamage: 0, triangles: 0, calls: 0, fps: 0, localSteps: 0 };
     input.onConfirm = () => { if (sim.round.phase === 'matchEnd') sim.restart(); };
-    return { sim, input, hud, effects, rigs, viewmodel, ads, markers, nameTags, tagger, stats, perf, disposables: [unitBox, tracerMat, impactMat, flashMat, flashGeo, allyMat, allyGeo] };
+    const items = new ItemViews();
+    return { sim, input, hud, effects, rigs, viewmodel, ads, markers, items, nameTags, tagger, stats, perf, disposables: [unitBox, tracerMat, impactMat, flashMat, flashGeo, allyMat, allyGeo] };
   }, [world, rapier, gl, options.freezeTime]);
 
   useEffect(() => {
     for (const rig of game.rigs.values()) scene.add(rig.root);
     scene.add(game.effects.group);
     scene.add(game.markers.group);
+    scene.add(game.items.group);
     const cam = camera as PerspectiveCamera;
     cam.rotation.order = 'YXZ';
     // Compile every material now so the first shot / tracer / flash does not stall a frame.
@@ -161,6 +165,7 @@ function GameDriver({ options }: { options: GameOptions }) {
           phase: g.sim.round.phase, timeLeft: g.sim.round.timeLeft, round: g.sim.round.round,
           scoreA: g.sim.round.scoreA, scoreB: g.sim.round.scoreB, matchWinner: g.sim.round.matchWinner,
           stats: { ...g.stats },
+          items: g.sim.items.map((i) => ({ ...i })), itemViews: g.items.count, hint: view.hint ?? '',
           actors: g.sim.actors.map((a) => ({ id: a.id, team: a.team, name: a.name, hp: a.hp, alive: a.alive,
             x: +a.x.toFixed(2), y: +a.y.toFixed(2), z: +a.z.toFixed(2), grounded: a.grounded,
             weapon: a.slots[a.active].stats.id, mag: a.slots[a.active].mag, reserve: a.slots[a.active].reserve, kills: a.kills })),
@@ -178,6 +183,7 @@ function GameDriver({ options }: { options: GameOptions }) {
       for (const rig of game.rigs.values()) scene.remove(rig.root);
       scene.remove(game.effects.group);
       scene.remove(game.markers.group);
+      scene.remove(game.items.group);
       game.markers.dispose();
       game.input.dispose();
       game.ads.dispose();
@@ -288,6 +294,7 @@ function GameDriver({ options }: { options: GameOptions }) {
     }
     hud.setCrosshairHidden(game.ads.hideCrosshair || !local.alive);
     effects.update(dt);
+    game.items.sync(sim.items, state.clock.elapsedTime);
 
     const renderStart = performance.now();
     gl.autoClear = true;
@@ -308,6 +315,8 @@ function GameDriver({ options }: { options: GameOptions }) {
     if (scratch.hudTimer <= 0) {
       scratch.hudTimer = 0.1;
       fillHudView(view, sim, input.locked || options.debug, stats);
+      const near = sim.local.alive && sim.round.phase === 'live' ? sim.itemNear(sim.local) : null;
+      view.hint = near ? itemHint(near) : '';
       view.perf += ` \u00b7 worst ${Math.round(perf.displayWorstMs)} ms (sim ${perf.displayWorstSimMs.toFixed(1)}) / 5 s`;
       hud.update(view);
     }

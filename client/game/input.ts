@@ -93,6 +93,7 @@ export class Input {
     i.crouch = k.has(KEYS.crouch) || k.has(KEYS.crouchAlt);
     i.walk = k.has(KEYS.walk);
     i.reload = k.has(KEYS.reload) || p.has(KEYS.reload);
+    i.use = p.has(KEYS.use);
     p.clear();
     i.fire = this.debugFire ?? (this.fireHeld && this.locked);
     i.slot = this.slotRequest; this.slotRequest = -1;
