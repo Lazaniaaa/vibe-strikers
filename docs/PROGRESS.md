@@ -3,8 +3,9 @@
 Date started: 2026-10-30. Credits expire 2026-11-05.
 
 ## State
-- M0, M1 DONE (2026-10-30). M2a, M2b, M3 part 1, M3 part 2 and the playtest fixes 1-5 DONE 2026-10-31
-  (see "Playtest fixes result"). STOPPED for the owner. Not started: hosting, map redesign (owner: later).
+- M0, M1 DONE (2026-10-30). M2a, M2b, M3 parts 1-2, playtest fixes 1-5 and "solo play + hosting prep" DONE
+  2026-10-31 (see "Solo play + hosting prep result"). STOPPED for the owner. Not deployed (owner logs in himself:
+  docs/HOSTING.md). Map redesign: later (owner).
 - Asset folders `src/characters/`, `src/weapons/`, `src/maps/` + Voxel Lab root files (owned by Codex).
 - Game: `client/index.html` (menu -> online game, or offline practice), `client/smoke.html` (M0),
   `client/game/*` (R3F apps, input, visuals, profiler), `src/gameplay/*` (shared pure code, also used by
@@ -33,6 +34,7 @@ Date started: 2026-10-30. Credits expire 2026-11-05.
   shoots a strafing Node client (server reports rewind per shot and hits that needed it).
 - `NODE_PATH=$(npm root -g) node scripts/e2e-m3a.mjs [shotPrefix]` — character select, chosen characters seen
   by others, kill feed, TAB scoreboard, own-room rows only.
+- Hosting: `docs/HOSTING.md`; build-time server address in `.env.production.local` (see `.env.production.example`).
 - `NODE_PATH=$(npm root -g) node scripts/e2e-m3b.mjs [shot]` — ADS (real right click), FOV zoom, sniper scope.
 - `NODE_PATH=$(npm root -g) node scripts/e2e-m3c.mjs [shot]` — killcam 3 s, then spectate a teammate; heard sounds.
 - `NODE_PATH=$(npm root -g) node scripts/e2e-m3d.mjs [shot]` — settings panel saved and applied in game.
@@ -546,6 +548,39 @@ In the project folder: `git pull`, then `npm ci`, then:
 3. Open http://127.0.0.1:5191/ (two windows for two players). Try: die and look for the death tile; Esc ->
    Leave match -> Yes, then join again; run up the big stairs at the square; look at teammates through walls
    (blue names) and at an enemy in the open near your crosshair (red name).
+
+## Solo play + hosting prep result (2026-10-31)
+1. Bots use stairs and height: multi-level nav graph (ground, stairs, balconies) built once per map in 60 ms,
+   shared by offline and server bots; 3 upper areas found and used as roam goals. Server bots move like the KCC
+   (step up onto touched boxes <= 0.35 m, same capsule rule as the server validation). Test: each spawn to each
+   balcony and back with both bot motors, 12/12, 0 corrections.
+2. Bot behaviour: three routes (north / middle / south from the map zones) assigned per bot; fights from cover
+   (peek from where the enemy was seen, hide at cover the enemy cannot see); hide to reload (also below 25%
+   ammo) and when HP first drops low. Test (180 s): 2.9 of 3 routes per team per round, about half of the fights
+   from cover, peeks, reloading in cover; tick p99 1.5 ms.
+3. Difficulty easy / normal / hard (`BOT_SKILLS` in src/config/bots.ts), menu select for practice and private
+   rooms, Quick Play normal; hard team beats easy team 3:0 rounds, 12:2 kills.
+4. Hosting prep: server address from `.env.production.local` at build time, relative-path build (tested from a
+   sub-folder on a plain static server against another database), tick only while rooms exist,
+   `docs/HOSTING.md` (Windows: Maincloud publish + Cloudflare Pages direct upload + updating).
+Tests (all pass 2026-10-31): typecheck, 16 unit checks, server, stairs, bot levels, bot behaviour, e2e M1, M2a
+(0 / 200 ms), M2b (100 / 200 ms), M3a-e, fixes, leave, tags; M3a + leave also on the production build; builds.
+Test changes: lag-compensation rewind check uses the median (see below); menu test uses a taller window (the
+menu now scrolls on small windows).
+Known limits:
+- The first 1-2 shots right after joining can use the full rewind cap (350 ms) because the client's
+  server-clock estimate needs a few updates; later shots match round trip + 100 ms. Small; fix later if noticed.
+- Bots always use the rifle; cover is chosen from precomputed spots (no crouching behind low walls yet).
+- After changing `vite.game.config.ts` restart `npm run game:dev` (Vite re-optimizes dependencies).
+
+## Run this build on your laptop
+`git pull`, `npm ci`, then:
+1. Terminal 1: `spacetime start`
+2. Terminal 2: `npm run server:reset` (the room table changed: difficulty), `npm run game:build`, `npm run game:preview`
+3. Open http://127.0.0.1:5191/. In the menu choose Bot difficulty, then "Practice offline" or Quick Play / Create
+   private room. Watch bots run different routes, climb the big stairs to the balconies, hide behind walls to
+   reload and peek out.
+4. To put it online later: follow `docs/HOSTING.md` step by step.
 
 ## Old M2 plan (kept for reference)
 Goal (GAME.md 16, owner decisions 2026-10-30): authoritative multiplayer on SpacetimeDB, small scope:
