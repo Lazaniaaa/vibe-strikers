@@ -2,18 +2,16 @@
 // The structure mirrors the M2 server: intents in, state + events out.
 import { BOTS } from '../config/bots.ts';
 import { HITBOXES } from '../config/hitboxes.ts';
-import { CAPSULE } from '../config/movement.ts';
 import { MATCH, ROUND_PRESETS, type RoundPreset } from '../config/rounds.ts';
-import { M1_LOADOUT, WEAPON_STATS } from '../config/weapons.ts';
 import type { HitPart } from '../config/hitboxes.ts';
-import { createIntent, type Actor, type PlayerIntent } from './actor.ts';
+import { createActor, type Actor, type PlayerIntent } from './actor.ts';
 import { createBrain, resetBrain, updateBot, type BotBrain, type BotWorld } from './botBrain.ts';
 import { createShotResult, traceShot, type AabbBox } from './hitscan.ts';
 import { clamp, DEG, directionFromAngles, spreadDirection, vec3, type Vec3 } from './math.ts';
 import type { NavGrid } from './navGrid.ts';
 import type { RapierMotor } from './rapierMotor.ts';
 import { createRoundState, restartMatch, tickRound, type RoundEvent, type RoundState, type TeamId } from './round.ts';
-import { canFire, cancelReload, consumeShot, createSlot, damageAt, resetSlot, spreadDeg, startReload, tickSlot } from './weaponLogic.ts';
+import { canFire, cancelReload, consumeShot, damageAt, resetSlot, spreadDeg, startReload, tickSlot } from './weaponLogic.ts';
 
 export interface SpawnSpot { x: number; y: number; z: number; yaw: number }
 
@@ -88,7 +86,7 @@ export class Simulation {
     for (const team of ['A', 'B'] as const) {
       for (let i = 0; i < MATCH.teamSize; i++) {
         const isLocal = id === LOCAL_ID;
-        const actor = this.createActor(id, team, isLocal ? opts.localName : opts.botNames[(id - 1) % opts.botNames.length], !isLocal,
+        const actor = createActor(id, team, isLocal ? opts.localName : opts.botNames[(id - 1) % opts.botNames.length], !isLocal,
           opts.characterIndices[id % opts.characterIndices.length]);
         this.actors.push(actor);
         opts.motor.add(actor);
@@ -101,16 +99,6 @@ export class Simulation {
     }
     this.botWorld = { actors: this.actors, blockers: opts.blockers, nav: opts.nav, goals: opts.goals, random: this.random, pathBudget: 0 };
     this.respawnAll();
-  }
-
-  private createActor(id: number, team: TeamId, name: string, isBot: boolean, characterIndex: number): Actor {
-    return {
-      id, team, name, isBot, characterIndex, x: 0, y: 0, z: 0, yaw: 0, pitch: 0, crouching: false,
-      vx: 0, vy: 0, vz: 0, grounded: false, eyeHeight: CAPSULE.eyeHeight, hp: MATCH.maxHealth, alive: true,
-      slots: M1_LOADOUT.map((w) => createSlot(WEAPON_STATS[w])), active: 0, equipLeft: 0, fireAnimLeft: 0,
-      fireLatch: false, jumpLatch: false, kills: 0, deaths: 0, moveFraction: 0, moveLocalX: 0, moveLocalZ: -1,
-      sinceDamage: 99, lastAttacker: -1, intent: createIntent(),
-    };
   }
 
   get local(): Actor { return this.actors[LOCAL_ID]; }

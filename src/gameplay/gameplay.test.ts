@@ -7,6 +7,7 @@ import { createShotResult, rayAabb, rayPlayer, traceShot, type HitTarget } from 
 import { directionFromAngles, spreadDirection, vec3, DEG } from './math.ts';
 import { canFire, consumeShot, createSlot, startReload, tickSlot, damageAt } from './weaponLogic.ts';
 import { createRoundState, tickRound } from './round.ts';
+import { ClientValidatedMovement, capsuleInsideBoxes } from './movementCheck.ts';
 import { buildNavGrid, cellIndex, findPath, nearestWalkable, pruneUnreachable } from './navGrid.ts';
 
 let passed = 0;
@@ -122,6 +123,24 @@ test('nav grid paths around a wall', () => {
   assert.ok(findPath(grid, a, b, path) > 1);
   assert.ok(Number.isNaN(grid.ground[cellIndex(grid, 0.1, 0.1)]));
   assert.ok(Number.isNaN(grid.ground[cellIndex(grid, 0.6, 0.1)])); // inflated by agent radius
+});
+
+test('movement validation (GAME.md 6.6)', () => {
+  const floor = { x: 0, y: -0.5, z: 0, w: 60, h: 1, d: 60 };
+  const wall = { x: 5, y: 1.5, z: 0, w: 1, h: 3, d: 10 };
+  const v = new ClientValidatedMovement([floor, wall], { x: 30, z: 30 }, -15);
+  const p = { x: 0, y: 0, z: 0, crouch: false, walk: false };
+  const dt = 1 / 30;
+  assert.equal(v.check(p, { ...p, x: 5.5 * dt }, dt, 1), 'ok');
+  assert.equal(v.check(p, { ...p, x: 1.0 }, dt, 1), 'ok', 'bunched messages are allowed by the burst slack');
+  assert.equal(v.check(p, { ...p, x: 2.6 }, dt, 1), 'too-fast');
+  assert.equal(v.check(p, { ...p, x: 10 }, dt, 1), 'teleport');
+  assert.equal(v.check(p, { ...p, y: 1.4 }, dt, 1), 'ok', 'a jump');
+  assert.equal(v.check(p, { ...p, y: 2.5 }, dt, 1), 'vertical');
+  assert.equal(v.check({ ...p, y: 3 }, p, 0.3, 1), 'ok', 'falling');
+  assert.equal(v.check({ ...p, x: 3.5 }, { ...p, x: 4.3 }, 0.2, 1), 'inside-wall');
+  assert.equal(capsuleInsideBoxes(4.1, 0, 0, false, [wall]), false, 'touching the wall face is fine');
+  assert.equal(v.check(p, { ...p, x: 40 }, 99, 1), 'teleport');
 });
 
 console.log(`${passed} gameplay checks passed`);

@@ -32,6 +32,8 @@ export const BOTS = {
   stuckDistance: 0.4,
   stuckTime: 1.0,
   waypointReach: 0.6,
+  /** Server bots (no Rapier): how fast feet follow the nav-grid ground height, m/s. */
+  groundFollowSpeed: 6,
 } as const;
 
 /** Navigation grid built from mapColliders (bots only walk the lowest level). */

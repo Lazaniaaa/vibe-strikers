@@ -11,7 +11,10 @@
     "game:build": "vite build --config vite.game.config.ts",
     "typecheck": "node scripts/typecheck-game.mjs",
     "test:gameplay": "node --experimental-strip-types --no-warnings src/gameplay/gameplay.test.ts",
-    "game:preview": "vite preview --config vite.game.config.ts --host 127.0.0.1 --port 5191 --strictPort"
+    "game:preview": "vite preview --config vite.game.config.ts --host 127.0.0.1 --port 5191 --strictPort",
+    "server:publish": "spacetime publish --server local -y --module-path server voxel-arena",
+    "server:bindings": "spacetime generate --lang typescript --module-path server --out-dir src/network/bindings -y",
+    "server:reset": "spacetime publish --server local -y --delete-data=always --module-path server voxel-arena"
   },
   "dependencies": {
     "@react-three/drei": "10.7.9",
