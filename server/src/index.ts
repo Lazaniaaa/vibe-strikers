@@ -527,7 +527,7 @@ export const tick = spacetimedb.reducer({ onSchedule: tickTimer }, { timer: tick
         fireShot(ctx, r, { ...row, yaw: a.yaw, pitch: a.pitch }, a, a.yaw, a.pitch, 0, false);
         a.fireLatch = true;
       }
-      stepOnGrid(a, nav, TICK_DT, slot.stats.moveSpeedScale);
+      stepOnGrid(a, nav, TICK_DT, slot.stats.moveSpeedScale, world.colliders);
       const verdict = world.movement.check(
         { x: row.x, y: row.y, z: row.z, crouch: false, walk: false },
         { x: a.x, y: a.y, z: a.z, crouch: false, walk: a.intent.walk }, TICK_DT, 1);

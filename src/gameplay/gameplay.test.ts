@@ -11,7 +11,7 @@ import { ClientValidatedMovement, capsuleInsideBoxes } from './movementCheck.ts'
 import { PoseHistory } from './rewind.ts';
 import { synth } from '../ui/sfxSynth.ts';
 import { SOUNDS } from '../config/audio.ts';
-import { buildNavGrid, cellIndex, findPath, nearestWalkable, pruneUnreachable } from './navGrid.ts';
+import { buildNavGrid, findPath, groundAt, nearestWalkable, nodeY, pruneUnreachable, upperAreas } from './navGrid.ts';
 
 let passed = 0;
 function test(name: string, fn: () => void) { fn(); passed++; console.log('ok', name); }
@@ -116,16 +116,24 @@ test('round: elimination, timeout by HP, match end', () => {
   assert.equal(s.matchWinner, 'A');
 });
 
-test('nav grid paths around a wall', () => {
+test('nav grid: around a wall, up stairs onto a balcony, two levels in one cell', () => {
   const floor = { x: 0, y: -0.5, z: 0, w: 20, h: 1, d: 20 };
-  const wall = { x: 0, y: 1.5, z: 0, w: 1, h: 3, d: 14 };
-  const grid = buildNavGrid([floor, wall], { x: 10, z: 10 });
-  assert.equal(grid.ground[cellIndex(grid, 0.1, 0.1)], 3); // wall top before pruning
-  pruneUnreachable(grid, -5, 0);
-  const a = nearestWalkable(grid, -5, 0), b = nearestWalkable(grid, 5, 0), path: number[] = [];
-  assert.ok(findPath(grid, a, b, path) > 1);
-  assert.ok(Number.isNaN(grid.ground[cellIndex(grid, 0.1, 0.1)]));
-  assert.ok(Number.isNaN(grid.ground[cellIndex(grid, 0.6, 0.1)])); // inflated by agent radius
+  const wall = { x: -3, y: 1.5, z: 0, w: 1, h: 3, d: 14 };
+  // Balcony 2 m high over open ground (x 4..8), reached by 7 steps of 0.25 m rising along +x.
+  const balcony = { x: 6, y: 1.95, z: 0, w: 4, h: 0.1, d: 4 };
+  const steps = [1, 2, 3, 4, 5, 6, 7].map((i) => ({ x: 4 - 0.45 * (8 - i) + 0.225, y: 0.25 * i - 0.125, z: 0, w: 0.45, h: 0.25, d: 2 }));
+  const grid = buildNavGrid([floor, wall, balcony, ...steps], { x: 10, z: 10 }, steps);
+  pruneUnreachable(grid, -8, 0, 0);
+  assert.ok(Number.isNaN(groundAt(grid, -3, 0, 0)) && Number.isNaN(groundAt(grid, -2.4, 0, 0)), 'wall cell and its agent-radius ring are blocked');
+  assert.equal(groundAt(grid, 6.1, 0, 0.1), 0, 'ground under the balcony is walkable');
+  assert.ok(Math.abs(groundAt(grid, 6.1, 2, 0.1) - 2) < 1e-6, 'balcony level in the same cell');
+  const from = nearestWalkable(grid, -8, 0, 0), to = nearestWalkable(grid, 6, 2, 0), path: number[] = [];
+  assert.ok(findPath(grid, from, to, path) > 1, 'path from the ground onto the balcony');
+  assert.ok(Math.abs(nodeY(grid, path[path.length - 1]) - 2) < 1e-6);
+  const back: number[] = [];
+  assert.ok(findPath(grid, to, from, back) > 1, 'and back down');
+  const areas = upperAreas(grid, 1.5, 4);
+  assert.equal(areas.length, 1, 'one upper area (the balcony)');
 });
 
 test('movement validation (GAME.md 6.6)', () => {

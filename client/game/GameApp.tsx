@@ -10,7 +10,7 @@ import { BOT_NAMES } from '../../src/config/bots';
 import { MAX_FRAME_DT } from '../../src/config/movement';
 import { DEG } from '../../src/gameplay/math';
 import { lineOfSight } from '../../src/gameplay/hitscan';
-import { buildNavGrid, pruneUnreachable } from '../../src/gameplay/navGrid';
+import { buildMapNav } from '../../src/gameplay/mapNav';
 import { RapierMotor } from '../../src/gameplay/rapierMotor';
 import { LOCAL_ID, Simulation } from '../../src/gameplay/simulation';
 import { spreadDeg } from '../../src/gameplay/weaponLogic';
@@ -96,9 +96,8 @@ function GameDriver({ options }: { options: GameOptions }) {
 
   const game = useMemo(() => {
     const blockers = mapShotBlockers(map).boxes;
-    const nav = buildNavGrid(mapColliders(map).boxes, map.bounds);
-    pruneUnreachable(nav, spawnsA[0].x, spawnsA[0].z);
-    const goals = [...map.zones.map((z) => ({ x: z.x, y: 0, z: z.z })), ...spawnsA, ...spawnsB];
+    const { nav, upper } = buildMapNav(mapColliders(map).boxes, map.bounds, map.boxes.filter((b) => b.kind === 'stair'), spawnsA[0]);
+    const goals = [...map.zones.map((z) => ({ x: z.x, y: 0, z: z.z })), ...spawnsA, ...spawnsB, ...upper];
     const motor = new RapierMotor(rapier, world);
     const perf = new FramePerf();
     const sim = new Simulation({ profile: perf.now, clock: () => performance.now(), blockers, spawnsA, spawnsB, goals, nav, motor, killY: map.killY,

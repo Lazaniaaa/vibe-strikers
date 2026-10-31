@@ -7,7 +7,8 @@ import { createBrain, type BotBrain } from '../../src/gameplay/botBrain.ts';
 import type { AabbBox } from '../../src/gameplay/hitscan.ts';
 import type { Vec3 } from '../../src/gameplay/math.ts';
 import { ClientValidatedMovement, type MovementAuthority } from '../../src/gameplay/movementCheck.ts';
-import { buildNavGrid, pruneUnreachable, type NavGrid } from '../../src/gameplay/navGrid.ts';
+import type { NavGrid } from '../../src/gameplay/navGrid.ts';
+import { buildMapNav } from '../../src/gameplay/mapNav.ts';
 import type { TeamId } from '../../src/gameplay/round.ts';
 import { PoseHistory } from '../../src/gameplay/rewind.ts';
 import { NET } from '../../src/config/net.ts';
@@ -17,7 +18,8 @@ export interface World {
   colliders: readonly AabbBox[];
   blockers: readonly AabbBox[];
   spawns: Record<TeamId, readonly SpawnPoint[]>;
-  goals: readonly Vec3[];
+  /** Roam goals; balcony points are added when the nav grid is built. */
+  goals: Vec3[];
   killY: number;
   movement: MovementAuthority;
   nav: NavGrid | null;
@@ -45,8 +47,8 @@ export function getNav(): NavGrid {
   const w = getWorld();
   if (!w.nav) {
     const map = loadMapData(w.mapId);
-    const nav = buildNavGrid(w.colliders, map.bounds);
-    pruneUnreachable(nav, w.spawns.A[0].x, w.spawns.A[0].z);
+    const { nav, upper } = buildMapNav(w.colliders, map.bounds, map.boxes.filter((b) => b.kind === 'stair'), w.spawns.A[0]);
+    w.goals.push(...upper);
     w.nav = nav;
   }
   return w.nav;

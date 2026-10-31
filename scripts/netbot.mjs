@@ -3,14 +3,14 @@
 export async function loadMods(vite) {
   const M = await vite.ssrLoadModule('/src/maps/index.ts');
   const nav = await vite.ssrLoadModule('/src/gameplay/navGrid.ts');
+  const { buildMapNav } = await vite.ssrLoadModule('/src/gameplay/mapNav.ts');
   const hit = await vite.ssrLoadModule('/src/gameplay/hitscan.ts');
   const { MAP_ID } = await vite.ssrLoadModule('/src/config/game.ts');
   const map = M.loadMapData(MAP_ID);
   const colliders = M.mapColliders(map).boxes, blockers = M.mapShotBlockers(map).boxes;
-  const grid = nav.buildNavGrid(colliders, map.bounds);
   const spawnA = M.spawnPoints(map, 'A')[0];
-  nav.pruneUnreachable(grid, spawnA.x, spawnA.z);
-  return { M, nav, hit, map, colliders, blockers, grid };
+  const { nav: grid, upper } = buildMapNav(colliders, map.bounds, map.boxes.filter((b) => b.kind === 'stair'), spawnA);
+  return { M, nav, hit, map, colliders, blockers, grid, upper };
 }
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -24,18 +24,18 @@ function moveMsg(net, x, y, z, vx, vz, yaw) {
 export async function walkTo(mods, net, tx, tz, speed = 4.5) {
   const { nav, grid } = mods;
   const path = [];
-  const start = nav.nearestWalkable(grid, net.me.x, net.me.z), goal = nav.nearestWalkable(grid, tx, tz);
+  const start = nav.nearestWalkable(grid, net.me.x, net.me.y, net.me.z), goal = nav.nearestWalkable(grid, tx, 0, tz);
   nav.findPath(grid, start, goal, path);
   let x = net.me.x, z = net.me.z, y = net.me.y;
   const before = net.corrections;
   for (const c of path) {
-    const wx = nav.cellX(grid, c), wz = nav.cellZ(grid, c);
+    const wx = nav.nodeX(grid, c), wz = nav.nodeZ(grid, c);
     for (;;) {
       const dx = wx - x, dz = wz - z, d = Math.hypot(dx, dz);
       if (d < 0.05) break;
       const step = Math.min(d, speed / HZ);
       x += dx / d * step; z += dz / d * step;
-      const g = grid.ground[nav.cellIndex(grid, x, z)];
+      const g = nav.groundAt(grid, x, y, z);
       if (Number.isFinite(g)) y += Math.max(-0.2, Math.min(0.2, g - y));
       net.sendMove(moveMsg(net, x, y, z, dx / d * speed, dz / d * speed, Math.atan2(-dx, -dz)));
       await sleep(1000 / HZ);
@@ -52,8 +52,8 @@ export function findVisibleSpot(mods, ex, ey, ez, minDist = 6, maxDist = 14, ide
   let best = null;
   for (let i = 0; i < grid.ground.length; i++) {
     const g = grid.ground[i];
-    if (!Number.isFinite(g)) continue;
-    const x = nav.cellX(grid, i), z = nav.cellZ(grid, i), d = Math.hypot(x - ex, z - ez);
+    if (!Number.isFinite(g) || g > 0.1) continue; // ground level only
+    const x = nav.nodeX(grid, i), z = nav.nodeZ(grid, i), d = Math.hypot(x - ex, z - ez);
     if (d < minDist || d > maxDist) continue;
     chest.x = x; chest.y = g + 1.0; chest.z = z;
     if (!hit.lineOfSight(eye, chest, blockers, scratch)) continue;
@@ -61,8 +61,8 @@ export function findVisibleSpot(mods, ex, ey, ez, minDist = 6, maxDist = 14, ide
     const px = -(z - ez) / d, pz = (x - ex) / d;
     let ok = true;
     for (const k of [-1.5, -0.75, 0.75, 1.5]) {
-      const sx = x + px * k, sz = z + pz * k, c = nav.cellIndex(grid, sx, sz);
-      if (!nav.isWalkable(grid, c) || Math.abs(grid.ground[c] - g) > 0.1) { ok = false; break; }
+      const sx = x + px * k, sz = z + pz * k, sg = nav.groundAt(grid, sx, g, sz);
+      if (!Number.isFinite(sg) || Math.abs(sg - g) > 0.1) { ok = false; break; }
       chest.x = sx; chest.z = sz;
       if (!hit.lineOfSight(eye, chest, blockers, scratch)) { ok = false; break; }
     }

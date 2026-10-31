@@ -43,6 +43,8 @@ Date started: 2026-10-30. Credits expire 2026-11-05.
 - `NODE_PATH=$(npm root -g) node scripts/e2e-tags.mjs [shot]` — name tags (ally through walls, enemy only in sight near the
   crosshair, 40 m fade) and kill feed colours.
 - `node scripts/find-prop-overlaps.mjs [minOverlap]` — read-only map check: prop instances whose boxes intersect walls.
+- `node scripts/test-bot-levels.mjs` — bots (server nav-grid motor and offline Rapier KCC) walk from each spawn to
+  each balcony / raised area and back; every 30 Hz sample checked with the server validation (0 corrections).
 - `node scripts/test-stairs.mjs [mapId]` — finds every stair flight in the map data and walks the Rapier KCC up
   and down each one, checking every 30 Hz sample with the server movement validation (0 corrections).
 - `node scripts/profile-bots.cjs [seconds]`, `node scripts/bench-sim.mjs [seconds] [hz]` — performance.
@@ -255,6 +257,16 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   when within 7 deg of the crosshair AND a ray from the camera to their head is not blocked by a map box;
   no enemy marker. Same colours in the kill feed (names), TAB scoreboard (names + "yours"/"enemy" headers) and
   death markers. Online and offline.
+- 2026-10-31 solo 1: multi-level nav graph (`src/gameplay/navGrid.ts`, built by `buildMapNav`): each 0.5 m cell keeps
+  up to 3 surfaces (ground, stairs, balconies); stacked boxes (a step on its support) count as one surface; nodes
+  link when the height difference is a step (0.4 m; 0.55 m between stair nodes because cells are wider than
+  treads); stair steps near a stair cell are climbable, beside a stair only one step is. Upper areas (>= 1.5 m,
+  >= 12 nodes) are found automatically (3 on toy-town-l1-r1) and added to the bots' roam goals. Built once per map
+  in 60 ms (boxes binned per cell); A* budget per tick unchanged (avg 0.57 ms per search).
+- 2026-10-31 solo 1: server bot motor moves the body like the KCC: it stands on the highest box it touches when that
+  is within autostep height (0.35 m), anything higher blocks, and it checks the same capsule-vs-box rule the server
+  validates with. Test `scripts/test-bot-levels.mjs`: from each spawn to each upper area and back with both bot
+  motors (server nav grid and offline Rapier KCC): 12/12, 0 corrections. Replaces "bots do NOT use stairs".
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 

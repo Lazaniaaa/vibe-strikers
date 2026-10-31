@@ -45,7 +45,16 @@ export const NAV_GRID = {
   /** Max height difference between neighbouring cells. */
   maxStep: 0.4,
   /** Surfaces higher than this are never walkable for bots. */
-  maxSurfaceY: 3.5,
+  maxSurfaceY: 6,
+  /** Walkable surfaces kept per grid cell (ground, stairs, balconies, walkways). */
+  layers: 3,
+  /** A stair step this much higher than a cell (and only near it) does not block the cell. */
+  stepAhead: 0.8,
+  /** Cells are wider than stair treads, so neighbouring stair nodes may differ by two risers. */
+  stairLinkStep: 0.55,
+  /** Upper areas (balconies) used as roam goals: at least this high and this many nodes. */
+  upperMinHeight: 1.5,
+  upperMinNodes: 12,
 } as const;
 
 /** Display names for offline bots. */

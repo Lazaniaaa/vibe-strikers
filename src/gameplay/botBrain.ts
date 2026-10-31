@@ -5,7 +5,7 @@ import { HITBOXES } from '../config/hitboxes.ts';
 import type { Actor } from './actor.ts';
 import { lineOfSight, type AabbBox } from './hitscan.ts';
 import { angleDelta, DEG, pitchTo, vec3, yawTo, type Vec3 } from './math.ts';
-import { cellIndex, cellX, cellZ, findPath, isWalkable, nearestWalkable, type NavGrid } from './navGrid.ts';
+import { findPath, groundAt, nearestWalkable, nodeX, nodeZ, type NavGrid } from './navGrid.ts';
 
 export interface BotWorld {
   actors: readonly Actor[];
@@ -111,14 +111,14 @@ function turnToward(current: number, target: number, maxStep: number): number {
   return current + Math.max(-maxStep, Math.min(maxStep, d));
 }
 
-function setGoal(b: BotBrain, w: BotWorld, x: number, z: number): void {
-  const cell = nearestWalkable(w.nav, x, z);
+function setGoal(b: BotBrain, w: BotWorld, x: number, y: number, z: number): void {
+  const cell = nearestWalkable(w.nav, x, y, z);
   if (cell !== b.goalCell) { b.goalCell = cell; b.repathLeft = 0; }
 }
 
 function pickRoamGoal(self: Actor, b: BotBrain, w: BotWorld): void {
   const g = w.goals[Math.floor(w.random() * w.goals.length) % w.goals.length];
-  setGoal(b, w, g.x, g.z);
+  setGoal(b, w, g.x, g.y, g.z);
   void self;
 }
 
@@ -168,21 +168,21 @@ export function updateBot(self: Actor, b: BotBrain, w: BotWorld, dt: number): vo
 
   // No visible target: reload if low, then move to the last known position or a roam goal.
   if (slot.stats.magSize > 0 && slot.mag < slot.stats.magSize * 0.5) intent.reload = true;
-  if (b.memoryLeft > 0) setGoal(b, w, b.lastSeen.x, b.lastSeen.z);
+  if (b.memoryLeft > 0) setGoal(b, w, b.lastSeen.x, b.lastSeen.y, b.lastSeen.z);
   else if (b.goalCell < 0 || (b.path.length > 0 && b.pathIndex >= b.path.length)) pickRoamGoal(self, b, w);
 
   b.repathLeft -= dt;
   if (b.repathLeft <= 0 && w.pathBudget > 0) {
     w.pathBudget--;
     b.repathLeft = BOTS.repathInterval;
-    const start = nearestWalkable(w.nav, self.x, self.z);
+    const start = nearestWalkable(w.nav, self.x, self.y, self.z);
     findPath(w.nav, start, b.goalCell, b.path);
     b.pathIndex = 0;
     if (b.path.length === 0 && b.memoryLeft <= 0) pickRoamGoal(self, b, w);
   }
   while (b.pathIndex < b.path.length) {
     const c = b.path[b.pathIndex];
-    const wx = cellX(w.nav, c), wz = cellZ(w.nav, c);
+    const wx = nodeX(w.nav, c), wz = nodeZ(w.nav, c);
     const d = Math.hypot(wx - self.x, wz - self.z);
     if (d < BOTS.waypointReach) { b.pathIndex++; continue; }
     moveX = (wx - self.x) / d; moveZ = (wz - self.z) / d;
@@ -207,6 +207,5 @@ export function updateBot(self: Actor, b: BotBrain, w: BotWorld, dt: number): vo
   } else {
     intent.yaw = self.yaw; intent.pitch = self.pitch;
   }
-  const here = cellIndex(w.nav, self.x, self.z);
-  if (!isWalkable(w.nav, here) && b.path.length === 0) intent.forward = 1;
+  if (Number.isNaN(groundAt(w.nav, self.x, self.y, self.z)) && b.path.length === 0) intent.forward = 1;
 }

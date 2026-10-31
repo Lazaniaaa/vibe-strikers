@@ -23,16 +23,17 @@ function coreDistanceToBox(x: number, y0: number, y1: number, z: number, b: Aabb
   return Math.hypot(dx, dy, dz);
 }
 
+/** True when the capsule (feet at x, y, z) overlaps box b by more than the allowed penetration. */
+export function capsuleOverlapsBox(x: number, y: number, z: number, crouch: boolean, b: AabbBox): boolean {
+  const r = CAPSULE.radius, h = crouch ? CAPSULE.crouchHeight : CAPSULE.height;
+  // Cheap reject before the exact distance.
+  if (Math.abs(x - b.x) > b.w / 2 + r || Math.abs(z - b.z) > b.d / 2 + r) return false;
+  return coreDistanceToBox(x, y + r, y + h - r, z, b) < r - MOVE_CHECK.capsulePenetration;
+}
+
 /** True when the capsule (feet at x, y, z) overlaps any box by more than the allowed penetration. */
 export function capsuleInsideBoxes(x: number, y: number, z: number, crouch: boolean, boxes: readonly AabbBox[]): boolean {
-  const r = CAPSULE.radius, h = crouch ? CAPSULE.crouchHeight : CAPSULE.height;
-  const y0 = y + r, y1 = y + h - r, limit = r - MOVE_CHECK.capsulePenetration;
-  for (let i = 0; i < boxes.length; i++) {
-    const b = boxes[i];
-    // Cheap reject before the exact distance.
-    if (Math.abs(x - b.x) > b.w / 2 + r || Math.abs(z - b.z) > b.d / 2 + r) continue;
-    if (coreDistanceToBox(x, y0, y1, z, b) < limit) return true;
-  }
+  for (let i = 0; i < boxes.length; i++) if (capsuleOverlapsBox(x, y, z, crouch, boxes[i])) return true;
   return false;
 }
 
