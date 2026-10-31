@@ -11,8 +11,9 @@ import { HITBOXES } from '../../src/config/hitboxes.ts';
 import { CAPSULE, MOVEMENT } from '../../src/config/movement.ts';
 import { FIRE_CHECK, NET } from '../../src/config/net.ts';
 import { MATCH, ROUND_PRESETS } from '../../src/config/rounds.ts';
-import { M1_LOADOUT, WEAPON_STATS } from '../../src/config/weapons.ts';
-import type { Actor } from '../../src/gameplay/actor.ts';
+import { LOADOUT, loadoutFor, WEAPON_STATS } from '../../src/config/weapons.ts';
+import type { WeaponId } from '../../src/weapons/types.ts';
+import { setPrimary, type Actor } from '../../src/gameplay/actor.ts';
 import { resetBrain, updateBot, type BotWorld } from '../../src/gameplay/botBrain.ts';
 import { createShotResult, traceShot, type HitTarget } from '../../src/gameplay/hitscan.ts';
 import { DEG, directionFromAngles, spreadDirection, vec3 } from '../../src/gameplay/math.ts';
@@ -62,8 +63,12 @@ const player = table({ name: 'player', public: true }, {
   violations: t.u32(),
   hp: t.f32(),
   alive: t.bool(),
-  /** Active weapon slot (index into the loadout). */
+  /** Active weapon slot: 0 primary, 1 pistol, 2 knife. */
   weapon: t.u8(),
+  /** Primary weapon id in use this round. */
+  primary: t.string(),
+  /** Primary chosen for the next round (applied at once during the freeze phase). */
+  nextPrimary: t.string(),
   mag: t.u16(),
   reserve: t.u16(),
   reloading: t.bool(),
@@ -88,6 +93,8 @@ const shotEvent = table({ name: 'shot_event', public: true, event: true }, {
   part: t.string(),
   damage: t.f32(),
   killed: t.bool(),
+  /** Weapon id that fired. */
+  weapon: t.string(),
   /** How far the target poses were rewound (ms). */
   rewindMs: t.f32(),
   /** Debug for lag-compensation tests: would the same ray hit the CURRENT (not rewound) poses? */
@@ -141,13 +148,14 @@ function actorOf(row: PlayerRow): Actor {
   const a = actorFor(Number(row.id), row.team as TeamId, row.isBot);
   a.team = row.team as TeamId; a.x = row.x; a.y = row.y; a.z = row.z; a.yaw = row.yaw; a.pitch = row.pitch;
   a.crouching = row.crouch; a.alive = row.alive; a.hp = row.hp; a.grounded = row.grounded;
+  setPrimary(a, row.primary as WeaponId);
   if (a.active !== row.weapon && row.weapon < a.slots.length) a.active = row.weapon;
   a.eyeHeight = row.crouch ? CAPSULE.crouchEyeHeight : CAPSULE.eyeHeight;
   return a;
 }
 
-function fullAmmo(slotIndex: number): { mag: number; reserve: number } {
-  const s = WEAPON_STATS[M1_LOADOUT[slotIndex]];
+function fullAmmo(primary: WeaponId): { mag: number; reserve: number } {
+  const s = WEAPON_STATS[loadoutFor(primary)[0]];
   return { mag: s.magSize, reserve: s.reserve };
 }
 
@@ -155,12 +163,12 @@ function spawnRow(ctx: Ctx, roomId: bigint, team: TeamId, isBot: boolean, ownerH
   spawnIndex: number): void {
   const spots = getWorld().spawns[team];
   const s = spots[spawnIndex % spots.length];
-  const ammo = fullAmmo(0);
+  const ammo = fullAmmo(LOADOUT.defaultPrimary);
   ctx.db.player.insert({
     id: 0n, roomId, ownerHex, isBot, name, character: character % characters.length, team, x: s.x, y: s.y, z: s.z, vx: 0, vy: 0, vz: 0,
     yaw: s.yaw, pitch: 0, crouch: false, grounded: true, walk: false, seq: 0, correctionSeq: 1, spawnCount: 1, violations: 0,
-    hp: MATCH.maxHealth, alive: true, weapon: 0, mag: ammo.mag, reserve: ammo.reserve, reloading: false, kills: 0, deaths: 0,
-    ping: 0, lastMoveAt: ctx.timestamp,
+    hp: MATCH.maxHealth, alive: true, weapon: 0, primary: LOADOUT.defaultPrimary, nextPrimary: LOADOUT.defaultPrimary,
+    mag: ammo.mag, reserve: ammo.reserve, reloading: false, kills: 0, deaths: 0, ping: 0, lastMoveAt: ctx.timestamp,
   });
 }
 
@@ -248,11 +256,12 @@ function kill(ctx: Ctx, r: RoomRow, victimId: bigint, killerId: bigint, headshot
  * One trigger pull from `shooter` at (yaw, pitch), validated by the caller. Targets are rewound by `rewindMs`.
  * Same code for humans (rewind = their view time) and bots (rewind 0).
  */
-function fireShot(ctx: Ctx, r: RoomRow, shooter: PlayerRow, a: Actor, yaw: number, pitch: number, rewindMs: number): void {
+function fireShot(ctx: Ctx, r: RoomRow, shooter: PlayerRow, a: Actor, yaw: number, pitch: number, rewindMs: number,
+  scoped: boolean): void {
   const world = getWorld();
   const slot = a.slots[a.active], s = slot.stats;
   const moveFraction = Math.min(1, Math.hypot(shooter.vx, shooter.vz) / MOVEMENT.runSpeed);
-  const spread = spreadDeg(slot, moveFraction, !shooter.grounded) * DEG;
+  const spread = spreadDeg(slot, moveFraction, !shooter.grounded, scoped) * DEG;
   consumeShot(slot);
   a.fireAnimLeft = s.fireAnimTime;
   origin.x = shooter.x; origin.y = shooter.y + (shooter.crouch ? CAPSULE.crouchEyeHeight : CAPSULE.eyeHeight); origin.z = shooter.z;
@@ -292,7 +301,7 @@ function fireShot(ctx: Ctx, r: RoomRow, shooter: PlayerRow, a: Actor, yaw: numbe
     ctx.db.shotEvent.insert({
       roomId: r.id, shooterId: shooter.id, ox: origin.x, oy: origin.y, oz: origin.z,
       ex: origin.x + dir.x * shot.distance, ey: origin.y + dir.y * shot.distance, ez: origin.z + dir.z * shot.distance,
-      hitKind: shot.kind, victimId, part: shot.part, damage, killed, rewindMs,
+      hitKind: shot.kind, victimId, part: shot.part, damage, killed, weapon: s.id, rewindMs,
       hitWithoutRewind: shotNow.kind === 'player' && rows[shotNow.targetIndex].id === victimId && victimId !== 0n,
     });
   }
@@ -307,13 +316,15 @@ function respawnAll(ctx: Ctx, r: RoomRow, resetScores: boolean): void {
     const spots = getWorld().spawns[team];
     const s = spots[index[team]++ % spots.length];
     const a = actorFor(Number(p.id), team, p.isBot);
+    const primary = loadoutFor(p.nextPrimary as WeaponId)[0];
+    setPrimary(a, primary);
     for (const slot of a.slots) resetSlot(slot);
     a.active = 0; a.equipLeft = 0; a.fireAnimLeft = 0; a.alive = true; a.hp = MATCH.maxHealth; a.lastAttacker = -1; a.sinceDamage = 99;
     historyFor(Number(p.id)).clear();
     if (p.isBot) resetBrain(brainFor(Number(p.id)));
     const slot = a.slots[0];
     ctx.db.player.id.update({ ...p, x: s.x, y: s.y, z: s.z, vx: 0, vy: 0, vz: 0, yaw: s.yaw, pitch: 0, crouch: false,
-      grounded: true, hp: MATCH.maxHealth, alive: true, weapon: 0, mag: slot.mag, reserve: slot.reserve, reloading: false,
+      grounded: true, hp: MATCH.maxHealth, alive: true, weapon: 0, primary, mag: slot.mag, reserve: slot.reserve, reloading: false,
       correctionSeq: p.correctionSeq + 1, spawnCount: p.spawnCount + 1, lastMoveAt: ctx.timestamp,
       kills: resetScores ? 0 : p.kills, deaths: resetScores ? 0 : p.deaths });
   }
@@ -407,7 +418,8 @@ export const move = spacetimedb.reducer({
 });
 
 /** One trigger pull. viewTimeMs = server time (ms) of the world the client was showing (lag compensation). */
-export const fire = spacetimedb.reducer({ seq: t.u32(), yaw: t.f32(), pitch: t.f32(), viewTimeMs: t.f64() }, (ctx, m) => {
+/** scoped = the shooter is fully aimed (ADS); only changes accuracy (sniper), never shown to others. */
+export const fire = spacetimedb.reducer({ seq: t.u32(), yaw: t.f32(), pitch: t.f32(), viewTimeMs: t.f64(), scoped: t.bool() }, (ctx, m) => {
   const row = myRow(ctx);
   if (!row || !row.alive) return;
   const r = ctx.db.room.id.find(row.roomId);
@@ -420,9 +432,34 @@ export const fire = spacetimedb.reducer({ seq: t.u32(), yaw: t.f32(), pitch: t.f
   if (slot.reloadLeft > 0 && !slot.stats.reloadPerShell) return;
   const maxRewind = r.isPrivate ? NET.maxRewindMsPrivate : NET.maxRewindMsPublic;
   const rewind = Math.max(0, Math.min(maxRewind, nowMs(ctx) - m.viewTimeMs));
-  fireShot(ctx, r, row, a, m.yaw, Math.max(-89 * DEG, Math.min(89 * DEG, m.pitch)), rewind);
+  fireShot(ctx, r, row, a, m.yaw, Math.max(-89 * DEG, Math.min(89 * DEG, m.pitch)), rewind, m.scoped);
   const updated = ctx.db.player.id.find(row.id);
   if (updated) syncAmmo(ctx, updated, a);
+});
+
+/** Choose the primary weapon (rifle / shotgun / sniper). Applies now during the freeze phase, else next round. */
+export const setPrimaryWeapon = spacetimedb.reducer({ weapon: t.string() }, (ctx, { weapon }) => {
+  const row = myRow(ctx);
+  if (!row) return;
+  const want = weapon as WeaponId;
+  if (!LOADOUT.primaries.includes(want)) throw new SenderError('not a primary weapon');
+  if (want === 'sniper') {
+    const snipers = playersIn(ctx, row.roomId).filter((p) => p.id !== row.id && p.team === row.team &&
+      (p.primary === 'sniper' || p.nextPrimary === 'sniper')).length;
+    if (snipers >= LOADOUT.maxSnipersPerTeam) throw new SenderError('your team already has a sniper');
+  }
+  const r = ctx.db.room.id.find(row.roomId);
+  if (r && r.phase === 'freeze' && row.alive) {
+    const a = actorFor(Number(row.id), row.team as TeamId, false);
+    setPrimary(a, want);
+    resetSlot(a.slots[0]);
+    if (a.active === 0) a.equipLeft = a.slots[0].stats.equipTime;
+    const next = { ...row, primary: want, nextPrimary: want };
+    ctx.db.player.id.update(next);
+    syncAmmo(ctx, next, a);
+  } else {
+    ctx.db.player.id.update({ ...row, nextPrimary: want });
+  }
 });
 
 /** The client's measured round-trip time, for the scoreboard. */
@@ -487,7 +524,7 @@ export const tick = spacetimedb.reducer({ onSchedule: tickTimer }, { timer: tick
       if (a.intent.reload) startReload(slot);
       if (!a.intent.fire) a.fireLatch = false;
       if (live && a.intent.fire && canFire(slot) && (slot.stats.automatic || !a.fireLatch)) {
-        fireShot(ctx, r, { ...row, yaw: a.yaw, pitch: a.pitch }, a, a.yaw, a.pitch, 0);
+        fireShot(ctx, r, { ...row, yaw: a.yaw, pitch: a.pitch }, a, a.yaw, a.pitch, 0, false);
         a.fireLatch = true;
       }
       stepOnGrid(a, nav, TICK_DT, slot.stats.moveSpeedScale);

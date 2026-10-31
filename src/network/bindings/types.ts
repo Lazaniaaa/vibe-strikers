@@ -45,6 +45,8 @@ export const Player = __t.object("Player", {
   hp: __t.f32(),
   alive: __t.bool(),
   weapon: __t.u8(),
+  primary: __t.string(),
+  nextPrimary: __t.string(),
   mag: __t.u16(),
   reserve: __t.u16(),
   reloading: __t.bool(),
@@ -85,6 +87,7 @@ export const ShotEvent = __t.object("ShotEvent", {
   part: __t.string(),
   damage: __t.f32(),
   killed: __t.bool(),
+  weapon: __t.string(),
   rewindMs: __t.f32(),
   hitWithoutRewind: __t.bool(),
 });

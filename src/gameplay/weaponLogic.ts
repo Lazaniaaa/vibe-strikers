@@ -87,10 +87,14 @@ export function consumeShot(slot: WeaponSlot): RecoilKick {
   return kick;
 }
 
-/** Current spread half-angle, degrees. `moveFraction` = horizontal speed / run speed (0..1). */
-export function spreadDeg(slot: WeaponSlot, moveFraction: number, airborne: boolean): number {
+/**
+ * Current spread half-angle, degrees. `moveFraction` = horizontal speed / run speed (0..1).
+ * `scoped` = fully aimed (ADS); weapons with adsSpreadDeg (sniper) are accurate only then.
+ */
+export function spreadDeg(slot: WeaponSlot, moveFraction: number, airborne: boolean, scoped = false): number {
   const s = slot.stats;
-  return s.spreadDeg + slot.bloomDeg + s.moveSpreadDeg * Math.min(1, Math.max(0, moveFraction)) + (airborne ? s.airSpreadDeg : 0);
+  const base = scoped && s.adsSpreadDeg !== undefined ? s.adsSpreadDeg : s.spreadDeg;
+  return base + slot.bloomDeg + s.moveSpreadDeg * Math.min(1, Math.max(0, moveFraction)) + (airborne ? s.airSpreadDeg : 0);
 }
 
 /** Damage for one bullet at a distance (falloff only where configured, e.g. shotgun). */
@@ -99,4 +103,10 @@ export function damageAt(stats: WeaponStats, distance: number): number {
   const span = Math.max(1e-6, stats.range - stats.falloffStart);
   const f = Math.min(1, (distance - stats.falloffStart) / span);
   return stats.damage * (1 - f * (1 - stats.falloffMinScale));
+}
+
+/** Bolt / pump animation progress 0..1 after a shot (null when idle or not a cycling weapon). */
+export function cycleProgress(slot: WeaponSlot): number | null {
+  if (!slot.stats.cycles || slot.cooldown <= 0) return null;
+  return Math.min(1, Math.max(0, 1 - slot.cooldown / slot.stats.fireInterval));
 }

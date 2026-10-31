@@ -68,6 +68,9 @@ async function main(): Promise<void> {
         await net.connect();
       }
       await joinWith(net, choice, menu.character);
+      // Saved primary choice (applies at once during the freeze phase, otherwise next round).
+      const savedPrimary = params.get('primary') ?? storage('local')?.getItem('voxel-primary');
+      if (savedPrimary) await net.setPrimary(savedPrimary).catch(() => undefined);
       menu.hide();
       root.render(<OnlineApp net={net} debug={debug} />);
       return;

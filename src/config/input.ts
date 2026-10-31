@@ -12,6 +12,9 @@ export const KEYS = {
   reload: 'KeyR',
   slot1: 'Digit1',
   slot2: 'Digit2',
+  slot3: 'Digit3',
+  /** Primary for the next round (online): rifle, shotgun, sniper. */
+  primaryKeys: ['Digit7', 'Digit8', 'Digit9'] as readonly string[],
   scoreboard: 'Tab',
 } as const;
 

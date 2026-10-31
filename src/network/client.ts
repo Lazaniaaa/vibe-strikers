@@ -311,11 +311,14 @@ export class GameNet {
   }
 
   /** One trigger pull at (yaw, pitch); viewTimeMs = server time of what the player was seeing. */
-  fire(yaw: number, pitch: number, viewTimeMs: number): void {
+  fire(yaw: number, pitch: number, viewTimeMs: number, scoped = false): void {
     if (!this.conn) return;
-    const msg = { seq: ++this.fireSeq, yaw, pitch, viewTimeMs };
+    const msg = { seq: ++this.fireSeq, yaw, pitch, viewTimeMs, scoped };
     void this.call(() => this.conn!.reducers.fire(msg)).catch(() => undefined);
   }
+
+  /** Choose the primary (rifle / shotgun / sniper); rejects if the team already has a sniper. */
+  setPrimary(weapon: string): Promise<void> { return this.call(() => this.conn!.reducers.setPrimaryWeapon({ weapon })); }
 
   reload(): void { if (this.conn) void this.call(() => this.conn!.reducers.reload({})).catch(() => undefined); }
 

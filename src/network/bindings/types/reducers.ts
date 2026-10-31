@@ -14,6 +14,7 @@ import LeaveRoomReducer from "../leave_room_reducer";
 import MoveReducer from "../move_reducer";
 import ReloadReducer from "../reload_reducer";
 import ReportPingReducer from "../report_ping_reducer";
+import SetPrimaryWeaponReducer from "../set_primary_weapon_reducer";
 import SwitchWeaponReducer from "../switch_weapon_reducer";
 
 export type CreatePrivateRoomParams = __Infer<typeof CreatePrivateRoomReducer>;
@@ -24,5 +25,6 @@ export type LeaveRoomParams = __Infer<typeof LeaveRoomReducer>;
 export type MoveParams = __Infer<typeof MoveReducer>;
 export type ReloadParams = __Infer<typeof ReloadReducer>;
 export type ReportPingParams = __Infer<typeof ReportPingReducer>;
+export type SetPrimaryWeaponParams = __Infer<typeof SetPrimaryWeaponReducer>;
 export type SwitchWeaponParams = __Infer<typeof SwitchWeaponReducer>;
 

@@ -11,6 +11,8 @@ export class Input {
   private dx = 0;
   private dy = 0;
   private slotRequest = -1;
+  /** Index into LOADOUT.primaries chosen with 7/8/9, -1 = none (read once with takePrimaryRequest). */
+  private primaryRequest = -1;
   /** Taps shorter than one frame still count. */
   private pressed = new Set<string>();
   private element: HTMLElement;
@@ -31,6 +33,8 @@ export class Input {
     element.addEventListener('contextmenu', (e) => e.preventDefault());
   }
 
+  takePrimaryRequest(): number { const r = this.primaryRequest; this.primaryRequest = -1; return r; }
+
   /** True while a key (KeyboardEvent.code) is held. */
   isDown(code: string): boolean { return this.keys.has(code); }
 
@@ -43,6 +47,9 @@ export class Input {
   private onKeyDown = (e: KeyboardEvent) => {
     if (e.code === KEYS.slot1) this.slotRequest = 0;
     if (e.code === KEYS.slot2) this.slotRequest = 1;
+    if (e.code === KEYS.slot3) this.slotRequest = 2;
+    const primary = KEYS.primaryKeys.indexOf(e.code);
+    if (primary >= 0) this.primaryRequest = primary;
     if (e.code === 'Enter') this.onConfirm?.();
     if (e.code === KEYS.jump || e.code === KEYS.crouch || e.code === KEYS.scoreboard) e.preventDefault();
     if (!e.repeat) this.pressed.add(e.code);

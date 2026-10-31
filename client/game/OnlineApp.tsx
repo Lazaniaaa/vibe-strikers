@@ -9,7 +9,7 @@ import { loadMapData, mapShotBlockers } from '../../src/maps';
 import { CAMERA, EFFECTS, MAP_ID, RENDER } from '../../src/config/game';
 import { MAX_FRAME_DT, MOVEMENT } from '../../src/config/movement';
 import { NET } from '../../src/config/net';
-import { createActor, setMotionFromVelocity, type Actor } from '../../src/gameplay/actor';
+import { createActor, setMotionFromVelocity, setPrimary, type Actor } from '../../src/gameplay/actor';
 import { rayBlockers } from '../../src/gameplay/hitscan';
 import { clamp, DEG, directionFromAngles, vec3 } from '../../src/gameplay/math';
 import { RapierMotor } from '../../src/gameplay/rapierMotor';
@@ -17,6 +17,8 @@ import type { TeamId } from '../../src/gameplay/round';
 import { canFire, cancelReload, consumeShot, resetSlot, spreadDeg, startReload, tickSlot } from '../../src/gameplay/weaponLogic';
 import type { GameNet, KillEvent, ShotEvent, Snapshot } from '../../src/network/client';
 import { KEYS } from '../../src/config/input';
+import { LOADOUT, loadoutFor } from '../../src/config/weapons';
+import type { WeaponId } from '../../src/weapons';
 import { Hud, type HudView } from '../../src/ui/hud';
 import { Scoreboard, type ScoreRow } from '../../src/ui/scoreboard';
 import { characterLabel } from './characterLabel';
@@ -56,7 +58,7 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
 
   const game = useMemo(() => {
     const me = net.me!;
-    const local = createActor(0, me.team as TeamId, me.name, false, me.character);
+    const local = createActor(0, me.team as TeamId, me.name, false, me.character, me.primary as WeaponId);
     const motor = new RapierMotor(rapier, world);
     motor.add(local);
     const input = new Input(gl.domElement);
@@ -79,7 +81,8 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
     const feed: string[] = [];
     const scratch = { from: vec3(), dir: vec3(), punch: 0, autoAim: null as bigint | null };
     const rewinds: number[] = [];
-    const spawn = (row: { x: number; y: number; z: number; yaw: number }) => {
+    const spawn = (row: { x: number; y: number; z: number; yaw: number; primary: string }) => {
+      setPrimary(local, row.primary as WeaponId);
       motor.teleport(local, row.x, row.y, row.z);
       local.yaw = row.yaw; local.intent.yaw = row.yaw; local.pitch = 0;
       for (const s of local.slots) resetSlot(s);
@@ -110,7 +113,7 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
         if (r) r.actor.fireAnimLeft = r.actor.slots[r.actor.active].stats.fireAnimTime;
         const from = effects.scratchStart;
         if (!r || !r.rig.muzzleWorld(from)) from.set(e.ox, e.oy, e.oz);
-        effects.addShot({ shooterId: Number(e.shooterId), ox: e.ox, oy: e.oy, oz: e.oz, ex: e.ex, ey: e.ey, ez: e.ez,
+        if (e.weapon !== 'knife') effects.addShot({ shooterId: Number(e.shooterId), ox: e.ox, oy: e.oy, oz: e.oz, ex: e.ex, ey: e.ey, ez: e.ez,
           hitKind: e.hitKind as 'none' | 'world' | 'player', victimId: Number(e.victimId), part: e.part as 'head' | 'body',
           damage: e.damage, killed: e.killed }, from);
       }
@@ -180,6 +183,14 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
     const phase = room?.phase ?? 'freeze';
     const live = phase === 'live';
     local.alive = me?.alive ?? false;
+    // The server applied a new primary during the freeze phase.
+    if (me && setPrimary(local, me.primary as WeaponId)) { if (local.active === 0) local.equipLeft = local.slots[0].stats.equipTime; }
+    const primaryChoice = input.takePrimaryRequest();
+    if (primaryChoice >= 0 && me) {
+      const want = LOADOUT.primaries[primaryChoice];
+      try { localStorage.setItem('voxel-primary', want); } catch { /* storage blocked */ }
+      net.setPrimary(want).then(() => { net.lastError = ''; }, () => undefined);
+    }
 
     // Local movement (client authority, server validation) and predicted weapon.
     let localFired = false;
@@ -222,6 +233,7 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
             scratch.from.x = local.x; scratch.from.y = local.y + local.eyeHeight; scratch.from.z = local.z;
             const dist = Math.min(s.stats.range, rayBlockers(scratch.from, scratch.dir, s.stats.range, blockers));
             const from = effects.scratchStart;
+            if (s.stats.id === 'knife') continue;
             from.set(local.x - Math.sin(local.yaw) * 0.55 + Math.cos(local.yaw) * 0.17, local.y + local.eyeHeight - 0.14,
               local.z - Math.cos(local.yaw) * 0.55 - Math.sin(local.yaw) * 0.17);
             effects.addShot({ shooterId: 0, ox: 0, oy: 0, oz: 0, ex: scratch.from.x + scratch.dir.x * dist, ey: scratch.from.y + scratch.dir.y * dist,
@@ -259,6 +271,7 @@ function OnlineDriver({ net, debug }: { net: GameNet; debug: boolean }) {
       const a = r.actor;
       a.x = sample.x; a.y = sample.y; a.z = sample.z; a.yaw = sample.yaw; a.pitch = sample.pitch;
       a.crouching = sample.crouch; a.grounded = sample.grounded; a.alive = sample.alive;
+      setPrimary(a, row.primary as WeaponId);
       if (row.weapon < a.slots.length) a.active = row.weapon;
       if (a.fireAnimLeft > 0) a.fireAnimLeft = Math.max(0, a.fireAnimLeft - dt);
       setMotionFromVelocity(a, sample.vx, sample.vz, MOVEMENT.runSpeed);
@@ -319,6 +332,7 @@ function fillOnlineHud(v: HudView, net: GameNet, local: Actor, feed: readonly st
   const me = net.me, r = net.room, s = local.slots[local.active];
   v.hp = me?.hp ?? 0; v.alive = me?.alive ?? false;
   v.weapon = s.stats.id.toUpperCase(); v.mag = s.mag; v.reserve = s.reserve; v.reloading = s.reloadLeft > 0;
+  v.melee = s.stats.magSize === 0;
   let humans = 0, bots = 0, aliveA = 0, aliveB = 0;
   for (const row of net.players.values()) {
     if (row.isBot) bots++; else humans++;
@@ -335,6 +349,10 @@ function fillOnlineHud(v: HudView, net: GameNet, local: Actor, feed: readonly st
   else if (r.phase === 'matchEnd') { v.center = r.matchWinner === mine ? 'VICTORY' : 'DEFEAT'; v.sub = `new match in ${Math.ceil(r.timeLeft)}`; }
   else if (me && !me.alive) { v.center = 'You died'; v.sub = 'Wait for the next round'; }
   else { v.center = ''; v.sub = ''; }
+  if (me && r && (r.phase === 'freeze' || r.phase === 'roundEnd' || !me.alive)) {
+    const next = loadoutFor(me.nextPrimary as WeaponId)[0];
+    v.sub += `${v.sub ? '\n' : ''}Primary: ${LOADOUT.primaries.map((w, i) => `${7 + i} ${w}${w === next ? ' ✓' : ''}`).join(' · ')}`;
+  }
   v.killFeed = `Room ${r?.code ?? '-----'}${r?.isPrivate ? ' (private)' : ''} · ${humans} players + ${bots} bots · team ${mine ?? '-'}` +
     `${net.lagMs ? ` · lag ${net.lagMs} ms` : ''}${feed.length ? `\n${feed.join('\n')}` : ''}${net.lastError ? `\n${net.lastError}` : ''}`;
 }

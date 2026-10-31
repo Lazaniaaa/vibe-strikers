@@ -3,10 +3,10 @@ import {
   AmbientLight, BoxGeometry, DirectionalLight, Group, Mesh, MeshBasicMaterial, Object3D, PerspectiveCamera, Scene, Vector3,
 } from 'three';
 import { characters, createCharacter, poseCharacter, type PoseState } from '../../src/characters';
-import { attachWeapon, createViewmodel, createWeapon, poseViewmodel, poseWeapon, type ViewmodelState, type WeaponId, type WeaponState } from '../../src/weapons';
+import { attachWeapon, createViewmodel, createWeapon, poseViewmodel, poseWeapon, weaponIds, type ViewmodelState, type WeaponId, type WeaponState } from '../../src/weapons';
 import { EFFECTS, POSE, VIEWMODEL_CAMERA } from '../../src/config/game';
 import type { Actor } from '../../src/gameplay/actor';
-import { reloadProgress } from '../../src/gameplay/weaponLogic';
+import { cycleProgress, reloadProgress } from '../../src/gameplay/weaponLogic';
 import type { ShotEvent } from '../../src/gameplay/simulation';
 
 /** Ally marker above a teammate's head (enemies get none). */
@@ -30,7 +30,8 @@ export class AvatarRig {
     this.root = createCharacter(characters[actor.characterIndex % characters.length]);
     this.marker = allyMarker;
     if (allyMarker) { allyMarker.position.set(0, ALLY_MARKER_Y, 0); this.root.add(allyMarker); }
-    for (const slot of actor.slots) this.weapons.set(slot.stats.id, createWeapon(slot.stats.id));
+    // Every weapon once (the primary can change between rounds); only the held one is attached.
+    for (const id of weaponIds) this.weapons.set(id, createWeapon(id));
   }
 
   /** Muzzle of the held weapon (for tracer start points). */
@@ -65,8 +66,9 @@ export class AvatarRig {
       poseCharacter(this.root, p, dt);
       if (!this.degraded && p.weapon && performance.now() - t > POSE.slowCallMs) this.degraded = true;
     }
+    p.cycle = cycleProgress(slot);
     const wp = this.weaponPose;
-    wp.fire = p.fire; wp.reload = p.reload;
+    wp.fire = p.fire; wp.reload = p.reload; wp.cycle = p.cycle;
     poseWeapon(this.weapons.get(id)!, wp);
     if (this.marker) this.marker.visible = actor.alive;
   }
@@ -86,8 +88,7 @@ export class ViewmodelRig {
     this.scene.add(new AmbientLight(0xffffff, 1.6));
     const key = new DirectionalLight(0xffffff, 1.4); key.position.set(0.5, 1, 0.8); this.scene.add(key);
     const config = characters[actor.characterIndex % characters.length];
-    for (const slot of actor.slots) {
-      const id = slot.stats.id;
+    for (const id of weaponIds) {
       const vm = createViewmodel(id, config, { holdSide: 'right' });
       vm.visible = false;
       this.scene.add(vm);
@@ -119,7 +120,7 @@ export class ViewmodelRig {
     const vm = this.models.get(id)!;
     vm.visible = actor.alive;
     const s = this.state, fireT = actor.fireAnimLeft / slot.stats.fireAnimTime;
-    s.fire = fireT; s.reload = reloadProgress(slot);
+    s.fire = fireT; s.reload = reloadProgress(slot); s.cycle = cycleProgress(slot);
     s.equip = slot.stats.equipTime > 0 ? 1 - actor.equipLeft / slot.stats.equipTime : 1;
     s.moveSpeed = actor.moveFraction; s.strafe = actor.moveLocalX * actor.moveFraction;
     s.grounded = actor.grounded; s.crouching = actor.crouching; s.aimPitch = actor.pitch; s.time = time;

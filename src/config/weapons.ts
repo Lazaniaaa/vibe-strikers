@@ -44,13 +44,19 @@ export interface WeaponStats {
   fireAnimTime: number;
   /** Move speed multiplier while holding this weapon. */
   moveSpeedScale: number;
+  /** Spread (degrees) replacing spreadDeg when fully aimed (ADS); undefined = ADS does not change spread. */
+  adsSpreadDeg?: number;
+  /** Move speed multiplier while aimed (ADS). */
+  adsSpeedScale: number;
+  /** Bolt / pump action: the `cycle` animation runs during the fire interval. */
+  cycles: boolean;
 }
 
 const base = {
   pellets: 1, reserve: 0, reloadPerShell: false, bloomPerShotDeg: 0, maxBloomDeg: 0,
   moveSpreadDeg: 2.5, airSpreadDeg: 4, recoverTime: 0.3, range: 200, falloffStart: 1000,
   falloffMinScale: 1, recoilPattern: [{ pitchDeg: 0, yawDeg: 0 }], recoilYawJitterDeg: 0,
-  viewPunchDeg: 0, equipTime: 0.45, fireAnimTime: 0.12, moveSpeedScale: 1,
+  viewPunchDeg: 0, equipTime: 0.45, fireAnimTime: 0.12, moveSpeedScale: 1, adsSpeedScale: 1, cycles: false,
 } as const;
 
 export const WEAPON_STATS: Readonly<Record<WeaponId, WeaponStats>> = {
@@ -68,13 +74,29 @@ export const WEAPON_STATS: Readonly<Record<WeaponId, WeaponStats>> = {
       { pitchDeg: 0.25, yawDeg: 0 },
     ],
     recoilYawJitterDeg: 0.2, viewPunchDeg: 0.8, fireAnimTime: 0.08 },
+  // GAME.md 4: 0 spread scoped, 8 unscoped; move speed x0.7 while scoped.
   sniper: { ...base, id: 'sniper', damage: 100, fireInterval: 1.4, automatic: false, magSize: 5, reserve: 15,
-    reloadTime: 3.0, spreadDeg: 8, moveSpreadDeg: 6, recoilPattern: [{ pitchDeg: 3, yawDeg: 0 }], viewPunchDeg: 3,
-    moveSpeedScale: 0.9 },
+    reloadTime: 3.0, spreadDeg: 8, adsSpreadDeg: 0, moveSpreadDeg: 6, recoilPattern: [{ pitchDeg: 3, yawDeg: 0 }], viewPunchDeg: 3,
+    adsSpeedScale: 0.7, cycles: true, equipTime: 0.6 },
   shotgun: { ...base, id: 'shotgun', damage: 12, pellets: 8, fireInterval: 0.9, automatic: false, magSize: 6, reserve: 24,
     reloadTime: 0.5, reloadPerShell: true, spreadDeg: 6, moveSpreadDeg: 1, range: 40, falloffStart: 8, falloffMinScale: 0.3,
-    recoilPattern: [{ pitchDeg: 2.5, yawDeg: 0 }], viewPunchDeg: 2.5 },
+    recoilPattern: [{ pitchDeg: 2.5, yawDeg: 0 }], viewPunchDeg: 2.5, cycles: true },
 };
 
-/** Weapons enabled per milestone. M1: pistol + rifle (knife/sniper/shotgun come in M3). */
-export const M1_LOADOUT: readonly WeaponId[] = ['rifle', 'pistol'];
+/** Loadout (GAME.md 2.1): slot 1 primary (chosen between rounds), 2 pistol, 3 knife. */
+export const LOADOUT = {
+  primaries: ['rifle', 'shotgun', 'sniper'] as readonly WeaponId[],
+  defaultPrimary: 'rifle' as WeaponId,
+  secondary: 'pistol' as WeaponId,
+  melee: 'knife' as WeaponId,
+  /** DEFAULT (GAME.md 2.1): at most this many snipers per team. */
+  maxSnipersPerTeam: 1,
+} as const;
+
+/** The three slots for a primary choice. */
+export function loadoutFor(primary: WeaponId): WeaponId[] {
+  return [LOADOUT.primaries.includes(primary) ? primary : LOADOUT.defaultPrimary, LOADOUT.secondary, LOADOUT.melee];
+}
+
+/** ADS value from which the sniper counts as scoped (spread, speed, overlay). */
+export const SCOPED_ADS = 0.9;

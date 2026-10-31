@@ -8,6 +8,8 @@ export interface HudView {
   mag: number;
   reserve: number;
   reloading: boolean;
+  /** Melee weapon: no ammo counter. */
+  melee?: boolean;
   phase: 'freeze' | 'live' | 'roundEnd' | 'matchEnd';
   timeLeft: number;
   round: number;
@@ -60,7 +62,7 @@ export class Hud {
     this.overlay = el('div', 'hud-overlay', root);
     el('div', 'hud-overlay-title', this.overlay, 'Click to play');
     el('div', 'hud-overlay-keys', this.overlay,
-      'WASD move · Mouse aim · LMB fire · R reload · 1 rifle · 2 pistol · Space jump · C / Ctrl crouch · Shift walk · Esc release mouse');
+      'WASD move · Mouse aim · LMB fire · R reload · 1 primary · 2 pistol · 3 knife · 7/8/9 rifle/shotgun/sniper · RMB aim · Tab scores · Space jump · C / Ctrl crouch · Shift walk · Esc release mouse');
   }
 
   private set(e: HTMLElement, text: string): void {
@@ -72,7 +74,7 @@ export class Hud {
   update(v: HudView): void {
     this.set(this.hp, v.alive ? `HP ${Math.max(0, Math.ceil(v.hp))}` : 'DEAD');
     this.set(this.weapon, v.reloading ? `${v.weapon} · reloading` : v.weapon);
-    this.set(this.ammo, `${v.mag} / ${v.reserve}`);
+    this.set(this.ammo, v.melee ? '—' : `${v.mag} / ${v.reserve}`);
     const t = Math.max(0, Math.ceil(v.timeLeft));
     this.set(this.timer, v.phase === 'matchEnd' ? '--:--' : `${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}`);
     this.set(this.score, `A ${v.scoreA} · round ${v.round} · ${v.scoreB} B    alive ${v.aliveA} v ${v.aliveB}`);

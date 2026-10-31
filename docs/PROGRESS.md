@@ -182,6 +182,15 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   shot_event / kill_event rows (old room dropped after the new subscription is live).
 - 2026-10-31 owner: maxRewindMs raised to 300 public / 350 private; interpolationDelayMs stays 100 (test 75
   later on a real network). After the change: 200 ms lag test 4/4 hits (rewind 304-350 ms).
+- 2026-10-31 M3p2a: loadout = slot 1 primary, 2 pistol, 3 knife. Primary chosen with keys 7/8/9 (rifle /
+  shotgun / sniper) at any time, saved in the browser and sent after joining; the server applies it at once
+  during the freeze phase (alive players), otherwise at the next respawn (`nextPrimary` -> `primary`).
+  Max 1 sniper per team (server rejects the choice; counts current and next choices of teammates).
+- 2026-10-31 M3p2a: sniper accuracy: the `fire` message carries `scoped` (ADS >= 0.9); only used for spread
+  (0 scoped / 8 unscoped, GAME.md 4), never broadcast. Sniper move speed x0.7 only while scoped (client).
+- 2026-10-31 M3p2a: bots keep the rifle (no loadout AI); the offline practice uses rifle + pistol + knife.
+- 2026-10-31 M3p2a: knife = hitscan with 1.6 m range, no tracer; bolt / pump animation (`cycle`) runs during
+  the fire interval of sniper and shotgun.
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 

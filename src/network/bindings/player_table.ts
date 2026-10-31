@@ -36,6 +36,8 @@ export default __t.row({
   hp: __t.f32(),
   alive: __t.bool(),
   weapon: __t.u8(),
+  primary: __t.string(),
+  nextPrimary: __t.string().name("next_primary"),
   mag: __t.u16(),
   reserve: __t.u16(),
   reloading: __t.bool(),

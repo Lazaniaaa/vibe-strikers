@@ -1,7 +1,8 @@
 // Simulation state of one player (local, bot, or later remote). Plain data, no three.js.
 import { CAPSULE } from '../config/movement.ts';
 import { MATCH } from '../config/rounds.ts';
-import { M1_LOADOUT, WEAPON_STATS } from '../config/weapons.ts';
+import { LOADOUT, loadoutFor, WEAPON_STATS } from '../config/weapons.ts';
+import type { WeaponId } from '../weapons/types.ts';
 import { createSlot, type WeaponSlot } from './weaponLogic.ts';
 import type { HitTarget } from './hitscan.ts';
 import type { TeamId } from './round.ts';
@@ -64,11 +65,20 @@ export interface Actor extends HitTarget {
   intent: PlayerIntent;
 }
 
-export function createActor(id: number, team: TeamId, name: string, isBot: boolean, characterIndex: number): Actor {
+/** Replace slot 0 (primary) if it is a different weapon. Returns true when it changed. */
+export function setPrimary(a: Actor, primary: WeaponId): boolean {
+  const want = loadoutFor(primary)[0];
+  if (a.slots[0].stats.id === want) return false;
+  a.slots[0] = createSlot(WEAPON_STATS[want]);
+  return true;
+}
+
+export function createActor(id: number, team: TeamId, name: string, isBot: boolean, characterIndex: number,
+  primary: WeaponId = LOADOUT.defaultPrimary): Actor {
   return {
     id, team, name, isBot, characterIndex, x: 0, y: 0, z: 0, yaw: 0, pitch: 0, crouching: false,
     vx: 0, vy: 0, vz: 0, grounded: false, eyeHeight: CAPSULE.eyeHeight, hp: MATCH.maxHealth, alive: true,
-    slots: M1_LOADOUT.map((w) => createSlot(WEAPON_STATS[w])), active: 0, equipLeft: 0, fireAnimLeft: 0,
+    slots: loadoutFor(primary).map((w) => createSlot(WEAPON_STATS[w])), active: 0, equipLeft: 0, fireAnimLeft: 0,
     fireLatch: false, jumpLatch: false, kills: 0, deaths: 0, moveFraction: 0, moveLocalX: 0, moveLocalZ: -1,
     sinceDamage: 99, lastAttacker: -1, intent: createIntent(),
   };

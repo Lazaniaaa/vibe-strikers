@@ -24,6 +24,7 @@ export default __t.row({
   part: __t.string(),
   damage: __t.f32(),
   killed: __t.bool(),
+  weapon: __t.string(),
   rewindMs: __t.f32().name("rewind_ms"),
   hitWithoutRewind: __t.bool().name("hit_without_rewind"),
 });

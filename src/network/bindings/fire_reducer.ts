@@ -15,4 +15,5 @@ export default {
   yaw: __t.f32(),
   pitch: __t.f32(),
   viewTimeMs: __t.f64(),
+  scoped: __t.bool(),
 };

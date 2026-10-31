@@ -188,6 +188,54 @@ try {
   check(a.room?.phase === 'freeze' && a.room.round === 2 && c.me.alive && c.me.hp === 100 && c.me.spawnCount === spawnBefore + 1,
     `round 2: Carl respawned with ${c.me.hp} HP`);
   check(a.me.weapon === 0 && a.me.mag === rifle.magSize && a.me.reserve === rifle.reserve, 'respawn resets weapons and ammo');
+  let aim2;
+  // ---------------- Weapons (round 2): loadout, sniper limit, knife, scoped sniper, shotgun pellets.
+  await a.setPrimary('sniper');
+  await waitFor(() => a.me.primary === 'sniper', 2000);
+  check(a.me.primary === 'sniper' && a.me.weapon === 0 && a.me.mag === WEAPON_STATS.sniper.magSize,
+    `primary changed to sniper during the freeze phase (mag ${a.me.mag})`);
+  const e = await client();
+  await e.joinByCode(a.room.code, 'Eve', 2);
+  await waitFor(() => e.me);
+  let sniperError = '';
+  try { await e.setPrimary('sniper'); } catch (err) { sniperError = e.lastError; }
+  check(e.me.team === a.me.team && sniperError.includes('sniper'), `max 1 sniper per team: teammate rejected ("${sniperError}")`);
+  e.disconnect();
+  const walked2 = await walkTo(mods, c, spot.x, spot.z);
+  check(walked2, 'Carl walked back to the visible spot');
+  await waitFor(() => a.room?.phase === 'live', 20000);
+  await sleep(300);
+  shots.length = 0;
+  a.switchWeapon(2);
+  await waitFor(() => a.me.weapon === 2, 2000);
+  await sleep(WEAPON_STATS.knife.equipTime * 1000 + 100);
+  aim = aimAt(a, c.me);
+  a.fire(aim.yaw, aim.pitch, a.serverTimeAt(performance.now()));
+  await waitFor(() => shots.length >= 1, 2000);
+  check(shots[0]?.weapon === 'knife' && shots[0].hitKind !== 'player' && c.me.hp === 100,
+    `knife does not reach ${spot.d.toFixed(1)} m (event ${shots[0]?.weapon} ${shots[0]?.hitKind})`);
+  a.switchWeapon(0);
+  await waitFor(() => a.me.weapon === 0, 2000);
+  await sleep(WEAPON_STATS.sniper.equipTime * 1000 + 100);
+  shots.length = 0;
+  aim = aimAt(a, c.me);
+  a.fire(aim.yaw, aim.pitch, a.serverTimeAt(performance.now()), true);
+  await waitFor(() => shots.length >= 1, 2000);
+  await waitFor(() => !c.me.alive, 2000);
+  check(shots[0]?.weapon === 'sniper' && shots[0].hitKind === 'player' && !c.me.alive, `scoped sniper body shot kills (${shots[0]?.damage} damage)`);
+  await waitFor(() => a.room?.phase === 'roundEnd', 3000);
+  await a.setPrimary('shotgun');
+  check(a.me.nextPrimary === 'shotgun' || (await waitFor(() => a.me.nextPrimary === 'shotgun', 2000)), 'shotgun chosen during round end (next round)');
+  await waitFor(() => a.room?.phase === 'freeze' && a.room.round === 3, 8000);
+  check(a.me.primary === 'shotgun' && a.me.mag === WEAPON_STATS.shotgun.magSize, `round 3 starts with the shotgun (${a.me.primary}, ${a.me.mag})`);
+  await waitFor(() => a.room?.phase === 'live', 8000);
+  await sleep(WEAPON_STATS.shotgun.equipTime * 1000);
+  shots.length = 0;
+  a.fire(a.me.yaw, 0.3, a.serverTimeAt(performance.now()));
+  await waitFor(() => shots.length >= WEAPON_STATS.shotgun.pellets, 2000);
+  await sleep(200);
+  check(shots.length === WEAPON_STATS.shotgun.pellets && shots.every((x) => x.weapon === 'shotgun'), `shotgun fires ${shots.length} pellets`);
+
   check(a.pingMs > 0 && a.me.ping > 0, `ping measured (${a.pingMs.toFixed(1)} ms) and reported to the server (${a.me.ping} ms)`);
 
   clearInterval(pump);
