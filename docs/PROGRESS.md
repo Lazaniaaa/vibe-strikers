@@ -38,6 +38,8 @@ Date started: 2026-10-30. Credits expire 2026-11-05.
 - `NODE_PATH=$(npm root -g) node scripts/e2e-m3d.mjs [shot]` — settings panel saved and applied in game.
 - `NODE_PATH=$(npm root -g) node scripts/e2e-m3e.mjs` — sounds (steps, silent walk, shots, hits, reload, knife).
 - `NODE_PATH=$(npm root -g) node scripts/e2e-m1.cjs [shot.jpg]` — offline play test (M1).
+- `node scripts/test-stairs.mjs [mapId]` — finds every stair flight in the map data and walks the Rapier KCC up
+  and down each one, checking every 30 Hz sample with the server movement validation (0 corrections).
 - `node scripts/profile-bots.cjs [seconds]`, `node scripts/bench-sim.mjs [seconds] [hz]` — performance.
 - Asset owner commands unchanged: `npm run dev`, `npm run build`, `npm run verify` (see the cloud-only
   timing note in "Changes made in asset folders").
@@ -139,6 +141,10 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
 - `npm run verify` now writes reports into `outputs/` (gitignored).
 
 ## Requests to asset owner
+- **Blocked stairs (found 2026-10-31 by `scripts/test-stairs.mjs`):** the two 3-step flights at (-20.6, -29.3) and
+  (20.6, -29.3) (map `toy-town-l1-r1`) cannot be entered: a wall box 3.00 x 1.00 m, 1.61 m high, centre
+  (-20.90, -28.70) / (20.90, -28.70), stands right in front of the first step (too high to step or jump). Please
+  open the entrance or remove the flights.
 - RESOLVED 2026-10-31 by the asset owner (cached holds). **Slow firearm hold for 2 characters (found 2026-10-30, M1 step 0).** `poseCharacter` with a firearm
   takes 100-1200 ms per call (others: under 10 ms, most under 2 ms) for
   `vibe-vibers-bureau-roll-40-10` (index 17) and `vibe-vibers-viber-142` (index 3), in every state,
@@ -220,6 +226,14 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
 - 2026-10-31 fix 2: "Leave match" on the Esc overlay with "Are you sure? Yes / No". Online: `leave_room`
   (server deletes the row, a bot refills), the client drops the room subscription and its rows, keeps the
   connection; menu shows again and any join works without reloading. Offline: back to the menu.
+- 2026-10-31 fix 3: stairs. KCC settings were already right (autostep 0.35 m >= 0.30, dynamic bodies off, min width
+  0.15 m, snap to ground 0.3 m). The real cause: the motor set the horizontal velocity from the actual movement
+  every frame, so autostep stalled at every step edge (10-step flight up in 2.2-2.7 s vs 1.25 s down). Now the
+  intended ground speed is kept (actor.vx/vz still report the actual movement): up in 1.37 s. Server
+  validation accepts it: `scripts/test-stairs.mjs` walks every reachable flight up and down with 0 corrections.
+- 2026-10-31 fix 3: bots do NOT use stairs: the nav grid has one height level per cell, the landings sit above
+  walkable ground, and higher steps count as obstacles (bots reach at most the 4th step, a dead end they do not
+  plan into). Needs a multi-level nav grid: later (not cheap).
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 

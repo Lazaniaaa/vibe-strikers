@@ -19,6 +19,8 @@ export class RapierMotor {
   private world: World;
   private controller: KinematicCharacterController;
   private colliders = new Map<number, Collider>();
+  /** Intended horizontal velocity per actor (actor.vx/vz hold the ACTUAL movement for animation and the network). */
+  private wishVel = new Map<number, { x: number; z: number }>();
   private standShape: Shape;
   private readonly identityRot = { x: 0, y: 0, z: 0, w: 1 };
   private readonly desired = { x: 0, y: 0, z: 0 };
@@ -49,6 +51,8 @@ export class RapierMotor {
   teleport(actor: Actor, x: number, y: number, z: number): void {
     actor.x = x; actor.y = y; actor.z = z; actor.vx = 0; actor.vy = 0; actor.vz = 0;
     actor.crouching = false; actor.eyeHeight = CAPSULE.eyeHeight; actor.grounded = false;
+    const v = this.wishVel.get(actor.id);
+    if (v) { v.x = 0; v.z = 0; }
     const c = this.colliders.get(actor.id);
     if (!c) return;
     c.setHalfHeight(STAND_HALF);
@@ -82,11 +86,13 @@ export class RapierMotor {
     const speed = (actor.crouching ? MOVEMENT.crouchSpeed : intent.walk ? MOVEMENT.walkSpeed : MOVEMENT.runSpeed) * speedScale;
     const tx = (fx * f - fz * r) * speed, tz = (fz * f + fx * r) * speed;
     const accel = MOVEMENT.groundAccel * (actor.grounded ? 1 : MOVEMENT.airControl) * dt;
-    let dvx = tx - actor.vx, dvz = tz - actor.vz;
+    let v = this.wishVel.get(actor.id);
+    if (!v) { v = { x: actor.vx, z: actor.vz }; this.wishVel.set(actor.id, v); }
+    let dvx = tx - v.x, dvz = tz - v.z;
     const dl = Math.hypot(dvx, dvz);
     if (dl > accel) { dvx *= accel / dl; dvz *= accel / dl; }
     // In the air, only steer (never brake below current speed without input).
-    if (actor.grounded || len > 0) { actor.vx += dvx; actor.vz += dvz; }
+    if (actor.grounded || len > 0) { v.x += dvx; v.z += dvz; }
 
     // Jump (one per press) and gravity.
     if (!intent.jump) actor.jumpLatch = false;
@@ -95,7 +101,7 @@ export class RapierMotor {
     }
     actor.vy = Math.max(-MOVEMENT.maxFallSpeed, actor.vy - MOVEMENT.gravity * dt);
 
-    this.desired.x = actor.vx * dt; this.desired.y = actor.vy * dt; this.desired.z = actor.vz * dt;
+    this.desired.x = v.x * dt; this.desired.y = actor.vy * dt; this.desired.z = v.z * dt;
     this.controller.computeColliderMovement(c, this.desired, undefined, QUERY_GROUPS);
     const m = this.controller.computedMovement();
     const grounded = this.controller.computedGrounded();
@@ -104,8 +110,10 @@ export class RapierMotor {
     this.center.x = actor.x; this.center.y = actor.y + CAPSULE.radius + this.halfHeight(actor); this.center.z = actor.z;
     c.setTranslation(this.center);
 
-    // Velocity follows what actually happened (walls, ceilings, landing).
+    // actor.vx/vz = what actually happened. The intended speed is kept on the ground, so autostep (stairs)
+    // does not stall at every step edge; in the air walls and ceilings take it away.
     actor.vx = m.x / dt; actor.vz = m.z / dt;
+    if (!grounded) { v.x = actor.vx; v.z = actor.vz; }
     if (grounded && actor.vy <= 0) actor.vy = -MOVEMENT.groundStickSpeed;
     else if (actor.vy > 0 && m.y < this.desired.y * 0.5) actor.vy = 0; // bumped the ceiling
     actor.grounded = grounded;
@@ -123,5 +131,6 @@ export class RapierMotor {
   remove(actor: Actor): void {
     const c = this.colliders.get(actor.id);
     if (c) { this.world.removeCollider(c, false); this.colliders.delete(actor.id); }
+    this.wishVel.delete(actor.id);
   }
 }
