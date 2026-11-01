@@ -17,6 +17,7 @@ import { spreadDeg } from '../../src/gameplay/weaponLogic';
 import { Hud, type HudView } from '../../src/ui/hud';
 import { Input } from './input';
 import { AvatarRig, DeathMarkers, ShotEffects, ViewmodelRig } from './visuals';
+import { CameraShake } from './cameraShake';
 import { FramePerf } from './perf';
 import { AdsController } from './ads';
 import { BootGlows, ItemViews } from './items';
@@ -54,6 +55,8 @@ export interface GameDebug {
   stats: { frames: number; localShots: number; localHits: number; localDamage: number; triangles: number; calls: number; fps: number; localSteps: number };
   perf: FramePerf;
   sounds: Record<string, number>;
+  /** Camera roll in radians (screen shake test). */
+  cameraRoll(): number;
   /** Visible death markers / dead bodies still shown (tests). */
   markers(): number;
   bodies(): number;
@@ -193,6 +196,7 @@ function GameDriver({ options }: { options: GameOptions }) {
       const g = game;
       window.__game = {
         sim: g.sim, input: g.input, stats: g.stats, perf: g.perf, sounds: getSfx().played,
+        cameraRoll: () => camera.rotation.z,
         markers: () => g.markers.count,
         tags: () => g.nameTags.visible(),
         los: (ax: number, ay: number, az: number, bx: number, by: number, bz: number) =>
@@ -239,7 +243,7 @@ function GameDriver({ options }: { options: GameOptions }) {
     };
   }, [game, scene, camera, gl, options.debug]);
 
-  const scratch = useMemo(() => ({ from: new Vector3(), fwd: new Vector3(), right: new Vector3(), hudTimer: 0, fpsFrames: 0, fpsTimer: 0, punch: 0,
+  const scratch = useMemo(() => ({ from: new Vector3(), fwd: new Vector3(), right: new Vector3(), hudTimer: 0, fpsFrames: 0, fpsTimer: 0, punch: 0, shake: new CameraShake(),
     audio: { prevReload: 0, steps: new Map<number, number>() } }), []);
   const view = useMemo<HudView>(() => ({ hp: 100, alive: true, weapon: '', mag: 0, reserve: 0, reloading: false, phase: 'freeze',
     timeLeft: 0, round: 1, scoreA: 0, scoreB: 0, aliveA: 0, aliveB: 0, center: '', sub: '', feed: [], roomInfo: `Offline practice · ${options.mode === 'cornucopia' ? `Cornucopia${options.teams === false ? ' (free-for-all)' : ''}` : 'Elimination'}${options.mutator ? ` · Mutator: ${mutatorLabel(options.mutator)}` : ''} · bots ${options.difficulty ?? DEFAULT_DIFFICULTY}`, fps: 0, perf: '', locked: false }), []);
@@ -293,7 +297,7 @@ function GameDriver({ options }: { options: GameOptions }) {
         const rig = rigs.get(shot.shooterId);
         if (!rig || !rig.muzzleWorld(from)) from.set(shot.ox, shot.oy, shot.oz);
       }
-      if (shot.victimId === LOCAL_ID) { hud.damageFlash(EFFECTS.damageFlashTime); sfx.play('hurt'); }
+      if (shot.victimId === LOCAL_ID) { hud.damageFlash(EFFECTS.damageFlashTime); sfx.play('hurt'); scratch.shake.hit(shot.damage); }
       if (weaponId !== 'knife') effects.addShot(shot, from);
     }
 
@@ -335,6 +339,7 @@ function GameDriver({ options }: { options: GameOptions }) {
     else if (local.alive) {
       cam.position.set(local.x, local.y + local.eyeHeight, local.z);
       cam.rotation.set(local.pitch + scratch.punch, local.yaw, 0);
+      scratch.shake.apply(cam, dt);
     } else {
       cam.position.y = Math.max(local.y + 0.6, cam.position.y - dt * 1.5);
     }

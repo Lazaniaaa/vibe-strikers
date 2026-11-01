@@ -1,5 +1,5 @@
 // Settings store (localStorage). The panel UI is in settingsPanel.ts.
-import { SETTINGS_DEFAULTS, SETTINGS_LIMITS, type AdsMode } from '../config/settings.ts';
+import { SETTINGS_DEFAULTS, SETTINGS_LIMITS, type AdsMode, type OnOff } from '../config/settings.ts';
 
 export interface Settings {
   sensitivity: number;
@@ -10,6 +10,7 @@ export interface Settings {
   adsMode: AdsMode;
   musicVolume: number;
   secondPersonMode: AdsMode;
+  screenShake: OnOff;
 }
 
 const KEY = 'voxel-settings';
@@ -29,6 +30,7 @@ function load(): Settings {
     crosshairSize: clamp(raw.crosshairSize, SETTINGS_LIMITS.crosshairSize, d.crosshairSize),
     adsMode: raw.adsMode === 'hold' ? 'hold' : 'toggle',
     secondPersonMode: raw.secondPersonMode === 'hold' ? 'hold' : 'toggle',
+    screenShake: raw.screenShake === 'off' ? 'off' : 'on',
   };
 }
 

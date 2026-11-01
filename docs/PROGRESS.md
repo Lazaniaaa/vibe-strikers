@@ -420,6 +420,11 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   allocation, flat state arrays); chips fly mostly sideways / up (only a little toward the shooter), fall with gravity
   and shrink. The dark impact cube stays. Evidence `docs/evidence/audit-{impacts,playerhit}-{before,after}.jpg`
   (real GPU via Playwright + the laptop's Chromium, 60 FPS).
+- 2026-11-01 audit 4: camera shake when the local player is hit (`client/game/cameraShake.ts`, numbers `EFFECTS.shake`):
+  trauma +0.35 + 0.003 per damage per hit, decays 1.6 / s, shake = trauma² x (roll up to 4°, offset up to 6 cm) from
+  smooth sines; roll + offset only, so the crosshair stays on the real aim. Setting "Screen shake when hit" on / off
+  (default on, GAME.md 10). Offline and online. `window.__game.cameraRoll()` (debug) for tests. Measured: a bot burst
+  gives max roll 0° before / 3.2° after; evidence `docs/evidence/audit-hurt-shake-before-after.jpg` (top row before).
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 

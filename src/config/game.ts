@@ -44,6 +44,21 @@ export const EFFECTS = {
   viewPunchRecover: 14,
   hitMarkerTime: 0.18,
   damageFlashTime: 0.35,
+  /**
+   * Camera shake when the local player is hit (trauma model): each hit adds trauma (more for more damage), trauma
+   * decays per second, the shake = max x trauma² x smooth noise. Roll + a small position offset only, so the
+   * crosshair keeps pointing where the shot will go.
+   */
+  shake: {
+    traumaMin: 0.35,
+    /** Extra trauma per point of damage (100 damage = +0.3). */
+    traumaPerDamage: 0.003,
+    decayPerSecond: 1.6,
+    maxRollDeg: 4,
+    maxOffset: 0.06,
+    /** Noise frequencies, Hz (two sines per axis, so the motion is smooth, not random jitter). */
+    freq: [17, 23, 29],
+  },
   /** Voxel chips flying off a bullet impact (one instanced mesh, pooled). */
   chips: {
     pool: 128,

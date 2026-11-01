@@ -27,6 +27,7 @@ import { MapView, PedestalColliders } from './GameApp';
 import { Input } from './input';
 import { FramePerf } from './perf';
 import { AvatarRig, DeathMarkers, ShotEffects, ViewmodelRig } from './visuals';
+import { CameraShake } from './cameraShake';
 import { AdsController } from './ads';
 import { BootGlows, ItemViews } from './items';
 import { SecondPersonView } from './secondPerson';
@@ -128,7 +129,7 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
     const sample: Snapshot = { t: 0, x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0, yaw: 0, pitch: 0, crouch: false, grounded: true, alive: true };
     const feed: string[] = [];
     const feedEntries: KillFeedEntry[] = [];
-    const scratch = { from: vec3(), dir: vec3(), punch: 0, autoAim: null as bigint | null, primary: '' };
+    const scratch = { from: vec3(), dir: vec3(), punch: 0, shake: new CameraShake(), autoAim: null as bigint | null, primary: '' };
     const rewinds: number[] = [];
     const sfx = getSfx();
     const audio = { stepDist: 0, prevReload: 0 };
@@ -177,7 +178,7 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
           hitKind: e.hitKind as 'none' | 'world' | 'player', victimId: Number(e.victimId), part: e.part as 'head' | 'body',
           damage: e.damage, killed: e.killed }, from);
       }
-      if (net.me && e.victimId === net.me.id && e.hitKind === 'player') { hud.damageFlash(EFFECTS.damageFlashTime); sfx.play('hurt'); }
+      if (net.me && e.victimId === net.me.id && e.hitKind === 'player') { hud.damageFlash(EFFECTS.damageFlashTime); sfx.play('hurt'); scratch.shake.hit(e.damage); }
     };
     // Team pings: only my team's are shown (in free-for-all only my own).
     net.onPing = (p) => {
@@ -458,6 +459,7 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
     else if (local.alive) {
       cam.position.set(local.x, local.y + local.eyeHeight, local.z);
       cam.rotation.set(local.pitch + scratch.punch, local.yaw, 0);
+      scratch.shake.apply(cam, dt);
     } else if (followed) {
       const a = followed.actor;
       cam.position.set(a.x, a.y + (a.crouching ? CAPSULE.crouchEyeHeight : CAPSULE.eyeHeight), a.z);

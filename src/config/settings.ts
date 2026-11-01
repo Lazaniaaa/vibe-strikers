@@ -19,7 +19,11 @@ export const SETTINGS_DEFAULTS = {
   adsMode: 'toggle' as AdsMode,
   /** GAME.md 5: second-person view (V) is a toggle by default. */
   secondPersonMode: 'toggle' as AdsMode,
+  /** Camera shake when the local player is hit (2026-11-01 audit). */
+  screenShake: 'on' as OnOff,
 };
+
+export type OnOff = 'on' | 'off';
 
 export const SETTINGS_LIMITS = {
   sensitivity: { min: 0.0005, max: 0.006, step: 0.0001 },

@@ -189,7 +189,8 @@ HUD: crosshair, HP, ammo/weapon, round timer and score, kill feed, hit marker,
 damage direction, TAB scoreboard, killcam banner, spectate overlay, ping + FPS.
 Settings: mouse sensitivity, FOV (default 90, 70-110), volume (master/sfx/music),
 crosshair (color, size, style), second-view mode (toggle/hold), ADS mode (toggle
-default / hold, owner 2026-10-31, M3), ping+FPS on/off.
+default / hold, owner 2026-10-31, M3), ping+FPS on/off, screen shake when hit
+(on / off, default on; camera roll + small offset only, the aim point does not move; 2026-11-01).
 Key rebinding LATER.
 
 ## 11. Visual style — DECIDED
