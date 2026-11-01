@@ -81,22 +81,34 @@ credits fighting the toolchain.
 - Gameplay numbers (damage, fire rate, ammo, reload time) live only in `src/config/`;
   the asset folders contain visuals only.
 - Change a shared type only after updating `docs/GAME.md` (network contract).
+- Codex works in its own copy (`C:\Users\User\Documents\Codex\2026-10-26\build-the-voxel-style-characters-for`)
+  that does NOT have the type-only casts listed in `docs/PROGRESS.md` ("Changes made in asset
+  folders"). When Codex delivers files, copy only those files into the repo and re-apply the
+  casts. Never overwrite the repo with Codex's whole folder.
 
-## Credits and workflow
-- The owner has a limited credit budget that expires 2026-11-05 (the project started 2026-10-30, so the whole cloud phase is about 6 days: keep milestones small). Work in milestones
-  (GAME.md). At the end of each milestone: run checks, commit, push, update
-  `docs/PROGRESS.md`, then STOP and tell the owner to check the credit meter before
-  you continue.
-- For any task bigger than ~1 hour of work: write a short plan first and wait for
-  approval.
+## Workflow (laptop phase, since 2026-11-01)
+- The cloud phase is over. Work runs locally on the owner's Windows laptop (PowerShell)
+  under the owner's Claude subscription limits. There is no credit deadline, but usage is
+  limited: keep messages short, read only what the task needs, avoid long test runs that
+  are not needed.
+- Before any task bigger than a small fix: write a short plan (what, why, which files)
+  and wait for the owner's yes. Do not start new features until the owner says what is next.
+- Work in small steps. After each finished step: run the checks (`npm run typecheck`,
+  `npm run test:gameplay`, and `node scripts/test-server.mjs` when `server/` changed),
+  update `docs/PROGRESS.md`, commit with a clear message, then tell the owner in
+  Ukrainian what changed and what is next.
+- Push to `main` only when the owner agrees; otherwise work on a branch and open a PR.
+- When the owner must run something, explain the command in plain words first, one step
+  at a time.
+- The browser tests (`scripts/e2e-*`) were written for the Linux cloud container; on
+  Windows they may need `npx playwright install chromium` and path changes. Do not spend
+  effort on them unless the owner asks.
+- Keep line endings as they are in each file (some files are CRLF).
 - One agent at a time unless the owner asks for parallel agents. Parallel agents only
   inside separate folders.
 - Screenshots are expensive. Take them at gates, not after every edit. Use small
   ones when possible.
-- Commit and push after every milestone and every risky change. The cloud container
-  is temporary: unpushed work can be lost.
-- Do not refactor for taste. Do not add features that are not in the current
-  milestone.
+- Do not refactor for taste. Do not add features the owner did not ask for.
 
 ## Out of scope now (do not build; do not block)
 Levels/XP unlocks (keep an `unlock` field), wallet login, bomb mode, ice map and
