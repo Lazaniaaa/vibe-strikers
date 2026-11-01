@@ -8,6 +8,7 @@ import { ITEMS } from '../config/items.ts';
 import type { WeaponId } from '../weapons/types.ts';
 import { createActor, setPrimary, type Actor, type PlayerIntent } from './actor.ts';
 import { cornucopiaLoadout, lootAmmo, nearestItem, primaryState, tickHeal, useItem, type ItemKind, type WeaponState } from './items.ts';
+import { mutatorRules } from '../config/mutators.ts';
 import { ffaTeam, isFfaTeam, lootPlan, presetFor, tickModeRound, type GameMode } from './mode.ts';
 import { createBrain, pickBotPrimary, resetBrain, updateBot, type BotBrain, type BotWorld } from './botBrain.ts';
 import type { BotSkill } from '../config/bots.ts';
@@ -45,6 +46,8 @@ export interface SimulationOptions {
   /** Game mode (default Elimination); Cornucopia: teams or free-for-all. */
   mode?: GameMode;
   teams?: boolean;
+  /** Mutator id (src/config/mutators.ts) or '' / undefined = none. */
+  mutator?: string;
   /** Free-for-all spawns and Cornucopia loot spots (map data). */
   spawnsFfa?: readonly SpawnSpot[];
   lootSpots?: readonly { x: number; y: number; z: number; tier: 'low' | 'mid' | 'high' }[];
@@ -88,6 +91,8 @@ export class Simulation {
   private readonly loadout = new Map<number, WeaponId>();
   readonly mode: GameMode;
   readonly ffa: boolean;
+  readonly mutator: string;
+  readonly rules: ReturnType<typeof mutatorRules>;
   lastRoundEvent: RoundEvent = 'none';
   time = 0;
   private brains = new Map<number, BotBrain>();
@@ -108,6 +113,10 @@ export class Simulation {
     this.opts = opts;
     this.random = opts.random ?? Math.random;
     this.mode = opts.mode ?? 'elimination';
+    this.mutator = opts.mutator ?? '';
+    this.rules = mutatorRules(this.mutator);
+    opts.motor.gravityScale = this.rules.gravityScale;
+    opts.motor.speedScale = this.rules.speedScale;
     this.ffa = this.mode === 'cornucopia' && opts.teams === false;
     const base = presetFor(this.mode);
     this.preset = opts.freezeTime === undefined ? base : { ...base, freezeTime: opts.freezeTime };
@@ -162,6 +171,7 @@ export class Simulation {
       for (const s of actor.slots) resetSlot(s);
       actor.hasPrimary = true; actor.boots = false; actor.healLeft = 0; actor.airJumpsLeft = 0;
       if (corn) cornucopiaLoadout(actor);
+      actor.boots = this.rules.boots;
       const brain = this.brains.get(actor.id);
       if (brain) {
         resetBrain(brain);
@@ -285,13 +295,13 @@ export class Simulation {
     this.shooter = a;
     for (let p = 0; p < s.pellets; p++) {
       spreadDirection(this.aimDir, spread, this.random(), this.random(), this.shotDir);
-      const r = traceShot(this.origin, this.shotDir, s.range, this.opts.blockers, this.actors, this.skipTarget, this.result);
+      const r = traceShot(this.origin, this.shotDir, s.range, this.opts.blockers, this.actors, this.skipTarget, this.result, this.rules.headScale);
       const ev = this.shotCount < MAX_SHOT_EVENTS ? this.shots[this.shotCount++] : null;
       let damage = 0, killed = false, victimId = -1;
       if (r.kind === 'player') {
         const victim = this.actors[r.targetIndex];
         victimId = victim.id;
-        damage = damageAt(s, r.distance) * (r.part === 'head' ? HITBOXES.headshotMultiplier : 1);
+        damage = this.rules.oneShot ? MATCH.maxHealth * 10 : damageAt(s, r.distance) * (r.part === 'head' ? HITBOXES.headshotMultiplier : 1);
         victim.hp -= damage; victim.sinceDamage = 0; victim.lastAttacker = a.id;
         if (victim.hp <= 0) { this.kill(victim, a, r.part === 'head'); killed = true; }
       }

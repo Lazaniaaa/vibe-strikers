@@ -17,4 +17,5 @@ export default {
   difficulty: __t.string(),
   mode: __t.string(),
   teams: __t.bool(),
+  mutator: __t.string(),
 };

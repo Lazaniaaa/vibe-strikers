@@ -14,6 +14,7 @@ import { SOUNDS } from '../config/audio.ts';
 import { createActor } from './actor.ts';
 import { cornucopiaLoadout, nearestItem, primaryState, swapPrimary, tickHeal, useItem } from './items.ts';
 import { lootPlan, tickModeRound } from './mode.ts';
+import { MUTATOR_IDS, mutatorOfDay, mutatorRules } from '../config/mutators.ts';
 import { CORNUCOPIA } from '../config/items.ts';
 import { buildNavGrid, findPath, groundAt, nearestWalkable, nodeY, pruneUnreachable, upperAreas } from './navGrid.ts';
 
@@ -220,6 +221,20 @@ test('cornucopia: loadout, items, healing, free-for-all winner, loot plan', () =
   assert.equal(st.matchWinner, 'F1');
   const loot = lootPlan([{ x: 0, y: 0, z: 0, tier: 'high' }, { x: 1, y: 0, z: 0, tier: 'high' }, { x: 2, y: 0, z: 0, tier: 'low' }]);
   assert.deepEqual(loot.map((l) => l.kind + l.weapon), ['weaponsniper', 'boots', 'ammo']);
+});
+
+test('mutators: big head box, mutator of the day, rules', () => {
+  const t: HitTarget = { id: 1, x: 0, y: 0, z: -10, yaw: 0, crouching: false };
+  const top = HITBOXES.head.cy + HITBOXES.head.h / 2;
+  const o = vec3(), d = vec3();
+  o.y = top + 0.3; directionFromAngles(0, 0, d);
+  const p = { part: 'body' as 'head' | 'body' };
+  assert.equal(rayPlayer(o, d, 100, t, p), Infinity, 'normal head: miss above the head');
+  assert.ok(rayPlayer(o, d, 100, t, p, 2) < Infinity && p.part === 'head', 'big head: hit');
+  const days = new Set(Array.from({ length: MUTATOR_IDS.length }, (_, k) => mutatorOfDay(Date.UTC(2026, 10, 1 + k, 12))));
+  assert.equal(days.size, MUTATOR_IDS.length, 'each mutator once in a cycle of days');
+  assert.equal(mutatorOfDay(Date.UTC(2026, 10, 1, 0, 1)), mutatorOfDay(Date.UTC(2026, 10, 1, 23, 59)), 'same UTC day, same mutator');
+  assert.ok(mutatorRules('oneShot').oneShot && mutatorRules('').speedScale === 1 && mutatorRules('lowGravity').gravityScale < 1);
 });
 
 test('procedural sounds render audible, bounded samples', () => {

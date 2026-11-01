@@ -91,6 +91,7 @@ export const Room = __t.object("Room", {
   difficulty: __t.string(),
   mode: __t.string(),
   teams: __t.bool(),
+  mutator: __t.string(),
   phase: __t.string(),
   round: __t.u32(),
   scoreA: __t.u32(),

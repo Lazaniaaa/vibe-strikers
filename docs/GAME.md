@@ -171,7 +171,8 @@ with aim error and 300-500 ms reaction. Difficulty fields exist now
 (`accuracy, reaction, aggression`) but only `normal` is implemented. Bots also run in
 the load test (100 bots).
 
-## 8. Mutators — DECIDED (LATER, after M3)
+## 8. Mutators — DECIDED (built 2026-11-01: lowGravity, bigHeads, oneShot, fastRun, rocketBoots; room field `mutator`,
+`create_private_room{..., mutator}`; Quick Play = mutator of the day by UTC date)
 `lowGravity` (gravity x0.4), `bigHeads` (head model AND head hit box x2, server
 applies it), `oneShot` (any hit kills), `fastRun` (speed x1.5), `rocketBoots`
 (everyone has the double jump). Rotation: mutator of the day is chosen by the

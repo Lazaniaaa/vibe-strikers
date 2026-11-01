@@ -30,6 +30,7 @@ import { AvatarRig, DeathMarkers, ShotEffects, ViewmodelRig } from './visuals';
 import { AdsController } from './ads';
 import { BootGlows, ItemViews } from './items';
 import { SecondPersonView } from './secondPerson';
+import { mutatorLabel, mutatorRules } from '../../src/config/mutators';
 import { PingMarkers } from './pings';
 import { pingPoint } from './pingRay';
 import { cornucopiaLoadout, itemHint, nearestOf } from '../../src/gameplay/items';
@@ -85,6 +86,9 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
     const me = net.me!;
     const local = createActor(0, me.team as TeamId, me.name, false, me.character, me.primary as WeaponId);
     const motor = new RapierMotor(rapier, world);
+    // Mutator of the room (fixed for the room's life): gravity, run speed, head size.
+    const rules = mutatorRules(net.room?.mutator ?? '');
+    motor.gravityScale = rules.gravityScale; motor.speedScale = rules.speedScale;
     motor.add(local);
     const input = new Input(gl.domElement);
     input.debugUnlocked = debug;
@@ -111,6 +115,7 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
     const items = new ItemViews();
     const glows = new BootGlows();
     const second = new SecondPersonView(local);
+    second.rig.setHeadScale(rules.headScale);
     const pings = new PingMarkers();
     const nameTags = new NameTags(hudRoot);
     const tagger = new TagProjector(nameTags, blockers);
@@ -193,7 +198,7 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
         weapon: k.weapon, headshot: k.headshot });
       if (feedEntries.length > 4) feedEntries.shift();
     };
-    return { local, motor, input, hud, scoreboard, viewmodel, ads, view, sfx, audio, markers, items, glows, second, pings, feedEntries, nameTags, tagger, effects, remotes, perf, stats, sample, feed, scratch, rewinds, allyMat, allyGeo,
+    return { rules, local, motor, input, hud, scoreboard, viewmodel, ads, view, sfx, audio, markers, items, glows, second, pings, feedEntries, nameTags, tagger, effects, remotes, perf, stats, sample, feed, scratch, rewinds, allyMat, allyGeo,
       disposables: [unitBox, tracerMat, impactMat, flashMat, flashGeo, allyMat, allyGeo] };
   }, [net, world, rapier, gl, scene, debug, onLeave]);
 
@@ -210,7 +215,7 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
       window.__online = {
         net, local: game.local, stats: game.stats,
         snapshot: () => ({
-          room: net.room?.code, phase: net.room?.phase, round: net.room?.round, scoreA: net.room?.scoreA, scoreB: net.room?.scoreB,
+          room: net.room?.code, mutator: net.room?.mutator, roomInfo: view.roomInfo, phase: net.room?.phase, round: net.room?.round, scoreA: net.room?.scoreA, scoreB: net.room?.scoreB,
           me: net.me && { id: String(net.me.id), team: net.me.team, x: net.me.x, z: net.me.z, hp: net.me.hp, alive: net.me.alive,
             mag: net.me.mag, reserve: net.me.reserve, violations: net.me.violations, kills: net.me.kills, deaths: net.me.deaths },
           local: { x: game.local.x, y: game.local.y, z: game.local.z, grounded: game.local.grounded, mag: game.local.slots[game.local.active].mag },
@@ -395,6 +400,7 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
         const marker = row.team === myTeam ? new Mesh(game.allyGeo, game.allyMat) : null;
         if (marker) { marker.rotation.set(Math.PI / 4, 0, Math.PI / 4); marker.renderOrder = 10; }
         r = { actor, rig: new AvatarRig(actor, marker), stepDist: 0 };
+        r.rig.setHeadScale(game.rules.headScale);
         remotes.set(id, r);
         scene.add(r.rig.root);
       }
@@ -558,7 +564,7 @@ function fillOnlineHud(v: HudView, net: GameNet, local: Actor, feed: readonly Ki
     const next = loadoutFor(me.nextPrimary as WeaponId)[0];
     v.sub += `${v.sub ? '\n' : ''}Primary: ${LOADOUT.primaries.map((w, i) => `${7 + i} ${w}${w === next ? ' ✓' : ''}`).join(' · ')}`;
   }
-  v.roomInfo = `Room ${r?.code ?? '-----'}${r?.isPrivate ? ' (private)' : ''}${corn ? ` · Cornucopia${ffa ? ' (free-for-all)' : ''}` : ''} · ${humans} players + ${bots} bots (${r?.difficulty ?? 'normal'}) · team ${mine ?? '-'}` +
+  v.roomInfo = `Room ${r?.code ?? '-----'}${r?.isPrivate ? ' (private)' : ''}${corn ? ` · Cornucopia${ffa ? ' (free-for-all)' : ''}` : ''}${r?.mutator ? ` · Mutator: ${mutatorLabel(r.mutator)}` : ''} · ${humans} players + ${bots} bots (${r?.difficulty ?? 'normal'}) · team ${mine ?? '-'}` +
     `${net.lagMs ? ` · lag ${net.lagMs} ms` : ''}${net.lastError ? `\n${net.lastError}` : ''}`;
   v.feed = feed;
 }

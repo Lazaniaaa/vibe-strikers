@@ -62,6 +62,10 @@ export class RapierMotor {
 
   private halfHeight(actor: Actor): number { return actor.crouching ? CROUCH_HALF : STAND_HALF; }
 
+  /** Mutators: gravity and run speed scale for everyone moved by this motor. */
+  gravityScale = 1;
+  speedScale = 1;
+
   /** Move one actor for `dt` seconds. `frozen` = freeze phase (look only, no walking or jumping). */
   step(actor: Actor, intent: PlayerIntent, dt: number, frozen: boolean, speedScale: number): void {
     const c = this.colliders.get(actor.id);
@@ -84,7 +88,7 @@ export class RapierMotor {
     const len = Math.hypot(f, r);
     if (len > 1) { f /= len; r /= len; }
     const fx = -Math.sin(actor.yaw), fz = -Math.cos(actor.yaw);
-    const speed = (actor.crouching ? MOVEMENT.crouchSpeed : intent.walk ? MOVEMENT.walkSpeed : MOVEMENT.runSpeed) * speedScale;
+    const speed = (actor.crouching ? MOVEMENT.crouchSpeed : intent.walk ? MOVEMENT.walkSpeed : MOVEMENT.runSpeed) * speedScale * this.speedScale;
     const tx = (fx * f - fz * r) * speed, tz = (fz * f + fx * r) * speed;
     const accel = MOVEMENT.groundAccel * (actor.grounded ? 1 : MOVEMENT.airControl) * dt;
     let v = this.wishVel.get(actor.id);
@@ -106,7 +110,7 @@ export class RapierMotor {
     }
     actor.sinceBoost += dt;
     if (actor.grounded && actor.boots) actor.airJumpsLeft = CORNUCOPIA.bootsAirJumps;
-    actor.vy = Math.max(-MOVEMENT.maxFallSpeed, actor.vy - MOVEMENT.gravity * dt);
+    actor.vy = Math.max(-MOVEMENT.maxFallSpeed, actor.vy - MOVEMENT.gravity * this.gravityScale * dt);
 
     this.desired.x = v.x * dt; this.desired.y = actor.vy * dt; this.desired.z = v.z * dt;
     this.controller.computeColliderMovement(c, this.desired, undefined, QUERY_GROUPS);

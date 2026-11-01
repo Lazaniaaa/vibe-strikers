@@ -58,7 +58,7 @@ export function lineOfSight(a: Vec3, b: Vec3, boxes: readonly AabbBox[], scratch
 }
 
 /** Ray vs one player's hit volumes (boxes rotate with yaw). Writes the hit part; returns distance or Infinity. */
-export function rayPlayer(origin: Vec3, dir: Vec3, maxDist: number, target: HitTarget, partOut: { part: HitPart }): number {
+export function rayPlayer(origin: Vec3, dir: Vec3, maxDist: number, target: HitTarget, partOut: { part: HitPart }, headScale = 1): number {
   // Move the ray into the target's local frame (feet at origin, rotated by -yaw).
   const c = Math.cos(target.yaw), s = Math.sin(target.yaw);
   const rx = origin.x - target.x, rz = origin.z - target.z;
@@ -66,8 +66,9 @@ export function rayPlayer(origin: Vec3, dir: Vec3, maxDist: number, target: HitT
   const dx = c * dir.x - s * dir.z, dz = s * dir.x + c * dir.z, dy = dir.y;
   const k = target.crouching ? HITBOXES.crouchScale : 1;
   const head = HITBOXES.head, body = HITBOXES.body;
-  const th = rayAabb(ox, oy, oz, dx, dy, dz, -head.w / 2, (head.cy - head.h / 2) * k, -head.d / 2,
-    head.w / 2, (head.cy + head.h / 2) * k, head.d / 2, maxDist);
+  // Big heads mutator: the head box grows by headScale, upward from its bottom (the neck).
+  const hw = head.w / 2 * headScale, hd = head.d / 2 * headScale, hb = head.cy - head.h / 2, ht = hb + head.h * headScale;
+  const th = rayAabb(ox, oy, oz, dx, dy, dz, -hw, hb * k, -hd, hw, ht * k, hd, maxDist);
   const tb = rayAabb(ox, oy, oz, dx, dy, dz, -body.w / 2, (body.cy - body.h / 2) * k, -body.d / 2,
     body.w / 2, (body.cy + body.h / 2) * k, body.d / 2, maxDist);
   if (th === Infinity && tb === Infinity) return Infinity;
@@ -94,12 +95,12 @@ const partScratch: { part: HitPart } = { part: 'body' };
  * Server and client use the same function; the server passes rewound target positions (M2).
  */
 export function traceShot(origin: Vec3, dir: Vec3, range: number, boxes: readonly AabbBox[],
-  targets: readonly HitTarget[], skip: (index: number) => boolean, out: ShotResult): ShotResult {
+  targets: readonly HitTarget[], skip: (index: number) => boolean, out: ShotResult, headScale = 1): ShotResult {
   const wall = rayBlockers(origin, dir, range, boxes);
   let best = wall, bestIndex = -1, bestPart: HitPart = 'body';
   for (let i = 0; i < targets.length; i++) {
     if (skip(i)) continue;
-    const t = rayPlayer(origin, dir, best === Infinity ? range : best, targets[i], partScratch);
+    const t = rayPlayer(origin, dir, best === Infinity ? range : best, targets[i], partScratch, headScale);
     if (t < best) { best = t; bestIndex = i; bestPart = partScratch.part; }
   }
   out.targetIndex = bestIndex;

@@ -21,6 +21,7 @@ import { FramePerf } from './perf';
 import { AdsController } from './ads';
 import { BootGlows, ItemViews } from './items';
 import { SecondPersonView } from './secondPerson';
+import { mutatorLabel, mutatorRules } from '../../src/config/mutators';
 import { PingMarkers } from './pings';
 import { pingPoint } from './pingRay';
 import type { GameMode } from '../../src/gameplay/mode';
@@ -38,6 +39,7 @@ export interface GameOptions { debug: boolean; freezeTime?: number; /** Local pl
   /** Back to the menu (Esc overlay "Leave match"). */ onLeave?: () => void;
   /** Bot difficulty (menu). */ difficulty?: BotDifficulty;
   /** Game mode and Cornucopia teams / free-for-all (menu). */ mode?: GameMode; teams?: boolean;
+  /** Mutator id (menu) or '' = none. */ mutator?: string;
   /** Called once when the first frame is rendered (hides the loading screen). */ onReady?: () => void }
 
 const map = loadMapData(MAP_ID);
@@ -123,7 +125,7 @@ function GameDriver({ options }: { options: GameOptions }) {
     const perf = new FramePerf();
     const sim = new Simulation({ profile: perf.now, clock: () => performance.now(), blockers, spawnsA, spawnsB, goals, cover, routes, perches, nav, motor, killY: map.killY,
       localName: LOCAL_PLAYER.name, botNames: BOT_NAMES, botSkill: BOT_SKILLS[options.difficulty ?? DEFAULT_DIFFICULTY], characterIndices: pickCharacters(options.character ?? LOCAL_PLAYER.characterIndex), freezeTime: options.freezeTime,
-      mode: options.mode, teams: options.teams, spawnsFfa: spawnPoints(map, 'ffa'), lootSpots: map.lootSpots });
+      mode: options.mode, teams: options.teams, mutator: options.mutator, spawnsFfa: spawnPoints(map, 'ffa'), lootSpots: map.lootSpots });
     const input = new Input(gl.domElement);
     const hudRoot = document.getElementById('hud')!;
     const hud = new Hud(hudRoot);
@@ -158,9 +160,12 @@ function GameDriver({ options }: { options: GameOptions }) {
     const items = new ItemViews();
     const glows = new BootGlows();
     const second = new SecondPersonView(sim.local);
+    const headScale = mutatorRules(options.mutator ?? '').headScale;
+    for (const r of rigs.values()) r.setHeadScale(headScale);
+    second.rig.setHeadScale(headScale);
     const pings = new PingMarkers();
     return { sim, input, hud, effects, rigs, viewmodel, ads, markers, items, glows, second, pings, nameTags, tagger, stats, perf, disposables: [unitBox, tracerMat, impactMat, flashMat, flashGeo, allyMat, allyGeo] };
-  }, [world, rapier, gl, options.freezeTime, options.mode, options.teams]);
+  }, [world, rapier, gl, options.freezeTime, options.mode, options.teams, options.mutator]);
 
   useEffect(() => {
     for (const rig of game.rigs.values()) scene.add(rig.root);
@@ -191,7 +196,7 @@ function GameDriver({ options }: { options: GameOptions }) {
           scoreA: g.sim.round.scoreA, scoreB: g.sim.round.scoreB, matchWinner: g.sim.round.matchWinner,
           stats: { ...g.stats },
           items: g.sim.items.map((i) => ({ ...i })), itemViews: g.items.count, hint: view.hint ?? '', glows: g.glows.visibleCount,
-          mode: g.sim.mode, ffa: g.sim.ffa, secondPerson: g.second.active, secondDistance: g.second.distance, center: view.center, scoreLine: view.scoreLine ?? '',
+          mode: g.sim.mode, ffa: g.sim.ffa, mutator: g.sim.mutator, roomInfo: view.roomInfo, secondPerson: g.second.active, secondDistance: g.second.distance, center: view.center, scoreLine: view.scoreLine ?? '',
           local: { hasPrimary: g.sim.local.hasPrimary, boots: g.sim.local.boots, healLeft: g.sim.local.healLeft, active: g.sim.local.active },
           actors: g.sim.actors.map((a) => ({ id: a.id, team: a.team, name: a.name, hp: a.hp, alive: a.alive,
             x: +a.x.toFixed(2), y: +a.y.toFixed(2), z: +a.z.toFixed(2), grounded: a.grounded,
@@ -228,7 +233,7 @@ function GameDriver({ options }: { options: GameOptions }) {
   const scratch = useMemo(() => ({ from: new Vector3(), fwd: new Vector3(), right: new Vector3(), hudTimer: 0, fpsFrames: 0, fpsTimer: 0, punch: 0,
     audio: { prevReload: 0, steps: new Map<number, number>() } }), []);
   const view = useMemo<HudView>(() => ({ hp: 100, alive: true, weapon: '', mag: 0, reserve: 0, reloading: false, phase: 'freeze',
-    timeLeft: 0, round: 1, scoreA: 0, scoreB: 0, aliveA: 0, aliveB: 0, center: '', sub: '', feed: [], roomInfo: `Offline practice · ${options.mode === 'cornucopia' ? `Cornucopia${options.teams === false ? ' (free-for-all)' : ''}` : 'Elimination'} · bots ${options.difficulty ?? DEFAULT_DIFFICULTY}`, fps: 0, perf: '', locked: false }), []);
+    timeLeft: 0, round: 1, scoreA: 0, scoreB: 0, aliveA: 0, aliveB: 0, center: '', sub: '', feed: [], roomInfo: `Offline practice · ${options.mode === 'cornucopia' ? `Cornucopia${options.teams === false ? ' (free-for-all)' : ''}` : 'Elimination'}${options.mutator ? ` · Mutator: ${mutatorLabel(options.mutator)}` : ''} · bots ${options.difficulty ?? DEFAULT_DIFFICULTY}`, fps: 0, perf: '', locked: false }), []);
 
   useFrame((state, delta) => {
     const { sim, input, hud, effects, rigs, viewmodel, stats, perf } = game;

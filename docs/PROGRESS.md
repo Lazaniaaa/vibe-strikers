@@ -360,6 +360,13 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   player, then inserts `ping_event`. Clients show only their own team's pings (free-for-all: only your own): a
   yellow diamond + beam drawn through walls for 5 s, a HUD line "◆ Name · 12 m", a short ping sound. The event
   reaches every client in the room (an enemy cheat client could read it; small, logged). Offline: your own ping only.
+- 2026-11-01 batch2 step 5: mutators (GAME.md 8, `src/config/mutators.ts`): lowGravity (gravity x0.45 in the
+  client KCC; the server's per-sample vertical check already allows it), bigHeads (head model scale x2 on every rig,
+  re-applied after each pose; server/offline head hit box x2 growing up from the neck), oneShot (any hit kills),
+  fastRun (run speed x1.35 in the KCC, the bot motor and the server move check), rocketBoots (everyone spawns with
+  boots). Room field `mutator`; Quick Play rooms get the mutator of the day (UTC day number cycles the 5; a room
+  keeps its mutator for its life); private rooms and offline practice pick one or none in the menu (`?mutator=` for
+  tests). The HUD room line shows "Mutator: Big heads".
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 

@@ -13,6 +13,7 @@ import { FIRE_CHECK, NET } from '../../src/config/net.ts';
 import { MATCH } from '../../src/config/rounds.ts';
 import { CORNUCOPIA, ITEMS } from '../../src/config/items.ts';
 import { PINGS } from '../../src/config/pings.ts';
+import { isMutator, mutatorOfDay, mutatorRules } from '../../src/config/mutators.ts';
 import { LOADOUT, loadoutFor, WEAPON_STATS } from '../../src/config/weapons.ts';
 import type { WeaponId } from '../../src/weapons/types.ts';
 import { setPrimary, type Actor } from '../../src/gameplay/actor.ts';
@@ -39,6 +40,8 @@ const room = table({ name: 'room', public: true }, {
   mode: t.string(),
   /** Cornucopia: teams (true) or free-for-all (false). Elimination: always true. */
   teams: t.bool(),
+  /** Mutator id (GAME.md 8) or '' = none. */
+  mutator: t.string(),
   phase: t.string(),
   round: t.u32(),
   scoreA: t.u32(),
@@ -161,6 +164,7 @@ type RoomRow = ReturnType<Ctx['db']['room']['id']['find']> & {};
 
 const TICK_DT = 1 / NET.tickRateHz;
 const modeOf = (r: RoomRow) => (r.mode === 'cornucopia' ? 'cornucopia' : 'elimination') as GameMode;
+const rulesOf = (r: RoomRow) => mutatorRules(r.mutator);
 const isFfa = (r: RoomRow) => modeOf(r) === 'cornucopia' && !r.teams;
 
 const nowMs = (ctx: Ctx) => Number(ctx.timestamp.microsSinceUnixEpoch) / 1000;
@@ -212,9 +216,11 @@ function spawnRow(ctx: Ctx, r: RoomRow, team: TeamId, isBot: boolean, ownerHex: 
     id: 0n, roomId, ownerHex, isBot, name, character: character % characters.length, team, x: s.x, y: s.y, z: s.z, vx: 0, vy: 0, vz: 0,
     yaw: s.yaw, pitch: 0, crouch: false, grounded: true, walk: false, seq: 0, correctionSeq: 1, spawnCount: 1, violations: 0,
     hp: alive ? MATCH.maxHealth : 0, alive, weapon: corn ? 1 : 0, primary: corn ? '' : primary, nextPrimary: corn ? '' : primary,
-    mag: ammo.mag, reserve: ammo.reserve, reloading: false, kills: 0, deaths: 0, healLeft: 0, boots: false, ping: 0, lastMoveAt: ctx.timestamp,
+    mag: ammo.mag, reserve: ammo.reserve, reloading: false, kills: 0, deaths: 0, healLeft: 0, boots: rulesOf(r).boots, ping: 0, lastMoveAt: ctx.timestamp,
   });
-  if (corn) cornucopiaLoadout(actorFor(Number(row.id), team, isBot));
+  const sa = actorFor(Number(row.id), team, isBot);
+  if (corn) cornucopiaLoadout(sa);
+  sa.boots = rulesOf(r).boots;
 }
 
 /** A free team id for free-for-all ('F1', 'F2', ...). */
@@ -300,10 +306,10 @@ function ensureTick(ctx: Ctx): void {
 }
 
 function createRoom(ctx: Ctx, isPrivate: boolean, bots: boolean, difficulty: BotDifficulty = DEFAULT_DIFFICULTY,
-  mode: GameMode = 'elimination', teams = true): RoomRow {
+  mode: GameMode = 'elimination', teams = true, mutator = ''): RoomRow {
   ensureTick(ctx);
   getNav(); // build the nav grid now, not during a tick
-  const r = ctx.db.room.insert({ id: 0n, code: newRoomCode(ctx), isPrivate, bots, difficulty, mode, teams: mode === 'elimination' || teams,
+  const r = ctx.db.room.insert({ id: 0n, code: newRoomCode(ctx), isPrivate, bots, difficulty, mode, teams: mode === 'elimination' || teams, mutator: isMutator(mutator) ? mutator : '',
     phase: 'freeze', round: 1, scoreA: 0, scoreB: 0, timeLeft: presetFor(mode).freezeTime, lastWinner: '', matchWinner: '', createdAt: ctx.timestamp });
   if (mode === 'cornucopia') spawnLoot(ctx, r.id);
   return r;
@@ -403,13 +409,14 @@ function fireShot(ctx: Ctx, r: RoomRow, shooter: PlayerRow, a: Actor, yaw: numbe
   const keep = () => false;
   for (let i = 0; i < s.pellets; i++) {
     spreadDirection(aimDir, spread, ctx.random(), ctx.random(), dir);
-    traceShot(origin, dir, s.range, world.blockers, past, keep, shot);
-    traceShot(origin, dir, s.range, world.blockers, now, keep, shotNow);
+    const rules = rulesOf(r);
+    traceShot(origin, dir, s.range, world.blockers, past, keep, shot, rules.headScale);
+    traceShot(origin, dir, s.range, world.blockers, now, keep, shotNow, rules.headScale);
     let damage = 0, killed = false, victimId = 0n;
     if (shot.kind === 'player') {
       const victim = rows[shot.targetIndex];
       victimId = victim.id;
-      damage = damageAt(s, shot.distance) * (shot.part === 'head' ? HITBOXES.headshotMultiplier : 1);
+      damage = rules.oneShot ? MATCH.maxHealth * 10 : damageAt(s, shot.distance) * (shot.part === 'head' ? HITBOXES.headshotMultiplier : 1);
       const v = ctx.db.player.id.find(victim.id);
       if (v && v.alive) {
         const hp = v.hp - damage;
@@ -448,12 +455,13 @@ function respawnAll(ctx: Ctx, r: RoomRow, resetScores: boolean): void {
     a.active = 0; a.equipLeft = 0; a.fireAnimLeft = 0; a.alive = true; a.hp = MATCH.maxHealth; a.lastAttacker = -1; a.sinceDamage = 99;
     a.hasPrimary = true; a.boots = false; a.healLeft = 0;
     if (corn) cornucopiaLoadout(a);
+    a.boots = rulesOf(r).boots;
     historyFor(Number(p.id)).clear();
     if (p.isBot) resetBrain(brainFor(Number(p.id)));
     const slot = a.slots[a.active];
     ctx.db.player.id.update({ ...p, x: s.x, y: s.y, z: s.z, vx: 0, vy: 0, vz: 0, yaw: s.yaw, pitch: 0, crouch: false,
       grounded: true, hp: MATCH.maxHealth, alive: true, weapon: a.active, primary: corn ? '' : primary, mag: slot.mag, reserve: slot.reserve,
-      reloading: false, healLeft: 0, boots: false,
+      reloading: false, healLeft: 0, boots: a.boots,
       correctionSeq: p.correctionSeq + 1, spawnCount: p.spawnCount + 1, lastMoveAt: ctx.timestamp,
       kills: resetScores ? 0 : p.kills, deaths: resetScores ? 0 : p.deaths });
   }
@@ -500,14 +508,15 @@ export const joinQuick = spacetimedb.reducer({ name: t.string(), character: t.u1
     const humans = playersIn(ctx, r.id).filter((p) => !p.isBot).length;
     if (humans < MATCH.teamSize * 2) { target = r; break; }
   }
-  joinRoom(ctx, target ?? createRoom(ctx, false, true), name, character);
+  // Quick Play: Elimination with the mutator of the day (UTC date).
+  joinRoom(ctx, target ?? createRoom(ctx, false, true, DEFAULT_DIFFICULTY, 'elimination', true, mutatorOfDay(nowMs(ctx))), name, character);
 });
 
 export const createPrivateRoom = spacetimedb.reducer({ name: t.string(), character: t.u16(), bots: t.bool(), difficulty: t.string(),
-  mode: t.string(), teams: t.bool() },
-  (ctx, { name, character, bots, difficulty, mode, teams }) => {
+  mode: t.string(), teams: t.bool(), mutator: t.string() },
+  (ctx, { name, character, bots, difficulty, mode, teams, mutator }) => {
     const level: BotDifficulty = difficulty in BOT_SKILLS ? (difficulty as BotDifficulty) : DEFAULT_DIFFICULTY;
-    joinRoom(ctx, createRoom(ctx, true, bots, level, mode === 'cornucopia' ? 'cornucopia' : 'elimination', teams), name, character);
+    joinRoom(ctx, createRoom(ctx, true, bots, level, mode === 'cornucopia' ? 'cornucopia' : 'elimination', teams, mutator), name, character);
 });
 
 export const joinByCode = spacetimedb.reducer({ code: t.string(), name: t.string(), character: t.u16() }, (ctx, { code, name, character }) => {
@@ -533,7 +542,8 @@ export const move = spacetimedb.reducer({
   const prev: MoveSample = { x: row.x, y: row.y, z: row.z, crouch: row.crouch, walk: row.walk };
   const next: MoveSample = { x: m.x, y: m.y, z: m.z, crouch: m.crouch, walk: m.walk };
   const a = actorFor(Number(row.id), row.team as TeamId, false);
-  const verdict = getWorld().movement.check(prev, next, elapsed, a.slots[a.active].stats.moveSpeedScale);
+  const room = ctx.db.room.id.find(row.roomId);
+  const verdict = getWorld().movement.check(prev, next, elapsed, a.slots[a.active].stats.moveSpeedScale * (room ? rulesOf(room).speedScale : 1));
   const pitch = Math.max(-89 * DEG, Math.min(89 * DEG, m.pitch));
   if (verdict === 'ok') {
     ctx.db.player.id.update({ ...row, x: m.x, y: m.y, z: m.z, vx: m.vx, vy: m.vy, vz: m.vz, yaw: m.yaw, pitch,
@@ -711,10 +721,11 @@ export const tick = spacetimedb.reducer({ onSchedule: tickTimer }, { timer: tick
         fireShot(ctx, r, { ...row, yaw: a.yaw, pitch: a.pitch }, a, a.yaw, a.pitch, 0, a.intent.aim);
         a.fireLatch = true;
       }
-      stepOnGrid(a, nav, TICK_DT, slot.stats.moveSpeedScale, world.colliders);
+      const speed = rulesOf(r).speedScale;
+      stepOnGrid(a, nav, TICK_DT, slot.stats.moveSpeedScale * speed, world.colliders);
       const verdict = world.movement.check(
         { x: row.x, y: row.y, z: row.z, crouch: false, walk: false },
-        { x: a.x, y: a.y, z: a.z, crouch: false, walk: a.intent.walk }, TICK_DT, 1);
+        { x: a.x, y: a.y, z: a.z, crouch: false, walk: a.intent.walk }, TICK_DT, speed);
       if (verdict !== 'ok') { a.x = row.x; a.y = row.y; a.z = row.z; a.vx = 0; a.vz = 0; }
       const after = ctx.db.player.id.find(row.id) ?? row; // HP may have changed this tick
       ctx.db.player.id.update({ ...after, x: a.x, y: a.y, z: a.z, vx: a.vx, vy: 0, vz: a.vz, yaw: a.yaw, pitch: a.pitch,

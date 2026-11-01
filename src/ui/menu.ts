@@ -1,5 +1,6 @@
 import type { BotDifficulty } from '../config/bots.ts';
 import type { GameMode } from '../gameplay/mode.ts';
+import { MUTATOR_IDS, MUTATORS } from '../config/mutators.ts';
 // Start menu (plain DOM): nickname, character, Quick Play, private room, join by code, offline practice.
 
 /** What the menu needs to list a character (name + a colour swatch). */
@@ -7,9 +8,9 @@ export interface MenuCharacter { name: string; body: string; accent: string }
 
 export type MenuChoice =
   | { kind: 'quick'; name: string }
-  | { kind: 'create'; name: string; bots: boolean; difficulty: BotDifficulty; mode: GameMode; teams: boolean }
+  | { kind: 'create'; name: string; bots: boolean; difficulty: BotDifficulty; mode: GameMode; teams: boolean; mutator: string }
   | { kind: 'join'; name: string; code: string }
-  | { kind: 'offline'; name: string; difficulty: BotDifficulty; mode: GameMode; teams: boolean };
+  | { kind: 'offline'; name: string; difficulty: BotDifficulty; mode: GameMode; teams: boolean; mutator: string };
 
 export class Menu {
   readonly root: HTMLElement;
@@ -43,6 +44,8 @@ export class Menu {
         <label class="menu-check">Mode (private rooms and practice)
           <select class="menu-mode"><option value="elimination">Elimination</option><option value="cornucopia">Cornucopia (Hunger Games)</option></select></label>
         <label class="menu-check"><input type="checkbox" class="menu-teams" checked /> Cornucopia in teams (off = free-for-all)</label>
+        <label class="menu-check">Mutator (private rooms and practice; Quick Play: mutator of the day)
+          <select class="menu-mutator"><option value="">none</option>${MUTATOR_IDS.map((m) => `<option value="${m}">${MUTATORS[m].label}</option>`).join('')}</select></label>
         <div class="menu-row"><input class="menu-code" maxlength="5" placeholder="CODE" /><button class="menu-btn menu-join">Join</button></div>
         <button class="menu-btn menu-offline">Practice offline (bots)</button>
         <div class="menu-settings-slot"></div>
@@ -79,14 +82,15 @@ export class Menu {
     const diff = () => level.value as BotDifficulty;
     const modeSel = this.root.querySelector<HTMLSelectElement>('.menu-mode')!;
     const teamsBox = this.root.querySelector<HTMLInputElement>('.menu-teams')!;
+    const mutatorSel = this.root.querySelector<HTMLSelectElement>('.menu-mutator')!;
     modeSel.value = this.savedMode;
     const modeNow = (): GameMode => (modeSel.value === 'cornucopia' ? 'cornucopia' : 'elimination');
     modeSel.addEventListener('change', () => { this.savedMode = modeNow(); this.onMode(modeNow()); });
     this.root.querySelector('.menu-create')!.addEventListener('click', () => pick({ kind: 'create', name: name(), bots: bots.checked, difficulty: diff(),
-      mode: modeNow(), teams: teamsBox.checked }));
+      mode: modeNow(), teams: teamsBox.checked, mutator: mutatorSel.value }));
     this.root.querySelector('.menu-join')!.addEventListener('click', () => pick({ kind: 'join', name: name(), code: this.codeInput.value.trim().toUpperCase() }));
     this.root.querySelector('.menu-offline')!.addEventListener('click', () => pick({ kind: 'offline', name: name(), difficulty: diff(),
-      mode: modeNow(), teams: teamsBox.checked }));
+      mode: modeNow(), teams: teamsBox.checked, mutator: mutatorSel.value }));
   }
 
   /** Where the Settings button goes. */

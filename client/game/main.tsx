@@ -38,7 +38,7 @@ const root = createRoot(document.getElementById('root')!);
 
 async function joinWith(net: GameNet, choice: MenuChoice, character: number): Promise<void> {
   if (choice.kind === 'quick') await net.joinQuick(choice.name, character);
-  else if (choice.kind === 'create') await net.createPrivateRoom(choice.name, character, choice.bots, choice.difficulty, choice.mode, choice.teams);
+  else if (choice.kind === 'create') await net.createPrivateRoom(choice.name, character, choice.bots, choice.difficulty, choice.mode, choice.teams, choice.mutator);
   else if (choice.kind === 'join') await net.joinByCode(choice.code, choice.name, character);
   // Wait until my row has arrived (after artificial lag too).
   const end = performance.now() + 10000;
@@ -58,6 +58,8 @@ function savedMode(): GameMode {
   return m === 'cornucopia' ? 'cornucopia' : 'elimination';
 }
 const savedTeams = params.get('teams') !== '0';
+/** ?mutator= (tests). */
+const urlMutator = params.get('mutator') ?? '';
 
 const savedName = storage('local')?.getItem('voxel-name') ?? '';
 const savedCharacter = Number(params.get('character') ?? storage('local')?.getItem('voxel-character') ?? LOCAL_PLAYER.characterIndex);
@@ -80,14 +82,15 @@ function backToMenu(): void {
   void leaving.then(() => { root.render(<></>); void menuLoop(); });
 }
 
-async function startOffline(character?: number, difficulty: BotDifficulty = savedDifficulty(), mode: GameMode = savedMode(), teams = savedTeams): Promise<void> {
+async function startOffline(character?: number, difficulty: BotDifficulty = savedDifficulty(), mode: GameMode = savedMode(), teams = savedTeams,
+  mutator = urlMutator): Promise<void> {
   menu.hide();
   const loading = new Loading();
   try {
     loading.step('Loading game (3D engine, physics, map)', 0.05, 0.75);
     const { GameApp } = await loadGame();
     loading.step('Starting physics and building the map', 0.75, 1);
-    root.render(<GameApp options={{ ...options, character, difficulty, mode, teams, onLeave: backToMenu, onReady: () => loading.done() }} />);
+    root.render(<GameApp options={{ ...options, character, difficulty, mode, teams, mutator, onLeave: backToMenu, onReady: () => loading.done() }} />);
   } catch (e) {
     loading.error(`Could not load the game: ${e instanceof Error ? e.message : String(e)}. Reload the page.`);
   }
@@ -98,13 +101,13 @@ async function menuLoop(): Promise<void> {
   for (;;) {
     const autoName = params.get('name') ?? 'Tester';
     const choice: MenuChoice = auto === 'quick' ? { kind: 'quick', name: autoName }
-      : auto === 'create' ? { kind: 'create', name: autoName, bots: params.get('bots') !== '0', difficulty: savedDifficulty(), mode: savedMode(), teams: savedTeams }
+      : auto === 'create' ? { kind: 'create', name: autoName, bots: params.get('bots') !== '0', difficulty: savedDifficulty(), mode: savedMode(), teams: savedTeams, mutator: urlMutator }
       : auto === 'join' ? { kind: 'join', name: autoName, code: (params.get('code') ?? '').toUpperCase() }
       : await menu.choose();
     const wasAuto = auto !== null;
     auto = null;
     storage('local')?.setItem('voxel-name', choice.name);
-    if (choice.kind === 'offline') { void startOffline(menu.character, choice.difficulty, choice.mode, choice.teams); return; }
+    if (choice.kind === 'offline') { void startOffline(menu.character, choice.difficulty, choice.mode, choice.teams, choice.mutator); return; }
     try {
       menu.setStatus('Connecting...');
       const app = loadOnline(); // download the game while connecting

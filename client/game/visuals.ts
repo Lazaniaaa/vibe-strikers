@@ -47,6 +47,14 @@ export class AvatarRig {
     return true;
   }
 
+  /** Big heads mutator: head part scale, re-applied after every pose (poseCharacter resets joints to scale 1). */
+  private headScale = 1;
+  setHeadScale(s: number): void { this.headScale = s; this.applyHeadScale(); }
+  private applyHeadScale(): void {
+    if (this.headScale === 1) return;
+    (this.root.userData.head as { scale: { setScalar(v: number): void } } | undefined)?.scale.setScalar(this.headScale);
+  }
+
   sync(actor: Actor, dt: number): void {
     const slot = actor.slots[actor.active], id = slot.stats.id;
     if (id !== this.currentWeapon) {
@@ -73,6 +81,7 @@ export class AvatarRig {
     if (this.deadFrames <= POSE.deadPoseFrames) {
       const t = performance.now();
       poseCharacter(this.root, p, dt);
+      this.applyHeadScale();
       if (!this.degraded && p.weapon && performance.now() - t > POSE.slowCallMs) this.degraded = true;
     }
     p.cycle = cycleProgress(slot);
