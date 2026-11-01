@@ -23,7 +23,7 @@ import type { WeaponId } from '../../src/weapons';
 import { Hud, type HudView, type KillFeedEntry } from '../../src/ui/hud';
 import { Scoreboard, type ScoreRow } from '../../src/ui/scoreboard';
 import { characterLabel } from './characterLabel';
-import { MapView } from './GameApp';
+import { MapView, PedestalColliders } from './GameApp';
 import { Input } from './input';
 import { FramePerf } from './perf';
 import { AvatarRig, DeathMarkers, ShotEffects, ViewmodelRig } from './visuals';
@@ -523,7 +523,11 @@ function fillOnlineHud(v: HudView, net: GameNet, local: Actor, feed: readonly Ki
   const corn = r?.mode === 'cornucopia';
   if (end) { v.center = end.center; v.sub = r?.phase === 'matchEnd' ? `${end.sub}\nnew match in ${Math.ceil(r.timeLeft)}` : end.sub; }
   else if (corn && r?.phase === 'freeze') { v.center = 'Cornucopia'; v.sub = `starts in ${Math.ceil(r.timeLeft)} · loot on the pedestals, E to take`; }
-  else if (corn && me && !me.alive) { v.center = 'You died'; v.sub = 'One life per match: spectating'; }
+  else if (corn && me && !me.alive) {
+    // Joined during a match (no death yet) or died: either way spectate until the next match.
+    if (me.deaths === 0) { v.center = 'Match in progress'; v.sub = 'You join the next match · spectating'; }
+    else { v.center = 'You died'; v.sub = 'One life per match: spectating'; }
+  }
   if (me && r && !corn && (r.phase === 'freeze' || r.phase === 'roundEnd' || !me.alive)) {
     const next = loadoutFor(me.nextPrimary as WeaponId)[0];
     v.sub += `${v.sub ? '\n' : ''}Primary: ${LOADOUT.primaries.map((w, i) => `${7 + i} ${w}${w === next ? ' ✓' : ''}`).join(' · ')}`;
@@ -544,6 +548,7 @@ export function OnlineApp({ net, debug, onLeave, onReady }: { net: GameNet; debu
     >
       <Physics gravity={[0, 0, 0]}>
         <MapView />
+        {net.room?.mode === 'cornucopia' && <PedestalColliders />}
         <OnlineDriver net={net} debug={debug} onLeave={onLeave} onReady={onReady} />
       </Physics>
     </Canvas>

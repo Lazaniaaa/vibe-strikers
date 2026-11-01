@@ -21,7 +21,7 @@ import { FramePerf } from './perf';
 import { AdsController } from './ads';
 import { BootGlows, ItemViews } from './items';
 import type { GameMode } from '../../src/gameplay/mode';
-import { CORNUCOPIA } from '../../src/config/items';
+import { CORNUCOPIA, ITEMS } from '../../src/config/items';
 import { cornucopiaEndText, cornucopiaScoreLine, healHint } from '../../src/ui/modeText';
 import { itemHint } from '../../src/gameplay/items';
 import { TagProjector } from './nameTagProjector';
@@ -69,6 +69,16 @@ function pickCharacters(local: number): number[] {
     if (i !== local && !POSE.botCharacterExclude.includes(characters[i].id)) list.push(i);
   }
   return list;
+}
+
+/** Cornucopia pedestals: solid boxes at the map's loot spots (jump on them or take the loot from beside). */
+export function PedestalColliders() {
+  const h = ITEMS.pedestalHeight / 2, w = ITEMS.pedestalSize / 2;
+  return (
+    <RigidBody type="fixed" colliders={false}>
+      {map.lootSpots.map((p, i) => <CuboidCollider key={i} position={[p.x, p.y + h, p.z]} args={[w, h, w]} />)}
+    </RigidBody>
+  );
 }
 
 export function MapView() {
@@ -384,6 +394,7 @@ export function GameApp({ options }: { options: GameOptions }) {
     >
       <Physics gravity={[0, 0, 0]}>
         <MapView />
+        {options.mode === 'cornucopia' && <PedestalColliders />}
         <GameDriver options={options} />
       </Physics>
     </Canvas>

@@ -193,6 +193,8 @@ function fullAmmo(primary: WeaponId): { mag: number; reserve: number } {
 
 function spawnRow(ctx: Ctx, r: RoomRow, team: TeamId, isBot: boolean, ownerHex: string, name: string, character: number,
   spawnIndex: number, primary: WeaponId = LOADOUT.defaultPrimary): void {
+  // Cornucopia has one life per match: joining after the freeze phase means spectating until the next match.
+  const alive = !(modeOf(r) === 'cornucopia' && r.phase !== 'freeze');
   const roomId = r.id, corn = modeOf(r) === 'cornucopia';
   const spots = isFfaTeam(team) ? getWorld().ffaSpawns : getWorld().spawns[team];
   const s = spots[spawnIndex % spots.length];
@@ -200,7 +202,7 @@ function spawnRow(ctx: Ctx, r: RoomRow, team: TeamId, isBot: boolean, ownerHex: 
   const row = ctx.db.player.insert({
     id: 0n, roomId, ownerHex, isBot, name, character: character % characters.length, team, x: s.x, y: s.y, z: s.z, vx: 0, vy: 0, vz: 0,
     yaw: s.yaw, pitch: 0, crouch: false, grounded: true, walk: false, seq: 0, correctionSeq: 1, spawnCount: 1, violations: 0,
-    hp: MATCH.maxHealth, alive: true, weapon: corn ? 1 : 0, primary: corn ? '' : primary, nextPrimary: corn ? '' : primary,
+    hp: alive ? MATCH.maxHealth : 0, alive, weapon: corn ? 1 : 0, primary: corn ? '' : primary, nextPrimary: corn ? '' : primary,
     mag: ammo.mag, reserve: ammo.reserve, reloading: false, kills: 0, deaths: 0, healLeft: 0, boots: false, ping: 0, lastMoveAt: ctx.timestamp,
   });
   if (corn) cornucopiaLoadout(actorFor(Number(row.id), team, isBot));

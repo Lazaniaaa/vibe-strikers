@@ -57,6 +57,11 @@ try {
   try { await a.setPrimary('rifle'); } catch { setErr = a.lastError; }
   check(setErr.includes('Cornucopia'), `no loadout choice in Cornucopia ("${setErr}")`);
   await waitFor(() => a.room.phase === 'live', 10000);
+  // Late join: spectate until the next match (one life per match).
+  const d = await client();
+  await d.joinByCode(a.room.code, 'Dora', 3);
+  await waitFor(() => d.me, 3000);
+  check(d.me && !d.me.alive && d.me.hp === 0, `a player joining a running match spectates (alive ${d.me?.alive})`);
   a.switchWeapon(0);
   await sleep(400);
   check(a.me.weapon === 1, 'slot 1 (primary) cannot be drawn without a primary');
@@ -105,9 +110,10 @@ try {
     await sleep(WEAPON_STATS.shotgun.fireInterval * 1000 + 100);
   }
   await waitFor(() => a.room.phase === 'matchEnd', 3000);
-  check(!c.me.alive && a.room.phase === 'matchEnd' && a.room.matchWinner === a.me.team, `Carl dead, match over: winner ${a.room.matchWinner} (Alice ${a.me.team})`);
+  check(!c.me.alive && !d.me.alive && a.room.phase === 'matchEnd' && a.room.matchWinner === a.me.team, `Carl dead, match over: winner ${a.room.matchWinner} (Alice ${a.me.team})`);
   await waitFor(() => a.room.phase === 'freeze', (MATCH.matchRestartTime + 3) * 1000);
   await waitFor(() => a.items.size === mods.map.lootSpots.length && a.me.primary === '', 3000);
+  check(d.me.alive, 'the late joiner plays in the next match');
   check(a.room.phase === 'freeze' && c.me.alive && a.me.primary === '' && !a.me.boots && a.items.size === mods.map.lootSpots.length,
     `new match: everyone alive, no primary, no boots, fresh loot (${a.items.size})`);
   clearInterval(pump);

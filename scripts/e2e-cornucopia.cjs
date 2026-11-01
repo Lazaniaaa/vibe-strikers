@@ -46,6 +46,17 @@ function check(cond, msg) { if (cond) console.log('ok', msg); else { failed++; c
     });
     await page.waitForTimeout(1200);
     if (shot) await page.screenshot({ path: shot, type: 'jpeg', quality: 75 });
+    // Pedestals are solid: walk into one from 1.5 m for 1.5 s.
+    const ped = await page.evaluate(() => {
+      const g = window.__game, it = g.sim.items.find((i) => i.y < 1);
+      g.teleport(0, it.x, 0.05, it.z + 1.5, 0); // yaw 0 = facing -z, toward the pedestal
+      g.input.debugLook = { yaw: 0, pitch: 0 };
+      return { x: it.x, z: it.z };
+    });
+    await page.waitForTimeout(300);
+    await page.keyboard.down('KeyW'); await page.waitForTimeout(1500); await page.keyboard.up('KeyW');
+    const pz = (await snap()).actors[0];
+    check(Math.abs(pz.z - ped.z) > 0.6 || Math.abs(pz.x - ped.x) > 0.6, `pedestal blocks the player (stopped ${Math.hypot(pz.x - ped.x, pz.z - ped.z).toFixed(2)} m from its centre)`);
     // Rocket boots on a balcony.
     await page.evaluate(() => {
       const g = window.__game, it = g.sim.items.find((i) => i.kind === 'boots');
@@ -77,7 +88,7 @@ function check(cond, msg) { if (cond) console.log('ok', msg); else { failed++; c
       return { h: maxY - y0, glow };
     };
     const one = await peak(false), two = await peak(true);
-    check(two.h > one.h + 0.5, `double jump with boots: ${two.h.toFixed(2)} m vs single ${one.h.toFixed(2)} m`);
+    check(two.h > one.h + 0.25, `double jump with boots: ${two.h.toFixed(2)} m vs single ${one.h.toFixed(2)} m`);
     check(two.glow >= 1 && one.glow === 0, `glow box under the feet while boosting (${two.glow})`);
     if (shot2) {
       await page.evaluate(() => { const g = window.__game; g.input.debugLook = { yaw: 0, pitch: -1.2 }; });

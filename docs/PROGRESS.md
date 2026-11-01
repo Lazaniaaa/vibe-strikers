@@ -346,6 +346,11 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   weapons 216 KB, r3f 212 KB, map 166 KB, net 113 KB, GameApp 70 KB). Production build, headless (`scripts/
   measure-load.cjs`): menu shown 956 -> 300 ms local, 1791 -> 1224 ms at 10 Mbit/s; menu + first game frame
   2341 -> 1737 ms local, 2891 -> 2415 ms at 10 Mbit/s. Evidence `docs/evidence/loading-screen.jpg`.
+- 2026-11-01 batch2 step 2: Cornucopia fixes. Pedestals are solid (Rapier fixed boxes at the loot spots, 0.7 x 0.5 m;
+  jump on them or take the loot from beside, pick-up range covers it). Server bots and the server movement check
+  still ignore pedestals (they only stop at the edge to pick up; a cheater could walk through; small). A player
+  joining (or a bot refilling) after the freeze phase of a Cornucopia match is dead and spectates ("Match in
+  progress") until the next match.
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 
