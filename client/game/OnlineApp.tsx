@@ -111,7 +111,8 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
     const applyStyle = () => hud.setCrosshairStyle(settings.crosshairColor, settings.crosshairSize);
     applyStyle();
     onSettingsChange(applyStyle);
-    const effects = new ShotEffects(tracerMat, impactMat, unitBox);
+    const chipMat = new MeshBasicMaterial({ color: '#ffffff' });
+    const effects = new ShotEffects(tracerMat, impactMat, unitBox, chipMat);
     const markers = new DeathMarkers();
     const items = new ItemViews();
     const glows = new BootGlows();
@@ -201,7 +202,7 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
       if (feedEntries.length > 4) feedEntries.shift();
     };
     return { music, rules, local, motor, input, hud, scoreboard, viewmodel, ads, view, sfx, audio, markers, items, glows, second, pings, feedEntries, nameTags, tagger, effects, remotes, perf, stats, sample, feed, scratch, rewinds, allyMat, allyGeo,
-      disposables: [unitBox, tracerMat, impactMat, flashMat, flashGeo, allyMat, allyGeo] };
+      disposables: [unitBox, tracerMat, impactMat, chipMat, flashMat, flashGeo, allyMat, allyGeo] };
   }, [net, world, rapier, gl, scene, debug, onLeave]);
 
   useEffect(() => {

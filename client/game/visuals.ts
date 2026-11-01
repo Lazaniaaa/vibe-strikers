@@ -1,6 +1,6 @@
 // three.js side of the game: bot avatars, local viewmodels, tracers, impacts. No per-frame allocation.
 import {
-  AmbientLight, BoxGeometry, DirectionalLight, Group, Mesh, MeshBasicMaterial, Object3D, PerspectiveCamera, Scene, Vector3,
+  AmbientLight, BoxGeometry, Color, DirectionalLight, Group, InstancedMesh, Matrix4, Mesh, MeshBasicMaterial, Object3D, PerspectiveCamera, Scene, Vector3,
 } from 'three';
 import { characters, createCharacter, poseCharacter, type PoseState } from '../../src/characters';
 import { attachWeapon, createViewmodel, createWeapon, poseViewmodel, poseWeapon, weaponIds, type ViewmodelState, type WeaponId, type WeaponState } from '../../src/weapons';
@@ -157,7 +157,7 @@ export class ViewmodelRig {
 
 interface Timed { obj: Object3D; life: number }
 
-/** Bullet tracers and impact puffs from pooled meshes. */
+/** Bullet tracers, impact puffs and flying voxel chips from pooled meshes. */
 export class ShotEffects {
   readonly group = new Group();
   private tracers: Timed[] = [];
@@ -166,8 +166,20 @@ export class ShotEffects {
   private nextImpact = 0;
   private readonly start = new Vector3();
   private readonly end = new Vector3();
+  // Chips: one InstancedMesh (one draw call); per-chip state in flat arrays, hidden chips have scale 0.
+  private readonly chips: InstancedMesh;
+  private readonly chipPos = new Float32Array(EFFECTS.chips.pool * 3);
+  private readonly chipVel = new Float32Array(EFFECTS.chips.pool * 3);
+  private readonly chipLife = new Float32Array(EFFECTS.chips.pool);
+  private readonly chipSize = new Float32Array(EFFECTS.chips.pool);
+  private nextChip = 0;
+  private chipsAlive = 0;
+  private readonly chipMatrix = new Matrix4();
+  private readonly worldColor = new Color(EFFECTS.chips.worldColor);
+  private readonly playerColor = new Color(EFFECTS.chips.playerColor);
+  private readonly headColor = new Color(EFFECTS.chips.headshotColor);
 
-  constructor(tracerMaterial: MeshBasicMaterial, impactMaterial: MeshBasicMaterial, unitBox: BoxGeometry) {
+  constructor(tracerMaterial: MeshBasicMaterial, impactMaterial: MeshBasicMaterial, unitBox: BoxGeometry, chipMaterial: MeshBasicMaterial) {
     for (let i = 0; i < EFFECTS.tracerPool; i++) {
       const m = new Mesh(unitBox, tracerMaterial); m.visible = false; m.frustumCulled = false;
       this.group.add(m); this.tracers.push({ obj: m, life: 0 });
@@ -176,6 +188,30 @@ export class ShotEffects {
       const m = new Mesh(unitBox, impactMaterial); m.visible = false; m.scale.setScalar(EFFECTS.impactSize);
       this.group.add(m); this.impacts.push({ obj: m, life: 0 });
     }
+    this.chips = new InstancedMesh(unitBox, chipMaterial, EFFECTS.chips.pool);
+    this.chips.frustumCulled = false;
+    this.chipMatrix.makeScale(0, 0, 0);
+    for (let i = 0; i < EFFECTS.chips.pool; i++) { this.chips.setMatrixAt(i, this.chipMatrix); this.chips.setColorAt(i, this.worldColor); }
+    this.group.add(this.chips);
+  }
+
+  /** Burst of `count` chips at `this.end`, thrown back along -dir (unit shot direction x back) with a random spread. */
+  private spawnChips(count: number, back: number, dx: number, dy: number, dz: number, color: Color): void {
+    dx *= back; dy *= back; dz *= back;
+    const c = EFFECTS.chips;
+    for (let n = 0; n < count; n++) {
+      const i = this.nextChip; this.nextChip = (this.nextChip + 1) % c.pool;
+      if (this.chipLife[i] <= 0) this.chipsAlive++;
+      const speed = c.speed[0] + Math.random() * (c.speed[1] - c.speed[0]);
+      this.chipPos[i * 3] = this.end.x; this.chipPos[i * 3 + 1] = this.end.y; this.chipPos[i * 3 + 2] = this.end.z;
+      this.chipVel[i * 3] = (-dx + (Math.random() - 0.5) * 2 * c.spread) * speed;
+      this.chipVel[i * 3 + 1] = (-dy + Math.random() * c.upBias) * speed;
+      this.chipVel[i * 3 + 2] = (-dz + (Math.random() - 0.5) * 2 * c.spread) * speed;
+      this.chipLife[i] = c.life * (0.7 + Math.random() * 0.3);
+      this.chipSize[i] = c.size * (c.sizeRange[0] + Math.random() * (c.sizeRange[1] - c.sizeRange[0]));
+      this.chips.setColorAt(i, color);
+    }
+    if (this.chips.instanceColor) this.chips.instanceColor.needsUpdate = true;
   }
 
   /** `from` = visual muzzle position. */
@@ -194,11 +230,33 @@ export class ShotEffects {
       const p = this.impacts[this.nextImpact]; this.nextImpact = (this.nextImpact + 1) % this.impacts.length;
       p.obj.position.copy(this.end); p.obj.visible = true; p.life = EFFECTS.impactLife;
     }
+    if ((shot.hitKind === 'world' || shot.hitKind === 'player') && len > 0.01) {
+      const dx = (this.end.x - from.x) / len, dy = (this.end.y - from.y) / len, dz = (this.end.z - from.z) / len;
+      const head = shot.hitKind === 'player' && shot.part === 'head';
+      const c = EFFECTS.chips;
+      if (shot.hitKind === 'world') this.spawnChips(c.perWorldHit, c.backWorld, dx, dy, dz, this.worldColor);
+      else this.spawnChips(head ? c.perHeadshot : c.perPlayerHit, c.backPlayer, dx, dy, dz, head ? this.headColor : this.playerColor);
+    }
   }
 
   update(dt: number): void {
     for (const t of this.tracers) if (t.life > 0) { t.life -= dt; if (t.life <= 0) t.obj.visible = false; }
     for (const p of this.impacts) if (p.life > 0) { p.life -= dt; if (p.life <= 0) p.obj.visible = false; }
+    if (this.chipsAlive === 0) return;
+    const c = EFFECTS.chips, m = this.chipMatrix;
+    for (let i = 0; i < c.pool; i++) {
+      if (this.chipLife[i] <= 0) continue;
+      this.chipLife[i] -= dt;
+      if (this.chipLife[i] <= 0) { this.chipsAlive--; m.makeScale(0, 0, 0); this.chips.setMatrixAt(i, m); continue; }
+      const k = i * 3;
+      this.chipVel[k + 1] -= c.gravity * dt;
+      this.chipPos[k] += this.chipVel[k] * dt; this.chipPos[k + 1] += this.chipVel[k + 1] * dt; this.chipPos[k + 2] += this.chipVel[k + 2] * dt;
+      // Shrink over the last half of the life.
+      const s = this.chipSize[i] * Math.min(1, this.chipLife[i] / (c.life * 0.5));
+      m.makeScale(s, s, s).setPosition(this.chipPos[k], this.chipPos[k + 1], this.chipPos[k + 2]);
+      this.chips.setMatrixAt(i, m);
+    }
+    this.chips.instanceMatrix.needsUpdate = true;
   }
 
   /** Show or hide every pooled mesh (used once to pre-compile shaders). */

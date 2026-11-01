@@ -143,7 +143,8 @@ function GameDriver({ options }: { options: GameOptions }) {
     // Ally marker is drawn through walls (always know where your team is).
     const allyMat = new MeshBasicMaterial({ color: TEAM_COLORS.ally, depthTest: false, depthWrite: false, transparent: true });
     const allyGeo = new BoxGeometry(0.16, 0.16, 0.16);
-    const effects = new ShotEffects(tracerMat, impactMat, unitBox);
+    const chipMat = new MeshBasicMaterial({ color: '#ffffff' });
+    const effects = new ShotEffects(tracerMat, impactMat, unitBox, chipMat);
     const markers = new DeathMarkers();
     const nameTags = new NameTags(hudRoot);
     const tagger = new TagProjector(nameTags, blockers);
@@ -171,7 +172,7 @@ function GameDriver({ options }: { options: GameOptions }) {
     second.rig.setHeadScale(headScale);
     const pings = new PingMarkers();
     const music = new MusicDirector();
-    return { sim, input, hud, effects, rigs, viewmodel, ads, markers, items, glows, second, pings, music, nameTags, tagger, stats, perf, disposables: [unitBox, tracerMat, impactMat, flashMat, flashGeo, allyMat, allyGeo] };
+    return { sim, input, hud, effects, rigs, viewmodel, ads, markers, items, glows, second, pings, music, nameTags, tagger, stats, perf, disposables: [unitBox, tracerMat, impactMat, chipMat, flashMat, flashGeo, allyMat, allyGeo] };
   }, [world, rapier, gl, options.freezeTime, options.mode, options.teams, options.mutator]);
 
   useEffect(() => {

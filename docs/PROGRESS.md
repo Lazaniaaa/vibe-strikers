@@ -415,6 +415,11 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   actor inside `RapierMotor`; a rising actor never refills coyote time, so no double jump). Holding jump still hops on
   landing as before. `scripts/test-jump-feel.mjs`: before 0 of 6 cases jump, after 4 of 6 (0.03 / 0.08 s yes, 0.15 s no),
   0 server validation violations; stairs and bot-level tests pass.
+- 2026-11-01 audit 3: impact particles. Every world / player hit throws voxel chips (`EFFECTS.chips`: 6 world, 8 body,
+  12 head; grey-brown dust, yellow body, orange head) from one pooled InstancedMesh (+1 draw call, no per-frame
+  allocation, flat state arrays); chips fly mostly sideways / up (only a little toward the shooter), fall with gravity
+  and shrink. The dark impact cube stays. Evidence `docs/evidence/audit-{impacts,playerhit}-{before,after}.jpg`
+  (real GPU via Playwright + the laptop's Chromium, 60 FPS).
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 

@@ -44,6 +44,27 @@ export const EFFECTS = {
   viewPunchRecover: 14,
   hitMarkerTime: 0.18,
   damageFlashTime: 0.35,
+  /** Voxel chips flying off a bullet impact (one instanced mesh, pooled). */
+  chips: {
+    pool: 128,
+    perWorldHit: 6,
+    perPlayerHit: 8,
+    perHeadshot: 12,
+    size: 0.06,
+    /** Random size factor range (min, max) applied to `size`. */
+    sizeRange: [0.6, 1.2],
+    life: 0.45,
+    /** Launch speed range, m/s: partly back toward the shooter (`back*`) plus a random sideways spread and lift. */
+    speed: [1.2, 3],
+    backWorld: 0.6,
+    backPlayer: 0.15,
+    spread: 0.8,
+    upBias: 1.2,
+    gravity: 12,
+    worldColor: '#7d7264',
+    playerColor: '#fff1a8',
+    headshotColor: '#ff8a5c',
+  },
 } as const;
 
 export const LOCAL_PLAYER = {
