@@ -403,6 +403,10 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   (browser audio rule). The settings panel now scrolls on small windows. Test `scripts/e2e-music.cjs`.
 - 2026-11-01 final batch step 4 SKIPPED (budget hard stop ~8%): bot double jump needs a vertical model in the server
   grid motor (bots have no gravity / jumps there) and jump links in the nav graph; logged as the first open item.
+- 2026-11-01 laptop fix 1 (owner playtest: big heads / low gravity looked like normal online): the online game started as
+  soon as the own player row arrived, before the room row, so `mutatorRules(net.room?.mutator)` read '' (no mutator).
+  `joinWith` in client/main.tsx now also waits for `net.room`. Checked online: low gravity jump 2.30 m / 1.36 s in the
+  air, 0 snap-backs; big heads drawn (`docs/evidence/fix-mutator-online-bigheads.jpg`). Offline was not affected.
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 

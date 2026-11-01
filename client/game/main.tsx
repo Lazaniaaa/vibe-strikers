@@ -41,10 +41,11 @@ async function joinWith(net: GameNet, choice: MenuChoice, character: number): Pr
   if (choice.kind === 'quick') await net.joinQuick(choice.name, character);
   else if (choice.kind === 'create') await net.createPrivateRoom(choice.name, character, choice.bots, choice.difficulty, choice.mode, choice.teams, choice.mutator);
   else if (choice.kind === 'join') await net.joinByCode(choice.code, choice.name, character);
-  // Wait until my row has arrived (after artificial lag too).
+  // Wait until my row AND my room's row have arrived (after artificial lag too): the game reads the
+  // room's mutator (gravity, run speed, head size) once when it starts.
   const end = performance.now() + 10000;
-  while (!net.me && performance.now() < end) { net.update(); await new Promise((r) => setTimeout(r, 30)); }
-  if (!net.me) throw new Error('no answer from the server');
+  while (!(net.me && net.room) && performance.now() < end) { net.update(); await new Promise((r) => setTimeout(r, 30)); }
+  if (!net.me || !net.room) throw new Error('no answer from the server');
 }
 
 /** Bot difficulty: ?difficulty= (tests), else the last menu choice, else normal. */
