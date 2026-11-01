@@ -4,7 +4,8 @@ Date started: 2026-10-30. Credits expire 2026-11-05.
 
 ## State
 - M0, M1 DONE (2026-10-30). M2a, M2b, M3 parts 1-2, playtest fixes 1-5 and "solo play + hosting prep" DONE
-  2026-10-31 (see "Solo play + hosting prep result"). STOPPED for the owner. Not deployed (owner logs in himself:
+  2026-10-31. Features (weapon drops, bot primaries + roles, Cornucopia mode) DONE 2026-11-01 (see "Features
+  result"). STOPPED for the owner. Not deployed (owner logs in himself:
   docs/HOSTING.md). Map redesign: later (owner).
 - Asset folders `src/characters/`, `src/weapons/`, `src/maps/` + Voxel Lab root files (owned by Codex).
 - Game: `client/index.html` (menu -> online game, or offline practice), `client/smoke.html` (M0),
@@ -24,7 +25,7 @@ Date started: 2026-10-30. Credits expire 2026-11-05.
   `npm run server:reset` (publish + delete data), `npm run server:bindings` (after schema changes),
   `spacetime logs --server local voxel-arena -f`. The spacetime CLI is in `~/.local/bin`.
 - `npm run typecheck` — strict tsc on game code AND the server module.
-- `npm run test:gameplay` — 13 unit checks (hitscan, hit boxes, weapons, rounds, nav, movement validation).
+- `npm run test:gameplay` — 18 unit checks (hitscan, hit boxes, weapons, rounds, nav, movement validation).
 - `node scripts/test-server.mjs` — server integration test with Node clients (rooms by code, characters,
   own-room rows only, bots move and kill, refill, movement cheats snapped back, legal long walk, hits,
   fire-rate limit, ammo, reload, switch, kill -> round end -> respawn, ping).
@@ -51,6 +52,17 @@ Date started: 2026-10-30. Credits expire 2026-11-05.
   each balcony / raised area and back; every 30 Hz sample checked with the server validation (0 corrections).
 - `node scripts/test-stairs.mjs [mapId]` — finds every stair flight in the map data and walks the Rapier KCC up
   and down each one, checking every 30 Hz sample with the server movement validation (0 corrections).
+- `node scripts/test-drops.mjs` — weapon drops (server, 2v2 Node clients): drop with ammo, range check, E swap, cleared next round.
+- `node scripts/test-cornucopia.mjs` — Cornucopia on the server (free-for-all): loot by tier, pistol start, ammo / weapon /
+  medkit pick-ups, healing, last one standing, new match with fresh loot.
+- `node scripts/test-bot-roles.mjs [seconds]` — bot primaries (max 1 sniper per team) and roles (sniper spots, scoped
+  shots, shotgun range).
+- `NODE_PATH=$(npm root -g) node scripts/e2e-drops.cjs [shot]` — drops in the browser (offline): model, hint, E swap.
+- `NODE_PATH=$(npm root -g) node scripts/e2e-cornucopia.cjs [shot] [bootsShot]` — Cornucopia offline (free-for-all):
+  pedestals, pistol start, boots double jump + glow, bots take loot.
+- `NODE_PATH=$(npm root -g) node scripts/e2e-cornucopia-online.cjs [shot]` — Cornucopia online room smoke test.
+- `NODE_PATH=$(npm root -g) node scripts/shot-bot-weapons.cjs out.jpg` — screenshot of bots with random primaries.
+- URL params for tests: `?mode=cornucopia&teams=0` (offline and `auto=create`).
 - `node scripts/profile-bots.cjs [seconds]`, `node scripts/bench-sim.mjs [seconds] [hz]` — performance.
 - Asset owner commands unchanged: `npm run dev`, `npm run build`, `npm run verify` (see the cloud-only
   timing note in "Changes made in asset folders").
@@ -653,3 +665,45 @@ propose two stops: M2a = server, rooms, movement validation, server bots, two ta
 (~15%); M2b = server hits with lag compensation, rounds, latency tests (~15-20%). I stop and report
 after M2a.
 Out of M2: hosting (M3), lobby polish, character select, other weapons, sound.
+
+## Features result (2026-11-01)
+1. Weapon drops (Elimination): a dead player's primary lies on the floor as the spinning weapon model with its
+   ammo. Walk over it, the HUD says "E: pick up SHOTGUN (4 / 24)", E swaps your primary (your old one drops at your
+   feet). Server-authoritative (range + live phase checked); drops vanish when the next round starts and your
+   loadout primary comes back. Same in offline practice. Evidence `docs/evidence/drops-offline.jpg`.
+2. Bots carry random primaries (rifle 50% / shotgun 30% / sniper 20%, max 1 sniper per team; a human choosing
+   the sniper takes it from a bot). Snipers walk to balconies and spots with a long clear view toward the enemy,
+   hold them, shoot standing and scoped, pull the pistol under 7 m and do not chase. Shotguns run in to 4 m and do
+   not shoot beyond 14 m. Rifles keep the cover + peek tactics. Test (180 s): snipers 40% of the time at sniper
+   spots, average hit distance sniper 18 m, rifle 14 m, shotgun 8 m. Evidence `docs/evidence/bot-primaries.jpg`.
+3. Cornucopia ("Hunger Games") on Toy Town: menu "Mode" (Elimination / Cornucopia) + "Cornucopia in teams"
+   for private rooms and offline practice; Quick Play stays Elimination. One life per match; last team (or last
+   player in free-for-all) wins; new match after 10 s. Start: knife + pistol 12 / 0. 20 pedestals at the map's
+   lootSpots: outer = pistol ammo / shotgun / medkit, middle = rifle / medkit, balconies (centre) = sniper / rocket
+   boots / medkits. E uses the nearest item: medkit +60 HP over 3 s (only way to heal), boots = double jump for the
+   rest of the match with an orange glow box under the feet while boosting. Bots take weapons, ammo and medkits,
+   about half also go for the centre loot. All numbers in `src/config/items.ts` (CORNUCOPIA, ITEMS),
+   `src/config/rounds.ts` (cornucopia preset), `src/config/bots.ts` (BOT_LOADOUT, BOT_ROLES, BOT_LOOT).
+   Evidence `docs/evidence/cornucopia-offline.jpg`, `cornucopia-boots.jpg`, `cornucopia-online.jpg`.
+Tests (2026-11-01): typecheck, 18 unit checks, server, drops, cornucopia, bot roles, bot behaviour, bot levels,
+stairs, e2e M1, M2a, M2b, M3a-e, fixes, leave, tags, drops, cornucopia offline + online (results below).
+Known limits:
+- Pedestals have no collider (you walk through them). Medkit / boots / ammo are placeholder box models
+  (no asset exists; the character has no boot socket, so the glow is a box under the feet).
+- A player joining a running Cornucopia match spawns alive with the start loadout.
+- Bots never double jump (they move on the nav grid); boots only help humans to reach roofs / balconies.
+- The scripted test walker cannot climb stairs, so the server test does not pick up the boots on the balcony
+  (the offline browser test does; the code is shared).
+
+## Run this build on your laptop (features)
+`git pull`, `npm ci`, then:
+1. Terminal 1: `spacetime start`
+2. Terminal 2: `npm run server:reset` (tables changed: item, room mode / teams, player boots / healLeft),
+   `npm run game:build`, `npm run game:preview`
+3. Open http://127.0.0.1:5191/.
+   - Elimination: kill an enemy, walk to the spinning gun on the floor, press E.
+   - Cornucopia: in the menu set Mode = Cornucopia (untick "in teams" for free-for-all), then "Practice offline"
+     or "Create private room". Run to a pedestal, press E; take a medkit when hurt; climb a balcony for the rocket
+     boots, then press Space twice (second press in the air).
+4. Hosted version: after `git pull`, publish the server with `--delete-data` (tables changed), see `docs/HOSTING.md` 5.
+

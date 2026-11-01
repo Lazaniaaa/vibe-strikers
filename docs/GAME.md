@@ -25,7 +25,7 @@ by feel and by tests. Units: meters, seconds, degrees. Status tags:
   the slot).
 - After death: killcam 3 s (view from the killer), then spectate living teammates.
 
-### 2.2 Cornucopia (Hunger Games) — DECIDED, but LATER (not in the first week; needs its own arena)
+### 2.2 Cornucopia (Hunger Games) — DECIDED; built 2026-11-01 on Toy Town's lootSpots (owner), own arena later
 - Own arena layout (to be made by the asset owner). One life. Last player/team standing wins. Teams optional (`teams=0` =
   free-for-all).
 - Everyone starts with knife + pistol with one magazine.
