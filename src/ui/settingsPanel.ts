@@ -22,6 +22,8 @@ export class SettingsPanel {
           <input type="range" data-key="fov" min="${L.fov.min}" max="${L.fov.max}" step="${L.fov.step}"></label>
         <label>Master volume <span data-out="volume"></span>
           <input type="range" data-key="volume" min="${L.volume.min}" max="${L.volume.max}" step="${L.volume.step}"></label>
+        <label>Music volume <span data-out="musicVolume"></span>
+          <input type="range" data-key="musicVolume" min="${L.musicVolume.min}" max="${L.musicVolume.max}" step="${L.musicVolume.step}"></label>
         <label>Crosshair colour <input type="color" data-key="crosshairColor"></label>
         <label>Crosshair size <span data-out="crosshairSize"></span>
           <input type="range" data-key="crosshairSize" min="${L.crosshairSize.min}" max="${L.crosshairSize.max}" step="${L.crosshairSize.step}"></label>
@@ -43,7 +45,7 @@ export class SettingsPanel {
   private read(el: HTMLInputElement | HTMLSelectElement): void {
     const key = el.dataset.key as keyof typeof settings;
     if (key === 'sensitivity') settings.sensitivity = Number(el.value) / SENS_SCALE;
-    else if (key === 'fov' || key === 'volume' || key === 'crosshairSize') settings[key] = Number(el.value);
+    else if (key === 'fov' || key === 'volume' || key === 'musicVolume' || key === 'crosshairSize') settings[key] = Number(el.value);
     else if (key === 'crosshairColor') settings.crosshairColor = el.value;
     else if (key === 'adsMode') settings.adsMode = el.value === 'hold' ? 'hold' : 'toggle';
     else if (key === 'secondPersonMode') settings.secondPersonMode = el.value === 'hold' ? 'hold' : 'toggle';
@@ -64,6 +66,7 @@ export class SettingsPanel {
     out('sensitivity', (settings.sensitivity * SENS_SCALE).toFixed(1));
     out('fov', `${settings.fov}°`);
     out('volume', `${Math.round(settings.volume * 100)}%`);
+    out('musicVolume', `${Math.round(settings.musicVolume * 100)}%`);
     out('crosshairSize', `${settings.crosshairSize}px`);
   }
 

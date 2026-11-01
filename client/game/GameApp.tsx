@@ -21,6 +21,7 @@ import { FramePerf } from './perf';
 import { AdsController } from './ads';
 import { BootGlows, ItemViews } from './items';
 import { SecondPersonView } from './secondPerson';
+import { getMusic, MusicDirector } from '../../src/ui/music';
 import { mutatorLabel, mutatorRules } from '../../src/config/mutators';
 import { PingMarkers } from './pings';
 import { pingPoint } from './pingRay';
@@ -169,7 +170,8 @@ function GameDriver({ options }: { options: GameOptions }) {
     for (const r of rigs.values()) r.setHeadScale(headScale);
     second.rig.setHeadScale(headScale);
     const pings = new PingMarkers();
-    return { sim, input, hud, effects, rigs, viewmodel, ads, markers, items, glows, second, pings, nameTags, tagger, stats, perf, disposables: [unitBox, tracerMat, impactMat, flashMat, flashGeo, allyMat, allyGeo] };
+    const music = new MusicDirector();
+    return { sim, input, hud, effects, rigs, viewmodel, ads, markers, items, glows, second, pings, music, nameTags, tagger, stats, perf, disposables: [unitBox, tracerMat, impactMat, flashMat, flashGeo, allyMat, allyGeo] };
   }, [world, rapier, gl, options.freezeTime, options.mode, options.teams, options.mutator]);
 
   useEffect(() => {
@@ -201,6 +203,7 @@ function GameDriver({ options }: { options: GameOptions }) {
           scoreA: g.sim.round.scoreA, scoreB: g.sim.round.scoreB, matchWinner: g.sim.round.matchWinner,
           stats: { ...g.stats },
           items: g.sim.items.map((i) => ({ ...i })), itemViews: g.items.count, hint: view.hint ?? '', glows: g.glows.visibleCount,
+          music: { mood: getMusic().mood, notes: { ...getMusic().notes }, stings: { ...getMusic().stings } },
           mode: g.sim.mode, ffa: g.sim.ffa, mutator: g.sim.mutator, roomInfo: view.roomInfo, secondPerson: g.second.active, secondDistance: g.second.distance, center: view.center, scoreLine: view.scoreLine ?? '',
           local: { hasPrimary: g.sim.local.hasPrimary, boots: g.sim.local.boots, healLeft: g.sim.local.healLeft, active: g.sim.local.active },
           actors: g.sim.actors.map((a) => ({ id: a.id, team: a.team, name: a.name, hp: a.hp, alive: a.alive,
@@ -372,6 +375,8 @@ function GameDriver({ options }: { options: GameOptions }) {
       const near = sim.local.alive && sim.round.phase === 'live' ? sim.itemNear(sim.local) : null;
       view.hint = near ? itemHint(near) : healHint(sim.local.healLeft > 0);
       view.pings = game.pings.text(sim.local.x, sim.local.z);
+      const r = sim.round;
+      game.music.update(r.phase, r.timeLeft, (r.phase === 'matchEnd' ? r.matchWinner : r.lastWinner) ?? '', sim.local.team);
       view.perf += ` \u00b7 worst ${Math.round(perf.displayWorstMs)} ms (sim ${perf.displayWorstSimMs.toFixed(1)}) / 5 s`;
       hud.update(view);
     }

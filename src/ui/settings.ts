@@ -8,6 +8,7 @@ export interface Settings {
   crosshairColor: string;
   crosshairSize: number;
   adsMode: AdsMode;
+  musicVolume: number;
   secondPersonMode: AdsMode;
 }
 
@@ -23,6 +24,7 @@ function load(): Settings {
     sensitivity: clamp(raw.sensitivity, SETTINGS_LIMITS.sensitivity, d.sensitivity),
     fov: clamp(raw.fov, SETTINGS_LIMITS.fov, d.fov),
     volume: clamp(raw.volume, SETTINGS_LIMITS.volume, d.volume),
+    musicVolume: clamp(raw.musicVolume, SETTINGS_LIMITS.musicVolume, d.musicVolume),
     crosshairColor: typeof raw.crosshairColor === 'string' && /^#[0-9a-f]{6}$/i.test(raw.crosshairColor) ? raw.crosshairColor : d.crosshairColor,
     crosshairSize: clamp(raw.crosshairSize, SETTINGS_LIMITS.crosshairSize, d.crosshairSize),
     adsMode: raw.adsMode === 'hold' ? 'hold' : 'toggle',

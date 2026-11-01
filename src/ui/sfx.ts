@@ -11,6 +11,9 @@ export class Sfx {
   /** Plays per sound (tests / debug). */
   readonly played: Record<string, number> = {};
 
+  /** The shared AudioContext (music uses it too); null until audio can start. */
+  context(): AudioContext | null { return this.ensure(); }
+
   constructor() {
     const unlock = () => { this.ensure(); void this.ctx?.resume().catch(() => undefined); };
     window.addEventListener('mousedown', unlock, { capture: true });

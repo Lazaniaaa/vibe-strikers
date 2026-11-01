@@ -10,6 +10,8 @@ export const SETTINGS_DEFAULTS = {
   fov: 90,
   /** 0..1 */
   volume: 0.7,
+  /** Music volume 0..1 (GAME.md 12: subtle, default low). */
+  musicVolume: 0.25,
   crosshairColor: '#ffffff',
   /** Crosshair line length, px. */
   crosshairSize: 8,
@@ -23,6 +25,7 @@ export const SETTINGS_LIMITS = {
   sensitivity: { min: 0.0005, max: 0.006, step: 0.0001 },
   fov: { min: 70, max: 110, step: 1 },
   volume: { min: 0, max: 1, step: 0.05 },
+  musicVolume: { min: 0, max: 1, step: 0.05 },
   crosshairSize: { min: 4, max: 20, step: 1 },
 } as const;
 

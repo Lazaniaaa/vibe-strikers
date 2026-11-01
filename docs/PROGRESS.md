@@ -385,6 +385,12 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   inserts one row per human teammate of the pinger (free-for-all: only the pinger) and a row-level-security filter
   (`clientVisibilityFilter.sql('SELECT * FROM ping_event WHERE recipient = :sender')`) delivers each row only to its
   recipient, so even a client subscribed to the whole table gets no enemy pings (tested in `scripts/e2e-pings.mjs`).
+- 2026-11-01 final batch step 3: generative music (GAME.md 12; `src/ui/music.ts`, numbers in `MUSIC` in
+  src/config/audio.ts). An 8th-note sequencer schedules notes rendered by the same synth as the effects (no files):
+  4-bar A-minor loop; menu / between rounds = pad + sparse arpeggio (68-76 BPM); live round = + soft bass and
+  off-beat hats (100 BPM); last 15 s = busier bass and arpeggio (126 BPM); a 4-note win or lose sting when a live
+  round / match ends. Setting "Music volume" (default 25%, x master volume, saved). Starts after the first click
+  (browser audio rule). The settings panel now scrolls on small windows. Test `scripts/e2e-music.cjs`.
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 
