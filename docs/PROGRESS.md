@@ -425,6 +425,10 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   smooth sines; roll + offset only, so the crosshair stays on the real aim. Setting "Screen shake when hit" on / off
   (default on, GAME.md 10). Offline and online. `window.__game.cameraRoll()` (debug) for tests. Measured: a bot burst
   gives max roll 0° before / 3.2° after; evidence `docs/evidence/audit-hurt-shake-before-after.jpg` (top row before).
+- 2026-11-01 audit 5: world camera near plane 0.05 -> 0.1 m (`CAMERA.near`; the viewmodel camera keeps 0.05). Depth
+  step at 60 m with a 24-bit buffer ~4.3 mm -> ~2.1 mm. Preventive: no z-fighting was seen at the checked spot, so the
+  before / after screenshots look the same (`docs/evidence/audit-near-{before,after}.jpg`); no clipping (the eye stays
+  >= ~0.18 m from boxes).
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 

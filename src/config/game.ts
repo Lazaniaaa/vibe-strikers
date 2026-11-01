@@ -6,7 +6,11 @@ export const MAP_ID = 'toy-town-l1-r1';
 export const CAMERA = {
   /** Default hip FOV in degrees (settings may change it later). */
   fov: 70,
-  near: 0.05,
+  /**
+   * World near plane, metres. 0.1 (was 0.05) doubles depth precision (less z-fighting far away); safe because the eye
+   * is never closer than ~0.18 m to a box (capsule radius 0.45, crouch ceiling) and the viewmodel has its own camera.
+   */
+  near: 0.1,
   far: 180,
   /** Eye height above the feet, metres. */
   eyeHeight: 1.62,
