@@ -1,0 +1,8 @@
+﻿fall from the 2 m ledge: 0.32 s
+no jump  jump 0.03 s after leaving the ledge
+no jump  jump 0.08 s after leaving the ledge
+no jump  jump 0.15 s after leaving the ledge
+no jump  tap jump 0.03 s before landing
+no jump  tap jump 0.08 s before landing
+no jump  tap jump 0.15 s before landing
+ok server movement validation: 0 violations

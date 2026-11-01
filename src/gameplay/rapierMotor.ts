@@ -22,6 +22,8 @@ export class RapierMotor {
   private colliders = new Map<number, Collider>();
   /** Intended horizontal velocity per actor (actor.vx/vz hold the ACTUAL movement for animation and the network). */
   private wishVel = new Map<number, { x: number; z: number }>();
+  /** Jump feel timers per actor: coyote time left, buffered jump press left (seconds). */
+  private jumpFeel = new Map<number, { coyote: number; buffer: number }>();
   private standShape: Shape;
   private readonly identityRot = { x: 0, y: 0, z: 0, w: 1 };
   private readonly desired = { x: 0, y: 0, z: 0 };
@@ -54,6 +56,8 @@ export class RapierMotor {
     actor.crouching = false; actor.eyeHeight = CAPSULE.eyeHeight; actor.grounded = false;
     const v = this.wishVel.get(actor.id);
     if (v) { v.x = 0; v.z = 0; }
+    const feel = this.jumpFeel.get(actor.id);
+    if (feel) { feel.coyote = 0; feel.buffer = 0; }
     const c = this.colliders.get(actor.id);
     if (!c) return;
     c.setHalfHeight(STAND_HALF);
@@ -99,14 +103,22 @@ export class RapierMotor {
     // In the air, only steer (never brake below current speed without input).
     if (actor.grounded || len > 0) { v.x += dvx; v.z += dvz; }
 
-    // Jump (one per press) and gravity.
+    // Jump (one per press) and gravity. Coyote time: the ground jump still works shortly after leaving a ledge.
+    // Jump buffer: a press shortly before landing fires on the first grounded frame.
+    let feel = this.jumpFeel.get(actor.id);
+    if (!feel) { feel = { coyote: 0, buffer: 0 }; this.jumpFeel.set(actor.id, feel); }
+    // Rising (vy > 0) never refills it: no second jump while the ground check still sees the floor after a jump.
+    feel.coyote = actor.grounded && actor.vy <= 0 ? MOVEMENT.coyoteTime : feel.coyote - dt;
     if (!intent.jump) actor.jumpLatch = false;
-    if (!frozen && intent.jump && !actor.jumpLatch && actor.grounded) {
+    feel.buffer = intent.jump && !actor.jumpLatch ? MOVEMENT.jumpBufferTime : feel.buffer - dt;
+    if (!frozen && feel.buffer > 0 && feel.coyote > 0) {
       actor.vy = MOVEMENT.jumpVelocity; actor.grounded = false; actor.jumpLatch = true;
+      feel.coyote = 0; feel.buffer = 0;
       actor.airJumpsLeft = actor.boots ? CORNUCOPIA.bootsAirJumps : 0;
     } else if (!frozen && intent.jump && !actor.jumpLatch && !actor.grounded && actor.boots && actor.airJumpsLeft > 0) {
       // Rocket boots: a second jump in the air.
       actor.airJumpsLeft--; actor.vy = CORNUCOPIA.bootsJumpVelocity; actor.jumpLatch = true; actor.sinceBoost = 0;
+      feel.buffer = 0;
     }
     actor.sinceBoost += dt;
     if (actor.grounded && actor.boots) actor.airJumpsLeft = CORNUCOPIA.bootsAirJumps;

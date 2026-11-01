@@ -61,6 +61,8 @@ Date started: 2026-10-30. Credits expire 2026-11-05.
   reloading in cover, kills, tick cost.
 - `node scripts/test-bot-levels.mjs` — bots (server nav-grid motor and offline Rapier KCC) walk from each spawn to
   each balcony / raised area and back; every 30 Hz sample checked with the server validation (0 corrections).
+- `node scripts/test-jump-feel.mjs [--expect-feel]` — coyote time and jump buffer on a 2 m ledge (Rapier KCC + server
+  validation); results in `docs/evidence/jump-feel-{before,after}.txt`.
 - `node scripts/test-stairs.mjs [mapId]` — finds every stair flight in the map data and walks the Rapier KCC up
   and down each one, checking every 30 Hz sample with the server movement validation (0 corrections).
 - `node scripts/test-drops.mjs` — weapon drops (server, 2v2 Node clients): drop with ammo, range check, E swap, cleared next round.
@@ -407,6 +409,12 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   soon as the own player row arrived, before the room row, so `mutatorRules(net.room?.mutator)` read '' (no mutator).
   `joinWith` in client/main.tsx now also waits for `net.room`. Checked online: low gravity jump 2.30 m / 1.36 s in the
   air, 0 snap-backs; big heads drawn (`docs/evidence/fix-mutator-online-bigheads.jpg`). Offline was not affected.
+- 2026-11-01 owner: game-feel audit against gamedev-cheatsheet.com (34 concepts); approved items 1-5: coyote time,
+  jump buffer, impact particles, damage camera shake, world camera near 0.1. Bot separation = later.
+- 2026-11-01 audit 1-2: coyote time 0.1 s + jump buffer 0.1 s (`MOVEMENT.coyoteTime` / `jumpBufferTime`, timers per
+  actor inside `RapierMotor`; a rising actor never refills coyote time, so no double jump). Holding jump still hops on
+  landing as before. `scripts/test-jump-feel.mjs`: before 0 of 6 cases jump, after 4 of 6 (0.03 / 0.08 s yes, 0.15 s no),
+  0 server validation violations; stairs and bot-level tests pass.
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 

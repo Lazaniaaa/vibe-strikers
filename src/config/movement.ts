@@ -14,6 +14,10 @@ export const MOVEMENT = {
   groundStickSpeed: 1,
   /** Max fall speed, m/s. */
   maxFallSpeed: 40,
+  /** Coyote time: a jump still works this long after running off a ledge, s. */
+  coyoteTime: 0.1,
+  /** Jump buffer: a jump pressed this long before landing fires on landing, s. */
+  jumpBufferTime: 0.1,
 } as const;
 
 export const CAPSULE = {
