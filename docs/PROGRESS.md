@@ -686,7 +686,8 @@ Out of M2: hosting (M3), lobby polish, character select, other weapons, sound.
    `src/config/rounds.ts` (cornucopia preset), `src/config/bots.ts` (BOT_LOADOUT, BOT_ROLES, BOT_LOOT).
    Evidence `docs/evidence/cornucopia-offline.jpg`, `cornucopia-boots.jpg`, `cornucopia-online.jpg`.
 Tests (2026-11-01): typecheck, 18 unit checks, server, drops, cornucopia, bot roles, bot behaviour, bot levels,
-stairs, e2e M1, M2a, M2b, M3a-e, fixes, leave, tags, drops, cornucopia offline + online (results below).
+stairs, e2e M1, M2a (0 ms), M2b (100 ms), M3a-e, fixes, leave, tags, drops, cornucopia offline + online, game
+and asset builds: ALL PASS.
 Known limits:
 - Pedestals have no collider (you walk through them). Medkit / boots / ammo are placeholder box models
   (no asset exists; the character has no boot socket, so the glow is a box under the feet).
