@@ -4,8 +4,9 @@ Date started: 2026-10-30. Credits expire 2026-11-05.
 
 ## State
 - M0, M1 DONE (2026-10-30). M2a, M2b, M3 parts 1-2, playtest fixes 1-5 and "solo play + hosting prep" DONE
-  2026-10-31. Features (weapon drops, bot primaries + roles, Cornucopia mode) DONE 2026-11-01 (see "Features
-  result"). STOPPED for the owner. Not deployed (owner logs in himself:
+  2026-10-31. Features (weapon drops, bot primaries + roles, Cornucopia mode) DONE 2026-11-01. Last batch (faster
+  loading, Cornucopia fixes, second-person view, team pings, mutators) DONE 2026-11-01 (see "Last batch result");
+  pull request to main opened. STOPPED for the owner. Not deployed (owner logs in himself:
   docs/HOSTING.md). Map redesign: later (owner).
 - Asset folders `src/characters/`, `src/weapons/`, `src/maps/` + Voxel Lab root files (owned by Codex).
 - Game: `client/index.html` (menu -> online game, or offline practice), `client/smoke.html` (M0),
@@ -25,7 +26,7 @@ Date started: 2026-10-30. Credits expire 2026-11-05.
   `npm run server:reset` (publish + delete data), `npm run server:bindings` (after schema changes),
   `spacetime logs --server local voxel-arena -f`. The spacetime CLI is in `~/.local/bin`.
 - `npm run typecheck` — strict tsc on game code AND the server module.
-- `npm run test:gameplay` — 18 unit checks (hitscan, hit boxes, weapons, rounds, nav, movement validation).
+- `npm run test:gameplay` — 19 unit checks (hitscan, hit boxes, weapons, rounds, nav, movement validation).
 - `node scripts/test-server.mjs` — server integration test with Node clients (rooms by code, characters,
   own-room rows only, bots move and kill, refill, movement cheats snapped back, legal long walk, hits,
   fire-rate limit, ammo, reload, switch, kill -> round end -> respawn, ping).
@@ -62,7 +63,13 @@ Date started: 2026-10-30. Credits expire 2026-11-05.
   pedestals, pistol start, boots double jump + glow, bots take loot.
 - `NODE_PATH=$(npm root -g) node scripts/e2e-cornucopia-online.cjs [shot]` — Cornucopia online room smoke test.
 - `NODE_PATH=$(npm root -g) node scripts/shot-bot-weapons.cjs out.jpg` — screenshot of bots with random primaries.
-- URL params for tests: `?mode=cornucopia&teams=0` (offline and `auto=create`).
+- URL params for tests: `?mode=cornucopia&teams=0` (offline and `auto=create`), `?mutator=bigHeads` etc.
+- `node scripts/test-mutators.mjs` — mutators on the server (one shot, big head box, boots, fast run, mutator of the day).
+- `NODE_PATH=$(npm root -g) node scripts/e2e-mutators.cjs [shot]` — mutator HUD, big heads drawn, low gravity jump.
+- `NODE_PATH=$(npm root -g) node scripts/e2e-second-person.cjs [shot]` — V view, no shooting, reload, wall pull-in.
+- `NODE_PATH=$(npm root -g) node scripts/e2e-pings.mjs [shot]` — team pings (tab + Node clients), rate limit, 5 s.
+- `NODE_PATH=$(npm root -g) node scripts/measure-load.cjs [base] [loading.jpg]` — production build: JS size, time to
+  menu and to the first game frame (local and 10 Mbit/s).
 - `node scripts/profile-bots.cjs [seconds]`, `node scripts/bench-sim.mjs [seconds] [hz]` — performance.
 - Asset owner commands unchanged: `npm run dev`, `npm run build`, `npm run verify` (see the cloud-only
   timing note in "Changes made in asset folders").
@@ -744,4 +751,31 @@ Known limits:
      or "Create private room". Run to a pedestal, press E; take a medkit when hurt; climb a balcony for the rocket
      boots, then press Space twice (second press in the air).
 4. Hosted version: after `git pull`, publish the server with `--delete-data` (tables changed), see `docs/HOSTING.md` 5.
+
+## Last batch result (2026-11-01)
+1. Faster loading: the menu loads 18 KB of JS instead of 4.67 MB; the game is split into cached chunks (rapier
+   2.24 MB, three 740 KB, game code ~550 KB, r3f 212 KB, map 166 KB, net 113 KB), prefetched while the menu is
+   open, with a loading screen until the first frame. Only the used map is in the build (4 unused maps, 1.3 MB,
+   stubbed). Production build: menu 956 -> 300 ms, menu + first frame 2.3 -> 1.7 s locally (2.9 -> 2.4 s at
+   10 Mbit/s). Evidence `docs/evidence/loading-screen.jpg`.
+2. Cornucopia: pedestals are solid; players who join a running match spectate until the next match.
+3. Second-person view: V (toggle or hold, Settings) shows your own character from the front, 2.5 m, pulled in by
+   walls; no shooting, reloading works. Evidence `docs/evidence/second-person.jpg`.
+4. Team pings: Z or middle mouse marks the spot you look at; teammates see a yellow diamond through walls for 5 s,
+   a HUD line and a sound; one per second. Evidence `docs/evidence/pings.jpg`.
+5. Mutators: low gravity, big heads (model and head hit box x2), one shot, fast run, rocket boots for everyone.
+   Quick Play = mutator of the day (UTC); private rooms / practice choose in the menu; shown in the HUD room line.
+   Evidence `docs/evidence/mutator-bigheads.jpg`.
+Tests: see the regression line below.
+Known limits: server bots and the server move check ignore pedestals; ping events reach every client of the room
+(the app shows only your team's); Rapier is still one 2.2 MB file (its wasm is inlined in the package).
+
+## Run the last batch on your laptop
+`git pull`, `npm ci`, then:
+1. Terminal 1: `spacetime start`
+2. Terminal 2: `npm run server:reset` (room table changed: mutator; new ping_event), `npm run game:build`,
+   `npm run game:preview`
+3. Open http://127.0.0.1:5191/: the menu appears at once, a loading bar runs when you start. Try: V (look at
+   yourself), Z (ping), Mutator in the menu (Big heads, Low gravity...), Cornucopia (jump on a pedestal).
+4. Hosted version: publish the server with `--delete-data` (tables changed), then build and upload (docs/HOSTING.md 5).
 
