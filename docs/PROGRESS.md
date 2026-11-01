@@ -3,17 +3,27 @@
 Date started: 2026-10-30. Credits expire 2026-11-05.
 
 ## State
-- M0, M1 DONE (2026-10-30). M2a, M2b, M3 parts 1-2, playtest fixes 1-5 and "solo play + hosting prep" DONE
-  2026-10-31. Features (weapon drops, bot primaries + roles, Cornucopia mode) DONE 2026-11-01. Last batch (faster
-  loading, Cornucopia fixes, second-person view, team pings, mutators) DONE 2026-11-01 (see "Last batch result");
-  pull request to main opened. STOPPED for the owner. Not deployed (owner logs in himself:
-  docs/HOSTING.md). Map redesign: later (owner).
+- Cloud phase finished 2026-11-01. Built and tested: M0, M1, M2a/b, M3 parts 1-2, playtest fixes, solo play + hosting
+  prep, features (drops, bot primaries, Cornucopia), last batch (fast loading, pedestals, second person, pings,
+  mutators), final batch (server-side pedestals, team-only pings, music). Pull request:
+  https://github.com/Lazaniaaa/name/pull/1 (branch `claude/game-smoke-test-m0-0pnjf5` -> main). STOPPED for the owner.
+- Not done from the final batch: step 4 "bots use the rocket-boots double jump" (skipped at the budget limit: server
+  bots move on the nav grid without vertical physics, so it needs a jump model for the grid motor first).
 - Asset folders `src/characters/`, `src/weapons/`, `src/maps/` + Voxel Lab root files (owned by Codex).
 - Game: `client/index.html` (menu -> online game, or offline practice), `client/smoke.html` (M0),
   `client/game/*` (R3F apps, input, visuals, profiler), `src/gameplay/*` (shared pure code, also used by
-  the server), `src/network/*` (SpacetimeDB client + generated bindings), `src/ui/*` (HUD, menu),
+  the server), `src/network/*` (SpacetimeDB client + generated bindings), `src/ui/*` (HUD, menu, sounds, music),
   `src/config/*`, `server/` (SpacetimeDB TypeScript module).
 - Map in use: `toy-town-l1-r1` (`MAP_ID` in `src/config/game.ts`). Owner has not chosen a lane variant yet.
+
+## Next step (next session, on the owner's laptop)
+1. `git pull`, `npm ci`, `spacetime start`, `npm run server:reset`, `npm run game:build`, `npm run game:preview`;
+   play every mode once (Quick Play, private room with a mutator, Cornucopia teams / free-for-all, offline practice).
+2. Merge PR #1 into main when happy; publish to Maincloud + Cloudflare Pages with `docs/HOSTING.md`
+   (server first, with `--delete-data` because tables changed).
+3. Open work, in this order: bots' double jump with rocket boots (grid motor jump model + nav links to balconies);
+   map redesign with more cover (owner) and the asset-owner requests below (blocked stairs, props in walls, async map
+   loading, boot sockets / item models); 12-16 player load test; emotes and the emote wheel; Cornucopia arena.
 
 ## Commands
 - `npm run game:dev` — game dev server: http://127.0.0.1:5190/ (menu), `/?offline=1` (M1 offline),
@@ -391,6 +401,8 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   off-beat hats (100 BPM); last 15 s = busier bass and arpeggio (126 BPM); a 4-note win or lose sting when a live
   round / match ends. Setting "Music volume" (default 25%, x master volume, saved). Starts after the first click
   (browser audio rule). The settings panel now scrolls on small windows. Test `scripts/e2e-music.cjs`.
+- 2026-11-01 final batch step 4 SKIPPED (budget hard stop ~8%): bot double jump needs a vertical model in the server
+  grid motor (bots have no gravity / jumps there) and jump links in the nav graph; logged as the first open item.
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 
