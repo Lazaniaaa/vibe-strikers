@@ -766,7 +766,11 @@ Known limits:
 5. Mutators: low gravity, big heads (model and head hit box x2), one shot, fast run, rocket boots for everyone.
    Quick Play = mutator of the day (UTC); private rooms / practice choose in the menu; shown in the HUD room line.
    Evidence `docs/evidence/mutator-bigheads.jpg`.
-Tests: see the regression line below.
+Tests (2026-11-01, all on the dev server + local SpacetimeDB): typecheck, 19 unit checks, server, drops, cornucopia,
+mutators, stairs, bot levels, bot roles, bot behaviour (180 s), e2e M1, M2a (0 ms), M2b (100 ms), M3a-e, fixes, leave,
+tags, drops, cornucopia offline + online, second person, pings, mutators: ALL PASS; production build: leave e2e + load
+measurement. Note: bot behaviour run for only 120 s failed "fight from cover" once (since features 2 only rifles use
+cover, so short runs have few such fights); the standard 180 s run passes (23 of 69 fights from cover, 9 peeks).
 Known limits: server bots and the server move check ignore pedestals; ping events reach every client of the room
 (the app shows only your team's); Rapier is still one 2.2 MB file (its wasm is inlined in the package).
 
