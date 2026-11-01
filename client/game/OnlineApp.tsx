@@ -29,6 +29,7 @@ import { FramePerf } from './perf';
 import { AvatarRig, DeathMarkers, ShotEffects, ViewmodelRig } from './visuals';
 import { AdsController } from './ads';
 import { BootGlows, ItemViews } from './items';
+import { SecondPersonView } from './secondPerson';
 import { cornucopiaLoadout, itemHint, nearestOf } from '../../src/gameplay/items';
 import { isFfaTeam } from '../../src/gameplay/mode';
 import { CORNUCOPIA } from '../../src/config/items';
@@ -107,6 +108,7 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
     const markers = new DeathMarkers();
     const items = new ItemViews();
     const glows = new BootGlows();
+    const second = new SecondPersonView(local);
     const nameTags = new NameTags(hudRoot);
     const tagger = new TagProjector(nameTags, blockers);
     const remotes = new Map<bigint, Remote>();
@@ -181,7 +183,7 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
         weapon: k.weapon, headshot: k.headshot });
       if (feedEntries.length > 4) feedEntries.shift();
     };
-    return { local, motor, input, hud, scoreboard, viewmodel, ads, view, sfx, audio, markers, items, glows, feedEntries, nameTags, tagger, effects, remotes, perf, stats, sample, feed, scratch, rewinds, allyMat, allyGeo,
+    return { local, motor, input, hud, scoreboard, viewmodel, ads, view, sfx, audio, markers, items, glows, second, feedEntries, nameTags, tagger, effects, remotes, perf, stats, sample, feed, scratch, rewinds, allyMat, allyGeo,
       disposables: [unitBox, tracerMat, impactMat, flashMat, flashGeo, allyMat, allyGeo] };
   }, [net, world, rapier, gl, scene, debug, onLeave]);
 
@@ -192,6 +194,7 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
     scene.add(game.markers.group);
     scene.add(game.items.group);
     scene.add(game.glows.group);
+    scene.add(game.second.rig.root);
     if (debug) {
       window.__online = {
         net, local: game.local, stats: game.stats,
@@ -202,7 +205,7 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
           local: { x: game.local.x, y: game.local.y, z: game.local.z, grounded: game.local.grounded, mag: game.local.slots[game.local.active].mag },
           items: [...net.items.values()].map((i) => ({ id: String(i.id), kind: i.kind, weapon: i.weapon, mag: i.mag, reserve: i.reserve, x: i.x, y: i.y, z: i.z, pedestal: i.pedestal })),
           itemViews: game.items.count, hint: view.hint ?? '', primary: game.local.hasPrimary ? game.local.slots[0].stats.id : '',
-          glows: game.glows.visibleCount, center: view.center, sub: view.sub, scoreLine: view.scoreLine ?? '', mode: net.room?.mode, teams: net.room?.teams,
+          glows: game.glows.visibleCount, secondPerson: game.second.active, secondDistance: game.second.distance, center: view.center, sub: view.sub, scoreLine: view.scoreLine ?? '', mode: net.room?.mode, teams: net.room?.teams,
           localState: { boots: game.local.boots, active: game.local.active, healLeft: net.me?.healLeft ?? 0, pistol: [game.local.slots[1].mag, game.local.slots[1].reserve] },
           snapBacks: net.corrections, players: net.players.size, remotes: game.remotes.size, stats: { ...game.stats },
         }),
@@ -236,6 +239,7 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
       scene.remove(game.markers.group);
       scene.remove(game.items.group);
       scene.remove(game.glows.group);
+      scene.remove(game.second.rig.root);
       game.markers.dispose();
       game.input.dispose();
       game.ads.dispose();
@@ -295,7 +299,10 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
       const weaponNow = local.slots[local.active].stats;
       const intent = input.sample(local.yaw, local.pitch, game.ads.sensitivity(weaponNow.id));
       if (!local.alive) { input.cancelAds(); game.ads.reset(); }
-      game.ads.update(dt, input.wantAds(settings.adsMode) && local.alive && local.slots[local.active].reloadLeft <= 0, weaponNow.id);
+      // Second-person view (V): no shooting, no aiming; reloading still works.
+      const secondWanted = input.wantSecondPerson(settings.secondPersonMode) && local.alive;
+      if (secondWanted) { intent.fire = false; input.cancelAds(); }
+      game.ads.update(dt, input.wantAds(settings.adsMode) && !secondWanted && local.alive && local.slots[local.active].reloadLeft <= 0, weaponNow.id);
       local.yaw = intent.yaw;
       local.pitch = clamp(intent.pitch, -89 * DEG, 89 * DEG);
       if (local.alive) {
@@ -421,7 +428,9 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
       if (r.rig.hiddenByCamera) r.rig.root.visible = false;
     }
     if (me) game.markers.update(Number(me.id), me.alive, local.x, local.y, local.z, true);
-    if (local.alive) {
+    const secondView = game.second.update(input.wantSecondPerson(settings.secondPersonMode), local, dt);
+    if (secondView) game.second.place(cam, local, blockers);
+    else if (local.alive) {
       cam.position.set(local.x, local.y + local.eyeHeight, local.z);
       cam.rotation.set(local.pitch + scratch.punch, local.yaw, 0);
     } else if (followed) {
@@ -450,14 +459,14 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
     stats.triangles = gl.info.render.triangles; stats.calls = gl.info.render.calls;
     gl.autoClear = false;
     gl.clearDepth();
-    gl.render(viewmodel.scene, viewmodel.camera);
+    if (!secondView) gl.render(viewmodel.scene, viewmodel.camera);
     stats.triangles += gl.info.render.triangles; stats.calls += gl.info.render.calls;
     perf.now.render = performance.now() - renderStart;
     if (stats.frames === 1) onReady?.();
 
     const s = local.slots[local.active];
     const spread = spreadDeg(s, local.moveFraction, !local.grounded, game.ads.scoped(s.stats.id)) * DEG;
-    hud.setCrosshairHidden(game.ads.hideCrosshair || !local.alive);
+    hud.setCrosshairHidden(game.ads.hideCrosshair || !local.alive || secondView);
     hud.frame(dt, 3 + Math.tan(spread) / Math.tan((cam.fov * DEG) / 2) * (size.height / 2));
     timers.fpsFrames++; timers.fpsTime += delta;
     if (timers.fpsTime >= 0.5) { stats.fps = Math.round(timers.fpsFrames / timers.fpsTime); timers.fpsFrames = 0; timers.fpsTime = 0; }

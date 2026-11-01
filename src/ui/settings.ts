@@ -8,6 +8,7 @@ export interface Settings {
   crosshairColor: string;
   crosshairSize: number;
   adsMode: AdsMode;
+  secondPersonMode: AdsMode;
 }
 
 const KEY = 'voxel-settings';
@@ -25,6 +26,7 @@ function load(): Settings {
     crosshairColor: typeof raw.crosshairColor === 'string' && /^#[0-9a-f]{6}$/i.test(raw.crosshairColor) ? raw.crosshairColor : d.crosshairColor,
     crosshairSize: clamp(raw.crosshairSize, SETTINGS_LIMITS.crosshairSize, d.crosshairSize),
     adsMode: raw.adsMode === 'hold' ? 'hold' : 'toggle',
+    secondPersonMode: raw.secondPersonMode === 'hold' ? 'hold' : 'toggle',
   };
 }
 

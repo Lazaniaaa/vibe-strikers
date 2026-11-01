@@ -15,6 +15,8 @@ export const SETTINGS_DEFAULTS = {
   crosshairSize: 8,
   /** Owner 2026-10-31: right mouse button toggles ADS by default. */
   adsMode: 'toggle' as AdsMode,
+  /** GAME.md 5: second-person view (V) is a toggle by default. */
+  secondPersonMode: 'toggle' as AdsMode,
 };
 
 export const SETTINGS_LIMITS = {
@@ -26,3 +28,11 @@ export const SETTINGS_LIMITS = {
 
 /** ADS blend speed (full aim in 1 / blendSpeed seconds). */
 export const ADS = { blendSpeed: 5.5 } as const;
+
+/** Second-person view (GAME.md 5): camera in front of the player looking back at the own character. */
+export const SECOND_PERSON = {
+  distance: 2.5,
+  /** Kept this far in front of a wall the ray hits. */
+  wallMargin: 0.25,
+  minDistance: 0.6,
+} as const;

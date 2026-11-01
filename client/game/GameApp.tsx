@@ -20,6 +20,7 @@ import { AvatarRig, DeathMarkers, ShotEffects, ViewmodelRig } from './visuals';
 import { FramePerf } from './perf';
 import { AdsController } from './ads';
 import { BootGlows, ItemViews } from './items';
+import { SecondPersonView } from './secondPerson';
 import type { GameMode } from '../../src/gameplay/mode';
 import { CORNUCOPIA, ITEMS } from '../../src/config/items';
 import { cornucopiaEndText, cornucopiaScoreLine, healHint } from '../../src/ui/modeText';
@@ -154,7 +155,8 @@ function GameDriver({ options }: { options: GameOptions }) {
     input.onConfirm = () => { if (sim.round.phase === 'matchEnd') sim.restart(); };
     const items = new ItemViews();
     const glows = new BootGlows();
-    return { sim, input, hud, effects, rigs, viewmodel, ads, markers, items, glows, nameTags, tagger, stats, perf, disposables: [unitBox, tracerMat, impactMat, flashMat, flashGeo, allyMat, allyGeo] };
+    const second = new SecondPersonView(sim.local);
+    return { sim, input, hud, effects, rigs, viewmodel, ads, markers, items, glows, second, nameTags, tagger, stats, perf, disposables: [unitBox, tracerMat, impactMat, flashMat, flashGeo, allyMat, allyGeo] };
   }, [world, rapier, gl, options.freezeTime, options.mode, options.teams]);
 
   useEffect(() => {
@@ -163,6 +165,7 @@ function GameDriver({ options }: { options: GameOptions }) {
     scene.add(game.markers.group);
     scene.add(game.items.group);
     scene.add(game.glows.group);
+    scene.add(game.second.rig.root);
     const cam = camera as PerspectiveCamera;
     cam.rotation.order = 'YXZ';
     // Compile every material now so the first shot / tracer / flash does not stall a frame.
@@ -184,7 +187,7 @@ function GameDriver({ options }: { options: GameOptions }) {
           scoreA: g.sim.round.scoreA, scoreB: g.sim.round.scoreB, matchWinner: g.sim.round.matchWinner,
           stats: { ...g.stats },
           items: g.sim.items.map((i) => ({ ...i })), itemViews: g.items.count, hint: view.hint ?? '', glows: g.glows.visibleCount,
-          mode: g.sim.mode, ffa: g.sim.ffa, center: view.center, scoreLine: view.scoreLine ?? '',
+          mode: g.sim.mode, ffa: g.sim.ffa, secondPerson: g.second.active, secondDistance: g.second.distance, center: view.center, scoreLine: view.scoreLine ?? '',
           local: { hasPrimary: g.sim.local.hasPrimary, boots: g.sim.local.boots, healLeft: g.sim.local.healLeft, active: g.sim.local.active },
           actors: g.sim.actors.map((a) => ({ id: a.id, team: a.team, name: a.name, hp: a.hp, alive: a.alive,
             x: +a.x.toFixed(2), y: +a.y.toFixed(2), z: +a.z.toFixed(2), grounded: a.grounded,
@@ -205,6 +208,7 @@ function GameDriver({ options }: { options: GameOptions }) {
       scene.remove(game.markers.group);
       scene.remove(game.items.group);
       scene.remove(game.glows.group);
+      scene.remove(game.second.rig.root);
       game.markers.dispose();
       game.input.dispose();
       game.ads.dispose();
@@ -233,7 +237,10 @@ function GameDriver({ options }: { options: GameOptions }) {
       const wid = local.slots[local.active].stats.id;
       const intent = input.sample(local.yaw, local.pitch, game.ads.sensitivity(wid));
       if (intent.slot >= 0 || intent.reload || !local.alive) input.cancelAds();
-      game.ads.update(dt, input.wantAds(settings.adsMode) && local.alive && local.slots[local.active].reloadLeft <= 0, wid);
+      // Second-person view (V): no shooting, no aiming; reloading still works.
+      const secondWanted = input.wantSecondPerson(settings.secondPersonMode) && local.alive;
+      if (secondWanted) { intent.fire = false; input.cancelAds(); }
+      game.ads.update(dt, input.wantAds(settings.adsMode) && !secondWanted && local.alive && local.slots[local.active].reloadLeft <= 0, wid);
       if (options.debug) input.debugLook = null;
       intent.aim = game.ads.scoped(wid);
       sim.update(dt, intent);
@@ -301,7 +308,9 @@ function GameDriver({ options }: { options: GameOptions }) {
     const slot = local.slots[local.active];
     if (localFired) scratch.punch += slot.stats.viewPunchDeg * DEG;
     scratch.punch *= Math.exp(-EFFECTS.viewPunchRecover * dt);
-    if (local.alive) {
+    const secondView = game.second.update(input.wantSecondPerson(settings.secondPersonMode), local, dt);
+    if (secondView) game.second.place(cam, local, blockersForDebug);
+    else if (local.alive) {
       cam.position.set(local.x, local.y + local.eyeHeight, local.z);
       cam.rotation.set(local.pitch + scratch.punch, local.yaw, 0);
     } else {
@@ -314,7 +323,7 @@ function GameDriver({ options }: { options: GameOptions }) {
       if (a.id === LOCAL_ID) continue;
       game.tagger.place(cam, size.width, size.height, a.id, a.name, a.team === local.team, a.x, a.y, a.z, !a.alive);
     }
-    hud.setCrosshairHidden(game.ads.hideCrosshair || !local.alive);
+    hud.setCrosshairHidden(game.ads.hideCrosshair || !local.alive || secondView);
     effects.update(dt);
     game.items.sync(sim.items, state.clock.elapsedTime);
     game.glows.begin();
@@ -327,7 +336,7 @@ function GameDriver({ options }: { options: GameOptions }) {
     stats.triangles = gl.info.render.triangles; stats.calls = gl.info.render.calls;
     gl.autoClear = false;
     gl.clearDepth();
-    gl.render(viewmodel.scene, viewmodel.camera);
+    if (!secondView) gl.render(viewmodel.scene, viewmodel.camera);
     stats.triangles += gl.info.render.triangles; stats.calls += gl.info.render.calls;
     perf.now.render = performance.now() - renderStart;
     if (stats.frames === 1) options.onReady?.();

@@ -351,6 +351,10 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   still ignore pedestals (they only stop at the edge to pick up; a cheater could walk through; small). A player
   joining (or a bot refilling) after the freeze phase of a Cornucopia match is dead and spectates ("Match in
   progress") until the next match.
+- 2026-11-01 batch2 step 3: second-person view (GAME.md 5): V toggles (setting "Second-person view: toggle /
+  hold", default toggle) a camera 2.5 m in front of the eye looking back at the own character (drawn only in this
+  view, HIP hold); a ray against the map pulls it in (0.25 m from the wall, min 0.6 m). No shooting and no ADS in
+  this view, reloading works; viewmodel and crosshair hidden. Client-only (others see nothing different).
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 

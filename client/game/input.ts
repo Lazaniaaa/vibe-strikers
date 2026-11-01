@@ -23,6 +23,9 @@ export class Input {
   /** ADS (right mouse): toggled state and held state; which one counts depends on the ADS mode setting. */
   private adsToggled = false;
   private adsHeld = false;
+  /** Second-person view (V): toggled state; held = key down. debugSecondPerson overrides (tests). */
+  private secondToggled = false;
+  debugSecondPerson: boolean | null = null;
   /** Called once per Enter / click while the match is over. */
   onConfirm: (() => void) | null = null;
 
@@ -58,6 +61,7 @@ export class Input {
     const primary = KEYS.primaryKeys.indexOf(e.code);
     if (primary >= 0) this.primaryRequest = primary;
     if (e.code === 'Enter') this.onConfirm?.();
+    if (e.code === KEYS.secondPerson && !e.repeat) this.secondToggled = !this.secondToggled;
     if (e.code === KEYS.jump || e.code === KEYS.crouch || e.code === KEYS.scoreboard) e.preventDefault();
     if (!e.repeat) this.pressed.add(e.code);
     this.keys.add(e.code);
@@ -76,6 +80,11 @@ export class Input {
 
   /** Wants to aim down sights (debugAds overrides for tests). */
   wantAds(mode: 'toggle' | 'hold'): boolean { return this.debugAds ?? (mode === 'hold' ? this.adsHeld : this.adsToggled); }
+
+  /** Wants the second-person view (V; toggle or hold). */
+  wantSecondPerson(mode: 'toggle' | 'hold'): boolean {
+    return this.debugSecondPerson ?? (mode === 'hold' ? this.keys.has(KEYS.secondPerson) : this.secondToggled);
+  }
 
   /** Weapon switch, reload start and death leave ADS (owner 2026-10-31). */
   cancelAds(): void { this.adsToggled = false; }

@@ -81,7 +81,7 @@ export class Hud {
     this.overlay = el('div', 'hud-overlay', root);
     el('div', 'hud-overlay-title', this.overlay, 'Click to play');
     el('div', 'hud-overlay-keys', this.overlay,
-      'WASD move · Mouse aim · LMB fire · R reload · 1 primary · 2 pistol · 3 knife · 7/8/9 rifle/shotgun/sniper · RMB aim · E pick up · Tab scores · Space jump · C / Ctrl crouch · Shift walk · Esc release mouse');
+      'WASD move · Mouse aim · LMB fire · R reload · 1 primary · 2 pistol · 3 knife · 7/8/9 rifle/shotgun/sniper · RMB aim · E pick up · V second person · Tab scores · Space jump · C / Ctrl crouch · Shift walk · Esc release mouse');
   }
 
   private set(e: HTMLElement, text: string): void {
