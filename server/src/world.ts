@@ -9,6 +9,7 @@ import type { Vec3 } from '../../src/gameplay/math.ts';
 import { ClientValidatedMovement, type MovementAuthority } from '../../src/gameplay/movementCheck.ts';
 import type { NavGrid } from '../../src/gameplay/navGrid.ts';
 import { buildMapNav, type Perch } from '../../src/gameplay/mapNav.ts';
+import { pedestalBoxes, spawnsClearOf } from '../../src/gameplay/items.ts';
 import type { TeamId } from '../../src/gameplay/round.ts';
 import { PoseHistory } from '../../src/gameplay/rewind.ts';
 import { NET } from '../../src/config/net.ts';
@@ -64,6 +65,28 @@ export function getNav(): NavGrid {
     w.nav = nav;
   }
   return w.nav;
+}
+
+/** Solid world for one room: map boxes (+ Cornucopia pedestals), its movement validation and its bot nav grid. */
+export interface Terrain { colliders: readonly AabbBox[]; movement: MovementAuthority; nav: NavGrid;
+  /** Spawn points not blocked by pedestals. */
+  spawns: Record<TeamId, readonly SpawnPoint[]>; ffaSpawns: readonly SpawnPoint[] }
+
+let cornTerrain: Terrain | null = null;
+
+/** Elimination: the map. Cornucopia: the map + pedestal boxes (built once, ~0.1-0.8 s; call at room creation). */
+export function terrainFor(cornucopia: boolean): Terrain {
+  const w = getWorld(), nav = getNav();
+  if (!cornucopia) return { colliders: w.colliders, movement: w.movement, nav, spawns: w.spawns, ffaSpawns: w.ffaSpawns };
+  if (!cornTerrain) {
+    const map = loadMapData(w.mapId);
+    const peds = pedestalBoxes(map.lootSpots);
+    const colliders = [...w.colliders, ...peds];
+    const built = buildMapNav(colliders, map.bounds, map.boxes.filter((b) => b.kind === 'stair'), w.spawns.A[0], map.zones);
+    cornTerrain = { colliders, movement: new ClientValidatedMovement(colliders, map.bounds, map.killY), nav: built.nav,
+      spawns: { A: spawnsClearOf(w.spawns.A, peds), B: spawnsClearOf(w.spawns.B, peds) }, ffaSpawns: spawnsClearOf(w.ffaSpawns, peds) };
+  }
+  return cornTerrain;
 }
 
 /** Simulation objects per player row id (bots get a brain). Rows stay the source of truth. */

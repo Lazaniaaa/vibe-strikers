@@ -32,6 +32,13 @@ try {
   const { CORNUCOPIA } = await vite.ssrLoadModule('/src/config/items.ts');
   const { MATCH } = await vite.ssrLoadModule('/src/config/rounds.ts');
   const mods = await loadMods(vite);
+  // Pedestals are solid on the server: the scripted walker uses a nav grid that knows them (stops beside them).
+  {
+    const { pedestalBoxes } = await vite.ssrLoadModule('/src/gameplay/items.ts');
+    const { buildMapNav } = await vite.ssrLoadModule('/src/gameplay/mapNav.ts');
+    mods.grid = buildMapNav([...mods.colliders, ...pedestalBoxes(mods.map.lootSpots)], mods.map.bounds,
+      mods.map.boxes.filter((b) => b.kind === 'stair'), mods.M.spawnPoints(mods.map, 'A')[0], mods.map.zones).nav;
+  }
   const nets = [];
   const client = async () => { const n = new GameNet(); await n.connect(); nets.push(n); return n; };
   const pump = setInterval(() => nets.forEach((n) => n.update()), 10);

@@ -374,6 +374,13 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   boots). Room field `mutator`; Quick Play rooms get the mutator of the day (UTC day number cycles the 5; a room
   keeps its mutator for its life); private rooms and offline practice pick one or none in the menu (`?mutator=` for
   tests). The HUD room line shows "Mutator: Big heads".
+- 2026-11-01 final batch step 1: the server sees the pedestals. Cornucopia rooms use their own "terrain" (map
+  boxes + `pedestalBoxes(lootSpots)`, the same boxes as the client colliders): own movement validation and own bot
+  nav grid (built once at room creation); offline practice builds its nav the same way. Bots stop beside a pedestal
+  and pick up within reach. Found and fixed: one free-for-all spawn point lies on a loot spot (-20, -22), so a player
+  spawned inside a pedestal and every move was snapped back; Cornucopia now skips spawn points blocked by a pedestal
+  (`spawnsClearOf`, server and offline). Test `scripts/test-pedestals.mjs`: walking along a pedestal and standing on
+  it 0 snap-backs, walking through it is snapped back, bots 0 violations and never inside a pedestal.
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 

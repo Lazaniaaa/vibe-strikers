@@ -3,6 +3,7 @@
 // low on HP). It only writes a PlayerIntent, exactly like a human client (server authority stays the same).
 import { BOT_LOADOUT, BOT_LOOT, BOT_ROLES, BOT_SKILLS, BOT_TACTICS, BOTS, DEFAULT_DIFFICULTY, type BotSkill } from '../config/bots.ts';
 import type { WeaponId } from '../weapons/types.ts';
+import { ITEMS } from '../config/items.ts';
 import { HITBOXES } from '../config/hitboxes.ts';
 import type { Actor } from './actor.ts';
 import { lineOfSight, type AabbBox } from './hitscan.ts';
@@ -398,7 +399,8 @@ export function updateBot(self: Actor, b: BotBrain, w: BotWorld, dt: number): vo
   const want = !fightingFromCover && b.memoryLeft <= 0 ? wantedItem(self, w) : -1;
   if (want >= 0) {
     const it = w.items![want];
-    if (Math.hypot(it.x - self.x, it.z - self.z) < BOTS.waypointReach * 2 && Math.abs(it.y - self.y) < 1.2) {
+    // In pick-up range (pedestals are solid: the bot stops beside them).
+    if (Math.hypot(it.x - self.x, it.z - self.z) < ITEMS.pickupRadius - 0.2 && Math.abs(it.y - self.y) < ITEMS.pickupMaxDy) {
       intent.use = true; // E: pick up / use (the simulation checks the range)
       intent.yaw = self.yaw; intent.pitch = self.pitch;
       return;

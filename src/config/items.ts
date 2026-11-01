@@ -16,7 +16,7 @@ export const ITEMS = {
   bobSpeed: 2.2,
   /** Weapon models on the ground are scaled up a little so they are easy to see. */
   weaponScale: 1.0,
-  /** Loot pedestal (Cornucopia): a simple box under the item (visual only, no collider). */
+  /** Loot pedestal (Cornucopia): a solid box under the item (client KCC, server validation and bot nav). */
   pedestalSize: 0.7,
   pedestalHeight: 0.5,
   pedestalColor: '#c9b48a',

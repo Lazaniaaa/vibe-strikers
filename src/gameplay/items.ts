@@ -96,6 +96,19 @@ export function cornucopiaLoadout(a: Actor): void {
   a.active = 1;
 }
 
+/** Cornucopia pedestals as solid boxes (same boxes for the client KCC, the server validation and the bot nav). */
+export function pedestalBoxes(spots: readonly ItemPos[]): { x: number; y: number; z: number; w: number; h: number; d: number }[] {
+  const s = ITEMS.pedestalSize, h = ITEMS.pedestalHeight;
+  return spots.map((p) => ({ x: p.x, y: p.y + h / 2, z: p.z, w: s, h, d: s }));
+}
+
+/** Spawn points not blocked by a pedestal (some map spawns sit on loot spots); keeps all if every one is blocked. */
+export function spawnsClearOf<T extends ItemPos>(spawns: readonly T[], boxes: readonly { x: number; y: number; z: number; w: number; h: number; d: number }[],
+  margin = 0.5): T[] {
+  const clear = spawns.filter((s) => boxes.every((b) => Math.abs(s.x - b.x) > b.w / 2 + margin || Math.abs(s.z - b.z) > b.d / 2 + margin));
+  return clear.length ? clear : [...spawns];
+}
+
 /** True when the item is within pick-up range of the feet (server check, with slack). */
 export function inPickupRange(it: ItemPos, x: number, y: number, z: number, slack = 0): boolean {
   return Math.abs(it.y - y) <= ITEMS.pickupMaxDy + slack && Math.hypot(it.x - x, it.z - z) <= ITEMS.pickupRadius + slack;

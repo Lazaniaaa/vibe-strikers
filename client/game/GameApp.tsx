@@ -27,7 +27,7 @@ import { pingPoint } from './pingRay';
 import type { GameMode } from '../../src/gameplay/mode';
 import { CORNUCOPIA, ITEMS } from '../../src/config/items';
 import { cornucopiaEndText, cornucopiaScoreLine, healHint } from '../../src/ui/modeText';
-import { itemHint } from '../../src/gameplay/items';
+import { itemHint, pedestalBoxes, spawnsClearOf } from '../../src/gameplay/items';
 import { TagProjector } from './nameTagProjector';
 import { NameTags } from '../../src/ui/nameTags';
 import { getSfx } from '../../src/ui/sfx';
@@ -78,10 +78,10 @@ function pickCharacters(local: number): number[] {
 
 /** Cornucopia pedestals: solid boxes at the map's loot spots (jump on them or take the loot from beside). */
 export function PedestalColliders() {
-  const h = ITEMS.pedestalHeight / 2, w = ITEMS.pedestalSize / 2;
+  const boxes = useMemo(() => pedestalBoxes(map.lootSpots), []);
   return (
     <RigidBody type="fixed" colliders={false}>
-      {map.lootSpots.map((p, i) => <CuboidCollider key={i} position={[p.x, p.y + h, p.z]} args={[w, h, w]} />)}
+      {boxes.map((b, i) => <CuboidCollider key={i} position={[b.x, b.y, b.z]} args={[b.w / 2, b.h / 2, b.d / 2]} />)}
     </RigidBody>
   );
 }
@@ -119,13 +119,18 @@ function GameDriver({ options }: { options: GameOptions }) {
 
   const game = useMemo(() => {
     const blockers = mapShotBlockers(map).boxes;
-    const { nav, upper, cover, routes, perches } = buildMapNav(mapColliders(map).boxes, map.bounds, map.boxes.filter((b) => b.kind === 'stair'), spawnsA[0], map.zones);
+    // Cornucopia: pedestals are solid for the bots too (same boxes as the colliders and the server).
+    const navBoxes = options.mode === 'cornucopia' ? [...mapColliders(map).boxes, ...pedestalBoxes(map.lootSpots)] : mapColliders(map).boxes;
+    const { nav, upper, cover, routes, perches } = buildMapNav(navBoxes, map.bounds, map.boxes.filter((b) => b.kind === 'stair'), spawnsA[0], map.zones);
     const goals = [...map.zones.map((z) => ({ x: z.x, y: 0, z: z.z })), ...spawnsA, ...spawnsB, ...upper];
     const motor = new RapierMotor(rapier, world);
     const perf = new FramePerf();
-    const sim = new Simulation({ profile: perf.now, clock: () => performance.now(), blockers, spawnsA, spawnsB, goals, cover, routes, perches, nav, motor, killY: map.killY,
+    // Cornucopia: skip spawn points that sit on a pedestal (same rule as the server).
+    const corn = options.mode === 'cornucopia', peds = pedestalBoxes(map.lootSpots);
+    const sim = new Simulation({ profile: perf.now, clock: () => performance.now(), blockers, goals,
+      spawnsA: corn ? spawnsClearOf(spawnsA, peds) : spawnsA, spawnsB: corn ? spawnsClearOf(spawnsB, peds) : spawnsB, cover, routes, perches, nav, motor, killY: map.killY,
       localName: LOCAL_PLAYER.name, botNames: BOT_NAMES, botSkill: BOT_SKILLS[options.difficulty ?? DEFAULT_DIFFICULTY], characterIndices: pickCharacters(options.character ?? LOCAL_PLAYER.characterIndex), freezeTime: options.freezeTime,
-      mode: options.mode, teams: options.teams, mutator: options.mutator, spawnsFfa: spawnPoints(map, 'ffa'), lootSpots: map.lootSpots });
+      mode: options.mode, teams: options.teams, mutator: options.mutator, spawnsFfa: corn ? spawnsClearOf(spawnPoints(map, 'ffa'), peds) : spawnPoints(map, 'ffa'), lootSpots: map.lootSpots });
     const input = new Input(gl.domElement);
     const hudRoot = document.getElementById('hud')!;
     const hud = new Hud(hudRoot);

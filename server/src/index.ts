@@ -26,7 +26,7 @@ import { stepOnGrid } from '../../src/gameplay/navMotor.ts';
 import type { MoveSample } from '../../src/gameplay/movementCheck.ts';
 import { restartMatch, type RoundPhase, type RoundState, type TeamId } from '../../src/gameplay/round.ts';
 import { canFire, cancelReload, consumeShot, damageAt, resetSlot, spreadDeg, startReload, tickSlot } from '../../src/gameplay/weaponLogic.ts';
-import { actorFor, brainFor, forgetActor, getNav, getWorld, historyFor } from './world.ts';
+import { actorFor, brainFor, forgetActor, getNav, getWorld, historyFor, terrainFor } from './world.ts';
 
 const room = table({ name: 'room', public: true }, {
   id: t.u64().primaryKey().autoInc(),
@@ -209,7 +209,8 @@ function spawnRow(ctx: Ctx, r: RoomRow, team: TeamId, isBot: boolean, ownerHex: 
   // Cornucopia has one life per match: joining after the freeze phase means spectating until the next match.
   const alive = !(modeOf(r) === 'cornucopia' && r.phase !== 'freeze');
   const roomId = r.id, corn = modeOf(r) === 'cornucopia';
-  const spots = isFfaTeam(team) ? getWorld().ffaSpawns : getWorld().spawns[team];
+  const terrain = terrainFor(corn);
+  const spots = isFfaTeam(team) ? terrain.ffaSpawns : terrain.spawns[team];
   const s = spots[spawnIndex % spots.length];
   const ammo = corn ? { mag: CORNUCOPIA.pistolMag, reserve: CORNUCOPIA.pistolReserve } : fullAmmo(primary);
   const row = ctx.db.player.insert({
@@ -308,7 +309,7 @@ function ensureTick(ctx: Ctx): void {
 function createRoom(ctx: Ctx, isPrivate: boolean, bots: boolean, difficulty: BotDifficulty = DEFAULT_DIFFICULTY,
   mode: GameMode = 'elimination', teams = true, mutator = ''): RoomRow {
   ensureTick(ctx);
-  getNav(); // build the nav grid now, not during a tick
+  terrainFor(mode === 'cornucopia'); // build the nav grid now, not during a tick
   const r = ctx.db.room.insert({ id: 0n, code: newRoomCode(ctx), isPrivate, bots, difficulty, mode, teams: mode === 'elimination' || teams, mutator: isMutator(mutator) ? mutator : '',
     phase: 'freeze', round: 1, scoreA: 0, scoreB: 0, timeLeft: presetFor(mode).freezeTime, lastWinner: '', matchWinner: '', createdAt: ctx.timestamp });
   if (mode === 'cornucopia') spawnLoot(ctx, r.id);
@@ -446,7 +447,7 @@ function respawnAll(ctx: Ctx, r: RoomRow, resetScores: boolean): void {
   const index: Record<string, number> = { A: 0, B: 0, F: 0 };
   for (const p of rows) {
     const team = p.team as TeamId, ffa = isFfaTeam(team);
-    const spots = ffa ? getWorld().ffaSpawns : getWorld().spawns[team];
+    const spots = ffa ? terrainFor(corn).ffaSpawns : terrainFor(corn).spawns[team];
     const s = spots[index[ffa ? 'F' : team]++ % spots.length];
     const a = actorFor(Number(p.id), team, p.isBot);
     const primary = loadoutFor(p.nextPrimary as WeaponId)[0];
@@ -543,7 +544,7 @@ export const move = spacetimedb.reducer({
   const next: MoveSample = { x: m.x, y: m.y, z: m.z, crouch: m.crouch, walk: m.walk };
   const a = actorFor(Number(row.id), row.team as TeamId, false);
   const room = ctx.db.room.id.find(row.roomId);
-  const verdict = getWorld().movement.check(prev, next, elapsed, a.slots[a.active].stats.moveSpeedScale * (room ? rulesOf(room).speedScale : 1));
+  const verdict = terrainFor(!!room && modeOf(room) === 'cornucopia').movement.check(prev, next, elapsed, a.slots[a.active].stats.moveSpeedScale * (room ? rulesOf(room).speedScale : 1));
   const pitch = Math.max(-89 * DEG, Math.min(89 * DEG, m.pitch));
   if (verdict === 'ok') {
     ctx.db.player.id.update({ ...row, x: m.x, y: m.y, z: m.z, vx: m.vx, vy: m.vy, vz: m.vz, yaw: m.yaw, pitch,
@@ -664,7 +665,7 @@ export const switchWeapon = spacetimedb.reducer({ slot: t.u8() }, (ctx, { slot }
 export const tick = spacetimedb.reducer({ onSchedule: tickTimer }, { timer: tickTimer.rowType }, (ctx, { timer }) => {
   const rooms = [...ctx.db.room.iter()];
   if (rooms.length === 0) { ctx.db.tickTimer.scheduledId.delete(timer.scheduledId); return; }
-  const world = getWorld(), nav = getNav();
+  const world = getWorld();
   const tNow = nowMs(ctx);
   // A* budget per tick for the whole module (all rooms share the CPU).
   let pathBudget: number = BOTS.maxPathsPerTick;
@@ -690,7 +691,8 @@ export const tick = spacetimedb.reducer({ onSchedule: tickTimer }, { timer: tick
       if (!rows[i].isBot) syncAmmo(ctx, rows[i], a);
     }
     if (r.phase === 'freeze' || r.phase === 'matchEnd') continue;
-    const botWorld: BotWorld = { actors, blockers: world.blockers, nav, goals: world.goals, cover: world.cover, routes: world.routes, perches: world.perches,
+    const terrain = terrainFor(modeOf(r) === 'cornucopia');
+    const botWorld: BotWorld = { actors, blockers: world.blockers, nav: terrain.nav, goals: world.goals, cover: world.cover, routes: world.routes, perches: world.perches,
       items: undefined,
       spawns: { A: world.spawns.A[0], B: world.spawns.B[0] }, random, pathBudget };
     let roomItems: ItemRow[] = modeOf(r) === 'cornucopia' ? [...ctx.db.item.roomId.filter(r.id)] : [];
@@ -722,8 +724,8 @@ export const tick = spacetimedb.reducer({ onSchedule: tickTimer }, { timer: tick
         a.fireLatch = true;
       }
       const speed = rulesOf(r).speedScale;
-      stepOnGrid(a, nav, TICK_DT, slot.stats.moveSpeedScale * speed, world.colliders);
-      const verdict = world.movement.check(
+      stepOnGrid(a, terrain.nav, TICK_DT, slot.stats.moveSpeedScale * speed, terrain.colliders);
+      const verdict = terrain.movement.check(
         { x: row.x, y: row.y, z: row.z, crouch: false, walk: false },
         { x: a.x, y: a.y, z: a.z, crouch: false, walk: a.intent.walk }, TICK_DT, speed);
       if (verdict !== 'ok') { a.x = row.x; a.y = row.y; a.z = row.z; a.vx = 0; a.vz = 0; }
