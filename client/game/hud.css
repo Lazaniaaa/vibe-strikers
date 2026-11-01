@@ -1,0 +1,88 @@
+html, body, #root { margin: 0; height: 100%; overflow: hidden; background: #000; }
+body { font-family: system-ui, 'Segoe UI', sans-serif; user-select: none; }
+.hud { position: fixed; inset: 0; pointer-events: none; color: #fff; text-shadow: 0 1px 2px #000a; z-index: 2; }
+.hud-crosshair { --gap: 4px; --ch-color: #fff; --ch-size: 8px; position: absolute; left: 50%; top: 50%; width: 0; height: 0; }
+.hud-ch { position: absolute; background: var(--ch-color); box-shadow: 0 0 1px #000; }
+.hud-ch-t, .hud-ch-b { width: 2px; height: var(--ch-size); left: -1px; }
+.hud-ch-l, .hud-ch-r { width: var(--ch-size); height: 2px; top: -1px; }
+.hud-ch-t { bottom: var(--gap); }
+.hud-ch-b { top: var(--gap); }
+.hud-ch-l { right: var(--gap); }
+.hud-ch-r { left: var(--gap); }
+.hud-hit { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 26px; opacity: 0; font-weight: 700; }
+.hud-top { position: absolute; top: 10px; left: 0; right: 0; text-align: center; }
+.hud-score { font-size: 15px; white-space: pre; }
+.hud-timer { font-size: 24px; font-weight: 700; }
+.hud-center { position: absolute; top: 28%; left: 0; right: 0; text-align: center; font-size: 34px; font-weight: 800; }
+.hud-sub { position: absolute; top: calc(28% + 46px); left: 0; right: 0; text-align: center; font-size: 17px; white-space: pre-line; }
+.hud-feed { position: absolute; top: 74px; right: 12px; text-align: right; font-size: 13px; white-space: pre; line-height: 1.45; }
+.hud-bottom { position: absolute; bottom: 14px; left: 16px; right: 16px; display: flex; justify-content: space-between; align-items: flex-end; }
+.hud-hp { font-size: 30px; font-weight: 800; }
+.hud-right { text-align: right; }
+.hud-weapon { font-size: 14px; opacity: 0.9; }
+.hud-ammo { font-size: 30px; font-weight: 800; }
+.hud-perf { position: absolute; left: 8px; top: 8px; font: 12px monospace; opacity: 0.8; }
+.hud-damage { position: absolute; inset: 0; opacity: 0; box-shadow: inset 0 0 120px 30px #ff1e1e99; }
+.hud-dead .hud-crosshair { display: none; }
+.hud-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: #0007; gap: 12px; }
+.hud-overlay-title { font-size: 32px; font-weight: 800; }
+.hud-overlay-keys { font-size: 14px; max-width: 640px; text-align: center; line-height: 1.6; }
+.menu { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 5; overflow-y: auto;
+  background: linear-gradient(160deg, #2b3a4a, #141a22); color: #fff; }
+.menu-card { display: flex; flex-direction: column; gap: 10px; width: 320px; padding: 24px; background: #0006; border-radius: 10px; margin: auto; }
+.menu-title { font-size: 30px; font-weight: 800; text-align: center; margin-bottom: 6px; }
+.menu-label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; opacity: 0.9; }
+.menu input { font-size: 16px; padding: 8px; border-radius: 6px; border: 1px solid #fff4; background: #fff1; color: #fff; }
+.menu-row { display: flex; gap: 8px; }
+.menu-row input { flex: 1; text-transform: uppercase; letter-spacing: 3px; }
+.menu-btn { font-size: 16px; padding: 10px; border-radius: 6px; border: 0; background: #ffb43c; color: #222; font-weight: 700; cursor: pointer; }
+.menu-btn.menu-offline { background: #fff2; color: #fff; }
+.menu-status { min-height: 18px; font-size: 13px; color: #ffd28a; text-align: center; }
+.menu-check { font-size: 13px; opacity: 0.9; display: flex; gap: 6px; align-items: center; }
+.menu-card { width: 360px; }
+.menu-chars { display: grid; grid-template-columns: repeat(11, 1fr); gap: 4px; }
+.menu-char { width: 100%; aspect-ratio: 1; border-radius: 4px; border: 2px solid #0008; cursor: pointer; padding: 0; }
+.menu-char.selected { border-color: #ffb43c; box-shadow: 0 0 0 2px #ffb43c; }
+.menu-char-name { font-weight: 700; margin-left: 4px; }
+.scoreboard { position: absolute; left: 50%; top: 18%; transform: translateX(-50%); display: none; gap: 18px;
+  background: #000a; padding: 14px 18px; border-radius: 8px; font-size: 14px; }
+.scoreboard table { border-collapse: collapse; min-width: 300px; }
+.scoreboard th, .scoreboard td { padding: 3px 8px; text-align: left; }
+.scoreboard th { font-size: 12px; opacity: 0.7; }
+.scoreboard td.num { text-align: right; }
+.scoreboard tr.me td { color: #ffd28a; font-weight: 700; }
+.scoreboard tr.dead td { opacity: 0.5; }
+.scoreboard .team-a { color: #ffb08a; } .scoreboard .team-b { color: #8ad2ff; }
+.hud-scope { position: absolute; inset: 0; pointer-events: none; }
+.hud-no-crosshair .hud-crosshair { display: none; }
+.settings { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 10; background: #0008; overflow-y: auto;
+  pointer-events: auto; color: #fff; font-family: system-ui, 'Segoe UI', sans-serif; }
+.settings-card { display: flex; flex-direction: column; gap: 10px; width: 340px; padding: 20px; background: #1c2430; border-radius: 10px; margin: auto; }
+.settings-title { font-size: 22px; font-weight: 800; }
+.settings label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; }
+.settings label span { float: right; opacity: 0.8; }
+.settings select, .settings input[type=color] { font-size: 14px; padding: 4px; }
+.settings-row { display: flex; gap: 8px; justify-content: flex-end; }
+.settings button, .hud-settings-btn { font-size: 14px; padding: 8px 14px; border-radius: 6px; border: 0; background: #ffb43c; color: #222; font-weight: 700; cursor: pointer; }
+.hud-settings-btn { pointer-events: auto; margin-top: 8px; }
+.menu-settings { background: #fff2 !important; color: #fff !important; width: 100%; }
+.hud-leave { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.hud-leave-confirm { pointer-events: auto; display: flex; gap: 6px; align-items: center; }
+.hud-leave-btn, .hud-leave-yes { background: #e8452c !important; color: #fff !important; }
+.name-tags { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 1; }
+.name-tag { position: absolute; left: 0; top: 0; font: 700 13px system-ui, 'Segoe UI', sans-serif; white-space: nowrap;
+  text-shadow: 0 0 2px #000, 0 1px 2px #000; transform-origin: 50% 100%; }
+.ally { color: var(--ally); } .enemy { color: var(--enemy); }
+.hud-room { position: absolute; top: 52px; right: 12px; text-align: right; font-size: 12px; opacity: 0.85; white-space: pre; }
+.menu-check select { margin-left: 6px; font-size: 13px; padding: 2px 4px; }
+.hud-hint { position: absolute; top: 62%; left: 0; right: 0; text-align: center; font-size: 18px; font-weight: 700; text-shadow: 0 1px 3px #000; }
+.hud-hint:empty { display: none; }
+.loading { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 20; background: #1d2a3a; color: #fff; font-family: system-ui, sans-serif; }
+.loading-card { width: 320px; display: flex; flex-direction: column; gap: 10px; text-align: center; }
+.loading-title { font-size: 28px; font-weight: 800; }
+.loading-label { font-size: 15px; opacity: 0.85; }
+.loading-track { height: 10px; border-radius: 5px; background: #fff2; overflow: hidden; }
+.loading-bar { height: 100%; width: 0; background: #4fb6ff; transition: width 0.1s linear; }
+.loading-error .loading-label { color: #ff8a7a; }
+.hud-pings { position: absolute; left: 16px; top: 40%; font-size: 15px; font-weight: 700; color: #ffe14d; white-space: pre-line; text-shadow: 0 1px 3px #000; }

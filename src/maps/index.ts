@@ -8,7 +8,7 @@ import { expandedBoxes,mergeColliders } from './boxes';
 export { buildMap,disposeMapResources } from './buildMap';
 export type { MapData,MapBox,MapInstance,SpawnPoint,ColliderBox,MapKind,Team,MapStats } from './types';
 function freeze<T>(v:T):T{if(v&&typeof v==='object'){Object.freeze(v);for(const x of Object.values(v))freeze(x);}return v;}
-const maps=freeze(Object.fromEntries([town,l1r1,l1r2,l2r1,l2r2].map(d=>[d.id,d as MapData])));
+const maps=freeze(Object.fromEntries([town,l1r1,l1r2,l2r1,l2r2].map(d=>[d.id,d as unknown as MapData])));
 export const mapIds=Object.freeze(Object.keys(maps));
 export function loadMapData(id:string):MapData{const data=Object.hasOwn(maps,id)?maps[id]:undefined;if(!data)throw new Error('Unknown map: '+id);return data;}
 export function mapColliders(data:MapData){return {boxes:mergeColliders(expandedBoxes(data))};}

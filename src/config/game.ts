@@ -1,0 +1,100 @@
+// Global game settings. Gameplay numbers only live under src/config/.
+
+/** Active map id from src/maps (`mapIds`). One line to switch lanes. */
+export const MAP_ID = 'toy-town-l1-r1';
+
+export const CAMERA = {
+  /** Default hip FOV in degrees (settings may change it later). */
+  fov: 70,
+  near: 0.05,
+  far: 180,
+  /** Eye height above the feet, metres. */
+  eyeHeight: 1.62,
+} as const;
+
+/** Viewmodel pass: fixed FOV, like the weapons preview. */
+export const VIEWMODEL_CAMERA = { fov: 70, near: 0.05, far: 20 } as const;
+
+/** Render budget (see docs/PROGRESS.md). Checked in the smoke test and later in the HUD. */
+export const RENDER_BUDGET = {
+  maxTriangles: 200_000,
+  maxDrawCalls: 120,
+} as const;
+
+export const RENDER = {
+  shadows: true,
+  shadowMapSize: 2048,
+  /** Half-size of the sun's orthographic shadow camera, metres (covers the 70 x 70 m map). */
+  shadowExtent: 40,
+  /** Distance of the sun light from the map centre along its direction. */
+  sunDistance: 60,
+  /** Cap on devicePixelRatio (performance on high-DPI laptops). */
+  maxPixelRatio: 1.5,
+} as const;
+
+/** Visual effect timings (not gameplay). */
+export const EFFECTS = {
+  tracerLife: 0.05,
+  tracerWidth: 0.025,
+  tracerPool: 32,
+  impactLife: 0.35,
+  impactSize: 0.08,
+  impactPool: 32,
+  muzzleFlashFraction: 0.5,
+  viewPunchRecover: 14,
+  hitMarkerTime: 0.18,
+  damageFlashTime: 0.35,
+} as const;
+
+export const LOCAL_PLAYER = {
+  name: 'You',
+  /** Index into the characters list until character select exists (M3). */
+  characterIndex: 0,
+} as const;
+
+/** Third-person character posing (visual only, never on the server). */
+export const POSE = {
+  /** Character ids bots must not use (empty: the asset owner fixed the slow holds on 2026-10-31). */
+  botCharacterExclude: [] as readonly string[],
+  /** Silent safety net: a rig whose firearm pose ever takes longer than this uses the no-weapon pose. */
+  slowCallMs: 12,
+  /** Dead bodies are posed this many frames, then left alone. */
+  deadPoseFrames: 2,
+} as const;
+
+/** After death (GAME.md 2.1): killcam from the killer's view, then spectate living teammates. */
+export const KILLCAM = { duration: 3 } as const;
+
+/**
+ * Team colours as seen by the local player (same in name tags, kill feed, scoreboard, death markers).
+ * Blue vs orange-red with different brightness stays distinguishable for common colour blindness.
+ */
+export const TEAM_COLORS = {
+  ally: '#4fb6ff',
+  enemy: '#e8452c',
+} as const;
+
+/** Dead bodies: death pose for bodyTime, sinking during the last sinkTime, then hidden (marker stays). */
+export const DEATH = {
+  bodyTime: 1.0,
+  sinkTime: 0.35,
+  sinkDepth: 0.7,
+  marker: { size: 0.8, height: 0.02, opacity: 0.5, crossLength: 0.55, crossWidth: 0.1, crossOpacity: 0.85, lift: 0.02 },
+} as const;
+
+/** Name tags above players (ally: always, through walls; enemy: only in line of sight near the crosshair). */
+export const NAME_TAGS = {
+  /** Tag anchor above the feet, metres (above the ally marker). */
+  height: 2.45,
+  /** Tags fade out between fadeStart and maxDistance (metres). */
+  fadeStart: 30,
+  maxDistance: 40,
+  /** Scale 1 at refDistance, clamped to [minScale, maxScale]. */
+  refDistance: 8,
+  minScale: 0.6,
+  maxScale: 1,
+  /** Enemy tag only within this angle from the crosshair (degrees). */
+  enemyMaxAngleDeg: 7,
+  /** Line-of-sight target on the enemy: this height above the feet. */
+  enemyAimHeight: 1.35,
+} as const;

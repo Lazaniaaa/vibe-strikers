@@ -3,3 +3,5 @@ work/
 dist/
 *.log
 .DS_Store
+outputs/
+.env*.local

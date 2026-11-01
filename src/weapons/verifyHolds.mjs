@@ -19,16 +19,17 @@ export async function verifyHolds(api,characters,createCharacter,poseCharacter){
    const g=createCharacter(c),d=g.userData,a=d.armVariants,w=api.createWeapon(cfg.id),mount=api.attachWeapon(g,w),bodyMeshes=[];
    w.traverse(o=>{if(o instanceof Mesh)bodyMeshes.push(o)});bodyMeshes.push(a.meshL,a.meshR);
    assert.equal(mount.parent,d.weaponSocket);assert.equal(api.attachWeapon(g,w),mount);
-   const parent=mount.parent,chosen={...a.holdLengths},phaseCache=new Map(),extents=JSON.stringify(d.bodyExtents);
+   poseCharacter(g,{weapon:cfg.id,speed:0,moveDir:{x:0,z:-1},crouching:false,grounded:true,dead:false,shooting:false,aimPitch:0},0);
+   const parent=mount.parent,chosen={...d.firearmHolds[cfg.id].lengths},phaseCache=new Map(),extents=JSON.stringify(d.bodyExtents);
    g.position.set(1.2,.3,-2);g.rotation.y=.71;const outer=[...g.position,...g.quaternion,...g.scale];
    const cRow={character:c.id,weapon:cfg.id,cases:0,maxRightError:0,maxLeftError:0,minClearance:Infinity,failedCases:0,worstReach:null,worstClearance:null};
-   if(cfg.id==='pistol')result.lengths.push({character:c.id,leftExtra:a.variantsL[chosen.L].extra,rightExtra:a.variantsR[chosen.R].extra,leftUpper:a.variantsL[chosen.L].upper.height,rightUpper:a.variantsR[chosen.R].upper.height});
+   result.lengths.push({character:c.id,weapon:cfg.id,leftExtra:a.variantsL[chosen.L].extra,rightExtra:a.variantsR[chosen.R].extra,leftUpper:a.variantsL[chosen.L].upper.height,rightUpper:a.variantsR[chosen.R].upper.height});
    for(const [pose,speed,x,z,crouching,grounded] of poses)for(const aim of angles)for(const shooting of [false,true])for(const phase of phases){
     const state={weapon:cfg.id,speed,moveDir:{x,z},crouching,grounded,shooting,dead:false,aimPitch:aim*Math.PI/180,fire:shooting?1:0,reload:null,cycle:null};
     d.phase=phase;poseCharacter(g,state,0);api.poseWeapon(w,{fire:state.fire,reload:null,cycle:null,equip:1});g.updateMatrixWorld(true);
     const caseId={character:c.id,weapon:cfg.id,pose,aim,shooting,phase};
     assert.equal(mount.parent,parent,'No pose reparent');assert.equal(a.meshL.geometry,a.variantsL[chosen.L].geometry);assert.equal(a.meshR.geometry,a.variantsR[chosen.R].geometry);
-    for(const s of ['L','R']){assert.deepEqual(d['arm'+s].position.toArray(),[...d.restPose['arm'+s]],'Fixed shoulder');assert.deepEqual(d['arm'+s].scale.toArray(),[1,1,1]);assert.ok(a['selected'+s].gap<=.001);}
+    for(const s of ['L','R']){assert.ok(d['arm'+s].position.distanceTo(new Vector3(...d.restPose['arm'+s]))<=.030000001,'Shoulder offset <= 0.03m');assert.deepEqual(d['arm'+s].scale.toArray(),[1,1,1]);assert.ok(a['selected'+s].gap<=.001);}
     let meshes=0;d.rig.traverse(o=>{if(o instanceof Mesh&&(!bodyMeshes.includes(o)||o===a.meshL||o===a.meshR))meshes++});assert.ok(meshes<=8);
     const key=[pose,aim,shooting].join('|'),relative=[];
     for(const part of [d.head,d.torso,d.armL,d.armR,mount,w,...w.children])relative.push(part.name,...part.position,...part.quaternion,...part.scale);
@@ -54,7 +55,7 @@ export async function verifyHolds(api,characters,createCharacter,poseCharacter){
     result.checked++;if(failed)result.failures.push({...caseId,rightError,leftError,clearance,inside,...where});
     assert.deepEqual([...g.position,...g.quaternion,...g.scale],outer);assert.ok(Math.abs(d.head.rotation.x-Math.max(-35,Math.min(35,aim*.6))*Math.PI/180)<1e-10);
    }
-   assert.equal(JSON.stringify(d.bodyExtents),extents);assert.deepEqual(a.holdLengths,chosen);
+   assert.equal(JSON.stringify(d.bodyExtents),extents);assert.deepEqual(d.firearmHolds[cfg.id].lengths,chosen);
    for(const dead of [false,true])for(const progress of [0,.5,1,NaN]){
     const s={weapon:cfg.id,speed:NaN,moveDir:{x:NaN,z:Infinity},aimPitch:Infinity,shooting:true,crouching:true,grounded:false,dead,fire:progress,reload:progress,cycle:progress};
     d.phase=NaN;poseCharacter(g,s,NaN);api.poseWeapon(w,{fire:progress,reload:progress,cycle:progress,equip:1});

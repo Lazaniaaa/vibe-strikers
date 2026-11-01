@@ -1,0 +1,331 @@
+// Offline match simulation (M1): actors, movement, weapons, hits, bots and rounds.
+// The structure mirrors the M2 server: intents in, state + events out.
+import { BOTS } from '../config/bots.ts';
+import { HITBOXES } from '../config/hitboxes.ts';
+import { MATCH, type RoundPreset } from '../config/rounds.ts';
+import type { HitPart } from '../config/hitboxes.ts';
+import { ITEMS } from '../config/items.ts';
+import type { WeaponId } from '../weapons/types.ts';
+import { createActor, setPrimary, type Actor, type PlayerIntent } from './actor.ts';
+import { cornucopiaLoadout, lootAmmo, nearestItem, primaryState, tickHeal, useItem, type ItemKind, type WeaponState } from './items.ts';
+import { mutatorRules } from '../config/mutators.ts';
+import { ffaTeam, isFfaTeam, lootPlan, presetFor, tickModeRound, type GameMode } from './mode.ts';
+import { createBrain, pickBotPrimary, resetBrain, updateBot, type BotBrain, type BotWorld } from './botBrain.ts';
+import type { BotSkill } from '../config/bots.ts';
+import { createShotResult, traceShot, type AabbBox } from './hitscan.ts';
+import { clamp, DEG, directionFromAngles, spreadDirection, vec3, type Vec3 } from './math.ts';
+import type { NavGrid } from './navGrid.ts';
+import type { RapierMotor } from './rapierMotor.ts';
+import { createRoundState, restartMatch, type RoundEvent, type RoundState, type TeamId } from './round.ts';
+import { canFire, cancelReload, consumeShot, damageAt, resetSlot, spreadDeg, startReload, tickSlot } from './weaponLogic.ts';
+
+export interface SpawnSpot { x: number; y: number; z: number; yaw: number }
+
+export interface SimulationOptions {
+  blockers: readonly AabbBox[];
+  spawnsA: readonly SpawnSpot[];
+  spawnsB: readonly SpawnSpot[];
+  goals: readonly Vec3[];
+  /** Cover spots and route goals for the bots (from buildMapNav). */
+  cover?: readonly Vec3[];
+  routes?: readonly (readonly Vec3[])[];
+  /** Sniper spots (balconies, long sight lines) from buildMapNav. */
+  perches?: readonly (Vec3 & { yaw: number })[];
+  nav: NavGrid;
+  motor: RapierMotor;
+  killY: number;
+  localName: string;
+  botNames: readonly string[];
+  /** Character indices (visual only) for: [0] the local player, then bots in order. */
+  characterIndices: readonly number[];
+  random?: () => number;
+  /** Bot skill (difficulty); default normal. */
+  botSkill?: BotSkill;
+  /** Override the freeze time (tests). */
+  freezeTime?: number;
+  /** Game mode (default Elimination); Cornucopia: teams or free-for-all. */
+  mode?: GameMode;
+  teams?: boolean;
+  /** Mutator id (src/config/mutators.ts) or '' / undefined = none. */
+  mutator?: string;
+  /** Free-for-all spawns and Cornucopia loot spots (map data). */
+  spawnsFfa?: readonly SpawnSpot[];
+  lootSpots?: readonly { x: number; y: number; z: number; tier: 'low' | 'mid' | 'high' }[];
+  /** Optional profiler: milliseconds spent per section are added here (needs `clock`). */
+  profile?: { bots: number; motor: number; weapons: number };
+  clock?: () => number;
+}
+
+/** One bullet, for tracers, hit markers and sounds. */
+export interface ShotEvent {
+  shooterId: number;
+  ox: number; oy: number; oz: number;
+  /** End point (hit point or max range). */
+  ex: number; ey: number; ez: number;
+  hitKind: 'none' | 'world' | 'player';
+  victimId: number;
+  part: HitPart;
+  damage: number;
+  killed: boolean;
+}
+
+/** An item on the ground (offline). */
+export interface SimItem { id: number; kind: ItemKind; weapon: string; mag: number; reserve: number; x: number; y: number; z: number; pedestal: boolean }
+
+export interface KillEvent { killerId: number; victimId: number; headshot: boolean; weapon: string }
+
+const MAX_SHOT_EVENTS = 128;
+export const LOCAL_ID = 0;
+
+export class Simulation {
+  readonly actors: Actor[] = [];
+  readonly round: RoundState;
+  readonly preset: RoundPreset;
+  readonly shots: ShotEvent[] = [];
+  shotCount = 0;
+  readonly kills: KillEvent[] = [];
+  /** Items on the ground (weapon drops); cleared when a round starts. */
+  readonly items: SimItem[] = [];
+  private nextItemId = 1;
+  /** Primary each actor starts a round with (pick-ups only last for the round). */
+  private readonly loadout = new Map<number, WeaponId>();
+  readonly mode: GameMode;
+  readonly ffa: boolean;
+  readonly mutator: string;
+  readonly rules: ReturnType<typeof mutatorRules>;
+  lastRoundEvent: RoundEvent = 'none';
+  time = 0;
+  private brains = new Map<number, BotBrain>();
+  private opts: SimulationOptions;
+  private botWorld: BotWorld;
+  private random: () => number;
+  private readonly origin = vec3();
+  private readonly aimDir = vec3();
+  private readonly shotDir = vec3();
+  private readonly result = createShotResult();
+  private shooter: Actor | null = null;
+  private readonly skipTarget = (i: number): boolean => {
+    const t = this.actors[i], s = this.shooter!;
+    return t === s || !t.alive || (!MATCH.friendlyFire && t.team === s.team);
+  };
+
+  constructor(opts: SimulationOptions) {
+    this.opts = opts;
+    this.random = opts.random ?? Math.random;
+    this.mode = opts.mode ?? 'elimination';
+    this.mutator = opts.mutator ?? '';
+    this.rules = mutatorRules(this.mutator);
+    opts.motor.gravityScale = this.rules.gravityScale;
+    opts.motor.speedScale = this.rules.speedScale;
+    this.ffa = this.mode === 'cornucopia' && opts.teams === false;
+    const base = presetFor(this.mode);
+    this.preset = opts.freezeTime === undefined ? base : { ...base, freezeTime: opts.freezeTime };
+    this.round = createRoundState(this.preset);
+    let id = 0;
+    for (const team of ['A', 'B'] as const) {
+      let sniper = false;
+      for (let i = 0; i < MATCH.teamSize; i++) {
+        const isLocal = id === LOCAL_ID;
+        // Bots get random primaries (at most one sniper per team).
+        const primary = isLocal ? undefined : pickBotPrimary(this.random, sniper);
+        if (primary === 'sniper') sniper = true;
+        const actor = createActor(id, this.ffa ? ffaTeam(id + 1) : team, isLocal ? opts.localName : opts.botNames[(id - 1) % opts.botNames.length], !isLocal,
+          opts.characterIndices[id % opts.characterIndices.length], primary);
+        this.actors.push(actor);
+        this.loadout.set(id, actor.slots[0].stats.id);
+        opts.motor.add(actor);
+        if (!isLocal) this.brains.set(id, createBrain(opts.botSkill));
+        id++;
+      }
+    }
+    for (let i = 0; i < MAX_SHOT_EVENTS; i++) {
+      this.shots.push({ shooterId: 0, ox: 0, oy: 0, oz: 0, ex: 0, ey: 0, ez: 0, hitKind: 'none', victimId: -1, part: 'body', damage: 0, killed: false });
+    }
+    this.botWorld = { actors: this.actors, blockers: opts.blockers, nav: opts.nav, goals: opts.goals, cover: opts.cover, routes: opts.routes, perches: opts.perches,
+      items: this.mode === 'cornucopia' ? this.items : undefined,
+      spawns: { A: opts.spawnsA[0], B: opts.spawnsB[0] }, random: this.random, pathBudget: 0 };
+    this.respawnAll();
+  }
+
+  get local(): Actor { return this.actors[LOCAL_ID]; }
+
+  private respawnAll(): void {
+    let a = 0, b = 0, f = 0;
+    const corn = this.mode === 'cornucopia';
+    this.items.length = 0;
+    if (corn && this.opts.lootSpots) {
+      for (const l of lootPlan(this.opts.lootSpots)) {
+        const ammo = lootAmmo(l.kind, l.weapon);
+        this.items.push({ id: this.nextItemId++, kind: l.kind, weapon: l.weapon, mag: ammo.mag, reserve: ammo.reserve, x: l.x, y: l.y, z: l.z, pedestal: true });
+      }
+    }
+    for (const actor of this.actors) {
+      setPrimary(actor, this.loadout.get(actor.id) ?? actor.slots[0].stats.id);
+      const ffa = isFfaTeam(actor.team) && this.opts.spawnsFfa;
+      const list = ffa ? this.opts.spawnsFfa! : actor.team === 'A' ? this.opts.spawnsA : this.opts.spawnsB;
+      const spot = list[(ffa ? f++ : actor.team === 'A' ? a++ : b++) % list.length];
+      this.opts.motor.teleport(actor, spot.x, spot.y, spot.z);
+      actor.yaw = spot.yaw; actor.pitch = 0; actor.intent.yaw = spot.yaw; actor.intent.pitch = 0;
+      actor.hp = MATCH.maxHealth; actor.alive = true; actor.active = 0; actor.equipLeft = 0; actor.fireAnimLeft = 0;
+      actor.sinceDamage = 99; actor.lastAttacker = -1;
+      for (const s of actor.slots) resetSlot(s);
+      actor.hasPrimary = true; actor.boots = false; actor.healLeft = 0; actor.airJumpsLeft = 0;
+      if (corn) cornucopiaLoadout(actor);
+      actor.boots = this.rules.boots;
+      const brain = this.brains.get(actor.id);
+      if (brain) {
+        resetBrain(brain);
+        // Spread the bots' vision checks over different ticks.
+        brain.thinkLeft = BOTS.thinkInterval * (actor.id / this.actors.length);
+      }
+    }
+  }
+
+  /** Move an actor (debug tools and tests). */
+  teleport(actorId: number, x: number, y: number, z: number, yaw: number): void {
+    const a = this.actors[actorId];
+    this.opts.motor.teleport(a, x, y, z);
+    a.yaw = yaw; a.intent.yaw = yaw;
+  }
+
+  restart(): void {
+    restartMatch(this.round, this.preset);
+    for (const a of this.actors) { a.kills = 0; a.deaths = 0; }
+    this.kills.length = 0;
+    this.respawnAll();
+  }
+
+  /** Advance the match. `localIntent` is copied into the local actor. */
+  update(dt: number, localIntent: PlayerIntent): void {
+    this.time += dt;
+    this.shotCount = 0;
+    this.botWorld.pathBudget = BOTS.maxPathsPerTick;
+    const local = this.local;
+    Object.assign(local.intent, localIntent);
+
+    this.lastRoundEvent = tickModeRound(this.round, this.preset, dt, this.actors, this.ffa);
+    if (this.lastRoundEvent === 'roundStart') this.respawnAll();
+
+    const phase = this.round.phase;
+    const frozen = phase === 'freeze';
+    const combat = phase === 'live';
+    for (const a of this.actors) {
+      a.sinceDamage += dt;
+      if (!a.alive) continue;
+      const prof = this.opts.profile, clock = this.opts.clock;
+      let t0 = prof && clock ? clock() : 0;
+      if (a.isBot) {
+        if (combat || phase === 'roundEnd') updateBot(a, this.brains.get(a.id)!, this.botWorld, dt);
+        else { a.intent.forward = 0; a.intent.right = 0; a.intent.fire = false; a.intent.yaw = a.yaw; a.intent.pitch = a.pitch; }
+        if (prof && clock) { const t = clock(); prof.bots += t - t0; t0 = t; }
+      }
+      const intent = a.intent;
+      a.yaw = intent.yaw;
+      a.pitch = clamp(intent.pitch, -89 * DEG, 89 * DEG);
+      const slot = a.slots[a.active];
+      this.opts.motor.step(a, intent, dt, frozen || phase === 'matchEnd', slot.stats.moveSpeedScale);
+      if (prof && clock) { const t = clock(); prof.motor += t - t0; t0 = t; }
+      if (a.y < this.opts.killY) this.kill(a, null, false);
+      if (!a.alive) continue;
+      if (intent.use && combat) this.pickUp(a);
+      if (a.healLeft > 0) tickHeal(a, dt);
+      this.updateWeapon(a, dt, combat);
+      if (prof && clock) prof.weapons += clock() - t0;
+    }
+  }
+
+  /** The nearest item in range (or null). */
+  itemNear(a: Actor): SimItem | null {
+    const i = nearestItem(this.items, a.x, a.y, a.z);
+    return i >= 0 ? this.items[i] : null;
+  }
+
+  /** E: use the nearest item (weapon swap: the old one drops here; medkit; boots; ammo). */
+  pickUp(a: Actor): boolean {
+    const i = nearestItem(this.items, a.x, a.y, a.z);
+    if (i < 0) return false;
+    const it = this.items[i];
+    if (!useItem(a, it, (w) => this.dropLater.push(w))) return false;
+    this.items.splice(this.items.indexOf(it), 1);
+    for (const w of this.dropLater) this.drop(w, a.x, a.y, a.z);
+    this.dropLater.length = 0;
+    return true;
+  }
+
+  private readonly dropLater: WeaponState[] = [];
+
+  private drop(w: WeaponState, x: number, y: number, z: number): void {
+    this.items.push({ id: this.nextItemId++, kind: 'weapon', weapon: w.weapon, mag: w.mag, reserve: w.reserve, x, y, z, pedestal: false });
+    let drops = 0;
+    for (const it of this.items) if (!it.pedestal) drops++;
+    if (drops > ITEMS.maxDropsPerRoom) this.items.splice(this.items.findIndex((it) => !it.pedestal), 1);
+  }
+
+  private updateWeapon(a: Actor, dt: number, combat: boolean): void {
+    const intent = a.intent;
+    if (intent.slot >= 0 && intent.slot < a.slots.length && intent.slot !== a.active && (intent.slot !== 0 || a.hasPrimary)) {
+      cancelReload(a.slots[a.active]);
+      a.active = intent.slot;
+      a.equipLeft = a.slots[a.active].stats.equipTime;
+      a.fireLatch = false;
+    }
+    const slot = a.slots[a.active];
+    if (a.equipLeft > 0) a.equipLeft = Math.max(0, a.equipLeft - dt);
+    if (a.fireAnimLeft > 0) a.fireAnimLeft = Math.max(0, a.fireAnimLeft - dt);
+    tickSlot(slot, dt);
+    if (intent.reload) startReload(slot);
+    if (!intent.fire) a.fireLatch = false;
+    if (!combat || !intent.fire || a.equipLeft > 0) return;
+    if (slot.stats.magSize > 0 && slot.mag === 0) { startReload(slot); return; }
+    // Several shots per step at low frame rates; semi-auto fires once per press.
+    while (canFire(slot) && (slot.stats.automatic || !a.fireLatch)) {
+      this.fire(a);
+      a.fireLatch = true;
+      if (!a.alive) break;
+    }
+  }
+
+  private fire(a: Actor): void {
+    const slot = a.slots[a.active], s = slot.stats;
+    const spread = spreadDeg(slot, a.moveFraction, !a.grounded, a.intent.aim) * DEG;
+    const kick = consumeShot(slot);
+    a.fireAnimLeft = s.fireAnimTime;
+    this.origin.x = a.x; this.origin.y = a.y + a.eyeHeight; this.origin.z = a.z;
+    directionFromAngles(a.yaw, a.pitch, this.aimDir);
+    this.shooter = a;
+    for (let p = 0; p < s.pellets; p++) {
+      spreadDirection(this.aimDir, spread, this.random(), this.random(), this.shotDir);
+      const r = traceShot(this.origin, this.shotDir, s.range, this.opts.blockers, this.actors, this.skipTarget, this.result, this.rules.headScale);
+      const ev = this.shotCount < MAX_SHOT_EVENTS ? this.shots[this.shotCount++] : null;
+      let damage = 0, killed = false, victimId = -1;
+      if (r.kind === 'player') {
+        const victim = this.actors[r.targetIndex];
+        victimId = victim.id;
+        damage = this.rules.oneShot ? MATCH.maxHealth * 10 : damageAt(s, r.distance) * (r.part === 'head' ? HITBOXES.headshotMultiplier : 1);
+        victim.hp -= damage; victim.sinceDamage = 0; victim.lastAttacker = a.id;
+        if (victim.hp <= 0) { this.kill(victim, a, r.part === 'head'); killed = true; }
+      }
+      if (ev) {
+        ev.shooterId = a.id; ev.ox = this.origin.x; ev.oy = this.origin.y; ev.oz = this.origin.z;
+        ev.ex = this.origin.x + this.shotDir.x * r.distance; ev.ey = this.origin.y + this.shotDir.y * r.distance;
+        ev.ez = this.origin.z + this.shotDir.z * r.distance;
+        ev.hitKind = r.kind; ev.victimId = victimId; ev.part = r.part; ev.damage = damage; ev.killed = killed;
+      }
+    }
+    // Recoil moves the real aim (CS style); the client reads yaw/pitch back after the step.
+    const jitter = (this.random() * 2 - 1) * s.recoilYawJitterDeg;
+    a.pitch = clamp(a.pitch + kick.pitchDeg * DEG, -89 * DEG, 89 * DEG);
+    a.yaw += (kick.yawDeg + jitter) * DEG;
+    a.intent.pitch = a.pitch; a.intent.yaw = a.yaw;
+  }
+
+  private kill(victim: Actor, killer: Actor | null, headshot: boolean): void {
+    if (!victim.alive) return;
+    if (victim.hasPrimary) this.drop(primaryState(victim), victim.x, victim.y, victim.z);
+    victim.alive = false; victim.hp = 0; victim.deaths++;
+    victim.vx = 0; victim.vz = 0;
+    if (killer) killer.kills++;
+    this.kills.push({ killerId: killer ? killer.id : -1, victimId: victim.id, headshot, weapon: killer ? killer.slots[killer.active].stats.id : 'world' });
+    if (this.kills.length > 8) this.kills.shift();
+  }
+}

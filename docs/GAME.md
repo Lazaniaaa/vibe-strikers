@@ -25,7 +25,7 @@ by feel and by tests. Units: meters, seconds, degrees. Status tags:
   the slot).
 - After death: killcam 3 s (view from the killer), then spectate living teammates.
 
-### 2.2 Cornucopia (Hunger Games) — DECIDED, but LATER (not in the first week; needs its own arena)
+### 2.2 Cornucopia (Hunger Games) — DECIDED; built 2026-11-01 on Toy Town's lootSpots (owner), own arena later
 - Own arena layout (to be made by the asset owner). One life. Last player/team standing wins. Teams optional (`teams=0` =
   free-for-all).
 - Everyone starts with knife + pistol with one magazine.
@@ -84,6 +84,10 @@ muzzle flash, tracer, hit marker, damage numbers (toggle) are part of the feel.
   `adsSensitivityScale(weaponId, ads)`. Sniper uses the 2D scope overlay
   (`scopeOverlay`) and hides the viewmodel when scoped. Shooting without ADS is
   always allowed; the crosshair is drawn by the game.
+- ADS input — DECIDED (owner 2026-10-31, build in M3): right mouse button is a TOGGLE
+  by default (click once to aim, click again to stop). Setting "ADS mode: toggle / hold"
+  switches to hold-to-aim. Weapon switch, reload start and death leave ADS (approved
+  2026-10-31).
 - "Second person" (`V`): camera in front of the player looking back at the character
   (like Minecraft F5 front view). Own character is rendered in the HIP hold. Distance
   2.5 m, shortened by a ray against walls. **Shooting disabled, reloading allowed.**
@@ -94,14 +98,22 @@ muzzle flash, tracer, hit marker, damage numbers (toggle) are part of the feel.
 
 ## 6. Networking
 ### 6.1 Rules
-Clients send intents; server owns state. Client-side prediction for the local
-player, interpolation for remote players, reconciliation by input sequence number.
-Keep the real values in `config/net.ts`.
+Clients send intents; server owns state. Exception (owner decision 2026-10-30,
+revisit after the cloud phase): the client runs its own movement (Rapier KCC) and
+sends the result; the server validates it (6.6) and snaps back on violation.
+Interpolation for remote players; the local player is corrected only on a snap-back
+(by input sequence number). Keep the real values in `config/net.ts`.
 
 ### 6.2 Intents (client -> server), initial contract
-`input{seq, dt, moveX, moveZ, yaw, pitch, jump, crouch, sneak}`,
-`fire{seq, yaw, pitch, clientTimeSeen}`, `reload`, `switchWeapon{slot}`,
-`pickup{itemId}`, `useHeal`, `emote{id}`, `ping{x,y,z,kind}`,
+`move{seq, ack, x, y, z, vx, vy, vz, yaw, pitch, crouch, grounded, walk}` (client KCC result,
+sent at the net send rate; `ack` = last server correction the client has applied, older moves are
+ignored), room reducers `join_quick{name, character}`, `create_private_room{name, character, bots, difficulty, mode, teams}` (mode `elimination` | `cornucopia`, teams=false = free-for-all),
+`join_by_code{code, name, character}`, `leave_room` (M2a), `fire{seq, yaw, pitch, viewTimeMs, scoped}` (server time of the world the client was showing, used for the
+rewind; scoped = sniper accuracy only), `reload`, `switch_weapon{slot}` (M2b), `set_primary_weapon{weapon}` (M3), `pick_up{itemId}` (drops: weapon swaps the primary, old one drops; live phase, range
+`ITEMS.pickupRadius` + server slack), `reload`, `switchWeapon{slot}`,
+`pickup{itemId}`, `useHeal`, `emote{id}`, `ping{x,y,z,kind}` (built 2026-11-01 as `ping{x, y, z}`: event table
+`ping_event{recipient, roomId, playerId, team, x, y, z}`, one row per human teammate (free-for-all: only the pinger),
+row-level security `recipient = :sender`, one ping per `PINGS.cooldown` per player, alive players only),
 `chat{text}` (private rooms only), `joinRoom{code|quick, nickname, characterId}`,
 `loadout{primary}`, `pingMeasure` (RTT every 1 s).
 
@@ -109,15 +121,25 @@ Keep the real values in `config/net.ts`.
 Snapshots of players (position, yaw, pitch, hp, weapon, pose flags: speed,
 moveDir, shooting, crouching, grounded, dead, emote, reloading), items on the
 ground, round state, scores. Events: `hit`, `kill{killer, victim, weapon, head}`,
+(M2b implemented: event tables `shot_event{roomId, shooterId, origin, end, hitKind, victimId, part, damage,
+killed, rewindMs, hitWithoutRewind}` and `kill_event{roomId, killerId, victimId, headshot, weapon}`; round state
+in the `room` row: phase, round, scoreA/B, timeLeft, lastWinner, matchWinner),
 `roundStart/End`, `matchEnd`, `emote`, `ping`.
+Items on the ground: table `item{id, roomId, kind, weapon, mag, reserve, x, y, z, pedestal}` (kind `weapon` = a gun
+with its ammo, `ammo` = pistol rounds in `reserve`, `medkit`, `boots`; pedestal = Cornucopia loot; drops are cleared
+when a round starts; at most `ITEMS.maxDropsPerRoom` drops per room). Room: `mode`, `teams`. Player: `healLeft`
+(medkit seconds left), `boots`; `primary` = '' while a Cornucopia player has no primary. Free-for-all: every player
+has its own team id `F1`, `F2`, ...; `matchWinner` is the winner's team id ('' = draw).
 Document the final field list in `docs/CONTRACTS.md` and generate client bindings
 before UI work (schema first, rendering after).
 
 ### 6.4 Lag compensation (hit validation) — DECIDED
 - Server keeps a ring buffer of recent hit-volume positions per player.
 - On `fire`, rewind to (shooter's latency + interpolation delay), capped by
-  `maxRewindMs`: **250 public rooms, 300 private rooms** (config).
-- `interpolationDelayMs` is a separate config value (start 100, test lower).
+  `maxRewindMs`: **300 public rooms, 350 private rooms** (config; owner 2026-10-31, was 250 / 300:
+  at 200 ms ping the needed rewind is ~305 ms).
+- `interpolationDelayMs` is a separate config value (start 100; owner 2026-10-31: keep 100, test 75 later
+  on a real network).
 - Raycast against rewound head/body boxes and the map boxes; apply damage now.
 - Show ping (RTT) and FPS in the HUD (setting, default on).
 - Test with artificial latency 100 and 200 ms (a tester far from the server had
@@ -130,6 +152,18 @@ Entry: Quick Play (nearest region, bots fill), private room by code or link,
 bots-only room (practice). Region is part of the room code. One region at first;
 rooms are independent so more regions can be added later.
 
+### 6.6 Movement validation — DECIDED (owner 2026-10-30, phase 1)
+- Server accepts a `move` only if: seq is newer; horizontal distance since the last
+  accepted position <= (max speed for the state + tolerance) x elapsed time; vertical
+  change fits jump velocity / gravity / max fall speed (+ tolerance); the capsule does not
+  overlap any `mapColliders` box (small epsilon); no single step longer than the teleport
+  cap. Values in `config/net.ts`.
+- On violation: keep the last valid position and send a correction; the client snaps to
+  it and continues from there. Count violations per player (logged, kick threshold later).
+- Server bots move along the nav grid and pass the same checks.
+- One `MovementAuthority` interface on the server: `ClientValidated` now, a fully
+  server-simulated version can replace it later without changing the contract for hits.
+
 ## 7. Bots — DECIDED
 Server-side fake players using the same intent path. Waypoint graph generated from
 `mapData`. Simple behavior: walk between waypoints, turn to visible enemies, shoot
@@ -137,7 +171,8 @@ with aim error and 300-500 ms reaction. Difficulty fields exist now
 (`accuracy, reaction, aggression`) but only `normal` is implemented. Bots also run in
 the load test (100 bots).
 
-## 8. Mutators — DECIDED (LATER, after M3)
+## 8. Mutators — DECIDED (built 2026-11-01: lowGravity, bigHeads, oneShot, fastRun, rocketBoots; room field `mutator`,
+`create_private_room{..., mutator}`; Quick Play = mutator of the day by UTC date)
 `lowGravity` (gravity x0.4), `bigHeads` (head model AND head hit box x2, server
 applies it), `oneShot` (any hit kills), `fastRun` (speed x1.5), `rocketBoots`
 (everyone has the double jump). Rotation: mutator of the day is chosen by the
@@ -153,7 +188,8 @@ word filter). Voice chat LATER.
 HUD: crosshair, HP, ammo/weapon, round timer and score, kill feed, hit marker,
 damage direction, TAB scoreboard, killcam banner, spectate overlay, ping + FPS.
 Settings: mouse sensitivity, FOV (default 90, 70-110), volume (master/sfx/music),
-crosshair (color, size, style), second-view mode (toggle/hold), ping+FPS on/off.
+crosshair (color, size, style), second-view mode (toggle/hold), ADS mode (toggle
+default / hold, owner 2026-10-31, M3), ping+FPS on/off.
 Key rebinding LATER.
 
 ## 11. Visual style — DECIDED

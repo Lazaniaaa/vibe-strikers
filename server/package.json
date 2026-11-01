@@ -1,0 +1,6 @@
+{
+  "name": "voxel-arena-server",
+  "private": true,
+  "type": "module",
+  "description": "SpacetimeDB TypeScript module. Dependencies (spacetimedb, typescript) come from the root package.json."
+}
