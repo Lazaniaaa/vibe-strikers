@@ -4,7 +4,7 @@
 // M2b: server-authoritative weapons (rate, ammo, reload, spread), lag-compensated hits (pose history
 //      rewound to the client's view time, capped by maxRewindMs), HP / kills, bots shoot, Elimination rounds.
 import { schema, table, t, SenderError, type InferSchema, type ReducerCtx } from 'spacetimedb/server';
-import { ScheduleAt } from 'spacetimedb';
+import { Identity, ScheduleAt } from 'spacetimedb';
 import { characters } from '../../src/characters/characters.ts';
 import { BOT_SKILLS, BOTS, DEFAULT_DIFFICULTY, type BotDifficulty } from '../../src/config/bots.ts';
 import { HITBOXES } from '../../src/config/hitboxes.ts';
@@ -142,8 +142,11 @@ const item = table({ name: 'item', public: true }, {
   pedestal: t.bool(),
 });
 
-/** Team ping (marker for teammates; clients filter by team). Event table. */
+/** Team ping (marker for teammates). Event table: one row per receiving human; row-level security (below) lets each
+ *  client see only the rows addressed to it, so a modified client cannot read enemy pings. */
 const pingEvent = table({ name: 'ping_event', public: true, event: true }, {
+  /** The client this row is for (a teammate of the pinger, or the pinger). */
+  recipient: t.identity(),
   roomId: t.u64(),
   playerId: t.u64(),
   team: t.string(),
@@ -157,6 +160,9 @@ const tickTimer = table({ name: 'tick_timer' }, {
 
 const spacetimedb = schema({ room, player, shotEvent, killEvent, item, pingEvent, tickTimer });
 export default spacetimedb;
+
+/** Row-level security: a client only receives the ping rows addressed to it. */
+export const pingVisibility = spacetimedb.clientVisibilityFilter.sql('SELECT * FROM ping_event WHERE recipient = :sender');
 
 type Ctx = ReducerCtx<InferSchema<typeof spacetimedb>>;
 type PlayerRow = ReturnType<Ctx['db']['player']['id']['find']> & {};
@@ -633,7 +639,11 @@ export const ping = spacetimedb.reducer({ x: t.f32(), y: t.f32(), z: t.f32() }, 
   const now = nowMs(ctx), last = lastPing.get(row.id) ?? -Infinity;
   if (now - last < PINGS.cooldown * 1000) return;
   lastPing.set(row.id, now);
-  ctx.db.pingEvent.insert({ roomId: row.roomId, playerId: row.id, team: row.team, x, y, z });
+  // Only to the pinger's human teammates (free-for-all: every player is its own team, so only the pinger).
+  for (const p of playersIn(ctx, row.roomId)) {
+    if (p.isBot || p.team !== row.team || p.ownerHex === '') continue;
+    ctx.db.pingEvent.insert({ recipient: Identity.fromString(p.ownerHex), roomId: row.roomId, playerId: row.id, team: row.team, x, y, z });
+  }
 });
 
 /** The client's measured round-trip time, for the scoreboard. */

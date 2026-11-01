@@ -11,6 +11,7 @@ import {
 } from "spacetimedb";
 
 export default __t.row({
+  recipient: __t.identity(),
   roomId: __t.u64().name("room_id"),
   playerId: __t.u64().name("player_id"),
   team: __t.string(),

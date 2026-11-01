@@ -28,7 +28,11 @@ try {
   const tabTeam = await tab.evaluate(() => window.__online.net.me.team);
   check(mate.me.team === tabTeam && enemy.me.team !== tabTeam, `teams: tab ${tabTeam}, Mate ${mate.me.team}, Enemy ${enemy.me.team}`);
   const got = [];
-  mate.onPing = (p) => { if (p.team === mate.me.team) got.push(p); }; // the app shows only its team's pings
+  mate.onPing = (p) => got.push(p);
+  // A "modified client": Enemy also subscribes to the whole ping table and keeps every row it receives.
+  const enemyGot = [];
+  enemy.onPing = (p) => enemyGot.push(p);
+  await new Promise((resolve) => enemy.conn.subscriptionBuilder().onApplied(resolve).subscribe('SELECT * FROM ping_event'));
   const sounds0 = await tab.evaluate(() => window.__online.sounds.ping ?? 0);
   enemy.ping(enemy.me.x + 2, enemy.me.y, enemy.me.z);
   for (let i = 0; i < 3; i++) mate.ping(mate.me.x + 3, mate.me.y, mate.me.z + i);
@@ -36,7 +40,9 @@ try {
   let s = await tab.evaluate(() => window.__online.snapshot());
   check(s.pings === 1 && s.pingText.includes('Mate') && !s.pingText.includes('Enemy'), `tab shows Mate's ping only (${s.pings}: "${s.pingText}")`);
   check((await tab.evaluate(() => window.__online.sounds.ping ?? 0)) === sounds0 + 1, 'ping sound played once');
-  check(got.length === 1, `rate limit: 3 pings at once -> ${got.length} event`);
+  check(got.length === 1, `rate limit: 3 pings at once -> ${got.length} event (Mate receives only team pings)`);
+  check(enemyGot.length >= 1 && enemyGot.every((p) => p.playerId === enemy.me.id), // two overlapping subscriptions may deliver a row twice
+    `the server sends no enemy pings: Enemy (subscribed to the whole table) received only its own (${enemyGot.length})`);
   mate.ping(mate.me.x + 500, mate.me.y, mate.me.z);
   await sleep(1300);
   check(got.length === 1, 'a ping too far away is rejected');
@@ -44,6 +50,7 @@ try {
   await tab.evaluate(() => { window.__online.local.pitch = -0.6; });
   await tab.keyboard.press('KeyZ');
   await sleep(1000);
+  check(enemyGot.every((p) => p.playerId === enemy.me.id), `Enemy still received nothing of team ${tabTeam}`);
   check(got.length === 2 && got[1].playerId === (await tab.evaluate(() => window.__online.net.me.id)), 'Z in the tab: Mate receives the ping');
   s = await tab.evaluate(() => window.__online.snapshot());
   check(s.pings === 2 && s.pingText.includes('You'), `tab shows its own ping too ("${s.pingText.replace(/\n/g, ' | ')}")`);

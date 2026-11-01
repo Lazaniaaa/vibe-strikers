@@ -381,6 +381,10 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   spawned inside a pedestal and every move was snapped back; Cornucopia now skips spawn points blocked by a pedestal
   (`spawnsClearOf`, server and offline). Test `scripts/test-pedestals.mjs`: walking along a pedestal and standing on
   it 0 snap-backs, walking through it is snapped back, bots 0 violations and never inside a pedestal.
+- 2026-11-01 final batch step 2: team-only pings on the server. `ping_event` has a `recipient` identity; the server
+  inserts one row per human teammate of the pinger (free-for-all: only the pinger) and a row-level-security filter
+  (`clientVisibilityFilter.sql('SELECT * FROM ping_event WHERE recipient = :sender')`) delivers each row only to its
+  recipient, so even a client subscribed to the whole table gets no enemy pings (tested in `scripts/e2e-pings.mjs`).
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 
