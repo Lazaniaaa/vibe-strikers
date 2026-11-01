@@ -6,8 +6,8 @@ export interface SpawnPoint {team:Team;x:number;y:number;z:number;/** Radians, f
 export interface ColliderBox {x:number;y:number;z:number;w:number;h:number;d:number}
 export interface MapData {
  id:string;name:string;bounds:{x:number;z:number};killY:number;
- sky:{color:string};fog:{color:string;near:number;far:number};
- light:{sun:{direction:readonly [number,number,number];color:string;intensity:number};ambient:{color:string;intensity:number}};
+ sky:{color:string;/** Art-directed horizon; fog uses this colour. */horizon?:string};fog:{color:string;near:number;far:number};
+ light:{sun:{direction:readonly [number,number,number];color:string;intensity:number};ambient:{color:string;intensity:number};hemisphere?:{sky:string;ground:string;intensity:number}};
  palette:Record<string,string>;prefabs:Record<string,readonly MapBox[]>;boxes:readonly MapBox[];instances:readonly MapInstance[];
  spawns:readonly SpawnPoint[];lootSpots:readonly {x:number;y:number;z:number;tier:'low'|'mid'|'high'}[];
  zones:readonly {name:string;x:number;z:number;w:number;d:number}[];

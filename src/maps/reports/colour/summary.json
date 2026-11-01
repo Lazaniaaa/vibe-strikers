@@ -1,0 +1,275 @@
+{
+  "pass": true,
+  "palette": "Endesga32",
+  "guard": {
+    "protectedFiles": 82,
+    "changed": [],
+    "apiChanged": [],
+    "registryOnly": true,
+    "note": "Map rendering and colour data are authorised changes; non-map source and all existing public function signatures are frozen."
+  },
+  "maps": [
+    {
+      "id": "toy-town",
+      "stats": {
+        "boxes": 1616,
+        "renderBoxes": 3040,
+        "triangles": 36480,
+        "drawCalls": 6,
+        "chunks": 4,
+        "instancedPrefabs": 2,
+        "instances": 94,
+        "shadowChunks": 4
+      },
+      "oldStats": {
+        "boxes": 960,
+        "renderBoxes": 2064,
+        "triangles": 24768,
+        "drawCalls": 52,
+        "chunks": 36,
+        "instancedPrefabs": 16,
+        "instances": 62,
+        "shadowChunks": 6
+      },
+      "jsonBytes": 308618,
+      "lowContrastBefore": 38,
+      "lowContrastAfter": 10,
+      "minimumDeltaE": 12.83973659946211,
+      "newDecorPrefabs": [
+        "townWindowA",
+        "townFoliageA",
+        "townArchA",
+        "townWindowB",
+        "townFoliageB",
+        "townArchB"
+      ],
+      "stairEntry": null
+    },
+    {
+      "id": "toy-town-l1-r1",
+      "stats": {
+        "boxes": 1812,
+        "renderBoxes": 4086,
+        "triangles": 49032,
+        "drawCalls": 6,
+        "chunks": 4,
+        "instancedPrefabs": 2,
+        "instances": 54,
+        "shadowChunks": 4
+      },
+      "oldStats": {
+        "boxes": 1068,
+        "renderBoxes": 3382,
+        "triangles": 40584,
+        "drawCalls": 42,
+        "chunks": 36,
+        "instancedPrefabs": 6,
+        "instances": 16,
+        "shadowChunks": 6
+      },
+      "jsonBytes": 396104,
+      "lowContrastBefore": 35,
+      "lowContrastAfter": 11,
+      "minimumDeltaE": 5.437112920466623,
+      "newDecorPrefabs": [
+        "townWindowA",
+        "townFoliageA",
+        "townArchA",
+        "townWindowB",
+        "townFoliageB",
+        "townArchB"
+      ],
+      "stairEntry": [
+        {
+          "half": "A",
+          "length": 2.25,
+          "start": {
+            "x": -20.625,
+            "y": 0,
+            "z": -28.375,
+            "ix": 57,
+            "iz": 26,
+            "crouch": false
+          },
+          "end": {
+            "x": -20.625,
+            "y": 0.59997,
+            "z": -30.625,
+            "ix": 57,
+            "iz": 17,
+            "crouch": false
+          }
+        },
+        {
+          "half": "B",
+          "length": 2.25,
+          "start": {
+            "x": 20.625,
+            "y": 0,
+            "z": -28.375,
+            "ix": 222,
+            "iz": 26,
+            "crouch": false
+          },
+          "end": {
+            "x": 20.625,
+            "y": 0.59997,
+            "z": -30.625,
+            "ix": 222,
+            "iz": 17,
+            "crouch": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "toy-town-l1-r2",
+      "stats": {
+        "boxes": 1794,
+        "renderBoxes": 4138,
+        "triangles": 49656,
+        "drawCalls": 6,
+        "chunks": 4,
+        "instancedPrefabs": 2,
+        "instances": 56,
+        "shadowChunks": 4
+      },
+      "oldStats": {
+        "boxes": 1018,
+        "renderBoxes": 3394,
+        "triangles": 40728,
+        "drawCalls": 42,
+        "chunks": 36,
+        "instancedPrefabs": 6,
+        "instances": 16,
+        "shadowChunks": 6
+      },
+      "jsonBytes": 387758,
+      "lowContrastBefore": 35,
+      "lowContrastAfter": 11,
+      "minimumDeltaE": 5.437112920466623,
+      "newDecorPrefabs": [
+        "townWindowA",
+        "townFoliageA",
+        "townArchA",
+        "townWindowB",
+        "townFoliageB",
+        "townArchB"
+      ],
+      "stairEntry": null
+    },
+    {
+      "id": "toy-town-l2-r1",
+      "stats": {
+        "boxes": 1796,
+        "renderBoxes": 4020,
+        "triangles": 48240,
+        "drawCalls": 6,
+        "chunks": 4,
+        "instancedPrefabs": 2,
+        "instances": 52,
+        "shadowChunks": 4
+      },
+      "oldStats": {
+        "boxes": 1066,
+        "renderBoxes": 3392,
+        "triangles": 40704,
+        "drawCalls": 42,
+        "chunks": 36,
+        "instancedPrefabs": 6,
+        "instances": 16,
+        "shadowChunks": 6
+      },
+      "jsonBytes": 395094,
+      "lowContrastBefore": 36,
+      "lowContrastAfter": 10,
+      "minimumDeltaE": 12.83973659946211,
+      "newDecorPrefabs": [
+        "townWindowA",
+        "townFoliageA",
+        "townArchA",
+        "townWindowB",
+        "townFoliageB",
+        "townArchB"
+      ],
+      "stairEntry": [
+        {
+          "half": "A",
+          "length": 2.25,
+          "start": {
+            "x": -20.625,
+            "y": 0,
+            "z": -28.375,
+            "ix": 57,
+            "iz": 26,
+            "crouch": false
+          },
+          "end": {
+            "x": -20.625,
+            "y": 0.59997,
+            "z": -30.625,
+            "ix": 57,
+            "iz": 17,
+            "crouch": false
+          }
+        },
+        {
+          "half": "B",
+          "length": 2.25,
+          "start": {
+            "x": 20.625,
+            "y": 0,
+            "z": -28.375,
+            "ix": 222,
+            "iz": 26,
+            "crouch": false
+          },
+          "end": {
+            "x": 20.625,
+            "y": 0.59997,
+            "z": -30.625,
+            "ix": 222,
+            "iz": 17,
+            "crouch": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "toy-town-l2-r2",
+      "stats": {
+        "boxes": 1792,
+        "renderBoxes": 4116,
+        "triangles": 49392,
+        "drawCalls": 6,
+        "chunks": 4,
+        "instancedPrefabs": 2,
+        "instances": 56,
+        "shadowChunks": 4
+      },
+      "oldStats": {
+        "boxes": 1016,
+        "renderBoxes": 3404,
+        "triangles": 40848,
+        "drawCalls": 42,
+        "chunks": 36,
+        "instancedPrefabs": 6,
+        "instances": 16,
+        "shadowChunks": 6
+      },
+      "jsonBytes": 387036,
+      "lowContrastBefore": 36,
+      "lowContrastAfter": 10,
+      "minimumDeltaE": 12.83973659946211,
+      "newDecorPrefabs": [
+        "townWindowA",
+        "townFoliageA",
+        "townArchA",
+        "townWindowB",
+        "townFoliageB",
+        "townArchB"
+      ],
+      "stairEntry": null
+    }
+  ]
+}

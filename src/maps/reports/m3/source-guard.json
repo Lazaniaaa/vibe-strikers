@@ -1,0 +1,7 @@
+{
+  "protectedFiles": 82,
+  "changed": [],
+  "apiChanged": [],
+  "registryOnly": true,
+  "note": "Map rendering and colour data are authorised changes; non-map source and all existing public function signatures are frozen."
+}

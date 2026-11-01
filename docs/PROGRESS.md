@@ -183,7 +183,7 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
 - `npm run verify` now writes reports into `outputs/` (gitignored).
 
 ## Requests to asset owner
-- **Props inside walls (found 2026-10-31 by `node scripts/find-prop-overlaps.mjs`, owner screenshot = bench).**
+- RESOLVED 2026-11-01 by the asset owner (map colour pass; `find-prop-overlaps` 0, stairs test 6/6). **Props inside walls (found 2026-10-31 by `node scripts/find-prop-overlaps.mjs`, owner screenshot = bench).**
   Map in use `toy-town-l1-r1` (same in l1-r2, l2-r1, l2-r2; overlap x / y / z in metres):
   - benchA at (-26.5, 8) and (-26.5, -8), yaw -90 -> wall at (-26.82, +-8): 0.65 / 0.18 / 0.55 (half inside the wall)
   - benchB at (26.5, 8) and (26.5, -8), yaw 90 -> wall at (26.82, +-8): 0.65 / 0.18 / 0.55
@@ -192,7 +192,7 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   - base map `toy-town` has the same benches and lamps, plus screenA/screenB at (-+25.03, +-20) -> walls at
     (-+23, +-18.43): 0.8 / 3 / 0.4 (no crate overlaps there).
   The game does not change the map; please move these props.
-- **Blocked stairs (found 2026-10-31 by `scripts/test-stairs.mjs`):** the two 3-step flights at (-20.6, -29.3) and
+- RESOLVED 2026-11-01 (map colour pass). **Blocked stairs (found 2026-10-31 by `scripts/test-stairs.mjs`):** the two 3-step flights at (-20.6, -29.3) and
   (20.6, -29.3) (map `toy-town-l1-r1`) cannot be entered: a wall box 3.00 x 1.00 m, 1.61 m high, centre
   (-20.90, -28.70) / (20.90, -28.70), stands right in front of the first step (too high to step or jump). Please
   open the entrance or remove the flights.
@@ -429,6 +429,15 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   step at 60 m with a 24-bit buffer ~4.3 mm -> ~2.1 mm. Preventive: no z-fighting was seen at the checked spot, so the
   before / after screenshots look the same (`docs/evidence/audit-near-{before,after}.jpg`); no clipping (the eye stays
   >= ~0.18 m from boxes).
+- 2026-11-01 map colour pass by the asset owner (Codex, worked directly in `src/maps/`, brief
+  `docs/codex-map-color-brief.md`): Endesga 32 palette, stronger sun vs ambient, blue sky, optional
+  `light.hemisphere` (buildMap adds the HemisphereLight to the map group), `sky.horizon`, window / shutter / awning /
+  flower-box decor; collidable props baked into 35 m chunks. Also fixed: props inside walls and the blocked 3-step
+  stairs (both requests resolved). In game (4 views, `docs/evidence/map-colour-before-after.jpg`): draw calls
+  102-165 -> 84-127, triangles 68-100k -> 117-130k (budget 200k / 120 calls; spawn B view is still 127 calls),
+  60 FPS, 0 console errors. Checks: typecheck, 19 gameplay checks, prop overlaps 0 on all 5 maps, stairs 6/6, bot
+  levels, server test PASS (first run had 1 flaky failure, 3 reruns passed). The server module imports the map:
+  run `npm run server:publish` after pulling this.
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 

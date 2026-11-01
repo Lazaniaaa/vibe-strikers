@@ -1,0 +1,210 @@
+[
+  {
+    "id": "toy-town-l1-r1",
+    "pass": true,
+    "sha256": "950e2430894fea19d3dfd44b939211989fd1a3daa42cda9a721475e131d29031",
+    "stats": {
+      "boxes": 1812,
+      "renderBoxes": 4086,
+      "triangles": 49032,
+      "drawCalls": 6,
+      "chunks": 4,
+      "instancedPrefabs": 2,
+      "instances": 54,
+      "shadowChunks": 4
+    },
+    "reachability": 0.9716449796076908,
+    "routes": [
+      {
+        "id": "MID",
+        "color": "#9A8051",
+        "length": 92.72361107568214,
+        "ratio": 1.6267300188716165,
+        "seconds": 19.31741897410045
+      },
+      {
+        "id": "LEFT",
+        "color": "#B66045",
+        "length": 114.51828996322959,
+        "ratio": 2.009092806372449,
+        "seconds": 23.85797707567283
+      },
+      {
+        "id": "RIGHT",
+        "color": "#47899D",
+        "length": 126.28174593052019,
+        "ratio": 2.2154692268512313,
+        "seconds": 26.308697068858372
+      }
+    ],
+    "lanes": [
+      {
+        "id": "LEFT",
+        "longest": 24.976037852393254
+      },
+      {
+        "id": "RIGHT",
+        "longest": 24.4869612607155
+      }
+    ],
+    "spawnSightMax": 31.686453730261455,
+    "lowContrastPairs": 11,
+    "failures": []
+  },
+  {
+    "id": "toy-town-l1-r2",
+    "pass": true,
+    "sha256": "f36915940f9cea4894023d33bfe5f846f284eb15161d1875a664d3d7fdc56939",
+    "stats": {
+      "boxes": 1794,
+      "renderBoxes": 4138,
+      "triangles": 49656,
+      "drawCalls": 6,
+      "chunks": 4,
+      "instancedPrefabs": 2,
+      "instances": 56,
+      "shadowChunks": 4
+    },
+    "reachability": 0.9716022368101143,
+    "routes": [
+      {
+        "id": "MID",
+        "color": "#9A8051",
+        "length": 92.72361107568214,
+        "ratio": 1.6267300188716165,
+        "seconds": 19.31741897410045
+      },
+      {
+        "id": "LEFT",
+        "color": "#B66045",
+        "length": 114.51828996322959,
+        "ratio": 2.009092806372449,
+        "seconds": 23.85797707567283
+      },
+      {
+        "id": "RIGHT",
+        "color": "#47899D",
+        "length": 126.28174593052019,
+        "ratio": 2.2154692268512313,
+        "seconds": 26.308697068858372
+      }
+    ],
+    "lanes": [
+      {
+        "id": "LEFT",
+        "longest": 24.976037852393254
+      },
+      {
+        "id": "RIGHT",
+        "longest": 24.4869276369649
+      }
+    ],
+    "spawnSightMax": 31.686453730261455,
+    "lowContrastPairs": 11,
+    "failures": []
+  },
+  {
+    "id": "toy-town-l2-r1",
+    "pass": true,
+    "sha256": "31612f3b8b8074b03b589d5134cb98142b79561293702be48d370b805fb356c2",
+    "stats": {
+      "boxes": 1796,
+      "renderBoxes": 4020,
+      "triangles": 48240,
+      "drawCalls": 6,
+      "chunks": 4,
+      "instancedPrefabs": 2,
+      "instances": 52,
+      "shadowChunks": 4
+    },
+    "reachability": 0.9717095383422952,
+    "routes": [
+      {
+        "id": "MID",
+        "color": "#9A8051",
+        "length": 92.72361107568214,
+        "ratio": 1.6267300188716165,
+        "seconds": 19.31741897410045
+      },
+      {
+        "id": "LEFT",
+        "color": "#B66045",
+        "length": 114.51828996322959,
+        "ratio": 2.009092806372449,
+        "seconds": 23.85797707567283
+      },
+      {
+        "id": "RIGHT",
+        "color": "#47899D",
+        "length": 126.28174593052019,
+        "ratio": 2.2154692268512313,
+        "seconds": 26.308697068858372
+      }
+    ],
+    "lanes": [
+      {
+        "id": "LEFT",
+        "longest": 24.976037852393254
+      },
+      {
+        "id": "RIGHT",
+        "longest": 24.4869612607155
+      }
+    ],
+    "spawnSightMax": 31.686453730261455,
+    "lowContrastPairs": 10,
+    "failures": []
+  },
+  {
+    "id": "toy-town-l2-r2",
+    "pass": true,
+    "sha256": "8be4ea33f0595aaba9437be712afa0d07fd6f56750dd0cbb1dd28a9ee3bd9225",
+    "stats": {
+      "boxes": 1792,
+      "renderBoxes": 4116,
+      "triangles": 49392,
+      "drawCalls": 6,
+      "chunks": 4,
+      "instancedPrefabs": 2,
+      "instances": 56,
+      "shadowChunks": 4
+    },
+    "reachability": 0.9716669901028527,
+    "routes": [
+      {
+        "id": "MID",
+        "color": "#9A8051",
+        "length": 92.72361107568214,
+        "ratio": 1.6267300188716165,
+        "seconds": 19.31741897410045
+      },
+      {
+        "id": "LEFT",
+        "color": "#B66045",
+        "length": 114.51828996322959,
+        "ratio": 2.009092806372449,
+        "seconds": 23.85797707567283
+      },
+      {
+        "id": "RIGHT",
+        "color": "#47899D",
+        "length": 126.28174593052019,
+        "ratio": 2.2154692268512313,
+        "seconds": 26.308697068858372
+      }
+    ],
+    "lanes": [
+      {
+        "id": "LEFT",
+        "longest": 24.976037852393254
+      },
+      {
+        "id": "RIGHT",
+        "longest": 24.4869276369649
+      }
+    ],
+    "spawnSightMax": 31.686453730261455,
+    "lowContrastPairs": 10,
+    "failures": []
+  }
+]

@@ -1,0 +1,2 @@
+import {createServer} from 'vite';import os from 'node:os';import path from 'node:path';
+const server=await createServer({configFile:false,root:process.cwd(),cacheDir:path.join(os.tmpdir(),'toy-town-colour-vite'),optimizeDeps:{noDiscovery:true,include:[]},server:{host:'127.0.0.1',port:5176,strictPort:true,fs:{allow:[process.cwd()]}}});await server.listen();console.log('Toy Town colour review: http://127.0.0.1:5176/src/maps/preview/colour.html?stage=after');

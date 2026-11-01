@@ -1,0 +1,52 @@
+{
+  "toy-town-l1-r1": {
+    "boxes": 1068,
+    "renderBoxes": 3382,
+    "triangles": 40584,
+    "drawCalls": 42,
+    "chunks": 36,
+    "instancedPrefabs": 6,
+    "instances": 16,
+    "shadowChunks": 6
+  },
+  "toy-town-l1-r2": {
+    "boxes": 1018,
+    "renderBoxes": 3394,
+    "triangles": 40728,
+    "drawCalls": 42,
+    "chunks": 36,
+    "instancedPrefabs": 6,
+    "instances": 16,
+    "shadowChunks": 6
+  },
+  "toy-town-l2-r1": {
+    "boxes": 1066,
+    "renderBoxes": 3392,
+    "triangles": 40704,
+    "drawCalls": 42,
+    "chunks": 36,
+    "instancedPrefabs": 6,
+    "instances": 16,
+    "shadowChunks": 6
+  },
+  "toy-town-l2-r2": {
+    "boxes": 1016,
+    "renderBoxes": 3404,
+    "triangles": 40848,
+    "drawCalls": 42,
+    "chunks": 36,
+    "instancedPrefabs": 6,
+    "instances": 16,
+    "shadowChunks": 6
+  },
+  "toy-town": {
+    "boxes": 960,
+    "renderBoxes": 2064,
+    "triangles": 24768,
+    "drawCalls": 52,
+    "chunks": 36,
+    "instancedPrefabs": 16,
+    "instances": 62,
+    "shadowChunks": 6
+  }
+}

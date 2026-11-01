@@ -7,12 +7,13 @@
   },
   "killY": -15,
   "sky": {
-    "color": "#DCE5E1"
+    "color": "#0099DB",
+    "horizon": "#8B9BB4"
   },
   "fog": {
-    "color": "#DCE5E1",
-    "near": 160,
-    "far": 300
+    "color": "#8B9BB4",
+    "near": 45,
+    "far": 120
   },
   "light": {
     "sun": {
@@ -21,196 +22,204 @@
         1,
         0.35
       ],
-      "color": "#FFF2DB",
-      "intensity": 1.8
+      "color": "#EAD4AA",
+      "intensity": 2.8
     },
     "ambient": {
-      "color": "#EBEFE4",
-      "intensity": 1.8
+      "color": "#C0CBDC",
+      "intensity": 0.9
+    },
+    "hemisphere": {
+      "sky": "#C0CBDC",
+      "ground": "#EAD4AA",
+      "intensity": 0.85
     }
   },
   "palette": {
-    "outline": "#5D6565",
-    "sand": "#C8BDA7",
-    "sandTop": "#DED5C3",
-    "stone": "#B3BAB7",
-    "stoneTop": "#CFD4CD",
-    "blue": "#8E9FA8",
-    "blueTop": "#B6C3C8",
-    "clay": "#B99B88",
-    "clayTop": "#D7BAA3",
-    "wood": "#AC9576",
-    "woodTop": "#CFBA9A",
-    "leaf": "#94A68D",
-    "leafTop": "#BAC5AE",
-    "glass": "#C4D8D7",
-    "glassTop": "#E0EBE4",
-    "water": "#9BBCC0",
-    "waterTop": "#C9DDDB",
-    "cream": "#D6CEBA",
-    "creamTop": "#E8E1D1",
-    "gold": "#B8AB83",
-    "goldTop": "#D7CCAA",
-    "zone:Mid Square:stone": "#BFB18D",
-    "zone:Mid Square:stoneTop": "#CFC5AA",
-    "zone:Spawn A:sand": "#C08872",
-    "zone:Spawn A:sandTop": "#CEA392",
-    "zone:Spawn B:sand": "#56AEB3",
-    "zone:Spawn B:sandTop": "#76BEC1",
-    "zone:Market Court:sand": "#4994C5",
-    "zone:Market Court:sandTop": "#6CA8D0",
-    "zone:North House:sand": "#C86851",
-    "zone:North House:sandTop": "#D38773",
-    "zone:Spawn B:blue": "#4AB0B5",
-    "zone:Spawn B:blueTop": "#6BBEC2",
-    "zone:Spawn A:blue": "#BB7458",
-    "zone:Spawn A:blueTop": "#C88F79",
-    "zone:Spawn B:cream": "#C3DDDF",
-    "zone:Spawn B:creamTop": "#E1EEEF",
-    "zone:Spawn A:cream": "#DFCBC3",
-    "zone:Spawn A:creamTop": "#EFE5E1",
-    "zone:Spawn B:clay": "#46AAAF",
-    "zone:Spawn B:clayTop": "#62BCC0",
-    "zone:Spawn A:clay": "#BF7A5F",
-    "zone:Spawn A:clayTop": "#CC957F",
-    "zone:Spawn B:stone": "#5A9CA0",
-    "zone:Spawn B:stoneTop": "#76AFB2",
-    "zone:Spawn A:stone": "#B08473",
-    "zone:Spawn A:stoneTop": "#C19E90",
-    "zone:East Gallery:sand": "#688DBB",
-    "zone:East Gallery:sandTop": "#87A5C9",
-    "zone:West Gallery:sand": "#BD9F65",
-    "zone:West Gallery:sandTop": "#CBB386",
-    "zone:East Gallery:stone": "#6986AB",
-    "zone:East Gallery:stoneTop": "#869EBB",
-    "zone:West Gallery:stone": "#AB9469",
-    "zone:West Gallery:stoneTop": "#BBA986",
-    "zone:East Gallery:blue": "#4E7DB7",
-    "zone:East Gallery:blueTop": "#6E95C4",
-    "zone:West Gallery:blue": "#B7924E",
-    "zone:West Gallery:blueTop": "#C4A66E",
-    "zone:Mid Square:clay": "#C5B281",
-    "zone:Mid Square:clayTop": "#D4C5A1",
-    "zone:Spawn B:glass": "#ABCED9",
-    "zone:Spawn B:glassTop": "#CAE1E7",
-    "zone:Spawn A:glass": "#ABCED9",
-    "zone:Spawn A:glassTop": "#CAE1E7",
-    "zone:Mid Square:sand": "#C8B993",
-    "zone:Mid Square:sandTop": "#D7CCB2",
-    "zone:Mid Square:blue": "#C7B075",
-    "zone:Mid Square:blueTop": "#D4C396",
-    "zone:North House:cream": "#D9ACA1",
-    "zone:North House:creamTop": "#E6C9C1",
-    "zone:North House:blue": "#C2583D",
-    "zone:North House:blueTop": "#CD7660",
-    "zone:North House:stone": "#A77062",
-    "zone:North House:stoneTop": "#B78B80",
-    "zone:North House:glass": "#ABCED9",
-    "zone:North House:glassTop": "#CAE1E7",
-    "zone:North House:clay": "#C65A3F",
-    "zone:North House:clayTop": "#D07862",
-    "zone:Mid Square:cream": "#DFD7C3",
-    "zone:Mid Square:creamTop": "#EFEBE1",
-    "zone:Mid Square:water": "#64B7C4",
-    "zone:Mid Square:waterTop": "#85C7D1",
-    "zone:Balcony A:clay": "#CB7152",
-    "zone:Balcony A:clayTop": "#D68E76",
-    "zone:Balcony A:cream": "#DFCAC3",
-    "zone:Balcony A:creamTop": "#EFE5E1",
-    "zone:Balcony A:blue": "#CA6949",
-    "zone:Balcony A:blueTop": "#D5876D",
-    "zone:Balcony B:clay": "#82BCD9",
-    "zone:Balcony B:clayTop": "#A5CFE3",
-    "zone:Balcony B:cream": "#C3D6DF",
-    "zone:Balcony B:creamTop": "#E1EAEF",
-    "zone:Balcony B:blue": "#7FB6D2",
-    "zone:Balcony B:blueTop": "#A1C9DE",
-    "zone:Market Court:blue": "#3D8DC2",
-    "zone:Market Court:blueTop": "#60A1CD",
-    "zone:Market Court:clay": "#398AC0",
-    "zone:Market Court:clayTop": "#5A9FCE",
-    "zone:Crouch Passage:clay": "#CBAF52",
-    "zone:Crouch Passage:clayTop": "#D6BF76",
-    "zone:Crouch Passage:cream": "#DFD8C3",
-    "zone:Crouch Passage:creamTop": "#EFECE1",
-    "zone:Crouch Passage:blue": "#CAAC49",
-    "zone:Crouch Passage:blueTop": "#D5BC6D",
-    "zone:Market Court:stone": "#5C87A3",
-    "zone:Market Court:stoneTop": "#799CB4",
-    "zone:Spawn A:wood": "#BC6D4E",
-    "zone:Spawn A:woodTop": "#C8886F",
-    "zone:Spawn B:wood": "#4EB6BC",
-    "zone:Spawn B:woodTop": "#6FC4C8",
-    "zone:Spawn A:leaf": "#4EB764",
-    "zone:Spawn A:leafTop": "#6EC481",
-    "green:1": "#47B865",
-    "green:1:top": "#6CC684",
-    "green:0": "#7ABE60",
-    "green:0:top": "#99CD84",
-    "zone:Spawn B:leaf": "#4EB764",
-    "zone:Spawn B:leafTop": "#6EC481",
-    "bench:A": "#D1673D",
-    "bench:B": "#3DC5D1",
-    "legend:Spawn A": "#C08872",
-    "floor:Spawn A:-1": "#DBC4BC",
-    "floor:Spawn A:1": "#E7D8D2",
-    "path:Spawn A": "#D8B9AD",
-    "accent:Spawn A": "#C76F4D",
-    "legend:Spawn B": "#56AEB3",
-    "floor:Spawn B:-1": "#BCD9DB",
-    "floor:Spawn B:1": "#D2E6E7",
-    "path:Spawn B": "#ADD6D8",
-    "accent:Spawn B": "#4DC1C7",
-    "legend:West Gallery": "#BD9F65",
-    "floor:West Gallery:-1": "#DBD0BC",
-    "floor:West Gallery:1": "#E7DFD2",
-    "path:West Gallery": "#D8C9AD",
-    "accent:West Gallery": "#C99D4A",
-    "legend:East Gallery": "#688DBB",
-    "floor:East Gallery:-1": "#BCCADB",
-    "floor:East Gallery:1": "#D2DBE7",
-    "path:East Gallery": "#ADC1D8",
-    "accent:East Gallery": "#4D84C7",
-    "legend:Mid Square": "#C8B993",
-    "floor:Mid Square:-1": "#DDD6C3",
-    "floor:Mid Square:1": "#EAE5D9",
-    "path:Mid Square": "#DBD0B3",
-    "accent:Mid Square": "#C0A154",
-    "legend:North House": "#C86851",
-    "floor:North House:-1": "#DBC2BC",
-    "floor:North House:1": "#E7D6D2",
-    "path:North House": "#D8B6AD",
-    "accent:North House": "#D75B3C",
-    "legend:Market Court": "#4994C5",
-    "floor:Market Court:-1": "#BCCEDB",
-    "floor:Market Court:1": "#D2DEE7",
-    "path:Market Court": "#ADC7D8",
-    "accent:Market Court": "#3C99D7",
-    "legend:Balcony A": "#D17D61",
-    "floor:Balcony A:-1": "#DBC3BC",
-    "floor:Balcony A:1": "#E7D7D2",
-    "path:Balcony A": "#D8B8AD",
-    "accent:Balcony A": "#D9623A",
-    "legend:Balcony B": "#95C3DA",
-    "floor:Balcony B:-1": "#BCD0DB",
-    "floor:Balcony B:1": "#D2E0E7",
-    "path:Balcony B": "#ADCAD8",
-    "accent:Balcony B": "#41A2D2",
-    "legend:Crouch Passage": "#D1B761",
-    "floor:Crouch Passage:-1": "#DDD6C3",
-    "floor:Crouch Passage:1": "#EAE5D9",
-    "path:Crouch Passage": "#DBD0B3",
-    "accent:Crouch Passage": "#D9B43A",
-    "roof:terracotta": "#C95B45",
-    "roof:terracottaLight": "#D49077",
-    "awning:blue": "#368EC9",
-    "awning:cream": "#EAE2CD",
-    "clock:yellow": "#D3B15A",
-    "clock:face": "#EBE5D6",
-    "backdrop:0": "#D2BBAC",
-    "backdrop:1": "#D6CDB3",
-    "backdrop:2": "#A2CCCD",
-    "backdrop:3": "#A9BCD1"
+    "outline": "#262B44",
+    "sand": "#EAD4AA",
+    "sandTop": "#FFFFFF",
+    "stone": "#5A6988",
+    "stoneTop": "#8B9BB4",
+    "blue": "#124E89",
+    "blueTop": "#0099DB",
+    "clay": "#B86F50",
+    "clayTop": "#FEAE34",
+    "wood": "#B86F50",
+    "woodTop": "#FEAE34",
+    "leaf": "#3E8948",
+    "leafTop": "#63C74D",
+    "glass": "#0099DB",
+    "glassTop": "#2CE8F5",
+    "water": "#0099DB",
+    "waterTop": "#2CE8F5",
+    "cream": "#EAD4AA",
+    "creamTop": "#FFFFFF",
+    "gold": "#FEAE34",
+    "goldTop": "#FEE761",
+    "zone:Mid Square:stone": "#5A6988",
+    "zone:Mid Square:stoneTop": "#8B9BB4",
+    "zone:Spawn A:sand": "#B86F50",
+    "zone:Spawn A:sandTop": "#EAD4AA",
+    "zone:Spawn B:sand": "#5A6988",
+    "zone:Spawn B:sandTop": "#8B9BB4",
+    "zone:Market Court:sand": "#5A6988",
+    "zone:Market Court:sandTop": "#8B9BB4",
+    "zone:North House:sand": "#B86F50",
+    "zone:North House:sandTop": "#EAD4AA",
+    "zone:Spawn B:blue": "#0099DB",
+    "zone:Spawn B:blueTop": "#2CE8F5",
+    "zone:Spawn A:blue": "#F77622",
+    "zone:Spawn A:blueTop": "#FEAE34",
+    "zone:Spawn B:cream": "#C0CBDC",
+    "zone:Spawn B:creamTop": "#FFFFFF",
+    "zone:Spawn A:cream": "#EAD4AA",
+    "zone:Spawn A:creamTop": "#FFFFFF",
+    "zone:Spawn B:clay": "#0099DB",
+    "zone:Spawn B:clayTop": "#2CE8F5",
+    "zone:Spawn A:clay": "#B86F50",
+    "zone:Spawn A:clayTop": "#FEAE34",
+    "zone:Spawn B:stone": "#5A6988",
+    "zone:Spawn B:stoneTop": "#8B9BB4",
+    "zone:Spawn A:stone": "#B86F50",
+    "zone:Spawn A:stoneTop": "#EAD4AA",
+    "zone:East Gallery:sand": "#5A6988",
+    "zone:East Gallery:sandTop": "#8B9BB4",
+    "zone:West Gallery:sand": "#B86F50",
+    "zone:West Gallery:sandTop": "#EAD4AA",
+    "zone:East Gallery:stone": "#5A6988",
+    "zone:East Gallery:stoneTop": "#8B9BB4",
+    "zone:West Gallery:stone": "#B86F50",
+    "zone:West Gallery:stoneTop": "#EAD4AA",
+    "zone:East Gallery:blue": "#0099DB",
+    "zone:East Gallery:blueTop": "#2CE8F5",
+    "zone:West Gallery:blue": "#F77622",
+    "zone:West Gallery:blueTop": "#FEAE34",
+    "zone:Mid Square:clay": "#B86F50",
+    "zone:Mid Square:clayTop": "#FEAE34",
+    "zone:Spawn B:glass": "#0099DB",
+    "zone:Spawn B:glassTop": "#2CE8F5",
+    "zone:Spawn A:glass": "#0099DB",
+    "zone:Spawn A:glassTop": "#2CE8F5",
+    "zone:Mid Square:sand": "#EAD4AA",
+    "zone:Mid Square:sandTop": "#FFFFFF",
+    "zone:Mid Square:blue": "#124E89",
+    "zone:Mid Square:blueTop": "#0099DB",
+    "zone:North House:cream": "#EAD4AA",
+    "zone:North House:creamTop": "#FFFFFF",
+    "zone:North House:blue": "#F77622",
+    "zone:North House:blueTop": "#FEAE34",
+    "zone:North House:stone": "#B86F50",
+    "zone:North House:stoneTop": "#FEAE34",
+    "zone:North House:glass": "#0099DB",
+    "zone:North House:glassTop": "#2CE8F5",
+    "zone:North House:clay": "#B86F50",
+    "zone:North House:clayTop": "#FEAE34",
+    "zone:Mid Square:cream": "#EAD4AA",
+    "zone:Mid Square:creamTop": "#FFFFFF",
+    "zone:Mid Square:water": "#0099DB",
+    "zone:Mid Square:waterTop": "#2CE8F5",
+    "zone:Balcony A:clay": "#B86F50",
+    "zone:Balcony A:clayTop": "#FEAE34",
+    "zone:Balcony A:cream": "#EAD4AA",
+    "zone:Balcony A:creamTop": "#FFFFFF",
+    "zone:Balcony A:blue": "#F77622",
+    "zone:Balcony A:blueTop": "#FEAE34",
+    "zone:Balcony B:clay": "#0099DB",
+    "zone:Balcony B:clayTop": "#2CE8F5",
+    "zone:Balcony B:cream": "#C0CBDC",
+    "zone:Balcony B:creamTop": "#FFFFFF",
+    "zone:Balcony B:blue": "#0099DB",
+    "zone:Balcony B:blueTop": "#2CE8F5",
+    "zone:Market Court:blue": "#0099DB",
+    "zone:Market Court:blueTop": "#2CE8F5",
+    "zone:Market Court:clay": "#0099DB",
+    "zone:Market Court:clayTop": "#2CE8F5",
+    "zone:Crouch Passage:clay": "#B86F50",
+    "zone:Crouch Passage:clayTop": "#FEAE34",
+    "zone:Crouch Passage:cream": "#EAD4AA",
+    "zone:Crouch Passage:creamTop": "#FFFFFF",
+    "zone:Crouch Passage:blue": "#124E89",
+    "zone:Crouch Passage:blueTop": "#0099DB",
+    "zone:Market Court:stone": "#5A6988",
+    "zone:Market Court:stoneTop": "#8B9BB4",
+    "zone:Spawn A:wood": "#B86F50",
+    "zone:Spawn A:woodTop": "#FEAE34",
+    "zone:Spawn B:wood": "#0099DB",
+    "zone:Spawn B:woodTop": "#2CE8F5",
+    "zone:Spawn A:leaf": "#3E8948",
+    "zone:Spawn A:leafTop": "#63C74D",
+    "green:1": "#265C42",
+    "green:1:top": "#3E8948",
+    "green:0": "#3E8948",
+    "green:0:top": "#63C74D",
+    "zone:Spawn B:leaf": "#3E8948",
+    "zone:Spawn B:leafTop": "#63C74D",
+    "bench:A": "#F77622",
+    "bench:B": "#0099DB",
+    "legend:Spawn A": "#F77622",
+    "floor:Spawn A:-1": "#EAD4AA",
+    "floor:Spawn A:1": "#FFFFFF",
+    "path:Spawn A": "#FEAE34",
+    "accent:Spawn A": "#F77622",
+    "legend:Spawn B": "#0099DB",
+    "floor:Spawn B:-1": "#C0CBDC",
+    "floor:Spawn B:1": "#FFFFFF",
+    "path:Spawn B": "#2CE8F5",
+    "accent:Spawn B": "#0099DB",
+    "legend:West Gallery": "#F77622",
+    "floor:West Gallery:-1": "#EAD4AA",
+    "floor:West Gallery:1": "#FFFFFF",
+    "path:West Gallery": "#FEAE34",
+    "accent:West Gallery": "#F77622",
+    "legend:East Gallery": "#0099DB",
+    "floor:East Gallery:-1": "#C0CBDC",
+    "floor:East Gallery:1": "#FFFFFF",
+    "path:East Gallery": "#2CE8F5",
+    "accent:East Gallery": "#0099DB",
+    "legend:Mid Square": "#FEAE34",
+    "floor:Mid Square:-1": "#EAD4AA",
+    "floor:Mid Square:1": "#FFFFFF",
+    "path:Mid Square": "#FEAE34",
+    "accent:Mid Square": "#FEAE34",
+    "legend:North House": "#BE4A2F",
+    "floor:North House:-1": "#EAD4AA",
+    "floor:North House:1": "#FFFFFF",
+    "path:North House": "#FEAE34",
+    "accent:North House": "#BE4A2F",
+    "legend:Market Court": "#0099DB",
+    "floor:Market Court:-1": "#C0CBDC",
+    "floor:Market Court:1": "#FFFFFF",
+    "path:Market Court": "#2CE8F5",
+    "accent:Market Court": "#0099DB",
+    "legend:Balcony A": "#F77622",
+    "floor:Balcony A:-1": "#EAD4AA",
+    "floor:Balcony A:1": "#FFFFFF",
+    "path:Balcony A": "#FEAE34",
+    "accent:Balcony A": "#F77622",
+    "legend:Balcony B": "#0099DB",
+    "floor:Balcony B:-1": "#C0CBDC",
+    "floor:Balcony B:1": "#FFFFFF",
+    "path:Balcony B": "#2CE8F5",
+    "accent:Balcony B": "#0099DB",
+    "legend:Crouch Passage": "#FEAE34",
+    "floor:Crouch Passage:-1": "#EAD4AA",
+    "floor:Crouch Passage:1": "#FFFFFF",
+    "path:Crouch Passage": "#FEAE34",
+    "accent:Crouch Passage": "#FEAE34",
+    "roof:terracotta": "#BE4A2F",
+    "roof:terracottaLight": "#F77622",
+    "awning:blue": "#0099DB",
+    "awning:cream": "#FFFFFF",
+    "clock:yellow": "#FEAE34",
+    "clock:face": "#EAD4AA",
+    "backdrop:0": "#D77643",
+    "backdrop:1": "#FEAE34",
+    "backdrop:2": "#0099DB",
+    "backdrop:3": "#124E89",
+    "roof:teamB": "#124E89",
+    "roof:teamBTop": "#0099DB",
+    "awning:warm": "#F77622"
   },
   "prefabs": {
     "crateA": [
@@ -522,7 +531,7 @@
       },
       {
         "x": 0,
-        "y": 1.0,
+        "y": 1,
         "z": 0.27,
         "w": 1.8,
         "h": 0.74,
@@ -580,7 +589,7 @@
       },
       {
         "x": 0,
-        "y": 1.0,
+        "y": 1,
         "z": 0.27,
         "w": 1.8,
         "h": 0.74,
@@ -805,8 +814,8 @@
         "w": 0.6,
         "h": 0.01,
         "d": 2.6,
-        "color": "awning:blue",
-        "top": "awning:blue",
+        "color": "awning:warm",
+        "top": "awning:warm",
         "outline": false,
         "kind": "decor",
         "collide": false,
@@ -827,14 +836,14 @@
         "blocksShots": false
       },
       {
-        "x": 0.0,
+        "x": 0,
         "y": 4.635,
         "z": 0,
         "w": 0.6,
         "h": 0.01,
         "d": 2.6,
-        "color": "awning:blue",
-        "top": "awning:blue",
+        "color": "awning:warm",
+        "top": "awning:warm",
         "outline": false,
         "kind": "decor",
         "collide": false,
@@ -861,8 +870,8 @@
         "w": 0.6,
         "h": 0.01,
         "d": 2.6,
-        "color": "awning:blue",
-        "top": "awning:blue",
+        "color": "awning:warm",
+        "top": "awning:warm",
         "outline": false,
         "kind": "decor",
         "collide": false,
@@ -997,7 +1006,7 @@
         "blocksShots": false
       },
       {
-        "x": 0.0,
+        "x": 0,
         "y": 4.635,
         "z": 0,
         "w": 0.6,
@@ -1107,6 +1116,1194 @@
         "d": 0.4,
         "color": "outline",
         "top": "outline",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      }
+    ],
+    "townWindowA": [
+      {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "w": 1.65,
+        "h": 1.25,
+        "d": 0.07,
+        "color": "outline",
+        "top": "outline",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0,
+        "y": 0,
+        "z": -0.055,
+        "w": 1.3,
+        "h": 1.02,
+        "d": 0.045,
+        "color": "glass",
+        "top": "glassTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": -0.72,
+        "y": 0,
+        "z": -0.075,
+        "w": 0.12,
+        "h": 1.22,
+        "d": 0.1,
+        "color": "zone:Spawn A:cream",
+        "top": "zone:Spawn A:creamTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0.72,
+        "y": 0,
+        "z": -0.075,
+        "w": 0.12,
+        "h": 1.22,
+        "d": 0.1,
+        "color": "zone:Spawn A:cream",
+        "top": "zone:Spawn A:creamTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0,
+        "y": -0.55,
+        "z": -0.075,
+        "w": 1.56,
+        "h": 0.12,
+        "d": 0.1,
+        "color": "zone:Spawn A:cream",
+        "top": "zone:Spawn A:creamTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0,
+        "y": 0.55,
+        "z": -0.075,
+        "w": 1.56,
+        "h": 0.12,
+        "d": 0.1,
+        "color": "zone:Spawn A:cream",
+        "top": "zone:Spawn A:creamTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0,
+        "y": 0,
+        "z": -0.1,
+        "w": 0.065,
+        "h": 1,
+        "d": 0.08,
+        "color": "zone:Spawn A:cream",
+        "top": "zone:Spawn A:creamTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": -0.96,
+        "y": 0,
+        "z": -0.025,
+        "w": 0.34,
+        "h": 1.2,
+        "d": 0.13,
+        "color": "zone:Spawn A:blue",
+        "top": "zone:Spawn A:blueTop",
+        "outline": true,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": -0.96,
+        "y": -0.35,
+        "z": -0.103,
+        "w": 0.28,
+        "h": 0.035,
+        "d": 0.025,
+        "color": "zone:Spawn A:blueTop",
+        "top": "zone:Spawn A:blueTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": -0.96,
+        "y": 0,
+        "z": -0.103,
+        "w": 0.28,
+        "h": 0.035,
+        "d": 0.025,
+        "color": "zone:Spawn A:blueTop",
+        "top": "zone:Spawn A:blueTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": -0.96,
+        "y": 0.35,
+        "z": -0.103,
+        "w": 0.28,
+        "h": 0.035,
+        "d": 0.025,
+        "color": "zone:Spawn A:blueTop",
+        "top": "zone:Spawn A:blueTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0.96,
+        "y": 0,
+        "z": -0.025,
+        "w": 0.34,
+        "h": 1.2,
+        "d": 0.13,
+        "color": "zone:Spawn A:blue",
+        "top": "zone:Spawn A:blueTop",
+        "outline": true,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0.96,
+        "y": -0.35,
+        "z": -0.103,
+        "w": 0.28,
+        "h": 0.035,
+        "d": 0.025,
+        "color": "zone:Spawn A:blueTop",
+        "top": "zone:Spawn A:blueTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0.96,
+        "y": 0,
+        "z": -0.103,
+        "w": 0.28,
+        "h": 0.035,
+        "d": 0.025,
+        "color": "zone:Spawn A:blueTop",
+        "top": "zone:Spawn A:blueTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0.96,
+        "y": 0.35,
+        "z": -0.103,
+        "w": 0.28,
+        "h": 0.035,
+        "d": 0.025,
+        "color": "zone:Spawn A:blueTop",
+        "top": "zone:Spawn A:blueTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0,
+        "y": -0.82,
+        "z": -0.18,
+        "w": 1.35,
+        "h": 0.23,
+        "d": 0.36,
+        "color": "zone:Spawn A:wood",
+        "top": "zone:Spawn A:woodTop",
+        "outline": true,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": -0.44,
+        "y": -0.62,
+        "z": -0.2,
+        "w": 0.31,
+        "h": 0.26,
+        "d": 0.24,
+        "color": "leaf",
+        "top": "leafTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": -0.44,
+        "y": -0.43,
+        "z": -0.23,
+        "w": 0.15,
+        "h": 0.15,
+        "d": 0.15,
+        "color": "clayTop",
+        "top": "clayTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0,
+        "y": -0.62,
+        "z": -0.2,
+        "w": 0.31,
+        "h": 0.26,
+        "d": 0.24,
+        "color": "leaf",
+        "top": "leafTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0,
+        "y": -0.43,
+        "z": -0.23,
+        "w": 0.15,
+        "h": 0.15,
+        "d": 0.15,
+        "color": "goldTop",
+        "top": "goldTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0.44,
+        "y": -0.62,
+        "z": -0.2,
+        "w": 0.31,
+        "h": 0.26,
+        "d": 0.24,
+        "color": "leaf",
+        "top": "leafTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0.44,
+        "y": -0.43,
+        "z": -0.23,
+        "w": 0.15,
+        "h": 0.15,
+        "d": 0.15,
+        "color": "clayTop",
+        "top": "clayTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": -0.88,
+        "y": 0.79,
+        "z": -0.27,
+        "w": 0.43,
+        "h": 0.1,
+        "d": 0.65,
+        "color": "awning:cream",
+        "top": "awning:cream",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": -0.44,
+        "y": 0.79,
+        "z": -0.27,
+        "w": 0.43,
+        "h": 0.1,
+        "d": 0.65,
+        "color": "zone:Spawn A:blue",
+        "top": "zone:Spawn A:blueTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0,
+        "y": 0.79,
+        "z": -0.27,
+        "w": 0.43,
+        "h": 0.1,
+        "d": 0.65,
+        "color": "awning:cream",
+        "top": "awning:cream",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0.44,
+        "y": 0.79,
+        "z": -0.27,
+        "w": 0.43,
+        "h": 0.1,
+        "d": 0.65,
+        "color": "zone:Spawn A:blue",
+        "top": "zone:Spawn A:blueTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0.88,
+        "y": 0.79,
+        "z": -0.27,
+        "w": 0.43,
+        "h": 0.1,
+        "d": 0.65,
+        "color": "awning:cream",
+        "top": "awning:cream",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0,
+        "y": -1.18,
+        "z": -0.02,
+        "w": 0.74,
+        "h": 0.2,
+        "d": 0.08,
+        "color": "zone:Spawn A:blue",
+        "top": "zone:Spawn A:blueTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": -0.2,
+        "y": -1.18,
+        "z": -0.068,
+        "w": 0.1,
+        "h": 0.07,
+        "d": 0.025,
+        "color": "creamTop",
+        "top": "creamTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0,
+        "y": -1.18,
+        "z": -0.068,
+        "w": 0.1,
+        "h": 0.07,
+        "d": 0.025,
+        "color": "creamTop",
+        "top": "creamTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0.2,
+        "y": -1.18,
+        "z": -0.068,
+        "w": 0.1,
+        "h": 0.07,
+        "d": 0.025,
+        "color": "creamTop",
+        "top": "creamTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      }
+    ],
+    "townFoliageA": [
+      {
+        "x": 0,
+        "y": 0.25,
+        "z": 0,
+        "w": 0.7,
+        "h": 0.49,
+        "d": 0.7,
+        "color": "zone:Spawn A:wood",
+        "top": "zone:Spawn A:woodTop",
+        "outline": true,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0,
+        "y": 0.85,
+        "z": 0,
+        "w": 0.16,
+        "h": 0.75,
+        "d": 0.16,
+        "color": "wood",
+        "top": "woodTop",
+        "outline": true,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0,
+        "y": 1.43,
+        "z": 0,
+        "w": 1.1,
+        "h": 0.62,
+        "d": 1.1,
+        "color": "green:1",
+        "top": "green:1:top",
+        "outline": true,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0,
+        "y": 1.94,
+        "z": 0,
+        "w": 0.76,
+        "h": 0.44,
+        "d": 0.76,
+        "color": "green:0",
+        "top": "green:0:top",
+        "outline": true,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      }
+    ],
+    "townArchA": [
+      {
+        "x": -1.39,
+        "y": 1.5,
+        "z": -0.02,
+        "w": 0.12,
+        "h": 3,
+        "d": 0.13,
+        "color": "zone:Spawn A:blue",
+        "top": "zone:Spawn A:blueTop",
+        "outline": true,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 1.39,
+        "y": 1.5,
+        "z": -0.02,
+        "w": 0.12,
+        "h": 3,
+        "d": 0.13,
+        "color": "zone:Spawn A:blue",
+        "top": "zone:Spawn A:blueTop",
+        "outline": true,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0,
+        "y": 3.12,
+        "z": -0.02,
+        "w": 2.9,
+        "h": 0.16,
+        "d": 0.13,
+        "color": "zone:Spawn A:blue",
+        "top": "zone:Spawn A:blueTop",
+        "outline": true,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0,
+        "y": 3.42,
+        "z": -0.02,
+        "w": 1.2,
+        "h": 0.27,
+        "d": 0.12,
+        "color": "outline",
+        "top": "outline",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": -0.25,
+        "y": 3.42,
+        "z": -0.095,
+        "w": 0.15,
+        "h": 0.11,
+        "d": 0.04,
+        "color": "zone:Spawn A:blueTop",
+        "top": "zone:Spawn A:blueTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0,
+        "y": 3.42,
+        "z": -0.095,
+        "w": 0.15,
+        "h": 0.11,
+        "d": 0.04,
+        "color": "zone:Spawn A:blueTop",
+        "top": "zone:Spawn A:blueTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0.25,
+        "y": 3.42,
+        "z": -0.095,
+        "w": 0.15,
+        "h": 0.11,
+        "d": 0.04,
+        "color": "zone:Spawn A:blueTop",
+        "top": "zone:Spawn A:blueTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      }
+    ],
+    "townWindowB": [
+      {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "w": 1.65,
+        "h": 1.25,
+        "d": 0.07,
+        "color": "outline",
+        "top": "outline",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0,
+        "y": 0,
+        "z": -0.055,
+        "w": 1.3,
+        "h": 1.02,
+        "d": 0.045,
+        "color": "glass",
+        "top": "glassTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0.72,
+        "y": 0,
+        "z": -0.075,
+        "w": 0.12,
+        "h": 1.22,
+        "d": 0.1,
+        "color": "zone:Spawn B:cream",
+        "top": "zone:Spawn B:creamTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": -0.72,
+        "y": 0,
+        "z": -0.075,
+        "w": 0.12,
+        "h": 1.22,
+        "d": 0.1,
+        "color": "zone:Spawn B:cream",
+        "top": "zone:Spawn B:creamTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0,
+        "y": -0.55,
+        "z": -0.075,
+        "w": 1.56,
+        "h": 0.12,
+        "d": 0.1,
+        "color": "zone:Spawn B:cream",
+        "top": "zone:Spawn B:creamTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0,
+        "y": 0.55,
+        "z": -0.075,
+        "w": 1.56,
+        "h": 0.12,
+        "d": 0.1,
+        "color": "zone:Spawn B:cream",
+        "top": "zone:Spawn B:creamTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0,
+        "y": 0,
+        "z": -0.1,
+        "w": 0.065,
+        "h": 1,
+        "d": 0.08,
+        "color": "zone:Spawn B:cream",
+        "top": "zone:Spawn B:creamTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0.96,
+        "y": 0,
+        "z": -0.025,
+        "w": 0.34,
+        "h": 1.2,
+        "d": 0.13,
+        "color": "zone:Spawn B:blue",
+        "top": "zone:Spawn B:blueTop",
+        "outline": true,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0.96,
+        "y": -0.35,
+        "z": -0.103,
+        "w": 0.28,
+        "h": 0.035,
+        "d": 0.025,
+        "color": "zone:Spawn B:blueTop",
+        "top": "zone:Spawn B:blueTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0.96,
+        "y": 0,
+        "z": -0.103,
+        "w": 0.28,
+        "h": 0.035,
+        "d": 0.025,
+        "color": "zone:Spawn B:blueTop",
+        "top": "zone:Spawn B:blueTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0.96,
+        "y": 0.35,
+        "z": -0.103,
+        "w": 0.28,
+        "h": 0.035,
+        "d": 0.025,
+        "color": "zone:Spawn B:blueTop",
+        "top": "zone:Spawn B:blueTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": -0.96,
+        "y": 0,
+        "z": -0.025,
+        "w": 0.34,
+        "h": 1.2,
+        "d": 0.13,
+        "color": "zone:Spawn B:blue",
+        "top": "zone:Spawn B:blueTop",
+        "outline": true,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": -0.96,
+        "y": -0.35,
+        "z": -0.103,
+        "w": 0.28,
+        "h": 0.035,
+        "d": 0.025,
+        "color": "zone:Spawn B:blueTop",
+        "top": "zone:Spawn B:blueTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": -0.96,
+        "y": 0,
+        "z": -0.103,
+        "w": 0.28,
+        "h": 0.035,
+        "d": 0.025,
+        "color": "zone:Spawn B:blueTop",
+        "top": "zone:Spawn B:blueTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": -0.96,
+        "y": 0.35,
+        "z": -0.103,
+        "w": 0.28,
+        "h": 0.035,
+        "d": 0.025,
+        "color": "zone:Spawn B:blueTop",
+        "top": "zone:Spawn B:blueTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0,
+        "y": -0.82,
+        "z": -0.18,
+        "w": 1.35,
+        "h": 0.23,
+        "d": 0.36,
+        "color": "zone:Spawn B:wood",
+        "top": "zone:Spawn B:woodTop",
+        "outline": true,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0.44,
+        "y": -0.62,
+        "z": -0.2,
+        "w": 0.31,
+        "h": 0.26,
+        "d": 0.24,
+        "color": "leaf",
+        "top": "leafTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0.44,
+        "y": -0.43,
+        "z": -0.23,
+        "w": 0.15,
+        "h": 0.15,
+        "d": 0.15,
+        "color": "clayTop",
+        "top": "clayTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0,
+        "y": -0.62,
+        "z": -0.2,
+        "w": 0.31,
+        "h": 0.26,
+        "d": 0.24,
+        "color": "leaf",
+        "top": "leafTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0,
+        "y": -0.43,
+        "z": -0.23,
+        "w": 0.15,
+        "h": 0.15,
+        "d": 0.15,
+        "color": "goldTop",
+        "top": "goldTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": -0.44,
+        "y": -0.62,
+        "z": -0.2,
+        "w": 0.31,
+        "h": 0.26,
+        "d": 0.24,
+        "color": "leaf",
+        "top": "leafTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": -0.44,
+        "y": -0.43,
+        "z": -0.23,
+        "w": 0.15,
+        "h": 0.15,
+        "d": 0.15,
+        "color": "clayTop",
+        "top": "clayTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0.88,
+        "y": 0.79,
+        "z": -0.27,
+        "w": 0.43,
+        "h": 0.1,
+        "d": 0.65,
+        "color": "awning:cream",
+        "top": "awning:cream",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0.44,
+        "y": 0.79,
+        "z": -0.27,
+        "w": 0.43,
+        "h": 0.1,
+        "d": 0.65,
+        "color": "zone:Spawn B:blue",
+        "top": "zone:Spawn B:blueTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0,
+        "y": 0.79,
+        "z": -0.27,
+        "w": 0.43,
+        "h": 0.1,
+        "d": 0.65,
+        "color": "awning:cream",
+        "top": "awning:cream",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": -0.44,
+        "y": 0.79,
+        "z": -0.27,
+        "w": 0.43,
+        "h": 0.1,
+        "d": 0.65,
+        "color": "zone:Spawn B:blue",
+        "top": "zone:Spawn B:blueTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": -0.88,
+        "y": 0.79,
+        "z": -0.27,
+        "w": 0.43,
+        "h": 0.1,
+        "d": 0.65,
+        "color": "awning:cream",
+        "top": "awning:cream",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0,
+        "y": -1.18,
+        "z": -0.02,
+        "w": 0.74,
+        "h": 0.2,
+        "d": 0.08,
+        "color": "zone:Spawn B:blue",
+        "top": "zone:Spawn B:blueTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0.2,
+        "y": -1.18,
+        "z": -0.068,
+        "w": 0.1,
+        "h": 0.07,
+        "d": 0.025,
+        "color": "creamTop",
+        "top": "creamTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0,
+        "y": -1.18,
+        "z": -0.068,
+        "w": 0.1,
+        "h": 0.07,
+        "d": 0.025,
+        "color": "creamTop",
+        "top": "creamTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": -0.2,
+        "y": -1.18,
+        "z": -0.068,
+        "w": 0.1,
+        "h": 0.07,
+        "d": 0.025,
+        "color": "creamTop",
+        "top": "creamTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      }
+    ],
+    "townFoliageB": [
+      {
+        "x": 0,
+        "y": 0.25,
+        "z": 0,
+        "w": 0.7,
+        "h": 0.49,
+        "d": 0.7,
+        "color": "zone:Spawn B:wood",
+        "top": "zone:Spawn B:woodTop",
+        "outline": true,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0,
+        "y": 0.85,
+        "z": 0,
+        "w": 0.16,
+        "h": 0.75,
+        "d": 0.16,
+        "color": "wood",
+        "top": "woodTop",
+        "outline": true,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0,
+        "y": 1.43,
+        "z": 0,
+        "w": 1.1,
+        "h": 0.62,
+        "d": 1.1,
+        "color": "green:1",
+        "top": "green:1:top",
+        "outline": true,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0,
+        "y": 1.94,
+        "z": 0,
+        "w": 0.76,
+        "h": 0.44,
+        "d": 0.76,
+        "color": "green:0",
+        "top": "green:0:top",
+        "outline": true,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      }
+    ],
+    "townArchB": [
+      {
+        "x": 1.39,
+        "y": 1.5,
+        "z": -0.02,
+        "w": 0.12,
+        "h": 3,
+        "d": 0.13,
+        "color": "zone:Spawn B:blue",
+        "top": "zone:Spawn B:blueTop",
+        "outline": true,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": -1.39,
+        "y": 1.5,
+        "z": -0.02,
+        "w": 0.12,
+        "h": 3,
+        "d": 0.13,
+        "color": "zone:Spawn B:blue",
+        "top": "zone:Spawn B:blueTop",
+        "outline": true,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0,
+        "y": 3.12,
+        "z": -0.02,
+        "w": 2.9,
+        "h": 0.16,
+        "d": 0.13,
+        "color": "zone:Spawn B:blue",
+        "top": "zone:Spawn B:blueTop",
+        "outline": true,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0,
+        "y": 3.42,
+        "z": -0.02,
+        "w": 1.2,
+        "h": 0.27,
+        "d": 0.12,
+        "color": "outline",
+        "top": "outline",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0.25,
+        "y": 3.42,
+        "z": -0.095,
+        "w": 0.15,
+        "h": 0.11,
+        "d": 0.04,
+        "color": "zone:Spawn B:blueTop",
+        "top": "zone:Spawn B:blueTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": 0,
+        "y": 3.42,
+        "z": -0.095,
+        "w": 0.15,
+        "h": 0.11,
+        "d": 0.04,
+        "color": "zone:Spawn B:blueTop",
+        "top": "zone:Spawn B:blueTop",
+        "outline": false,
+        "kind": "decor",
+        "collide": false,
+        "blocksShots": false
+      },
+      {
+        "x": -0.25,
+        "y": 3.42,
+        "z": -0.095,
+        "w": 0.15,
+        "h": 0.11,
+        "d": 0.04,
+        "color": "zone:Spawn B:blueTop",
+        "top": "zone:Spawn B:blueTop",
         "outline": false,
         "kind": "decor",
         "collide": false,
@@ -1299,7 +2496,7 @@
     },
     {
       "x": 34.65,
-      "y": 4.0,
+      "y": 4,
       "z": 8,
       "w": 0.5,
       "h": 8,
@@ -1313,7 +2510,7 @@
     },
     {
       "x": -34.65,
-      "y": 4.0,
+      "y": 4,
       "z": 8,
       "w": 0.5,
       "h": 8,
@@ -1327,7 +2524,7 @@
     },
     {
       "x": 34.65,
-      "y": 5.0,
+      "y": 5,
       "z": 24,
       "w": 0.5,
       "h": 10,
@@ -1341,7 +2538,7 @@
     },
     {
       "x": -34.65,
-      "y": 5.0,
+      "y": 5,
       "z": 24,
       "w": 0.5,
       "h": 10,
@@ -1356,7 +2553,7 @@
     {
       "x": 23,
       "y": 2.498,
-      "z": 0.0,
+      "z": 0,
       "w": 0.8,
       "h": 5,
       "d": 17.8,
@@ -1398,7 +2595,7 @@
     {
       "x": -23,
       "y": 2.498,
-      "z": 0.0,
+      "z": 0,
       "w": 0.8,
       "h": 5,
       "d": 17.8,
@@ -1524,7 +2721,7 @@
     {
       "x": 26.824,
       "y": 2.486,
-      "z": -8.0,
+      "z": -8,
       "w": 6.852,
       "h": 5,
       "d": 0.55,
@@ -1538,7 +2735,7 @@
     {
       "x": -26.824,
       "y": 2.486,
-      "z": -8.0,
+      "z": -8,
       "w": 6.852,
       "h": 5,
       "d": 0.55,
@@ -1552,7 +2749,7 @@
     {
       "x": 26.824,
       "y": 4.99,
-      "z": -8.0,
+      "z": -8,
       "w": 6.852,
       "h": 0.004,
       "d": 0.55,
@@ -1566,7 +2763,7 @@
     {
       "x": -26.824,
       "y": 4.99,
-      "z": -8.0,
+      "z": -8,
       "w": 6.852,
       "h": 0.004,
       "d": 0.55,
@@ -1580,7 +2777,7 @@
     {
       "x": 26.824,
       "y": 2.484,
-      "z": 8.0,
+      "z": 8,
       "w": 6.852,
       "h": 5,
       "d": 0.55,
@@ -1594,7 +2791,7 @@
     {
       "x": -26.824,
       "y": 2.484,
-      "z": 8.0,
+      "z": 8,
       "w": 6.852,
       "h": 5,
       "d": 0.55,
@@ -1608,7 +2805,7 @@
     {
       "x": 26.824,
       "y": 4.988,
-      "z": 8.0,
+      "z": 8,
       "w": 6.852,
       "h": 0.004,
       "d": 0.55,
@@ -1622,7 +2819,7 @@
     {
       "x": -26.824,
       "y": 4.988,
-      "z": 8.0,
+      "z": 8,
       "w": 6.852,
       "h": 0.004,
       "d": 0.55,
@@ -2000,10 +3197,10 @@
     {
       "x": 23.414,
       "y": 2.3,
-      "z": -6.0,
+      "z": -6,
       "w": 0.024,
       "h": 1.35,
-      "d": 2.0,
+      "d": 2,
       "color": "zone:Spawn B:glass",
       "top": "zone:Spawn B:glassTop",
       "outline": true,
@@ -2014,10 +3211,10 @@
     {
       "x": -23.414,
       "y": 2.3,
-      "z": -6.0,
+      "z": -6,
       "w": 0.024,
       "h": 1.35,
-      "d": 2.0,
+      "d": 2,
       "color": "zone:Spawn A:glass",
       "top": "zone:Spawn A:glassTop",
       "outline": true,
@@ -2028,7 +3225,7 @@
     {
       "x": 23.424,
       "y": 1.52,
-      "z": -6.0,
+      "z": -6,
       "w": 0.05,
       "h": 0.09,
       "d": 2.2,
@@ -2042,7 +3239,7 @@
     {
       "x": -23.424,
       "y": 1.52,
-      "z": -6.0,
+      "z": -6,
       "w": 0.05,
       "h": 0.09,
       "d": 2.2,
@@ -2059,7 +3256,7 @@
       "z": 0,
       "w": 0.024,
       "h": 1.35,
-      "d": 2.0,
+      "d": 2,
       "color": "zone:Spawn B:glass",
       "top": "zone:Spawn B:glassTop",
       "outline": true,
@@ -2073,7 +3270,7 @@
       "z": 0,
       "w": 0.024,
       "h": 1.35,
-      "d": 2.0,
+      "d": 2,
       "color": "zone:Spawn A:glass",
       "top": "zone:Spawn A:glassTop",
       "outline": true,
@@ -2112,10 +3309,10 @@
     {
       "x": 23.414,
       "y": 2.3,
-      "z": 6.0,
+      "z": 6,
       "w": 0.024,
       "h": 1.35,
-      "d": 2.0,
+      "d": 2,
       "color": "zone:Spawn B:glass",
       "top": "zone:Spawn B:glassTop",
       "outline": true,
@@ -2126,10 +3323,10 @@
     {
       "x": -23.414,
       "y": 2.3,
-      "z": 6.0,
+      "z": 6,
       "w": 0.024,
       "h": 1.35,
-      "d": 2.0,
+      "d": 2,
       "color": "zone:Spawn A:glass",
       "top": "zone:Spawn A:glassTop",
       "outline": true,
@@ -2140,7 +3337,7 @@
     {
       "x": 23.424,
       "y": 1.52,
-      "z": 6.0,
+      "z": 6,
       "w": 0.05,
       "h": 0.09,
       "d": 2.2,
@@ -2154,7 +3351,7 @@
     {
       "x": -23.424,
       "y": 1.52,
-      "z": 6.0,
+      "z": 6,
       "w": 0.05,
       "h": 0.09,
       "d": 2.2,
@@ -2168,7 +3365,7 @@
     {
       "x": 23.412,
       "y": 0.55,
-      "z": 0.0,
+      "z": 0,
       "w": 0.024,
       "h": 0.16,
       "d": 17.8,
@@ -2182,7 +3379,7 @@
     {
       "x": -23.412,
       "y": 0.55,
-      "z": 0.0,
+      "z": 0,
       "w": 0.024,
       "h": 0.16,
       "d": 17.8,
@@ -2265,7 +3462,7 @@
     },
     {
       "x": -10.95,
-      "y": 2.0,
+      "y": 2,
       "z": -9,
       "w": 0.32,
       "h": 3.992,
@@ -2279,7 +3476,7 @@
     },
     {
       "x": -10.95,
-      "y": 2.0,
+      "y": 2,
       "z": 9,
       "w": 0.32,
       "h": 3.992,
@@ -2293,7 +3490,7 @@
     },
     {
       "x": 10.95,
-      "y": 2.0,
+      "y": 2,
       "z": -9,
       "w": 0.32,
       "h": 3.992,
@@ -2307,7 +3504,7 @@
     },
     {
       "x": 10.95,
-      "y": 2.0,
+      "y": 2,
       "z": 9,
       "w": 0.32,
       "h": 3.992,
@@ -2505,7 +3702,7 @@
       "x": 0,
       "y": 5.135,
       "z": 17.5,
-      "w": 13.0,
+      "w": 13,
       "h": 0.348,
       "d": 8.8,
       "color": "zone:North House:blue",
@@ -2589,7 +3786,7 @@
       "x": -5,
       "y": 2.3,
       "z": 23.21,
-      "w": 2.0,
+      "w": 2,
       "h": 1.5,
       "d": 0.035,
       "color": "zone:North House:glass",
@@ -2603,7 +3800,7 @@
       "x": 0,
       "y": 2.3,
       "z": 11.79,
-      "w": 2.0,
+      "w": 2,
       "h": 1.5,
       "d": 0.035,
       "color": "zone:North House:glass",
@@ -2617,7 +3814,7 @@
       "x": 0,
       "y": 2.3,
       "z": 23.21,
-      "w": 2.0,
+      "w": 2,
       "h": 1.5,
       "d": 0.035,
       "color": "zone:North House:glass",
@@ -2631,7 +3828,7 @@
       "x": 5,
       "y": 2.3,
       "z": 23.21,
-      "w": 2.0,
+      "w": 2,
       "h": 1.5,
       "d": 0.035,
       "color": "zone:North House:glass",
@@ -2731,7 +3928,7 @@
       "z": 0,
       "w": 1.2,
       "h": 1.039,
-      "d": 2.0,
+      "d": 2,
       "color": "zone:Mid Square:stone",
       "top": "zone:Mid Square:stoneTop",
       "outline": true,
@@ -3454,7 +4651,7 @@
       "blocksShots": false
     },
     {
-      "x": -7.0,
+      "x": -7,
       "y": 0.126,
       "z": -10.725,
       "w": 3.2,
@@ -3468,7 +4665,7 @@
       "blocksShots": true
     },
     {
-      "x": -7.0,
+      "x": -7,
       "y": 0.253,
       "z": -10.518,
       "w": 3.1,
@@ -3482,7 +4679,7 @@
       "blocksShots": false
     },
     {
-      "x": -7.0,
+      "x": -7,
       "y": 0.376,
       "z": -11.175,
       "w": 3.2,
@@ -3496,7 +4693,7 @@
       "blocksShots": true
     },
     {
-      "x": -7.0,
+      "x": -7,
       "y": 0.127,
       "z": -11.175,
       "w": 3.2,
@@ -3510,7 +4707,7 @@
       "blocksShots": true
     },
     {
-      "x": -7.0,
+      "x": -7,
       "y": 0.503,
       "z": -10.968,
       "w": 3.1,
@@ -3524,7 +4721,7 @@
       "blocksShots": false
     },
     {
-      "x": -7.0,
+      "x": -7,
       "y": 0.626,
       "z": -11.625,
       "w": 3.2,
@@ -3538,7 +4735,7 @@
       "blocksShots": true
     },
     {
-      "x": -7.0,
+      "x": -7,
       "y": 0.252,
       "z": -11.625,
       "w": 3.2,
@@ -3552,7 +4749,7 @@
       "blocksShots": true
     },
     {
-      "x": -7.0,
+      "x": -7,
       "y": 0.753,
       "z": -11.418,
       "w": 3.1,
@@ -3566,7 +4763,7 @@
       "blocksShots": false
     },
     {
-      "x": -7.0,
+      "x": -7,
       "y": 0.876,
       "z": -12.075,
       "w": 3.2,
@@ -3580,7 +4777,7 @@
       "blocksShots": true
     },
     {
-      "x": -7.0,
+      "x": -7,
       "y": 0.377,
       "z": -12.075,
       "w": 3.2,
@@ -3594,7 +4791,7 @@
       "blocksShots": true
     },
     {
-      "x": -7.0,
+      "x": -7,
       "y": 1.003,
       "z": -11.868,
       "w": 3.1,
@@ -3608,7 +4805,7 @@
       "blocksShots": false
     },
     {
-      "x": -7.0,
+      "x": -7,
       "y": 1.126,
       "z": -12.525,
       "w": 3.2,
@@ -3622,7 +4819,7 @@
       "blocksShots": true
     },
     {
-      "x": -7.0,
+      "x": -7,
       "y": 0.502,
       "z": -12.525,
       "w": 3.2,
@@ -3636,7 +4833,7 @@
       "blocksShots": true
     },
     {
-      "x": -7.0,
+      "x": -7,
       "y": 1.253,
       "z": -12.318,
       "w": 3.1,
@@ -3650,7 +4847,7 @@
       "blocksShots": false
     },
     {
-      "x": -7.0,
+      "x": -7,
       "y": 1.376,
       "z": -12.975,
       "w": 3.2,
@@ -3664,7 +4861,7 @@
       "blocksShots": true
     },
     {
-      "x": -7.0,
+      "x": -7,
       "y": 0.627,
       "z": -12.975,
       "w": 3.2,
@@ -3678,7 +4875,7 @@
       "blocksShots": true
     },
     {
-      "x": -7.0,
+      "x": -7,
       "y": 1.503,
       "z": -12.768,
       "w": 3.1,
@@ -3692,7 +4889,7 @@
       "blocksShots": false
     },
     {
-      "x": -7.0,
+      "x": -7,
       "y": 1.626,
       "z": -13.425,
       "w": 3.2,
@@ -3706,7 +4903,7 @@
       "blocksShots": true
     },
     {
-      "x": -7.0,
+      "x": -7,
       "y": 0.752,
       "z": -13.425,
       "w": 3.2,
@@ -3720,7 +4917,7 @@
       "blocksShots": true
     },
     {
-      "x": -7.0,
+      "x": -7,
       "y": 1.753,
       "z": -13.218,
       "w": 3.1,
@@ -3734,7 +4931,7 @@
       "blocksShots": false
     },
     {
-      "x": -7.0,
+      "x": -7,
       "y": 1.876,
       "z": -13.875,
       "w": 3.2,
@@ -3748,7 +4945,7 @@
       "blocksShots": true
     },
     {
-      "x": -7.0,
+      "x": -7,
       "y": 0.877,
       "z": -13.875,
       "w": 3.2,
@@ -3762,7 +4959,7 @@
       "blocksShots": true
     },
     {
-      "x": -7.0,
+      "x": -7,
       "y": 2.003,
       "z": -13.668,
       "w": 3.1,
@@ -3776,7 +4973,7 @@
       "blocksShots": false
     },
     {
-      "x": -7.0,
+      "x": -7,
       "y": 2.126,
       "z": -14.325,
       "w": 3.2,
@@ -3790,7 +4987,7 @@
       "blocksShots": true
     },
     {
-      "x": -7.0,
+      "x": -7,
       "y": 1.002,
       "z": -14.325,
       "w": 3.2,
@@ -3804,7 +5001,7 @@
       "blocksShots": true
     },
     {
-      "x": -7.0,
+      "x": -7,
       "y": 2.253,
       "z": -14.118,
       "w": 3.1,
@@ -3818,7 +5015,7 @@
       "blocksShots": false
     },
     {
-      "x": -7.0,
+      "x": -7,
       "y": 2.376,
       "z": -14.775,
       "w": 3.2,
@@ -3832,7 +5029,7 @@
       "blocksShots": true
     },
     {
-      "x": -7.0,
+      "x": -7,
       "y": 1.127,
       "z": -14.775,
       "w": 3.2,
@@ -3846,7 +5043,7 @@
       "blocksShots": true
     },
     {
-      "x": -7.0,
+      "x": -7,
       "y": 2.503,
       "z": -14.568,
       "w": 3.1,
@@ -4266,7 +5463,7 @@
       "blocksShots": false
     },
     {
-      "x": 7.0,
+      "x": 7,
       "y": 0.126,
       "z": -10.725,
       "w": 3.2,
@@ -4280,7 +5477,7 @@
       "blocksShots": true
     },
     {
-      "x": 7.0,
+      "x": 7,
       "y": 0.253,
       "z": -10.518,
       "w": 3.1,
@@ -4294,7 +5491,7 @@
       "blocksShots": false
     },
     {
-      "x": 7.0,
+      "x": 7,
       "y": 0.376,
       "z": -11.175,
       "w": 3.2,
@@ -4308,7 +5505,7 @@
       "blocksShots": true
     },
     {
-      "x": 7.0,
+      "x": 7,
       "y": 0.127,
       "z": -11.175,
       "w": 3.2,
@@ -4322,7 +5519,7 @@
       "blocksShots": true
     },
     {
-      "x": 7.0,
+      "x": 7,
       "y": 0.503,
       "z": -10.968,
       "w": 3.1,
@@ -4336,7 +5533,7 @@
       "blocksShots": false
     },
     {
-      "x": 7.0,
+      "x": 7,
       "y": 0.626,
       "z": -11.625,
       "w": 3.2,
@@ -4350,7 +5547,7 @@
       "blocksShots": true
     },
     {
-      "x": 7.0,
+      "x": 7,
       "y": 0.252,
       "z": -11.625,
       "w": 3.2,
@@ -4364,7 +5561,7 @@
       "blocksShots": true
     },
     {
-      "x": 7.0,
+      "x": 7,
       "y": 0.753,
       "z": -11.418,
       "w": 3.1,
@@ -4378,7 +5575,7 @@
       "blocksShots": false
     },
     {
-      "x": 7.0,
+      "x": 7,
       "y": 0.876,
       "z": -12.075,
       "w": 3.2,
@@ -4392,7 +5589,7 @@
       "blocksShots": true
     },
     {
-      "x": 7.0,
+      "x": 7,
       "y": 0.377,
       "z": -12.075,
       "w": 3.2,
@@ -4406,7 +5603,7 @@
       "blocksShots": true
     },
     {
-      "x": 7.0,
+      "x": 7,
       "y": 1.003,
       "z": -11.868,
       "w": 3.1,
@@ -4420,7 +5617,7 @@
       "blocksShots": false
     },
     {
-      "x": 7.0,
+      "x": 7,
       "y": 1.126,
       "z": -12.525,
       "w": 3.2,
@@ -4434,7 +5631,7 @@
       "blocksShots": true
     },
     {
-      "x": 7.0,
+      "x": 7,
       "y": 0.502,
       "z": -12.525,
       "w": 3.2,
@@ -4448,7 +5645,7 @@
       "blocksShots": true
     },
     {
-      "x": 7.0,
+      "x": 7,
       "y": 1.253,
       "z": -12.318,
       "w": 3.1,
@@ -4462,7 +5659,7 @@
       "blocksShots": false
     },
     {
-      "x": 7.0,
+      "x": 7,
       "y": 1.376,
       "z": -12.975,
       "w": 3.2,
@@ -4476,7 +5673,7 @@
       "blocksShots": true
     },
     {
-      "x": 7.0,
+      "x": 7,
       "y": 0.627,
       "z": -12.975,
       "w": 3.2,
@@ -4490,7 +5687,7 @@
       "blocksShots": true
     },
     {
-      "x": 7.0,
+      "x": 7,
       "y": 1.503,
       "z": -12.768,
       "w": 3.1,
@@ -4504,7 +5701,7 @@
       "blocksShots": false
     },
     {
-      "x": 7.0,
+      "x": 7,
       "y": 1.626,
       "z": -13.425,
       "w": 3.2,
@@ -4518,7 +5715,7 @@
       "blocksShots": true
     },
     {
-      "x": 7.0,
+      "x": 7,
       "y": 0.752,
       "z": -13.425,
       "w": 3.2,
@@ -4532,7 +5729,7 @@
       "blocksShots": true
     },
     {
-      "x": 7.0,
+      "x": 7,
       "y": 1.753,
       "z": -13.218,
       "w": 3.1,
@@ -4546,7 +5743,7 @@
       "blocksShots": false
     },
     {
-      "x": 7.0,
+      "x": 7,
       "y": 1.876,
       "z": -13.875,
       "w": 3.2,
@@ -4560,7 +5757,7 @@
       "blocksShots": true
     },
     {
-      "x": 7.0,
+      "x": 7,
       "y": 0.877,
       "z": -13.875,
       "w": 3.2,
@@ -4574,7 +5771,7 @@
       "blocksShots": true
     },
     {
-      "x": 7.0,
+      "x": 7,
       "y": 2.003,
       "z": -13.668,
       "w": 3.1,
@@ -4588,7 +5785,7 @@
       "blocksShots": false
     },
     {
-      "x": 7.0,
+      "x": 7,
       "y": 2.126,
       "z": -14.325,
       "w": 3.2,
@@ -4602,7 +5799,7 @@
       "blocksShots": true
     },
     {
-      "x": 7.0,
+      "x": 7,
       "y": 1.002,
       "z": -14.325,
       "w": 3.2,
@@ -4616,7 +5813,7 @@
       "blocksShots": true
     },
     {
-      "x": 7.0,
+      "x": 7,
       "y": 2.253,
       "z": -14.118,
       "w": 3.1,
@@ -4630,7 +5827,7 @@
       "blocksShots": false
     },
     {
-      "x": 7.0,
+      "x": 7,
       "y": 2.376,
       "z": -14.775,
       "w": 3.2,
@@ -4644,7 +5841,7 @@
       "blocksShots": true
     },
     {
-      "x": 7.0,
+      "x": 7,
       "y": 1.127,
       "z": -14.775,
       "w": 3.2,
@@ -4658,7 +5855,7 @@
       "blocksShots": true
     },
     {
-      "x": 7.0,
+      "x": 7,
       "y": 2.503,
       "z": -14.568,
       "w": 3.1,
@@ -4744,7 +5941,7 @@
     {
       "x": -33.5,
       "y": 0.008,
-      "z": -30.0,
+      "z": -30,
       "w": 3,
       "h": 0.002,
       "d": 4,
@@ -4758,7 +5955,7 @@
     {
       "x": -33.5,
       "y": 0.008,
-      "z": -26.0,
+      "z": -26,
       "w": 3,
       "h": 0.002,
       "d": 4,
@@ -4772,7 +5969,7 @@
     {
       "x": -33.5,
       "y": 0.008,
-      "z": -22.0,
+      "z": -22,
       "w": 3,
       "h": 0.002,
       "d": 4,
@@ -4786,7 +5983,7 @@
     {
       "x": -33.5,
       "y": 0.008,
-      "z": -18.0,
+      "z": -18,
       "w": 3,
       "h": 0.002,
       "d": 4,
@@ -4800,7 +5997,7 @@
     {
       "x": -33.5,
       "y": 0.008,
-      "z": -14.0,
+      "z": -14,
       "w": 3,
       "h": 0.002,
       "d": 4,
@@ -4814,7 +6011,7 @@
     {
       "x": -33.5,
       "y": 0.008,
-      "z": -10.0,
+      "z": -10,
       "w": 3,
       "h": 0.002,
       "d": 4,
@@ -4828,7 +6025,7 @@
     {
       "x": -33.5,
       "y": 0.008,
-      "z": -6.0,
+      "z": -6,
       "w": 3,
       "h": 0.002,
       "d": 4,
@@ -4842,7 +6039,7 @@
     {
       "x": -33.5,
       "y": 0.008,
-      "z": -2.0,
+      "z": -2,
       "w": 3,
       "h": 0.002,
       "d": 4,
@@ -4856,7 +6053,7 @@
     {
       "x": -33.5,
       "y": 0.008,
-      "z": 2.0,
+      "z": 2,
       "w": 3,
       "h": 0.002,
       "d": 4,
@@ -4870,7 +6067,7 @@
     {
       "x": -33.5,
       "y": 0.008,
-      "z": 6.0,
+      "z": 6,
       "w": 3,
       "h": 0.002,
       "d": 4,
@@ -4884,7 +6081,7 @@
     {
       "x": -33.5,
       "y": 0.008,
-      "z": 10.0,
+      "z": 10,
       "w": 3,
       "h": 0.002,
       "d": 4,
@@ -4898,7 +6095,7 @@
     {
       "x": -33.5,
       "y": 0.008,
-      "z": 14.0,
+      "z": 14,
       "w": 3,
       "h": 0.002,
       "d": 4,
@@ -4912,7 +6109,7 @@
     {
       "x": -33.5,
       "y": 0.008,
-      "z": 18.0,
+      "z": 18,
       "w": 3,
       "h": 0.002,
       "d": 4,
@@ -4926,7 +6123,7 @@
     {
       "x": -33.5,
       "y": 0.008,
-      "z": 22.0,
+      "z": 22,
       "w": 3,
       "h": 0.002,
       "d": 4,
@@ -4940,7 +6137,7 @@
     {
       "x": -33.5,
       "y": 0.008,
-      "z": 26.0,
+      "z": 26,
       "w": 3,
       "h": 0.002,
       "d": 4,
@@ -4954,7 +6151,7 @@
     {
       "x": -33.5,
       "y": 0.008,
-      "z": 30.0,
+      "z": 30,
       "w": 3,
       "h": 0.002,
       "d": 4,
@@ -4980,7 +6177,7 @@
       "blocksShots": false
     },
     {
-      "x": -30.0,
+      "x": -30,
       "y": 0.008,
       "z": -33.5,
       "w": 4,
@@ -4994,9 +6191,9 @@
       "blocksShots": false
     },
     {
-      "x": -30.0,
+      "x": -30,
       "y": 0.008,
-      "z": -30.0,
+      "z": -30,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5008,9 +6205,9 @@
       "blocksShots": false
     },
     {
-      "x": -30.0,
+      "x": -30,
       "y": 0.008,
-      "z": -26.0,
+      "z": -26,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5022,9 +6219,9 @@
       "blocksShots": false
     },
     {
-      "x": -30.0,
+      "x": -30,
       "y": 0.008,
-      "z": -22.0,
+      "z": -22,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5036,9 +6233,9 @@
       "blocksShots": false
     },
     {
-      "x": -30.0,
+      "x": -30,
       "y": 0.008,
-      "z": -18.0,
+      "z": -18,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5050,9 +6247,9 @@
       "blocksShots": false
     },
     {
-      "x": -30.0,
+      "x": -30,
       "y": 0.008,
-      "z": -14.0,
+      "z": -14,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5064,9 +6261,9 @@
       "blocksShots": false
     },
     {
-      "x": -30.0,
+      "x": -30,
       "y": 0.008,
-      "z": -10.0,
+      "z": -10,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5078,9 +6275,9 @@
       "blocksShots": false
     },
     {
-      "x": -30.0,
+      "x": -30,
       "y": 0.008,
-      "z": -6.0,
+      "z": -6,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5092,9 +6289,9 @@
       "blocksShots": false
     },
     {
-      "x": -30.0,
+      "x": -30,
       "y": 0.008,
-      "z": -2.0,
+      "z": -2,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5106,9 +6303,9 @@
       "blocksShots": false
     },
     {
-      "x": -30.0,
+      "x": -30,
       "y": 0.008,
-      "z": 2.0,
+      "z": 2,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5120,9 +6317,9 @@
       "blocksShots": false
     },
     {
-      "x": -30.0,
+      "x": -30,
       "y": 0.008,
-      "z": 6.0,
+      "z": 6,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5134,9 +6331,9 @@
       "blocksShots": false
     },
     {
-      "x": -30.0,
+      "x": -30,
       "y": 0.008,
-      "z": 10.0,
+      "z": 10,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5148,9 +6345,9 @@
       "blocksShots": false
     },
     {
-      "x": -30.0,
+      "x": -30,
       "y": 0.008,
-      "z": 14.0,
+      "z": 14,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5162,9 +6359,9 @@
       "blocksShots": false
     },
     {
-      "x": -30.0,
+      "x": -30,
       "y": 0.008,
-      "z": 18.0,
+      "z": 18,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5176,9 +6373,9 @@
       "blocksShots": false
     },
     {
-      "x": -30.0,
+      "x": -30,
       "y": 0.008,
-      "z": 22.0,
+      "z": 22,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5190,9 +6387,9 @@
       "blocksShots": false
     },
     {
-      "x": -30.0,
+      "x": -30,
       "y": 0.008,
-      "z": 26.0,
+      "z": 26,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5204,9 +6401,9 @@
       "blocksShots": false
     },
     {
-      "x": -30.0,
+      "x": -30,
       "y": 0.008,
-      "z": 30.0,
+      "z": 30,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5218,7 +6415,7 @@
       "blocksShots": false
     },
     {
-      "x": -30.0,
+      "x": -30,
       "y": 0.008,
       "z": 33.5,
       "w": 4,
@@ -5232,7 +6429,7 @@
       "blocksShots": false
     },
     {
-      "x": -26.0,
+      "x": -26,
       "y": 0.008,
       "z": -33.5,
       "w": 4,
@@ -5246,9 +6443,9 @@
       "blocksShots": false
     },
     {
-      "x": -26.0,
+      "x": -26,
       "y": 0.008,
-      "z": -30.0,
+      "z": -30,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5260,9 +6457,9 @@
       "blocksShots": false
     },
     {
-      "x": -26.0,
+      "x": -26,
       "y": 0.008,
-      "z": -26.0,
+      "z": -26,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5274,9 +6471,9 @@
       "blocksShots": false
     },
     {
-      "x": -26.0,
+      "x": -26,
       "y": 0.008,
-      "z": -22.0,
+      "z": -22,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5288,9 +6485,9 @@
       "blocksShots": false
     },
     {
-      "x": -26.0,
+      "x": -26,
       "y": 0.008,
-      "z": -18.0,
+      "z": -18,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5302,9 +6499,9 @@
       "blocksShots": false
     },
     {
-      "x": -26.0,
+      "x": -26,
       "y": 0.008,
-      "z": -14.0,
+      "z": -14,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5316,9 +6513,9 @@
       "blocksShots": false
     },
     {
-      "x": -26.0,
+      "x": -26,
       "y": 0.008,
-      "z": -10.0,
+      "z": -10,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5330,9 +6527,9 @@
       "blocksShots": false
     },
     {
-      "x": -26.0,
+      "x": -26,
       "y": 0.008,
-      "z": -6.0,
+      "z": -6,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5344,9 +6541,9 @@
       "blocksShots": false
     },
     {
-      "x": -26.0,
+      "x": -26,
       "y": 0.008,
-      "z": -2.0,
+      "z": -2,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5358,9 +6555,9 @@
       "blocksShots": false
     },
     {
-      "x": -26.0,
+      "x": -26,
       "y": 0.008,
-      "z": 2.0,
+      "z": 2,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5372,9 +6569,9 @@
       "blocksShots": false
     },
     {
-      "x": -26.0,
+      "x": -26,
       "y": 0.008,
-      "z": 6.0,
+      "z": 6,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5386,9 +6583,9 @@
       "blocksShots": false
     },
     {
-      "x": -26.0,
+      "x": -26,
       "y": 0.008,
-      "z": 10.0,
+      "z": 10,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5400,9 +6597,9 @@
       "blocksShots": false
     },
     {
-      "x": -26.0,
+      "x": -26,
       "y": 0.008,
-      "z": 14.0,
+      "z": 14,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5414,9 +6611,9 @@
       "blocksShots": false
     },
     {
-      "x": -26.0,
+      "x": -26,
       "y": 0.008,
-      "z": 18.0,
+      "z": 18,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5428,9 +6625,9 @@
       "blocksShots": false
     },
     {
-      "x": -26.0,
+      "x": -26,
       "y": 0.008,
-      "z": 22.0,
+      "z": 22,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5442,9 +6639,9 @@
       "blocksShots": false
     },
     {
-      "x": -26.0,
+      "x": -26,
       "y": 0.008,
-      "z": 26.0,
+      "z": 26,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5456,9 +6653,9 @@
       "blocksShots": false
     },
     {
-      "x": -26.0,
+      "x": -26,
       "y": 0.008,
-      "z": 30.0,
+      "z": 30,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5470,7 +6667,7 @@
       "blocksShots": false
     },
     {
-      "x": -26.0,
+      "x": -26,
       "y": 0.008,
       "z": 33.5,
       "w": 4,
@@ -5484,7 +6681,7 @@
       "blocksShots": false
     },
     {
-      "x": -22.0,
+      "x": -22,
       "y": 0.008,
       "z": -33.5,
       "w": 4,
@@ -5498,9 +6695,9 @@
       "blocksShots": false
     },
     {
-      "x": -22.0,
+      "x": -22,
       "y": 0.008,
-      "z": -30.0,
+      "z": -30,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5512,9 +6709,9 @@
       "blocksShots": false
     },
     {
-      "x": -22.0,
+      "x": -22,
       "y": 0.008,
-      "z": -26.0,
+      "z": -26,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5526,9 +6723,9 @@
       "blocksShots": false
     },
     {
-      "x": -22.0,
+      "x": -22,
       "y": 0.008,
-      "z": -22.0,
+      "z": -22,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5540,9 +6737,9 @@
       "blocksShots": false
     },
     {
-      "x": -22.0,
+      "x": -22,
       "y": 0.008,
-      "z": -18.0,
+      "z": -18,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5554,9 +6751,9 @@
       "blocksShots": false
     },
     {
-      "x": -22.0,
+      "x": -22,
       "y": 0.008,
-      "z": -14.0,
+      "z": -14,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5568,9 +6765,9 @@
       "blocksShots": false
     },
     {
-      "x": -22.0,
+      "x": -22,
       "y": 0.008,
-      "z": -10.0,
+      "z": -10,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5582,9 +6779,9 @@
       "blocksShots": false
     },
     {
-      "x": -22.0,
+      "x": -22,
       "y": 0.008,
-      "z": -6.0,
+      "z": -6,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5596,9 +6793,9 @@
       "blocksShots": false
     },
     {
-      "x": -22.0,
+      "x": -22,
       "y": 0.008,
-      "z": -2.0,
+      "z": -2,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5610,9 +6807,9 @@
       "blocksShots": false
     },
     {
-      "x": -22.0,
+      "x": -22,
       "y": 0.008,
-      "z": 2.0,
+      "z": 2,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5624,9 +6821,9 @@
       "blocksShots": false
     },
     {
-      "x": -22.0,
+      "x": -22,
       "y": 0.008,
-      "z": 6.0,
+      "z": 6,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5638,9 +6835,9 @@
       "blocksShots": false
     },
     {
-      "x": -22.0,
+      "x": -22,
       "y": 0.008,
-      "z": 10.0,
+      "z": 10,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5652,9 +6849,9 @@
       "blocksShots": false
     },
     {
-      "x": -22.0,
+      "x": -22,
       "y": 0.008,
-      "z": 14.0,
+      "z": 14,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5666,9 +6863,9 @@
       "blocksShots": false
     },
     {
-      "x": -22.0,
+      "x": -22,
       "y": 0.008,
-      "z": 18.0,
+      "z": 18,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5680,9 +6877,9 @@
       "blocksShots": false
     },
     {
-      "x": -22.0,
+      "x": -22,
       "y": 0.008,
-      "z": 22.0,
+      "z": 22,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5694,9 +6891,9 @@
       "blocksShots": false
     },
     {
-      "x": -22.0,
+      "x": -22,
       "y": 0.008,
-      "z": 26.0,
+      "z": 26,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5708,9 +6905,9 @@
       "blocksShots": false
     },
     {
-      "x": -22.0,
+      "x": -22,
       "y": 0.008,
-      "z": 30.0,
+      "z": 30,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5722,7 +6919,7 @@
       "blocksShots": false
     },
     {
-      "x": -22.0,
+      "x": -22,
       "y": 0.008,
       "z": 33.5,
       "w": 4,
@@ -5736,7 +6933,7 @@
       "blocksShots": false
     },
     {
-      "x": -18.0,
+      "x": -18,
       "y": 0.008,
       "z": -33.5,
       "w": 4,
@@ -5750,9 +6947,9 @@
       "blocksShots": false
     },
     {
-      "x": -18.0,
+      "x": -18,
       "y": 0.008,
-      "z": -30.0,
+      "z": -30,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5764,9 +6961,9 @@
       "blocksShots": false
     },
     {
-      "x": -18.0,
+      "x": -18,
       "y": 0.008,
-      "z": -26.0,
+      "z": -26,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5778,9 +6975,9 @@
       "blocksShots": false
     },
     {
-      "x": -18.0,
+      "x": -18,
       "y": 0.008,
-      "z": -22.0,
+      "z": -22,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5792,9 +6989,9 @@
       "blocksShots": false
     },
     {
-      "x": -18.0,
+      "x": -18,
       "y": 0.008,
-      "z": -18.0,
+      "z": -18,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5806,9 +7003,9 @@
       "blocksShots": false
     },
     {
-      "x": -18.0,
+      "x": -18,
       "y": 0.008,
-      "z": -14.0,
+      "z": -14,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5820,9 +7017,9 @@
       "blocksShots": false
     },
     {
-      "x": -18.0,
+      "x": -18,
       "y": 0.008,
-      "z": -10.0,
+      "z": -10,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5834,9 +7031,9 @@
       "blocksShots": false
     },
     {
-      "x": -18.0,
+      "x": -18,
       "y": 0.008,
-      "z": -6.0,
+      "z": -6,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5848,9 +7045,9 @@
       "blocksShots": false
     },
     {
-      "x": -18.0,
+      "x": -18,
       "y": 0.008,
-      "z": -2.0,
+      "z": -2,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5862,9 +7059,9 @@
       "blocksShots": false
     },
     {
-      "x": -18.0,
+      "x": -18,
       "y": 0.008,
-      "z": 2.0,
+      "z": 2,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5876,9 +7073,9 @@
       "blocksShots": false
     },
     {
-      "x": -18.0,
+      "x": -18,
       "y": 0.008,
-      "z": 6.0,
+      "z": 6,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5890,9 +7087,9 @@
       "blocksShots": false
     },
     {
-      "x": -18.0,
+      "x": -18,
       "y": 0.008,
-      "z": 10.0,
+      "z": 10,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5904,9 +7101,9 @@
       "blocksShots": false
     },
     {
-      "x": -18.0,
+      "x": -18,
       "y": 0.008,
-      "z": 14.0,
+      "z": 14,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5918,9 +7115,9 @@
       "blocksShots": false
     },
     {
-      "x": -18.0,
+      "x": -18,
       "y": 0.008,
-      "z": 18.0,
+      "z": 18,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5932,9 +7129,9 @@
       "blocksShots": false
     },
     {
-      "x": -18.0,
+      "x": -18,
       "y": 0.008,
-      "z": 22.0,
+      "z": 22,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5946,9 +7143,9 @@
       "blocksShots": false
     },
     {
-      "x": -18.0,
+      "x": -18,
       "y": 0.008,
-      "z": 26.0,
+      "z": 26,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5960,9 +7157,9 @@
       "blocksShots": false
     },
     {
-      "x": -18.0,
+      "x": -18,
       "y": 0.008,
-      "z": 30.0,
+      "z": 30,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -5974,7 +7171,7 @@
       "blocksShots": false
     },
     {
-      "x": -18.0,
+      "x": -18,
       "y": 0.008,
       "z": 33.5,
       "w": 4,
@@ -5988,7 +7185,7 @@
       "blocksShots": false
     },
     {
-      "x": -14.0,
+      "x": -14,
       "y": 0.008,
       "z": -33.5,
       "w": 4,
@@ -6002,9 +7199,9 @@
       "blocksShots": false
     },
     {
-      "x": -14.0,
+      "x": -14,
       "y": 0.008,
-      "z": -30.0,
+      "z": -30,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6016,9 +7213,9 @@
       "blocksShots": false
     },
     {
-      "x": -14.0,
+      "x": -14,
       "y": 0.008,
-      "z": -26.0,
+      "z": -26,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6030,9 +7227,9 @@
       "blocksShots": false
     },
     {
-      "x": -14.0,
+      "x": -14,
       "y": 0.008,
-      "z": -22.0,
+      "z": -22,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6044,9 +7241,9 @@
       "blocksShots": false
     },
     {
-      "x": -14.0,
+      "x": -14,
       "y": 0.008,
-      "z": -18.0,
+      "z": -18,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6058,9 +7255,9 @@
       "blocksShots": false
     },
     {
-      "x": -14.0,
+      "x": -14,
       "y": 0.008,
-      "z": -14.0,
+      "z": -14,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6072,9 +7269,9 @@
       "blocksShots": false
     },
     {
-      "x": -14.0,
+      "x": -14,
       "y": 0.008,
-      "z": -10.0,
+      "z": -10,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6086,9 +7283,9 @@
       "blocksShots": false
     },
     {
-      "x": -14.0,
+      "x": -14,
       "y": 0.008,
-      "z": -6.0,
+      "z": -6,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6100,9 +7297,9 @@
       "blocksShots": false
     },
     {
-      "x": -14.0,
+      "x": -14,
       "y": 0.008,
-      "z": -2.0,
+      "z": -2,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6114,9 +7311,9 @@
       "blocksShots": false
     },
     {
-      "x": -14.0,
+      "x": -14,
       "y": 0.008,
-      "z": 2.0,
+      "z": 2,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6128,9 +7325,9 @@
       "blocksShots": false
     },
     {
-      "x": -14.0,
+      "x": -14,
       "y": 0.008,
-      "z": 6.0,
+      "z": 6,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6142,9 +7339,9 @@
       "blocksShots": false
     },
     {
-      "x": -14.0,
+      "x": -14,
       "y": 0.008,
-      "z": 10.0,
+      "z": 10,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6156,9 +7353,9 @@
       "blocksShots": false
     },
     {
-      "x": -14.0,
+      "x": -14,
       "y": 0.008,
-      "z": 14.0,
+      "z": 14,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6170,9 +7367,9 @@
       "blocksShots": false
     },
     {
-      "x": -14.0,
+      "x": -14,
       "y": 0.008,
-      "z": 18.0,
+      "z": 18,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6184,9 +7381,9 @@
       "blocksShots": false
     },
     {
-      "x": -14.0,
+      "x": -14,
       "y": 0.008,
-      "z": 22.0,
+      "z": 22,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6198,9 +7395,9 @@
       "blocksShots": false
     },
     {
-      "x": -14.0,
+      "x": -14,
       "y": 0.008,
-      "z": 26.0,
+      "z": 26,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6212,9 +7409,9 @@
       "blocksShots": false
     },
     {
-      "x": -14.0,
+      "x": -14,
       "y": 0.008,
-      "z": 30.0,
+      "z": 30,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6226,7 +7423,7 @@
       "blocksShots": false
     },
     {
-      "x": -14.0,
+      "x": -14,
       "y": 0.008,
       "z": 33.5,
       "w": 4,
@@ -6240,7 +7437,7 @@
       "blocksShots": false
     },
     {
-      "x": -10.0,
+      "x": -10,
       "y": 0.008,
       "z": -33.5,
       "w": 4,
@@ -6254,9 +7451,9 @@
       "blocksShots": false
     },
     {
-      "x": -10.0,
+      "x": -10,
       "y": 0.008,
-      "z": -30.0,
+      "z": -30,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6268,9 +7465,9 @@
       "blocksShots": false
     },
     {
-      "x": -10.0,
+      "x": -10,
       "y": 0.008,
-      "z": -26.0,
+      "z": -26,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6282,9 +7479,9 @@
       "blocksShots": false
     },
     {
-      "x": -10.0,
+      "x": -10,
       "y": 0.008,
-      "z": -22.0,
+      "z": -22,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6296,9 +7493,9 @@
       "blocksShots": false
     },
     {
-      "x": -10.0,
+      "x": -10,
       "y": 0.008,
-      "z": -18.0,
+      "z": -18,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6310,9 +7507,9 @@
       "blocksShots": false
     },
     {
-      "x": -10.0,
+      "x": -10,
       "y": 0.008,
-      "z": -14.0,
+      "z": -14,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6324,9 +7521,9 @@
       "blocksShots": false
     },
     {
-      "x": -10.0,
+      "x": -10,
       "y": 0.008,
-      "z": -10.0,
+      "z": -10,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6338,9 +7535,9 @@
       "blocksShots": false
     },
     {
-      "x": -10.0,
+      "x": -10,
       "y": 0.008,
-      "z": -6.0,
+      "z": -6,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6352,9 +7549,9 @@
       "blocksShots": false
     },
     {
-      "x": -10.0,
+      "x": -10,
       "y": 0.008,
-      "z": -2.0,
+      "z": -2,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6366,9 +7563,9 @@
       "blocksShots": false
     },
     {
-      "x": -10.0,
+      "x": -10,
       "y": 0.008,
-      "z": 2.0,
+      "z": 2,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6380,9 +7577,9 @@
       "blocksShots": false
     },
     {
-      "x": -10.0,
+      "x": -10,
       "y": 0.008,
-      "z": 6.0,
+      "z": 6,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6394,9 +7591,9 @@
       "blocksShots": false
     },
     {
-      "x": -10.0,
+      "x": -10,
       "y": 0.008,
-      "z": 10.0,
+      "z": 10,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6408,9 +7605,9 @@
       "blocksShots": false
     },
     {
-      "x": -10.0,
+      "x": -10,
       "y": 0.008,
-      "z": 14.0,
+      "z": 14,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6422,9 +7619,9 @@
       "blocksShots": false
     },
     {
-      "x": -10.0,
+      "x": -10,
       "y": 0.008,
-      "z": 18.0,
+      "z": 18,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6436,9 +7633,9 @@
       "blocksShots": false
     },
     {
-      "x": -10.0,
+      "x": -10,
       "y": 0.008,
-      "z": 22.0,
+      "z": 22,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6450,9 +7647,9 @@
       "blocksShots": false
     },
     {
-      "x": -10.0,
+      "x": -10,
       "y": 0.008,
-      "z": 26.0,
+      "z": 26,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6464,9 +7661,9 @@
       "blocksShots": false
     },
     {
-      "x": -10.0,
+      "x": -10,
       "y": 0.008,
-      "z": 30.0,
+      "z": 30,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6478,7 +7675,7 @@
       "blocksShots": false
     },
     {
-      "x": -10.0,
+      "x": -10,
       "y": 0.008,
       "z": 33.5,
       "w": 4,
@@ -6492,7 +7689,7 @@
       "blocksShots": false
     },
     {
-      "x": -6.0,
+      "x": -6,
       "y": 0.008,
       "z": -33.5,
       "w": 4,
@@ -6506,9 +7703,9 @@
       "blocksShots": false
     },
     {
-      "x": -6.0,
+      "x": -6,
       "y": 0.008,
-      "z": -30.0,
+      "z": -30,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6520,9 +7717,9 @@
       "blocksShots": false
     },
     {
-      "x": -6.0,
+      "x": -6,
       "y": 0.008,
-      "z": -26.0,
+      "z": -26,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6534,9 +7731,9 @@
       "blocksShots": false
     },
     {
-      "x": -6.0,
+      "x": -6,
       "y": 0.008,
-      "z": -22.0,
+      "z": -22,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6548,9 +7745,9 @@
       "blocksShots": false
     },
     {
-      "x": -6.0,
+      "x": -6,
       "y": 0.008,
-      "z": -18.0,
+      "z": -18,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6562,9 +7759,9 @@
       "blocksShots": false
     },
     {
-      "x": -6.0,
+      "x": -6,
       "y": 0.008,
-      "z": -14.0,
+      "z": -14,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6576,9 +7773,9 @@
       "blocksShots": false
     },
     {
-      "x": -6.0,
+      "x": -6,
       "y": 0.008,
-      "z": -10.0,
+      "z": -10,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6590,9 +7787,9 @@
       "blocksShots": false
     },
     {
-      "x": -6.0,
+      "x": -6,
       "y": 0.008,
-      "z": -6.0,
+      "z": -6,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6604,9 +7801,9 @@
       "blocksShots": false
     },
     {
-      "x": -6.0,
+      "x": -6,
       "y": 0.008,
-      "z": -2.0,
+      "z": -2,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6618,9 +7815,9 @@
       "blocksShots": false
     },
     {
-      "x": -6.0,
+      "x": -6,
       "y": 0.008,
-      "z": 2.0,
+      "z": 2,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6632,9 +7829,9 @@
       "blocksShots": false
     },
     {
-      "x": -6.0,
+      "x": -6,
       "y": 0.008,
-      "z": 6.0,
+      "z": 6,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6646,9 +7843,9 @@
       "blocksShots": false
     },
     {
-      "x": -6.0,
+      "x": -6,
       "y": 0.008,
-      "z": 10.0,
+      "z": 10,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6660,9 +7857,9 @@
       "blocksShots": false
     },
     {
-      "x": -6.0,
+      "x": -6,
       "y": 0.008,
-      "z": 14.0,
+      "z": 14,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6674,9 +7871,9 @@
       "blocksShots": false
     },
     {
-      "x": -6.0,
+      "x": -6,
       "y": 0.008,
-      "z": 18.0,
+      "z": 18,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6688,9 +7885,9 @@
       "blocksShots": false
     },
     {
-      "x": -6.0,
+      "x": -6,
       "y": 0.008,
-      "z": 22.0,
+      "z": 22,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6702,9 +7899,9 @@
       "blocksShots": false
     },
     {
-      "x": -6.0,
+      "x": -6,
       "y": 0.008,
-      "z": 26.0,
+      "z": 26,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6716,9 +7913,9 @@
       "blocksShots": false
     },
     {
-      "x": -6.0,
+      "x": -6,
       "y": 0.008,
-      "z": 30.0,
+      "z": 30,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6730,7 +7927,7 @@
       "blocksShots": false
     },
     {
-      "x": -6.0,
+      "x": -6,
       "y": 0.008,
       "z": 33.5,
       "w": 4,
@@ -6744,7 +7941,7 @@
       "blocksShots": false
     },
     {
-      "x": -2.0,
+      "x": -2,
       "y": 0.008,
       "z": -33.5,
       "w": 4,
@@ -6758,9 +7955,9 @@
       "blocksShots": false
     },
     {
-      "x": -2.0,
+      "x": -2,
       "y": 0.008,
-      "z": -30.0,
+      "z": -30,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6772,9 +7969,9 @@
       "blocksShots": false
     },
     {
-      "x": -2.0,
+      "x": -2,
       "y": 0.008,
-      "z": -26.0,
+      "z": -26,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6786,9 +7983,9 @@
       "blocksShots": false
     },
     {
-      "x": -2.0,
+      "x": -2,
       "y": 0.008,
-      "z": -22.0,
+      "z": -22,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6800,9 +7997,9 @@
       "blocksShots": false
     },
     {
-      "x": -2.0,
+      "x": -2,
       "y": 0.008,
-      "z": -18.0,
+      "z": -18,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6814,9 +8011,9 @@
       "blocksShots": false
     },
     {
-      "x": -2.0,
+      "x": -2,
       "y": 0.008,
-      "z": -14.0,
+      "z": -14,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6828,9 +8025,9 @@
       "blocksShots": false
     },
     {
-      "x": -2.0,
+      "x": -2,
       "y": 0.008,
-      "z": -10.0,
+      "z": -10,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6842,9 +8039,9 @@
       "blocksShots": false
     },
     {
-      "x": -2.0,
+      "x": -2,
       "y": 0.008,
-      "z": -6.0,
+      "z": -6,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6856,9 +8053,9 @@
       "blocksShots": false
     },
     {
-      "x": -2.0,
+      "x": -2,
       "y": 0.008,
-      "z": -2.0,
+      "z": -2,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6870,9 +8067,9 @@
       "blocksShots": false
     },
     {
-      "x": -2.0,
+      "x": -2,
       "y": 0.008,
-      "z": 2.0,
+      "z": 2,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6884,9 +8081,9 @@
       "blocksShots": false
     },
     {
-      "x": -2.0,
+      "x": -2,
       "y": 0.008,
-      "z": 6.0,
+      "z": 6,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6898,9 +8095,9 @@
       "blocksShots": false
     },
     {
-      "x": -2.0,
+      "x": -2,
       "y": 0.008,
-      "z": 10.0,
+      "z": 10,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6912,9 +8109,9 @@
       "blocksShots": false
     },
     {
-      "x": -2.0,
+      "x": -2,
       "y": 0.008,
-      "z": 14.0,
+      "z": 14,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6926,9 +8123,9 @@
       "blocksShots": false
     },
     {
-      "x": -2.0,
+      "x": -2,
       "y": 0.008,
-      "z": 18.0,
+      "z": 18,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6940,9 +8137,9 @@
       "blocksShots": false
     },
     {
-      "x": -2.0,
+      "x": -2,
       "y": 0.008,
-      "z": 22.0,
+      "z": 22,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6954,9 +8151,9 @@
       "blocksShots": false
     },
     {
-      "x": -2.0,
+      "x": -2,
       "y": 0.008,
-      "z": 26.0,
+      "z": 26,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6968,9 +8165,9 @@
       "blocksShots": false
     },
     {
-      "x": -2.0,
+      "x": -2,
       "y": 0.008,
-      "z": 30.0,
+      "z": 30,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -6982,7 +8179,7 @@
       "blocksShots": false
     },
     {
-      "x": -2.0,
+      "x": -2,
       "y": 0.008,
       "z": 33.5,
       "w": 4,
@@ -6996,7 +8193,7 @@
       "blocksShots": false
     },
     {
-      "x": 2.0,
+      "x": 2,
       "y": 0.008,
       "z": -33.5,
       "w": 4,
@@ -7010,9 +8207,9 @@
       "blocksShots": false
     },
     {
-      "x": 2.0,
+      "x": 2,
       "y": 0.008,
-      "z": -30.0,
+      "z": -30,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7024,9 +8221,9 @@
       "blocksShots": false
     },
     {
-      "x": 2.0,
+      "x": 2,
       "y": 0.008,
-      "z": -26.0,
+      "z": -26,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7038,9 +8235,9 @@
       "blocksShots": false
     },
     {
-      "x": 2.0,
+      "x": 2,
       "y": 0.008,
-      "z": -22.0,
+      "z": -22,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7052,9 +8249,9 @@
       "blocksShots": false
     },
     {
-      "x": 2.0,
+      "x": 2,
       "y": 0.008,
-      "z": -18.0,
+      "z": -18,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7066,9 +8263,9 @@
       "blocksShots": false
     },
     {
-      "x": 2.0,
+      "x": 2,
       "y": 0.008,
-      "z": -14.0,
+      "z": -14,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7080,9 +8277,9 @@
       "blocksShots": false
     },
     {
-      "x": 2.0,
+      "x": 2,
       "y": 0.008,
-      "z": -10.0,
+      "z": -10,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7094,9 +8291,9 @@
       "blocksShots": false
     },
     {
-      "x": 2.0,
+      "x": 2,
       "y": 0.008,
-      "z": -6.0,
+      "z": -6,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7108,9 +8305,9 @@
       "blocksShots": false
     },
     {
-      "x": 2.0,
+      "x": 2,
       "y": 0.008,
-      "z": -2.0,
+      "z": -2,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7122,9 +8319,9 @@
       "blocksShots": false
     },
     {
-      "x": 2.0,
+      "x": 2,
       "y": 0.008,
-      "z": 2.0,
+      "z": 2,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7136,9 +8333,9 @@
       "blocksShots": false
     },
     {
-      "x": 2.0,
+      "x": 2,
       "y": 0.008,
-      "z": 6.0,
+      "z": 6,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7150,9 +8347,9 @@
       "blocksShots": false
     },
     {
-      "x": 2.0,
+      "x": 2,
       "y": 0.008,
-      "z": 10.0,
+      "z": 10,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7164,9 +8361,9 @@
       "blocksShots": false
     },
     {
-      "x": 2.0,
+      "x": 2,
       "y": 0.008,
-      "z": 14.0,
+      "z": 14,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7178,9 +8375,9 @@
       "blocksShots": false
     },
     {
-      "x": 2.0,
+      "x": 2,
       "y": 0.008,
-      "z": 18.0,
+      "z": 18,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7192,9 +8389,9 @@
       "blocksShots": false
     },
     {
-      "x": 2.0,
+      "x": 2,
       "y": 0.008,
-      "z": 22.0,
+      "z": 22,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7206,9 +8403,9 @@
       "blocksShots": false
     },
     {
-      "x": 2.0,
+      "x": 2,
       "y": 0.008,
-      "z": 26.0,
+      "z": 26,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7220,9 +8417,9 @@
       "blocksShots": false
     },
     {
-      "x": 2.0,
+      "x": 2,
       "y": 0.008,
-      "z": 30.0,
+      "z": 30,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7234,7 +8431,7 @@
       "blocksShots": false
     },
     {
-      "x": 2.0,
+      "x": 2,
       "y": 0.008,
       "z": 33.5,
       "w": 4,
@@ -7248,7 +8445,7 @@
       "blocksShots": false
     },
     {
-      "x": 6.0,
+      "x": 6,
       "y": 0.008,
       "z": -33.5,
       "w": 4,
@@ -7262,9 +8459,9 @@
       "blocksShots": false
     },
     {
-      "x": 6.0,
+      "x": 6,
       "y": 0.008,
-      "z": -30.0,
+      "z": -30,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7276,9 +8473,9 @@
       "blocksShots": false
     },
     {
-      "x": 6.0,
+      "x": 6,
       "y": 0.008,
-      "z": -26.0,
+      "z": -26,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7290,9 +8487,9 @@
       "blocksShots": false
     },
     {
-      "x": 6.0,
+      "x": 6,
       "y": 0.008,
-      "z": -22.0,
+      "z": -22,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7304,9 +8501,9 @@
       "blocksShots": false
     },
     {
-      "x": 6.0,
+      "x": 6,
       "y": 0.008,
-      "z": -18.0,
+      "z": -18,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7318,9 +8515,9 @@
       "blocksShots": false
     },
     {
-      "x": 6.0,
+      "x": 6,
       "y": 0.008,
-      "z": -14.0,
+      "z": -14,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7332,9 +8529,9 @@
       "blocksShots": false
     },
     {
-      "x": 6.0,
+      "x": 6,
       "y": 0.008,
-      "z": -10.0,
+      "z": -10,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7346,9 +8543,9 @@
       "blocksShots": false
     },
     {
-      "x": 6.0,
+      "x": 6,
       "y": 0.008,
-      "z": -6.0,
+      "z": -6,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7360,9 +8557,9 @@
       "blocksShots": false
     },
     {
-      "x": 6.0,
+      "x": 6,
       "y": 0.008,
-      "z": -2.0,
+      "z": -2,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7374,9 +8571,9 @@
       "blocksShots": false
     },
     {
-      "x": 6.0,
+      "x": 6,
       "y": 0.008,
-      "z": 2.0,
+      "z": 2,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7388,9 +8585,9 @@
       "blocksShots": false
     },
     {
-      "x": 6.0,
+      "x": 6,
       "y": 0.008,
-      "z": 6.0,
+      "z": 6,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7402,9 +8599,9 @@
       "blocksShots": false
     },
     {
-      "x": 6.0,
+      "x": 6,
       "y": 0.008,
-      "z": 10.0,
+      "z": 10,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7416,9 +8613,9 @@
       "blocksShots": false
     },
     {
-      "x": 6.0,
+      "x": 6,
       "y": 0.008,
-      "z": 14.0,
+      "z": 14,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7430,9 +8627,9 @@
       "blocksShots": false
     },
     {
-      "x": 6.0,
+      "x": 6,
       "y": 0.008,
-      "z": 18.0,
+      "z": 18,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7444,9 +8641,9 @@
       "blocksShots": false
     },
     {
-      "x": 6.0,
+      "x": 6,
       "y": 0.008,
-      "z": 22.0,
+      "z": 22,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7458,9 +8655,9 @@
       "blocksShots": false
     },
     {
-      "x": 6.0,
+      "x": 6,
       "y": 0.008,
-      "z": 26.0,
+      "z": 26,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7472,9 +8669,9 @@
       "blocksShots": false
     },
     {
-      "x": 6.0,
+      "x": 6,
       "y": 0.008,
-      "z": 30.0,
+      "z": 30,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7486,7 +8683,7 @@
       "blocksShots": false
     },
     {
-      "x": 6.0,
+      "x": 6,
       "y": 0.008,
       "z": 33.5,
       "w": 4,
@@ -7500,7 +8697,7 @@
       "blocksShots": false
     },
     {
-      "x": 10.0,
+      "x": 10,
       "y": 0.008,
       "z": -33.5,
       "w": 4,
@@ -7514,9 +8711,9 @@
       "blocksShots": false
     },
     {
-      "x": 10.0,
+      "x": 10,
       "y": 0.008,
-      "z": -30.0,
+      "z": -30,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7528,9 +8725,9 @@
       "blocksShots": false
     },
     {
-      "x": 10.0,
+      "x": 10,
       "y": 0.008,
-      "z": -26.0,
+      "z": -26,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7542,9 +8739,9 @@
       "blocksShots": false
     },
     {
-      "x": 10.0,
+      "x": 10,
       "y": 0.008,
-      "z": -22.0,
+      "z": -22,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7556,9 +8753,9 @@
       "blocksShots": false
     },
     {
-      "x": 10.0,
+      "x": 10,
       "y": 0.008,
-      "z": -18.0,
+      "z": -18,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7570,9 +8767,9 @@
       "blocksShots": false
     },
     {
-      "x": 10.0,
+      "x": 10,
       "y": 0.008,
-      "z": -14.0,
+      "z": -14,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7584,9 +8781,9 @@
       "blocksShots": false
     },
     {
-      "x": 10.0,
+      "x": 10,
       "y": 0.008,
-      "z": -10.0,
+      "z": -10,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7598,9 +8795,9 @@
       "blocksShots": false
     },
     {
-      "x": 10.0,
+      "x": 10,
       "y": 0.008,
-      "z": -6.0,
+      "z": -6,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7612,9 +8809,9 @@
       "blocksShots": false
     },
     {
-      "x": 10.0,
+      "x": 10,
       "y": 0.008,
-      "z": -2.0,
+      "z": -2,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7626,9 +8823,9 @@
       "blocksShots": false
     },
     {
-      "x": 10.0,
+      "x": 10,
       "y": 0.008,
-      "z": 2.0,
+      "z": 2,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7640,9 +8837,9 @@
       "blocksShots": false
     },
     {
-      "x": 10.0,
+      "x": 10,
       "y": 0.008,
-      "z": 6.0,
+      "z": 6,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7654,9 +8851,9 @@
       "blocksShots": false
     },
     {
-      "x": 10.0,
+      "x": 10,
       "y": 0.008,
-      "z": 10.0,
+      "z": 10,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7668,9 +8865,9 @@
       "blocksShots": false
     },
     {
-      "x": 10.0,
+      "x": 10,
       "y": 0.008,
-      "z": 14.0,
+      "z": 14,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7682,9 +8879,9 @@
       "blocksShots": false
     },
     {
-      "x": 10.0,
+      "x": 10,
       "y": 0.008,
-      "z": 18.0,
+      "z": 18,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7696,9 +8893,9 @@
       "blocksShots": false
     },
     {
-      "x": 10.0,
+      "x": 10,
       "y": 0.008,
-      "z": 22.0,
+      "z": 22,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7710,9 +8907,9 @@
       "blocksShots": false
     },
     {
-      "x": 10.0,
+      "x": 10,
       "y": 0.008,
-      "z": 26.0,
+      "z": 26,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7724,9 +8921,9 @@
       "blocksShots": false
     },
     {
-      "x": 10.0,
+      "x": 10,
       "y": 0.008,
-      "z": 30.0,
+      "z": 30,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7738,7 +8935,7 @@
       "blocksShots": false
     },
     {
-      "x": 10.0,
+      "x": 10,
       "y": 0.008,
       "z": 33.5,
       "w": 4,
@@ -7752,7 +8949,7 @@
       "blocksShots": false
     },
     {
-      "x": 14.0,
+      "x": 14,
       "y": 0.008,
       "z": -33.5,
       "w": 4,
@@ -7766,9 +8963,9 @@
       "blocksShots": false
     },
     {
-      "x": 14.0,
+      "x": 14,
       "y": 0.008,
-      "z": -30.0,
+      "z": -30,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7780,9 +8977,9 @@
       "blocksShots": false
     },
     {
-      "x": 14.0,
+      "x": 14,
       "y": 0.008,
-      "z": -26.0,
+      "z": -26,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7794,9 +8991,9 @@
       "blocksShots": false
     },
     {
-      "x": 14.0,
+      "x": 14,
       "y": 0.008,
-      "z": -22.0,
+      "z": -22,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7808,9 +9005,9 @@
       "blocksShots": false
     },
     {
-      "x": 14.0,
+      "x": 14,
       "y": 0.008,
-      "z": -18.0,
+      "z": -18,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7822,9 +9019,9 @@
       "blocksShots": false
     },
     {
-      "x": 14.0,
+      "x": 14,
       "y": 0.008,
-      "z": -14.0,
+      "z": -14,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7836,9 +9033,9 @@
       "blocksShots": false
     },
     {
-      "x": 14.0,
+      "x": 14,
       "y": 0.008,
-      "z": -10.0,
+      "z": -10,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7850,9 +9047,9 @@
       "blocksShots": false
     },
     {
-      "x": 14.0,
+      "x": 14,
       "y": 0.008,
-      "z": -6.0,
+      "z": -6,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7864,9 +9061,9 @@
       "blocksShots": false
     },
     {
-      "x": 14.0,
+      "x": 14,
       "y": 0.008,
-      "z": -2.0,
+      "z": -2,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7878,9 +9075,9 @@
       "blocksShots": false
     },
     {
-      "x": 14.0,
+      "x": 14,
       "y": 0.008,
-      "z": 2.0,
+      "z": 2,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7892,9 +9089,9 @@
       "blocksShots": false
     },
     {
-      "x": 14.0,
+      "x": 14,
       "y": 0.008,
-      "z": 6.0,
+      "z": 6,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7906,9 +9103,9 @@
       "blocksShots": false
     },
     {
-      "x": 14.0,
+      "x": 14,
       "y": 0.008,
-      "z": 10.0,
+      "z": 10,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7920,9 +9117,9 @@
       "blocksShots": false
     },
     {
-      "x": 14.0,
+      "x": 14,
       "y": 0.008,
-      "z": 14.0,
+      "z": 14,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7934,9 +9131,9 @@
       "blocksShots": false
     },
     {
-      "x": 14.0,
+      "x": 14,
       "y": 0.008,
-      "z": 18.0,
+      "z": 18,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7948,9 +9145,9 @@
       "blocksShots": false
     },
     {
-      "x": 14.0,
+      "x": 14,
       "y": 0.008,
-      "z": 22.0,
+      "z": 22,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7962,9 +9159,9 @@
       "blocksShots": false
     },
     {
-      "x": 14.0,
+      "x": 14,
       "y": 0.008,
-      "z": 26.0,
+      "z": 26,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7976,9 +9173,9 @@
       "blocksShots": false
     },
     {
-      "x": 14.0,
+      "x": 14,
       "y": 0.008,
-      "z": 30.0,
+      "z": 30,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -7990,7 +9187,7 @@
       "blocksShots": false
     },
     {
-      "x": 14.0,
+      "x": 14,
       "y": 0.008,
       "z": 33.5,
       "w": 4,
@@ -8004,7 +9201,7 @@
       "blocksShots": false
     },
     {
-      "x": 18.0,
+      "x": 18,
       "y": 0.008,
       "z": -33.5,
       "w": 4,
@@ -8018,9 +9215,9 @@
       "blocksShots": false
     },
     {
-      "x": 18.0,
+      "x": 18,
       "y": 0.008,
-      "z": -30.0,
+      "z": -30,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8032,9 +9229,9 @@
       "blocksShots": false
     },
     {
-      "x": 18.0,
+      "x": 18,
       "y": 0.008,
-      "z": -26.0,
+      "z": -26,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8046,9 +9243,9 @@
       "blocksShots": false
     },
     {
-      "x": 18.0,
+      "x": 18,
       "y": 0.008,
-      "z": -22.0,
+      "z": -22,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8060,9 +9257,9 @@
       "blocksShots": false
     },
     {
-      "x": 18.0,
+      "x": 18,
       "y": 0.008,
-      "z": -18.0,
+      "z": -18,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8074,9 +9271,9 @@
       "blocksShots": false
     },
     {
-      "x": 18.0,
+      "x": 18,
       "y": 0.008,
-      "z": -14.0,
+      "z": -14,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8088,9 +9285,9 @@
       "blocksShots": false
     },
     {
-      "x": 18.0,
+      "x": 18,
       "y": 0.008,
-      "z": -10.0,
+      "z": -10,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8102,9 +9299,9 @@
       "blocksShots": false
     },
     {
-      "x": 18.0,
+      "x": 18,
       "y": 0.008,
-      "z": -6.0,
+      "z": -6,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8116,9 +9313,9 @@
       "blocksShots": false
     },
     {
-      "x": 18.0,
+      "x": 18,
       "y": 0.008,
-      "z": -2.0,
+      "z": -2,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8130,9 +9327,9 @@
       "blocksShots": false
     },
     {
-      "x": 18.0,
+      "x": 18,
       "y": 0.008,
-      "z": 2.0,
+      "z": 2,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8144,9 +9341,9 @@
       "blocksShots": false
     },
     {
-      "x": 18.0,
+      "x": 18,
       "y": 0.008,
-      "z": 6.0,
+      "z": 6,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8158,9 +9355,9 @@
       "blocksShots": false
     },
     {
-      "x": 18.0,
+      "x": 18,
       "y": 0.008,
-      "z": 10.0,
+      "z": 10,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8172,9 +9369,9 @@
       "blocksShots": false
     },
     {
-      "x": 18.0,
+      "x": 18,
       "y": 0.008,
-      "z": 14.0,
+      "z": 14,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8186,9 +9383,9 @@
       "blocksShots": false
     },
     {
-      "x": 18.0,
+      "x": 18,
       "y": 0.008,
-      "z": 18.0,
+      "z": 18,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8200,9 +9397,9 @@
       "blocksShots": false
     },
     {
-      "x": 18.0,
+      "x": 18,
       "y": 0.008,
-      "z": 22.0,
+      "z": 22,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8214,9 +9411,9 @@
       "blocksShots": false
     },
     {
-      "x": 18.0,
+      "x": 18,
       "y": 0.008,
-      "z": 26.0,
+      "z": 26,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8228,9 +9425,9 @@
       "blocksShots": false
     },
     {
-      "x": 18.0,
+      "x": 18,
       "y": 0.008,
-      "z": 30.0,
+      "z": 30,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8242,7 +9439,7 @@
       "blocksShots": false
     },
     {
-      "x": 18.0,
+      "x": 18,
       "y": 0.008,
       "z": 33.5,
       "w": 4,
@@ -8256,7 +9453,7 @@
       "blocksShots": false
     },
     {
-      "x": 22.0,
+      "x": 22,
       "y": 0.008,
       "z": -33.5,
       "w": 4,
@@ -8270,9 +9467,9 @@
       "blocksShots": false
     },
     {
-      "x": 22.0,
+      "x": 22,
       "y": 0.008,
-      "z": -30.0,
+      "z": -30,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8284,9 +9481,9 @@
       "blocksShots": false
     },
     {
-      "x": 22.0,
+      "x": 22,
       "y": 0.008,
-      "z": -26.0,
+      "z": -26,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8298,9 +9495,9 @@
       "blocksShots": false
     },
     {
-      "x": 22.0,
+      "x": 22,
       "y": 0.008,
-      "z": -22.0,
+      "z": -22,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8312,9 +9509,9 @@
       "blocksShots": false
     },
     {
-      "x": 22.0,
+      "x": 22,
       "y": 0.008,
-      "z": -18.0,
+      "z": -18,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8326,9 +9523,9 @@
       "blocksShots": false
     },
     {
-      "x": 22.0,
+      "x": 22,
       "y": 0.008,
-      "z": -14.0,
+      "z": -14,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8340,9 +9537,9 @@
       "blocksShots": false
     },
     {
-      "x": 22.0,
+      "x": 22,
       "y": 0.008,
-      "z": -10.0,
+      "z": -10,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8354,9 +9551,9 @@
       "blocksShots": false
     },
     {
-      "x": 22.0,
+      "x": 22,
       "y": 0.008,
-      "z": -6.0,
+      "z": -6,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8368,9 +9565,9 @@
       "blocksShots": false
     },
     {
-      "x": 22.0,
+      "x": 22,
       "y": 0.008,
-      "z": -2.0,
+      "z": -2,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8382,9 +9579,9 @@
       "blocksShots": false
     },
     {
-      "x": 22.0,
+      "x": 22,
       "y": 0.008,
-      "z": 2.0,
+      "z": 2,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8396,9 +9593,9 @@
       "blocksShots": false
     },
     {
-      "x": 22.0,
+      "x": 22,
       "y": 0.008,
-      "z": 6.0,
+      "z": 6,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8410,9 +9607,9 @@
       "blocksShots": false
     },
     {
-      "x": 22.0,
+      "x": 22,
       "y": 0.008,
-      "z": 10.0,
+      "z": 10,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8424,9 +9621,9 @@
       "blocksShots": false
     },
     {
-      "x": 22.0,
+      "x": 22,
       "y": 0.008,
-      "z": 14.0,
+      "z": 14,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8438,9 +9635,9 @@
       "blocksShots": false
     },
     {
-      "x": 22.0,
+      "x": 22,
       "y": 0.008,
-      "z": 18.0,
+      "z": 18,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8452,9 +9649,9 @@
       "blocksShots": false
     },
     {
-      "x": 22.0,
+      "x": 22,
       "y": 0.008,
-      "z": 22.0,
+      "z": 22,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8466,9 +9663,9 @@
       "blocksShots": false
     },
     {
-      "x": 22.0,
+      "x": 22,
       "y": 0.008,
-      "z": 26.0,
+      "z": 26,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8480,9 +9677,9 @@
       "blocksShots": false
     },
     {
-      "x": 22.0,
+      "x": 22,
       "y": 0.008,
-      "z": 30.0,
+      "z": 30,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8494,7 +9691,7 @@
       "blocksShots": false
     },
     {
-      "x": 22.0,
+      "x": 22,
       "y": 0.008,
       "z": 33.5,
       "w": 4,
@@ -8508,7 +9705,7 @@
       "blocksShots": false
     },
     {
-      "x": 26.0,
+      "x": 26,
       "y": 0.008,
       "z": -33.5,
       "w": 4,
@@ -8522,9 +9719,9 @@
       "blocksShots": false
     },
     {
-      "x": 26.0,
+      "x": 26,
       "y": 0.008,
-      "z": -30.0,
+      "z": -30,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8536,9 +9733,9 @@
       "blocksShots": false
     },
     {
-      "x": 26.0,
+      "x": 26,
       "y": 0.008,
-      "z": -26.0,
+      "z": -26,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8550,9 +9747,9 @@
       "blocksShots": false
     },
     {
-      "x": 26.0,
+      "x": 26,
       "y": 0.008,
-      "z": -22.0,
+      "z": -22,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8564,9 +9761,9 @@
       "blocksShots": false
     },
     {
-      "x": 26.0,
+      "x": 26,
       "y": 0.008,
-      "z": -18.0,
+      "z": -18,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8578,9 +9775,9 @@
       "blocksShots": false
     },
     {
-      "x": 26.0,
+      "x": 26,
       "y": 0.008,
-      "z": -14.0,
+      "z": -14,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8592,9 +9789,9 @@
       "blocksShots": false
     },
     {
-      "x": 26.0,
+      "x": 26,
       "y": 0.008,
-      "z": -10.0,
+      "z": -10,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8606,9 +9803,9 @@
       "blocksShots": false
     },
     {
-      "x": 26.0,
+      "x": 26,
       "y": 0.008,
-      "z": -6.0,
+      "z": -6,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8620,9 +9817,9 @@
       "blocksShots": false
     },
     {
-      "x": 26.0,
+      "x": 26,
       "y": 0.008,
-      "z": -2.0,
+      "z": -2,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8634,9 +9831,9 @@
       "blocksShots": false
     },
     {
-      "x": 26.0,
+      "x": 26,
       "y": 0.008,
-      "z": 2.0,
+      "z": 2,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8648,9 +9845,9 @@
       "blocksShots": false
     },
     {
-      "x": 26.0,
+      "x": 26,
       "y": 0.008,
-      "z": 6.0,
+      "z": 6,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8662,9 +9859,9 @@
       "blocksShots": false
     },
     {
-      "x": 26.0,
+      "x": 26,
       "y": 0.008,
-      "z": 10.0,
+      "z": 10,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8676,9 +9873,9 @@
       "blocksShots": false
     },
     {
-      "x": 26.0,
+      "x": 26,
       "y": 0.008,
-      "z": 14.0,
+      "z": 14,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8690,9 +9887,9 @@
       "blocksShots": false
     },
     {
-      "x": 26.0,
+      "x": 26,
       "y": 0.008,
-      "z": 18.0,
+      "z": 18,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8704,9 +9901,9 @@
       "blocksShots": false
     },
     {
-      "x": 26.0,
+      "x": 26,
       "y": 0.008,
-      "z": 22.0,
+      "z": 22,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8718,9 +9915,9 @@
       "blocksShots": false
     },
     {
-      "x": 26.0,
+      "x": 26,
       "y": 0.008,
-      "z": 26.0,
+      "z": 26,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8732,9 +9929,9 @@
       "blocksShots": false
     },
     {
-      "x": 26.0,
+      "x": 26,
       "y": 0.008,
-      "z": 30.0,
+      "z": 30,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8746,7 +9943,7 @@
       "blocksShots": false
     },
     {
-      "x": 26.0,
+      "x": 26,
       "y": 0.008,
       "z": 33.5,
       "w": 4,
@@ -8760,7 +9957,7 @@
       "blocksShots": false
     },
     {
-      "x": 30.0,
+      "x": 30,
       "y": 0.008,
       "z": -33.5,
       "w": 4,
@@ -8774,9 +9971,9 @@
       "blocksShots": false
     },
     {
-      "x": 30.0,
+      "x": 30,
       "y": 0.008,
-      "z": -30.0,
+      "z": -30,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8788,9 +9985,9 @@
       "blocksShots": false
     },
     {
-      "x": 30.0,
+      "x": 30,
       "y": 0.008,
-      "z": -26.0,
+      "z": -26,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8802,9 +9999,9 @@
       "blocksShots": false
     },
     {
-      "x": 30.0,
+      "x": 30,
       "y": 0.008,
-      "z": -22.0,
+      "z": -22,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8816,9 +10013,9 @@
       "blocksShots": false
     },
     {
-      "x": 30.0,
+      "x": 30,
       "y": 0.008,
-      "z": -18.0,
+      "z": -18,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8830,9 +10027,9 @@
       "blocksShots": false
     },
     {
-      "x": 30.0,
+      "x": 30,
       "y": 0.008,
-      "z": -14.0,
+      "z": -14,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8844,9 +10041,9 @@
       "blocksShots": false
     },
     {
-      "x": 30.0,
+      "x": 30,
       "y": 0.008,
-      "z": -10.0,
+      "z": -10,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8858,9 +10055,9 @@
       "blocksShots": false
     },
     {
-      "x": 30.0,
+      "x": 30,
       "y": 0.008,
-      "z": -6.0,
+      "z": -6,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8872,9 +10069,9 @@
       "blocksShots": false
     },
     {
-      "x": 30.0,
+      "x": 30,
       "y": 0.008,
-      "z": -2.0,
+      "z": -2,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8886,9 +10083,9 @@
       "blocksShots": false
     },
     {
-      "x": 30.0,
+      "x": 30,
       "y": 0.008,
-      "z": 2.0,
+      "z": 2,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8900,9 +10097,9 @@
       "blocksShots": false
     },
     {
-      "x": 30.0,
+      "x": 30,
       "y": 0.008,
-      "z": 6.0,
+      "z": 6,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8914,9 +10111,9 @@
       "blocksShots": false
     },
     {
-      "x": 30.0,
+      "x": 30,
       "y": 0.008,
-      "z": 10.0,
+      "z": 10,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8928,9 +10125,9 @@
       "blocksShots": false
     },
     {
-      "x": 30.0,
+      "x": 30,
       "y": 0.008,
-      "z": 14.0,
+      "z": 14,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8942,9 +10139,9 @@
       "blocksShots": false
     },
     {
-      "x": 30.0,
+      "x": 30,
       "y": 0.008,
-      "z": 18.0,
+      "z": 18,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8956,9 +10153,9 @@
       "blocksShots": false
     },
     {
-      "x": 30.0,
+      "x": 30,
       "y": 0.008,
-      "z": 22.0,
+      "z": 22,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8970,9 +10167,9 @@
       "blocksShots": false
     },
     {
-      "x": 30.0,
+      "x": 30,
       "y": 0.008,
-      "z": 26.0,
+      "z": 26,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8984,9 +10181,9 @@
       "blocksShots": false
     },
     {
-      "x": 30.0,
+      "x": 30,
       "y": 0.008,
-      "z": 30.0,
+      "z": 30,
       "w": 4,
       "h": 0.002,
       "d": 4,
@@ -8998,7 +10195,7 @@
       "blocksShots": false
     },
     {
-      "x": 30.0,
+      "x": 30,
       "y": 0.008,
       "z": 33.5,
       "w": 4,
@@ -9028,7 +10225,7 @@
     {
       "x": 33.5,
       "y": 0.008,
-      "z": -30.0,
+      "z": -30,
       "w": 3,
       "h": 0.002,
       "d": 4,
@@ -9042,7 +10239,7 @@
     {
       "x": 33.5,
       "y": 0.008,
-      "z": -26.0,
+      "z": -26,
       "w": 3,
       "h": 0.002,
       "d": 4,
@@ -9056,7 +10253,7 @@
     {
       "x": 33.5,
       "y": 0.008,
-      "z": -22.0,
+      "z": -22,
       "w": 3,
       "h": 0.002,
       "d": 4,
@@ -9070,7 +10267,7 @@
     {
       "x": 33.5,
       "y": 0.008,
-      "z": -18.0,
+      "z": -18,
       "w": 3,
       "h": 0.002,
       "d": 4,
@@ -9084,7 +10281,7 @@
     {
       "x": 33.5,
       "y": 0.008,
-      "z": -14.0,
+      "z": -14,
       "w": 3,
       "h": 0.002,
       "d": 4,
@@ -9098,7 +10295,7 @@
     {
       "x": 33.5,
       "y": 0.008,
-      "z": -10.0,
+      "z": -10,
       "w": 3,
       "h": 0.002,
       "d": 4,
@@ -9112,7 +10309,7 @@
     {
       "x": 33.5,
       "y": 0.008,
-      "z": -6.0,
+      "z": -6,
       "w": 3,
       "h": 0.002,
       "d": 4,
@@ -9126,7 +10323,7 @@
     {
       "x": 33.5,
       "y": 0.008,
-      "z": -2.0,
+      "z": -2,
       "w": 3,
       "h": 0.002,
       "d": 4,
@@ -9140,7 +10337,7 @@
     {
       "x": 33.5,
       "y": 0.008,
-      "z": 2.0,
+      "z": 2,
       "w": 3,
       "h": 0.002,
       "d": 4,
@@ -9154,7 +10351,7 @@
     {
       "x": 33.5,
       "y": 0.008,
-      "z": 6.0,
+      "z": 6,
       "w": 3,
       "h": 0.002,
       "d": 4,
@@ -9168,7 +10365,7 @@
     {
       "x": 33.5,
       "y": 0.008,
-      "z": 10.0,
+      "z": 10,
       "w": 3,
       "h": 0.002,
       "d": 4,
@@ -9182,7 +10379,7 @@
     {
       "x": 33.5,
       "y": 0.008,
-      "z": 14.0,
+      "z": 14,
       "w": 3,
       "h": 0.002,
       "d": 4,
@@ -9196,7 +10393,7 @@
     {
       "x": 33.5,
       "y": 0.008,
-      "z": 18.0,
+      "z": 18,
       "w": 3,
       "h": 0.002,
       "d": 4,
@@ -9210,7 +10407,7 @@
     {
       "x": 33.5,
       "y": 0.008,
-      "z": 22.0,
+      "z": 22,
       "w": 3,
       "h": 0.002,
       "d": 4,
@@ -9224,7 +10421,7 @@
     {
       "x": 33.5,
       "y": 0.008,
-      "z": 26.0,
+      "z": 26,
       "w": 3,
       "h": 0.002,
       "d": 4,
@@ -9238,7 +10435,7 @@
     {
       "x": 33.5,
       "y": 0.008,
-      "z": 30.0,
+      "z": 30,
       "w": 3,
       "h": 0.002,
       "d": 4,
@@ -10342,14 +11539,14 @@
       "blocksShots": false
     },
     {
-      "x": 0.0,
+      "x": 0,
       "y": 4.966,
       "z": 17.5,
       "w": 1.292308,
       "h": 0.01,
       "d": 11.8,
-      "color": "roof:terracottaLight",
-      "top": "roof:terracottaLight",
+      "color": "roof:teamBTop",
+      "top": "roof:teamBTop",
       "outline": false,
       "kind": "decor",
       "collide": false,
@@ -10362,8 +11559,8 @@
       "w": 1.292308,
       "h": 0.01,
       "d": 11.8,
-      "color": "roof:terracotta",
-      "top": "roof:terracotta",
+      "color": "roof:teamB",
+      "top": "roof:teamB",
       "outline": false,
       "kind": "decor",
       "collide": false,
@@ -10376,8 +11573,8 @@
       "w": 1.292308,
       "h": 0.01,
       "d": 11.8,
-      "color": "roof:terracottaLight",
-      "top": "roof:terracottaLight",
+      "color": "roof:teamBTop",
+      "top": "roof:teamBTop",
       "outline": false,
       "kind": "decor",
       "collide": false,
@@ -10390,8 +11587,8 @@
       "w": 1.292308,
       "h": 0.01,
       "d": 11.8,
-      "color": "roof:terracotta",
-      "top": "roof:terracotta",
+      "color": "roof:teamB",
+      "top": "roof:teamB",
       "outline": false,
       "kind": "decor",
       "collide": false,
@@ -10404,8 +11601,8 @@
       "w": 1.292308,
       "h": 0.01,
       "d": 11.8,
-      "color": "roof:terracottaLight",
-      "top": "roof:terracottaLight",
+      "color": "roof:teamBTop",
+      "top": "roof:teamBTop",
       "outline": false,
       "kind": "decor",
       "collide": false,
@@ -10418,8 +11615,8 @@
       "w": 1.292308,
       "h": 0.01,
       "d": 11.8,
-      "color": "roof:terracotta",
-      "top": "roof:terracotta",
+      "color": "roof:teamB",
+      "top": "roof:teamB",
       "outline": false,
       "kind": "decor",
       "collide": false,
@@ -10432,8 +11629,8 @@
       "w": 1.292308,
       "h": 0.01,
       "d": 11.8,
-      "color": "roof:terracottaLight",
-      "top": "roof:terracottaLight",
+      "color": "roof:teamBTop",
+      "top": "roof:teamBTop",
       "outline": false,
       "kind": "decor",
       "collide": false,
@@ -10516,8 +11713,8 @@
       "w": 1.3,
       "h": 0.01,
       "d": 8.8,
-      "color": "roof:terracotta",
-      "top": "roof:terracotta",
+      "color": "roof:teamB",
+      "top": "roof:teamB",
       "outline": false,
       "kind": "decor",
       "collide": false,
@@ -10530,8 +11727,8 @@
       "w": 1.3,
       "h": 0.01,
       "d": 8.8,
-      "color": "roof:terracottaLight",
-      "top": "roof:terracottaLight",
+      "color": "roof:teamBTop",
+      "top": "roof:teamBTop",
       "outline": false,
       "kind": "decor",
       "collide": false,
@@ -10544,8 +11741,8 @@
       "w": 1.3,
       "h": 0.01,
       "d": 8.8,
-      "color": "roof:terracotta",
-      "top": "roof:terracotta",
+      "color": "roof:teamB",
+      "top": "roof:teamB",
       "outline": false,
       "kind": "decor",
       "collide": false,
@@ -10558,8 +11755,8 @@
       "w": 1.3,
       "h": 0.01,
       "d": 8.8,
-      "color": "roof:terracottaLight",
-      "top": "roof:terracottaLight",
+      "color": "roof:teamBTop",
+      "top": "roof:teamBTop",
       "outline": false,
       "kind": "decor",
       "collide": false,
@@ -10572,8 +11769,8 @@
       "w": 1.3,
       "h": 0.01,
       "d": 8.8,
-      "color": "roof:terracotta",
-      "top": "roof:terracotta",
+      "color": "roof:teamB",
+      "top": "roof:teamB",
       "outline": false,
       "kind": "decor",
       "collide": false,
@@ -10622,14 +11819,14 @@
       "blocksShots": false
     },
     {
-      "x": 0.0,
+      "x": 0,
       "y": 5.67,
       "z": 17.5,
       "w": 1.314286,
       "h": 0.01,
       "d": 5.8,
-      "color": "roof:terracotta",
-      "top": "roof:terracotta",
+      "color": "roof:teamB",
+      "top": "roof:teamB",
       "outline": false,
       "kind": "decor",
       "collide": false,
@@ -10642,8 +11839,8 @@
       "w": 1.314286,
       "h": 0.01,
       "d": 5.8,
-      "color": "roof:terracottaLight",
-      "top": "roof:terracottaLight",
+      "color": "roof:teamBTop",
+      "top": "roof:teamBTop",
       "outline": false,
       "kind": "decor",
       "collide": false,
@@ -10656,8 +11853,8 @@
       "w": 1.314286,
       "h": 0.01,
       "d": 5.8,
-      "color": "roof:terracotta",
-      "top": "roof:terracotta",
+      "color": "roof:teamB",
+      "top": "roof:teamB",
       "outline": false,
       "kind": "decor",
       "collide": false,
@@ -10670,8 +11867,8 @@
       "w": 1.314286,
       "h": 0.01,
       "d": 5.8,
-      "color": "roof:terracottaLight",
-      "top": "roof:terracottaLight",
+      "color": "roof:teamBTop",
+      "top": "roof:teamBTop",
       "outline": false,
       "kind": "decor",
       "collide": false,
@@ -11044,7 +12241,7 @@
     {
       "x": -15.402,
       "y": 2.245033,
-      "z": 27.0,
+      "z": 27,
       "w": 5.987988,
       "h": 4.510736,
       "d": 0.799988,
@@ -11056,9 +12253,9 @@
       "blocksShots": true
     },
     {
-      "x": -20.0,
+      "x": -20,
       "y": 3.904,
-      "z": 27.0,
+      "z": 27,
       "w": 3.187987,
       "h": 1.191987,
       "d": 0.799987,
@@ -11072,7 +12269,7 @@
     {
       "x": -22.498,
       "y": 2.245039,
-      "z": 27.0,
+      "z": 27,
       "w": 1.787986,
       "h": 4.51087,
       "d": 0.799986,
@@ -11140,7 +12337,7 @@
       "blocksShots": true
     },
     {
-      "x": -20.0,
+      "x": -20,
       "y": 3.904,
       "z": 23.5,
       "w": 3.187981,
@@ -11238,7 +12435,7 @@
       "blocksShots": false
     },
     {
-      "x": -15.0,
+      "x": -15,
       "y": 2.5,
       "z": 12.484,
       "w": 2.4,
@@ -11266,7 +12463,7 @@
       "blocksShots": false
     },
     {
-      "x": -13.0,
+      "x": -13,
       "y": 2.3,
       "z": 19.79,
       "w": 0.16,
@@ -11294,7 +12491,7 @@
       "blocksShots": false
     },
     {
-      "x": -14.0,
+      "x": -14,
       "y": 2.3,
       "z": 19.79,
       "w": 0.16,
@@ -11368,7 +12565,7 @@
       "y": 1.3,
       "z": 22.982,
       "w": 1.5,
-      "h": 1.0,
+      "h": 1,
       "d": 0.026,
       "color": "outline",
       "top": "outline",
@@ -11420,7 +12617,7 @@
       "blocksShots": false
     },
     {
-      "x": -26.0,
+      "x": -26,
       "y": 1.195114,
       "z": 29.6,
       "w": 1.999961,
@@ -11434,7 +12631,7 @@
       "blocksShots": true
     },
     {
-      "x": -26.0,
+      "x": -26,
       "y": 2.411386,
       "z": 29.6,
       "w": 0.34,
@@ -11476,7 +12673,7 @@
       "blocksShots": true
     },
     {
-      "x": -31.0,
+      "x": -31,
       "y": 2.295126,
       "z": 14.5,
       "w": 4.479957,
@@ -11590,7 +12787,7 @@
     {
       "x": -26.5,
       "y": 0.49515,
-      "z": 22.0,
+      "z": 22,
       "w": 0.999949,
       "h": 1.013349,
       "d": 0.999949,
@@ -11604,7 +12801,7 @@
     {
       "x": -26.5,
       "y": 1.670153,
-      "z": 22.0,
+      "z": 22,
       "w": 0.349948,
       "h": 3.363416,
       "d": 0.349948,
@@ -11618,10 +12815,10 @@
     {
       "x": -26.5,
       "y": 3.8,
-      "z": 22.0,
-      "w": 2.0,
+      "z": 22,
+      "w": 2,
       "h": 1.1,
-      "d": 2.0,
+      "d": 2,
       "color": "green:0",
       "top": "green:0",
       "outline": true,
@@ -11632,7 +12829,7 @@
     {
       "x": -26.5,
       "y": 4.55,
-      "z": 22.0,
+      "z": 22,
       "w": 1.35,
       "h": 0.4,
       "d": 1.35,
@@ -11674,7 +12871,7 @@
     {
       "x": -18.1,
       "y": 1.195168,
-      "z": 14.0,
+      "z": 14,
       "w": 3.599943,
       "h": 2.413751,
       "d": 2.999943,
@@ -11688,7 +12885,7 @@
     {
       "x": -21.1,
       "y": 2.195171,
-      "z": 20.0,
+      "z": 20,
       "w": 2.999942,
       "h": 4.413818,
       "d": 0.999942,
@@ -11856,7 +13053,7 @@
     {
       "x": 15.402,
       "y": 2.245033,
-      "z": 27.0,
+      "z": 27,
       "w": 5.987988,
       "h": 4.510736,
       "d": 0.799988,
@@ -11868,9 +13065,9 @@
       "blocksShots": true
     },
     {
-      "x": 20.0,
+      "x": 20,
       "y": 3.904,
-      "z": 27.0,
+      "z": 27,
       "w": 3.187987,
       "h": 1.191987,
       "d": 0.799987,
@@ -11884,7 +13081,7 @@
     {
       "x": 22.498,
       "y": 2.245039,
-      "z": 27.0,
+      "z": 27,
       "w": 1.787986,
       "h": 4.51087,
       "d": 0.799986,
@@ -11952,7 +13149,7 @@
       "blocksShots": true
     },
     {
-      "x": 20.0,
+      "x": 20,
       "y": 3.904,
       "z": 23.5,
       "w": 3.187981,
@@ -12050,7 +13247,7 @@
       "blocksShots": false
     },
     {
-      "x": 15.0,
+      "x": 15,
       "y": 2.5,
       "z": 12.484,
       "w": 2.4,
@@ -12078,7 +13275,7 @@
       "blocksShots": false
     },
     {
-      "x": 13.0,
+      "x": 13,
       "y": 2.3,
       "z": 19.79,
       "w": 0.16,
@@ -12106,7 +13303,7 @@
       "blocksShots": false
     },
     {
-      "x": 14.0,
+      "x": 14,
       "y": 2.3,
       "z": 19.79,
       "w": 0.16,
@@ -12180,7 +13377,7 @@
       "y": 1.3,
       "z": 22.982,
       "w": 1.5,
-      "h": 1.0,
+      "h": 1,
       "d": 0.026,
       "color": "outline",
       "top": "outline",
@@ -12232,7 +13429,7 @@
       "blocksShots": false
     },
     {
-      "x": 26.0,
+      "x": 26,
       "y": 1.195114,
       "z": 29.6,
       "w": 1.999961,
@@ -12246,7 +13443,7 @@
       "blocksShots": true
     },
     {
-      "x": 26.0,
+      "x": 26,
       "y": 2.411386,
       "z": 29.6,
       "w": 0.34,
@@ -12288,7 +13485,7 @@
       "blocksShots": true
     },
     {
-      "x": 31.0,
+      "x": 31,
       "y": 2.295126,
       "z": 14.5,
       "w": 4.479957,
@@ -12402,7 +13599,7 @@
     {
       "x": 26.5,
       "y": 0.49515,
-      "z": 22.0,
+      "z": 22,
       "w": 0.999949,
       "h": 1.013349,
       "d": 0.999949,
@@ -12416,7 +13613,7 @@
     {
       "x": 26.5,
       "y": 1.670153,
-      "z": 22.0,
+      "z": 22,
       "w": 0.349948,
       "h": 3.363416,
       "d": 0.349948,
@@ -12430,10 +13627,10 @@
     {
       "x": 26.5,
       "y": 3.8,
-      "z": 22.0,
-      "w": 2.0,
+      "z": 22,
+      "w": 2,
       "h": 1.1,
-      "d": 2.0,
+      "d": 2,
       "color": "green:1",
       "top": "green:1",
       "outline": true,
@@ -12444,7 +13641,7 @@
     {
       "x": 26.5,
       "y": 4.55,
-      "z": 22.0,
+      "z": 22,
       "w": 1.35,
       "h": 0.4,
       "d": 1.35,
@@ -12486,7 +13683,7 @@
     {
       "x": 18.1,
       "y": 1.195168,
-      "z": 14.0,
+      "z": 14,
       "w": 3.599943,
       "h": 2.413751,
       "d": 2.999943,
@@ -12500,7 +13697,7 @@
     {
       "x": 21.1,
       "y": 2.195171,
-      "z": 20.0,
+      "z": 20,
       "w": 2.999942,
       "h": 4.413818,
       "d": 0.999942,
@@ -12556,7 +13753,7 @@
     {
       "x": -23,
       "y": 2.245009,
-      "z": -16.0,
+      "z": -16,
       "w": 0.799996,
       "h": 4.5102,
       "d": 7.791996,
@@ -12598,7 +13795,7 @@
     {
       "x": -23,
       "y": 3.904,
-      "z": -30.0,
+      "z": -30,
       "w": 0.799993,
       "h": 1.191993,
       "d": 3.187993,
@@ -12724,7 +13921,7 @@
     {
       "x": -13.9,
       "y": 0.795045,
-      "z": -22.0,
+      "z": -22,
       "w": 2.999984,
       "h": 1.611004,
       "d": 0.999984,
@@ -12988,21 +14185,7 @@
       "blocksShots": false
     },
     {
-      "x": -20.9,
-      "y": 0.795102,
-      "z": -28.7,
-      "w": 2.999965,
-      "h": 1.612277,
-      "d": 0.999965,
-      "color": "accent:Spawn A",
-      "top": "accent:Spawn A",
-      "outline": true,
-      "kind": "wall",
-      "collide": true,
-      "blocksShots": true
-    },
-    {
-      "x": -19.52,
+      "x": -19.47,
       "y": 2.095105,
       "z": -28.9,
       "w": 0.239964,
@@ -13016,7 +14199,7 @@
       "blocksShots": true
     },
     {
-      "x": -22.28,
+      "x": -22.330000000000002,
       "y": 2.095108,
       "z": -28.9,
       "w": 0.239963,
@@ -13341,7 +14524,7 @@
       "x": -16,
       "y": 4.8,
       "z": -28.7,
-      "w": 4.0,
+      "w": 4,
       "h": 0.6,
       "d": 0.12,
       "color": "accent:Spawn A",
@@ -13382,7 +14565,7 @@
     {
       "x": -27.9,
       "y": 2.245186,
-      "z": -21.0,
+      "z": -21,
       "w": 1.999937,
       "h": 4.514153,
       "d": 1.999937,
@@ -13522,7 +14705,7 @@
     {
       "x": -18.816,
       "y": 2.15,
-      "z": -27.0,
+      "z": -27,
       "w": 0.026,
       "h": 1.3,
       "d": 2.1,
@@ -13705,9 +14888,9 @@
       "x": -26.5,
       "y": 3.8,
       "z": -28.5,
-      "w": 2.0,
+      "w": 2,
       "h": 1.1,
-      "d": 2.0,
+      "d": 2,
       "color": "green:0",
       "top": "green:0",
       "outline": true,
@@ -13760,7 +14943,7 @@
     {
       "x": -20.8,
       "y": 1.195267,
-      "z": -20.0,
+      "z": -20,
       "w": 3.59991,
       "h": 2.415962,
       "d": 0.99991,
@@ -13844,7 +15027,7 @@
     {
       "x": 23,
       "y": 2.245009,
-      "z": -16.0,
+      "z": -16,
       "w": 0.799996,
       "h": 4.5102,
       "d": 7.791996,
@@ -13886,7 +15069,7 @@
     {
       "x": 23,
       "y": 3.904,
-      "z": -30.0,
+      "z": -30,
       "w": 0.799993,
       "h": 1.191993,
       "d": 3.187993,
@@ -14012,7 +15195,7 @@
     {
       "x": 13.9,
       "y": 0.795045,
-      "z": -22.0,
+      "z": -22,
       "w": 2.999984,
       "h": 1.611004,
       "d": 0.999984,
@@ -14276,21 +15459,7 @@
       "blocksShots": false
     },
     {
-      "x": 20.9,
-      "y": 0.795102,
-      "z": -28.7,
-      "w": 2.999965,
-      "h": 1.612277,
-      "d": 0.999965,
-      "color": "awning:blue",
-      "top": "awning:blue",
-      "outline": true,
-      "kind": "wall",
-      "collide": true,
-      "blocksShots": true
-    },
-    {
-      "x": 19.52,
+      "x": 19.47,
       "y": 2.095105,
       "z": -28.9,
       "w": 0.239964,
@@ -14304,7 +15473,7 @@
       "blocksShots": true
     },
     {
-      "x": 22.28,
+      "x": 22.330000000000002,
       "y": 2.095108,
       "z": -28.9,
       "w": 0.239963,
@@ -14629,7 +15798,7 @@
       "x": 16,
       "y": 4.8,
       "z": -28.7,
-      "w": 4.0,
+      "w": 4,
       "h": 0.6,
       "d": 0.12,
       "color": "awning:blue",
@@ -14670,7 +15839,7 @@
     {
       "x": 27.9,
       "y": 2.245186,
-      "z": -21.0,
+      "z": -21,
       "w": 1.999937,
       "h": 4.514153,
       "d": 1.999937,
@@ -14810,7 +15979,7 @@
     {
       "x": 18.816,
       "y": 2.15,
-      "z": -27.0,
+      "z": -27,
       "w": 0.026,
       "h": 1.3,
       "d": 2.1,
@@ -14993,9 +16162,9 @@
       "x": 26.5,
       "y": 3.8,
       "z": -28.5,
-      "w": 2.0,
+      "w": 2,
       "h": 1.1,
-      "d": 2.0,
+      "d": 2,
       "color": "green:1",
       "top": "green:1",
       "outline": true,
@@ -15048,7 +16217,7 @@
     {
       "x": 20.8,
       "y": 1.195267,
-      "z": -20.0,
+      "z": -20,
       "w": 3.59991,
       "h": 2.415962,
       "d": 0.99991,
@@ -15200,7 +16369,7 @@
       "blocksShots": true
     },
     {
-      "x": -7.0,
+      "x": -7,
       "y": 2.195294,
       "z": -22.15,
       "w": 2.599901,
@@ -15214,7 +16383,7 @@
       "blocksShots": true
     },
     {
-      "x": -7.0,
+      "x": -7,
       "y": 4.6,
       "z": -22.15,
       "w": 2.7999,
@@ -15228,7 +16397,7 @@
       "blocksShots": true
     },
     {
-      "x": 7.0,
+      "x": 7,
       "y": 2.195294,
       "z": -22.15,
       "w": 2.599901,
@@ -15242,7 +16411,7 @@
       "blocksShots": true
     },
     {
-      "x": 7.0,
+      "x": 7,
       "y": 4.6,
       "z": -22.15,
       "w": 2.7999,
@@ -15338,6 +16507,1182 @@
       "kind": "wall",
       "collide": true,
       "blocksShots": true
+    },
+    {
+      "x": 0,
+      "y": 5.022000000000001,
+      "z": 11.7,
+      "w": 16.64,
+      "h": 0.12,
+      "d": 0.12,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": -8.3,
+      "y": 5.022000000000001,
+      "z": 17.5,
+      "w": 0.12,
+      "h": 0.12,
+      "d": 11.64,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 0,
+      "y": 5.022000000000001,
+      "z": 23.3,
+      "w": 16.64,
+      "h": 0.12,
+      "d": 0.12,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 8.3,
+      "y": 5.022000000000001,
+      "z": 17.5,
+      "w": 0.12,
+      "h": 0.12,
+      "d": 11.64,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 0,
+      "y": 5.3740000000000006,
+      "z": 13.2,
+      "w": 12.84,
+      "h": 0.12,
+      "d": 0.12,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": -6.4,
+      "y": 5.3740000000000006,
+      "z": 17.5,
+      "w": 0.12,
+      "h": 0.12,
+      "d": 8.64,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 0,
+      "y": 5.3740000000000006,
+      "z": 21.8,
+      "w": 12.84,
+      "h": 0.12,
+      "d": 0.12,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 6.4,
+      "y": 5.3740000000000006,
+      "z": 17.5,
+      "w": 0.12,
+      "h": 0.12,
+      "d": 8.64,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 0,
+      "y": 5.726000000000001,
+      "z": 14.7,
+      "w": 9.04,
+      "h": 0.12,
+      "d": 0.12,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": -4.5,
+      "y": 5.726000000000001,
+      "z": 17.5,
+      "w": 0.12,
+      "h": 0.12,
+      "d": 5.64,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 0,
+      "y": 5.726000000000001,
+      "z": 20.3,
+      "w": 9.04,
+      "h": 0.12,
+      "d": 0.12,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 4.5,
+      "y": 5.726000000000001,
+      "z": 17.5,
+      "w": 0.12,
+      "h": 0.12,
+      "d": 5.64,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": -17.5,
+      "y": 4.839989500000001,
+      "z": 12.3500105,
+      "w": 10.939979,
+      "h": 0.12,
+      "d": 0.12,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": -22.9499895,
+      "y": 4.839989500000001,
+      "z": 19.5,
+      "w": 0.12,
+      "h": 0.12,
+      "d": 14.339979,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": -17.5,
+      "y": 4.839989500000001,
+      "z": 26.6499895,
+      "w": 10.939979,
+      "h": 0.12,
+      "d": 0.12,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": -12.050010499999999,
+      "y": 4.839989500000001,
+      "z": 19.5,
+      "w": 0.12,
+      "h": 0.12,
+      "d": 14.339979,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": -17.5,
+      "y": 5.169989000000001,
+      "z": 13.750011,
+      "w": 8.339978,
+      "h": 0.12,
+      "d": 0.12,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": -21.649989,
+      "y": 5.169989000000001,
+      "z": 19.5,
+      "w": 0.12,
+      "h": 0.12,
+      "d": 11.539978,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": -17.5,
+      "y": 5.169989000000001,
+      "z": 25.249989,
+      "w": 8.339978,
+      "h": 0.12,
+      "d": 0.12,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": -13.350010999999999,
+      "y": 5.169989000000001,
+      "z": 19.5,
+      "w": 0.12,
+      "h": 0.12,
+      "d": 11.539978,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": -31,
+      "y": 4.969978,
+      "z": 11.500022,
+      "w": 4.3199559999999995,
+      "h": 0.12,
+      "d": 0.12,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": -33.139978,
+      "y": 4.969978,
+      "z": 14.5,
+      "w": 0.12,
+      "h": 0.12,
+      "d": 6.039956,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": -31,
+      "y": 4.969978,
+      "z": 17.499978,
+      "w": 4.3199559999999995,
+      "h": 0.12,
+      "d": 0.12,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": -28.860022,
+      "y": 4.969978,
+      "z": 14.5,
+      "w": 0.12,
+      "h": 0.12,
+      "d": 6.039956,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 17.5,
+      "y": 4.839989500000001,
+      "z": 12.3500105,
+      "w": 10.939979,
+      "h": 0.12,
+      "d": 0.12,
+      "color": "zone:Spawn B:blue",
+      "top": "zone:Spawn B:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 12.050010499999999,
+      "y": 4.839989500000001,
+      "z": 19.5,
+      "w": 0.12,
+      "h": 0.12,
+      "d": 14.339979,
+      "color": "zone:Spawn B:blue",
+      "top": "zone:Spawn B:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 17.5,
+      "y": 4.839989500000001,
+      "z": 26.6499895,
+      "w": 10.939979,
+      "h": 0.12,
+      "d": 0.12,
+      "color": "zone:Spawn B:blue",
+      "top": "zone:Spawn B:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 22.9499895,
+      "y": 4.839989500000001,
+      "z": 19.5,
+      "w": 0.12,
+      "h": 0.12,
+      "d": 14.339979,
+      "color": "zone:Spawn B:blue",
+      "top": "zone:Spawn B:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 17.5,
+      "y": 5.169989000000001,
+      "z": 13.750011,
+      "w": 8.339978,
+      "h": 0.12,
+      "d": 0.12,
+      "color": "zone:Spawn B:blue",
+      "top": "zone:Spawn B:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 13.350010999999999,
+      "y": 5.169989000000001,
+      "z": 19.5,
+      "w": 0.12,
+      "h": 0.12,
+      "d": 11.539978,
+      "color": "zone:Spawn B:blue",
+      "top": "zone:Spawn B:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 17.5,
+      "y": 5.169989000000001,
+      "z": 25.249989,
+      "w": 8.339978,
+      "h": 0.12,
+      "d": 0.12,
+      "color": "zone:Spawn B:blue",
+      "top": "zone:Spawn B:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 21.649989,
+      "y": 5.169989000000001,
+      "z": 19.5,
+      "w": 0.12,
+      "h": 0.12,
+      "d": 11.539978,
+      "color": "zone:Spawn B:blue",
+      "top": "zone:Spawn B:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 31,
+      "y": 4.969978,
+      "z": 11.500022,
+      "w": 4.3199559999999995,
+      "h": 0.12,
+      "d": 0.12,
+      "color": "zone:Spawn B:blue",
+      "top": "zone:Spawn B:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 28.860022,
+      "y": 4.969978,
+      "z": 14.5,
+      "w": 0.12,
+      "h": 0.12,
+      "d": 6.039956,
+      "color": "zone:Spawn B:blue",
+      "top": "zone:Spawn B:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 31,
+      "y": 4.969978,
+      "z": 17.499978,
+      "w": 4.3199559999999995,
+      "h": 0.12,
+      "d": 0.12,
+      "color": "zone:Spawn B:blue",
+      "top": "zone:Spawn B:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 33.139978,
+      "y": 4.969978,
+      "z": 14.5,
+      "w": 0.12,
+      "h": 0.12,
+      "d": 6.039956,
+      "color": "zone:Spawn B:blue",
+      "top": "zone:Spawn B:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": -14.8,
+      "y": 4.839995000000001,
+      "z": -16.849995,
+      "w": 4.93999,
+      "h": 0.12,
+      "d": 0.12,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": -17.249995000000002,
+      "y": 4.839995000000001,
+      "z": -14.7,
+      "w": 0.12,
+      "h": 0.12,
+      "d": 4.33999,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": -14.8,
+      "y": 4.839995000000001,
+      "z": -12.550004999999999,
+      "w": 4.93999,
+      "h": 0.12,
+      "d": 0.12,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": -12.350005000000001,
+      "y": 4.839995000000001,
+      "z": -14.7,
+      "w": 0.12,
+      "h": 0.12,
+      "d": 4.33999,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": -24.8,
+      "y": 4.839969000000001,
+      "z": -25.149969,
+      "w": 4.139938,
+      "h": 0.12,
+      "d": 0.12,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": -26.849969,
+      "y": 4.839969000000001,
+      "z": -21.45,
+      "w": 0.12,
+      "h": 0.12,
+      "d": 7.439938,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": -24.8,
+      "y": 4.839969000000001,
+      "z": -17.750031,
+      "w": 4.139938,
+      "h": 0.12,
+      "d": 0.12,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": -22.750031,
+      "y": 4.839969000000001,
+      "z": -21.45,
+      "w": 0.12,
+      "h": 0.12,
+      "d": 7.439938,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": -15.6,
+      "y": 4.7899645,
+      "z": -29.299964499999998,
+      "w": 6.439929,
+      "h": 0.12,
+      "d": 0.12,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": -18.7999645,
+      "y": 4.7899645,
+      "z": -26.575,
+      "w": 0.12,
+      "h": 0.12,
+      "d": 5.489929,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": -15.6,
+      "y": 4.7899645,
+      "z": -23.8500355,
+      "w": 6.439929,
+      "h": 0.12,
+      "d": 0.12,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": -12.4000355,
+      "y": 4.7899645,
+      "z": -26.575,
+      "w": 0.12,
+      "h": 0.12,
+      "d": 5.489929,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 14.8,
+      "y": 4.839995000000001,
+      "z": -16.849995,
+      "w": 4.93999,
+      "h": 0.12,
+      "d": 0.12,
+      "color": "zone:Spawn B:blue",
+      "top": "zone:Spawn B:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 12.350005000000001,
+      "y": 4.839995000000001,
+      "z": -14.7,
+      "w": 0.12,
+      "h": 0.12,
+      "d": 4.33999,
+      "color": "zone:Spawn B:blue",
+      "top": "zone:Spawn B:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 14.8,
+      "y": 4.839995000000001,
+      "z": -12.550004999999999,
+      "w": 4.93999,
+      "h": 0.12,
+      "d": 0.12,
+      "color": "zone:Spawn B:blue",
+      "top": "zone:Spawn B:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 17.249995000000002,
+      "y": 4.839995000000001,
+      "z": -14.7,
+      "w": 0.12,
+      "h": 0.12,
+      "d": 4.33999,
+      "color": "zone:Spawn B:blue",
+      "top": "zone:Spawn B:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 24.8,
+      "y": 4.839969000000001,
+      "z": -25.149969,
+      "w": 4.139938,
+      "h": 0.12,
+      "d": 0.12,
+      "color": "zone:Spawn B:blue",
+      "top": "zone:Spawn B:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 22.750031,
+      "y": 4.839969000000001,
+      "z": -21.45,
+      "w": 0.12,
+      "h": 0.12,
+      "d": 7.439938,
+      "color": "zone:Spawn B:blue",
+      "top": "zone:Spawn B:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 24.8,
+      "y": 4.839969000000001,
+      "z": -17.750031,
+      "w": 4.139938,
+      "h": 0.12,
+      "d": 0.12,
+      "color": "zone:Spawn B:blue",
+      "top": "zone:Spawn B:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 26.849969,
+      "y": 4.839969000000001,
+      "z": -21.45,
+      "w": 0.12,
+      "h": 0.12,
+      "d": 7.439938,
+      "color": "zone:Spawn B:blue",
+      "top": "zone:Spawn B:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 15.6,
+      "y": 4.7899645,
+      "z": -29.299964499999998,
+      "w": 6.439929,
+      "h": 0.12,
+      "d": 0.12,
+      "color": "zone:Spawn B:blue",
+      "top": "zone:Spawn B:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 12.4000355,
+      "y": 4.7899645,
+      "z": -26.575,
+      "w": 0.12,
+      "h": 0.12,
+      "d": 5.489929,
+      "color": "zone:Spawn B:blue",
+      "top": "zone:Spawn B:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 15.6,
+      "y": 4.7899645,
+      "z": -23.8500355,
+      "w": 6.439929,
+      "h": 0.12,
+      "d": 0.12,
+      "color": "zone:Spawn B:blue",
+      "top": "zone:Spawn B:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 18.7999645,
+      "y": 4.7899645,
+      "z": -26.575,
+      "w": 0.12,
+      "h": 0.12,
+      "d": 5.489929,
+      "color": "zone:Spawn B:blue",
+      "top": "zone:Spawn B:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 0,
+      "y": 4.989953,
+      "z": 23.550047,
+      "w": 4.139906,
+      "h": 0.12,
+      "d": 0.12,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": -2.049953,
+      "y": 4.989953,
+      "z": 27.05,
+      "w": 0.12,
+      "h": 0.12,
+      "d": 7.039906,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 0,
+      "y": 4.989953,
+      "z": 30.549953000000002,
+      "w": 4.139906,
+      "h": 0.12,
+      "d": 0.12,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 2.049953,
+      "y": 4.989953,
+      "z": 27.05,
+      "w": 0.12,
+      "h": 0.12,
+      "d": 7.039906,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 0,
+      "y": 4.989952000000001,
+      "z": -33.149952,
+      "w": 6.139904,
+      "h": 0.12,
+      "d": 0.12,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": -3.0499519999999998,
+      "y": 4.989952000000001,
+      "z": -28.3,
+      "w": 0.12,
+      "h": 0.12,
+      "d": 9.739904,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 0,
+      "y": 4.989952000000001,
+      "z": -23.450048000000002,
+      "w": 6.139904,
+      "h": 0.12,
+      "d": 0.12,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 3.0499519999999998,
+      "y": 4.989952000000001,
+      "z": -28.3,
+      "w": 0.12,
+      "h": 0.12,
+      "d": 9.739904,
+      "color": "zone:Spawn A:blue",
+      "top": "zone:Spawn A:blueTop",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": -30.4,
+      "y": 0.02,
+      "z": -4.9,
+      "w": 0.3,
+      "h": 0.01,
+      "d": 1.7,
+      "color": "accent:Spawn A",
+      "top": "accent:Spawn A",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": -29.88,
+      "y": 0.02,
+      "z": -4.9,
+      "w": 0.3,
+      "h": 0.01,
+      "d": 1.7,
+      "color": "accent:Spawn A",
+      "top": "accent:Spawn A",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": -29.36,
+      "y": 0.02,
+      "z": -4.9,
+      "w": 0.3,
+      "h": 0.01,
+      "d": 1.7,
+      "color": "accent:Spawn A",
+      "top": "accent:Spawn A",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": -28.84,
+      "y": 0.02,
+      "z": -4.9,
+      "w": 0.3,
+      "h": 0.01,
+      "d": 1.7,
+      "color": "accent:Spawn A",
+      "top": "accent:Spawn A",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": -30.4,
+      "y": 0.02,
+      "z": 4.9,
+      "w": 0.3,
+      "h": 0.01,
+      "d": 1.7,
+      "color": "accent:Spawn A",
+      "top": "accent:Spawn A",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": -29.88,
+      "y": 0.02,
+      "z": 4.9,
+      "w": 0.3,
+      "h": 0.01,
+      "d": 1.7,
+      "color": "accent:Spawn A",
+      "top": "accent:Spawn A",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": -29.36,
+      "y": 0.02,
+      "z": 4.9,
+      "w": 0.3,
+      "h": 0.01,
+      "d": 1.7,
+      "color": "accent:Spawn A",
+      "top": "accent:Spawn A",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": -28.84,
+      "y": 0.02,
+      "z": 4.9,
+      "w": 0.3,
+      "h": 0.01,
+      "d": 1.7,
+      "color": "accent:Spawn A",
+      "top": "accent:Spawn A",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 30.4,
+      "y": 0.02,
+      "z": -4.9,
+      "w": 0.3,
+      "h": 0.01,
+      "d": 1.7,
+      "color": "accent:Spawn B",
+      "top": "accent:Spawn B",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 29.88,
+      "y": 0.02,
+      "z": -4.9,
+      "w": 0.3,
+      "h": 0.01,
+      "d": 1.7,
+      "color": "accent:Spawn B",
+      "top": "accent:Spawn B",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 29.36,
+      "y": 0.02,
+      "z": -4.9,
+      "w": 0.3,
+      "h": 0.01,
+      "d": 1.7,
+      "color": "accent:Spawn B",
+      "top": "accent:Spawn B",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 28.84,
+      "y": 0.02,
+      "z": -4.9,
+      "w": 0.3,
+      "h": 0.01,
+      "d": 1.7,
+      "color": "accent:Spawn B",
+      "top": "accent:Spawn B",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 30.4,
+      "y": 0.02,
+      "z": 4.9,
+      "w": 0.3,
+      "h": 0.01,
+      "d": 1.7,
+      "color": "accent:Spawn B",
+      "top": "accent:Spawn B",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 29.88,
+      "y": 0.02,
+      "z": 4.9,
+      "w": 0.3,
+      "h": 0.01,
+      "d": 1.7,
+      "color": "accent:Spawn B",
+      "top": "accent:Spawn B",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 29.36,
+      "y": 0.02,
+      "z": 4.9,
+      "w": 0.3,
+      "h": 0.01,
+      "d": 1.7,
+      "color": "accent:Spawn B",
+      "top": "accent:Spawn B",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
+    },
+    {
+      "x": 28.84,
+      "y": 0.02,
+      "z": 4.9,
+      "w": 0.3,
+      "h": 0.01,
+      "d": 1.7,
+      "color": "accent:Spawn B",
+      "top": "accent:Spawn B",
+      "outline": false,
+      "kind": "decor",
+      "collide": false,
+      "blocksShots": false
     }
   ],
   "instances": [
@@ -15345,70 +17690,70 @@
       "prefab": "lampB",
       "x": 28.5,
       "y": 0,
-      "z": 8,
+      "z": 9,
       "yaw": 0
     },
     {
       "prefab": "lampA",
       "x": -28.5,
       "y": 0,
-      "z": 8,
+      "z": 9,
       "yaw": 0
     },
     {
       "prefab": "lampB",
       "x": 28.5,
       "y": 0,
-      "z": -8,
+      "z": -9,
       "yaw": 0
     },
     {
       "prefab": "lampA",
       "x": -28.5,
       "y": 0,
-      "z": -8,
+      "z": -9,
       "yaw": 0
     },
     {
       "prefab": "benchB",
       "x": 26.5,
       "y": 0,
-      "z": 8,
+      "z": 9.25,
       "yaw": 1.5707963267948966
     },
     {
       "prefab": "benchA",
       "x": -26.5,
       "y": 0,
-      "z": 8,
+      "z": 9.25,
       "yaw": -1.5707963267948966
     },
     {
       "prefab": "benchB",
       "x": 26.5,
       "y": 0,
-      "z": -8,
+      "z": -9.25,
       "yaw": 1.5707963267948966
     },
     {
       "prefab": "benchA",
       "x": -26.5,
       "y": 0,
-      "z": -8,
+      "z": -9.25,
       "yaw": -1.5707963267948966
     },
     {
       "prefab": "crateB",
-      "x": 7.7,
+      "x": 11.45,
       "y": 0,
-      "z": -22,
+      "z": -20.25,
       "yaw": 0
     },
     {
       "prefab": "crateA",
-      "x": -7.7,
+      "x": -11.45,
       "y": 0,
-      "z": -22,
+      "z": -20.25,
       "yaw": 0
     },
     {
@@ -15451,6 +17796,272 @@
       "x": -3.8,
       "y": 1.004,
       "z": -3.2,
+      "yaw": 0
+    },
+    {
+      "prefab": "townWindowA",
+      "x": -26.824,
+      "y": 2.12,
+      "z": -7.6899999999999995,
+      "yaw": 3.141592653589793
+    },
+    {
+      "prefab": "townWindowB",
+      "x": 26.824,
+      "y": 2.12,
+      "z": -7.6899999999999995,
+      "yaw": -3.141592653589793
+    },
+    {
+      "prefab": "townWindowA",
+      "x": -26.824,
+      "y": 2.12,
+      "z": 7.6899999999999995,
+      "yaw": 0
+    },
+    {
+      "prefab": "townWindowB",
+      "x": 26.824,
+      "y": 2.12,
+      "z": 7.6899999999999995,
+      "yaw": 0
+    },
+    {
+      "prefab": "townWindowA",
+      "x": -22.565,
+      "y": 2.12,
+      "z": 0,
+      "yaw": -1.5707963267948966
+    },
+    {
+      "prefab": "townWindowB",
+      "x": 22.565,
+      "y": 2.12,
+      "z": 0,
+      "yaw": 1.5707963267948966
+    },
+    {
+      "prefab": "townWindowA",
+      "x": -26.9349695,
+      "y": 2.12,
+      "z": -21.45,
+      "yaw": 1.5707963267948966
+    },
+    {
+      "prefab": "townWindowB",
+      "x": 26.9349695,
+      "y": 2.12,
+      "z": -21.45,
+      "yaw": -1.5707963267948966
+    },
+    {
+      "prefab": "townWindowA",
+      "x": -30.07,
+      "y": 2.12,
+      "z": -17.9650325,
+      "yaw": 3.141592653589793
+    },
+    {
+      "prefab": "townWindowB",
+      "x": 30.07,
+      "y": 2.12,
+      "z": -17.9650325,
+      "yaw": -3.141592653589793
+    },
+    {
+      "prefab": "townWindowA",
+      "x": -22.565002,
+      "y": 2.12,
+      "z": -16,
+      "yaw": -1.5707963267948966
+    },
+    {
+      "prefab": "townWindowB",
+      "x": 22.565002,
+      "y": 2.12,
+      "z": -16,
+      "yaw": 1.5707963267948966
+    },
+    {
+      "prefab": "townWindowA",
+      "x": -22.565003,
+      "y": 2.12,
+      "z": 16.5,
+      "yaw": -1.5707963267948966
+    },
+    {
+      "prefab": "townWindowB",
+      "x": 22.565003,
+      "y": 2.12,
+      "z": 16.5,
+      "yaw": 1.5707963267948966
+    },
+    {
+      "prefab": "townWindowA",
+      "x": -20.401,
+      "y": 2.12,
+      "z": 18.915008500000003,
+      "yaw": 0
+    },
+    {
+      "prefab": "townWindowB",
+      "x": 20.401,
+      "y": 2.12,
+      "z": 18.915008500000003,
+      "yaw": 0
+    },
+    {
+      "prefab": "townWindowA",
+      "x": -15.702,
+      "y": 2.12,
+      "z": 12.465004500000001,
+      "yaw": 0
+    },
+    {
+      "prefab": "townWindowB",
+      "x": 15.702,
+      "y": 2.12,
+      "z": 12.465004500000001,
+      "yaw": 0
+    },
+    {
+      "prefab": "townArchA",
+      "x": -4.5,
+      "y": 0,
+      "z": 11.77,
+      "yaw": 0
+    },
+    {
+      "prefab": "townArchB",
+      "x": 4.5,
+      "y": 0,
+      "z": 11.77,
+      "yaw": 0
+    },
+    {
+      "prefab": "townArchA",
+      "x": -20,
+      "y": 0,
+      "z": 26.5600065,
+      "yaw": 0
+    },
+    {
+      "prefab": "townArchB",
+      "x": 20,
+      "y": 0,
+      "z": 26.5600065,
+      "yaw": 0
+    },
+    {
+      "prefab": "townArchA",
+      "x": -16.6,
+      "y": 0,
+      "z": 18.910008,
+      "yaw": 0
+    },
+    {
+      "prefab": "townArchB",
+      "x": 16.6,
+      "y": 0,
+      "z": 18.910008,
+      "yaw": 0
+    },
+    {
+      "prefab": "townArchA",
+      "x": -20,
+      "y": 0,
+      "z": 23.0600095,
+      "yaw": 0
+    },
+    {
+      "prefab": "townArchB",
+      "x": 20,
+      "y": 0,
+      "z": 23.0600095,
+      "yaw": 0
+    },
+    {
+      "prefab": "townFoliageA",
+      "x": -31.5,
+      "y": 0,
+      "z": 5.2,
+      "yaw": 0
+    },
+    {
+      "prefab": "townFoliageB",
+      "x": 31.5,
+      "y": 0,
+      "z": 5.2,
+      "yaw": 0
+    },
+    {
+      "prefab": "townFoliageA",
+      "x": -31.5,
+      "y": 0,
+      "z": -5.2,
+      "yaw": 0
+    },
+    {
+      "prefab": "townFoliageB",
+      "x": 31.5,
+      "y": 0,
+      "z": -5.2,
+      "yaw": 0
+    },
+    {
+      "prefab": "townFoliageA",
+      "x": -26.5,
+      "y": 0,
+      "z": -31.2,
+      "yaw": 0
+    },
+    {
+      "prefab": "townFoliageB",
+      "x": 26.5,
+      "y": 0,
+      "z": -31.2,
+      "yaw": 0
+    },
+    {
+      "prefab": "townFoliageA",
+      "x": -17,
+      "y": 0,
+      "z": 11.2,
+      "yaw": 0
+    },
+    {
+      "prefab": "townFoliageB",
+      "x": 17,
+      "y": 0,
+      "z": 11.2,
+      "yaw": 0
+    },
+    {
+      "prefab": "townFoliageA",
+      "x": -17,
+      "y": 0,
+      "z": -11.2,
+      "yaw": 0
+    },
+    {
+      "prefab": "townFoliageB",
+      "x": 17,
+      "y": 0,
+      "z": -11.2,
+      "yaw": 0
+    },
+    {
+      "prefab": "townFoliageA",
+      "x": -30.5,
+      "y": 0,
+      "z": 3,
+      "yaw": 0
+    },
+    {
+      "prefab": "townFoliageB",
+      "x": 30.5,
+      "y": 0,
+      "z": 3,
       "yaw": 0
     }
   ],
@@ -15557,28 +18168,28 @@
       "team": "ffa",
       "x": -20,
       "y": 0.01,
-      "z": -25.0,
+      "z": -25,
       "yaw": -2.44293282886833
     },
     {
       "team": "ffa",
       "x": 20,
       "y": 0.01,
-      "z": -25.0,
+      "z": -25,
       "yaw": 2.44293282886833
     },
     {
       "team": "ffa",
       "x": -20,
       "y": 0.01,
-      "z": 25.0,
+      "z": 25,
       "yaw": -0.6986598247214632
     },
     {
       "team": "ffa",
       "x": 20,
       "y": 0.01,
-      "z": 25.0,
+      "z": 25,
       "yaw": 0.6986598247214632
     },
     {

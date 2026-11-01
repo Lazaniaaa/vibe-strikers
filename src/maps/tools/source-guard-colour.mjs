@@ -1,0 +1,5 @@
+import fs from'node:fs/promises';import{createHash}from'node:crypto';
+const root=new URL('../../../',import.meta.url),baseline=JSON.parse(await fs.readFile(new URL('../baselines/colour-source-guard.json',import.meta.url),'utf8'));
+export async function sourceGuard(){const changed=[],apiChanged=[];for(const[p,h]of Object.entries(baseline.files)){try{if(createHash('sha256').update(await fs.readFile(new URL(p,root))).digest('hex')!==h)changed.push(p);}catch{changed.push(p);}}
+ for(const[p,expected]of Object.entries(baseline.api)){const actual=[...(await fs.readFile(new URL(p,root),'utf8')).matchAll(/export function [^\r\n{]+/g)].map(m=>m[0]);if(JSON.stringify(expected)!==JSON.stringify(actual))apiChanged.push(p);}
+ const report={protectedFiles:Object.keys(baseline.files).length,changed,apiChanged,registryOnly:!apiChanged.length,note:'Map rendering and colour data are authorised changes; non-map source and all existing public function signatures are frozen.'};await fs.writeFile(new URL('../reports/m3/source-guard.json',import.meta.url),JSON.stringify(report,null,2)+'\n');return report;}

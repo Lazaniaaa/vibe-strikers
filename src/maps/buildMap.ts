@@ -1,6 +1,7 @@
-import { BoxGeometry,BufferGeometry,Color,Float32BufferAttribute,Group,InstancedMesh,Matrix4,Mesh,MeshLambertMaterial } from 'three';
+import { BoxGeometry,BufferGeometry,Color,Float32BufferAttribute,Group,HemisphereLight,InstancedMesh,Matrix4,Mesh,MeshLambertMaterial } from 'three';
 import type { MapBox,MapData,MapStats } from './types';
-const CHUNK=16,E=.002;
+import {expandedBoxes} from './boxes';
+const CHUNK=35,E=.002;
 let unit:BoxGeometry|null=null,material:MeshLambertMaterial|null=null;
 const cache=new Map<string,{chunks:{name:string;geometry:BufferGeometry;x:number;z:number}[];prefabs:{name:string;geometry:BufferGeometry;matrices:Matrix4[]}[];stats:MapStats}>();
 const geometries=new Set<BufferGeometry>();
@@ -29,8 +30,14 @@ function geometry(boxes:readonly DrawBox[],name:string):BufferGeometry{
 export function buildMap(data:MapData):Group{
  const key=JSON.stringify(data);let entry=cache.get(key);
  if(!entry){
+  // Collidable prefabs are static map scenery: bake them into the same four
+  // quadrants instead of spending a draw per prop skin. Complex visual families
+  // retain real GPU instancing (window / shutter / awning assemblies).
+  const bakedInstances=data.instances.filter(i=>data.prefabs[i.prefab].some(b=>b.kind!=='decor'||b.collide||b.blocksShots)||data.prefabs[i.prefab].length<12);
+  const visualInstances=data.instances.filter(i=>!bakedInstances.includes(i));
+  const staticBoxes=expandedBoxes({...data,instances:bakedInstances});
   const buckets=new Map<string,{x:number;z:number;boxes:DrawBox[]}>();let renderBoxes=0;
-  for(const b of data.boxes)for(const draw of drawBoxes(b,data.palette)){
+  for(const b of staticBoxes)for(const draw of drawBoxes(b,data.palette)){
    const x0=draw.x-draw.w/2,x1=draw.x+draw.w/2,z0=draw.z-draw.d/2,z1=draw.z+draw.d/2;
    for(let cx=Math.floor(x0/CHUNK);cx<=Math.floor((x1-1e-8)/CHUNK);cx++)for(let cz=Math.floor(z0/CHUNK);cz<=Math.floor((z1-1e-8)/CHUNK);cz++){
     const left=Math.max(x0,cx*CHUNK),right=Math.min(x1,(cx+1)*CHUNK),back=Math.max(z0,cz*CHUNK),front=Math.min(z1,(cz+1)*CHUNK);if(right-left<1e-7||front-back<1e-7)continue;
@@ -39,7 +46,7 @@ export function buildMap(data:MapData):Group{
   }
   const chunks=[...buckets.entries()].sort(([a],[b])=>a.localeCompare(b)).map(([name,b])=>({name:'chunk:'+name,x:b.x,z:b.z,geometry:geometry(b.boxes,'chunk:'+name)}));
   const prefabGroups=new Map<string,Matrix4[]>();
-  for(const instance of data.instances){let list=prefabGroups.get(instance.prefab);if(!list)prefabGroups.set(instance.prefab,list=[]);const m=new Matrix4().makeRotationY(instance.yaw);m.setPosition(instance.x,instance.y,instance.z);list.push(m);}
+  for(const instance of visualInstances){let list=prefabGroups.get(instance.prefab);if(!list)prefabGroups.set(instance.prefab,list=[]);const m=new Matrix4().makeRotationY(instance.yaw);m.setPosition(instance.x,instance.y,instance.z);list.push(m);}
   const prefabs=[...prefabGroups.entries()].sort(([a],[b])=>a.localeCompare(b)).map(([name,matrices])=>{
    const boxes=data.prefabs[name].flatMap(b=>drawBoxes(b,data.palette));renderBoxes+=boxes.length*matrices.length;return {name:'prefab:'+name,geometry:geometry(boxes,'prefab:'+name),matrices};
   });
@@ -51,6 +58,7 @@ export function buildMap(data:MapData):Group{
  const shadowNames=new Set([...entry.chunks].sort((a,b)=>b.geometry.attributes.position.count-a.geometry.attributes.position.count||a.name.localeCompare(b.name)).slice(0,6).map(c=>c.name));
  for(const c of entry.chunks){const mesh=new Mesh(c.geometry,material);mesh.name=c.name;mesh.castShadow=shadowNames.has(c.name);mesh.receiveShadow=true;group.add(mesh);}
  for(const p of entry.prefabs){const mesh=new InstancedMesh(p.geometry,material,p.matrices.length);instancedMeshes.add(mesh);mesh.name=p.name;for(let i=0;i<p.matrices.length;i++)mesh.setMatrixAt(i,p.matrices[i]);mesh.instanceMatrix.needsUpdate=true;mesh.computeBoundingBox();mesh.computeBoundingSphere();group.add(mesh);}
+ if(data.light.hemisphere){const fill=data.light.hemisphere,light=new HemisphereLight(fill.sky,fill.ground,fill.intensity);light.name='map-hemisphere';group.add(light);}
  group.userData={mapId:data.id,stats:{...entry.stats},chunkSize:CHUNK};return group;
 }
 export function disposeMapResources():void{for(const mesh of instancedMeshes)mesh.dispose();instancedMeshes.clear();for(const g of geometries)g.dispose();geometries.clear();cache.clear();unit?.dispose();unit=null;material?.dispose();material=null;}

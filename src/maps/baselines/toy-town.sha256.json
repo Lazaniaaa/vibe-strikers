@@ -1,14 +1,14 @@
 {
   "id": "toy-town",
-  "sha256": "57587a45011c1125b5169e7e39a6c2ac7b087a84f1cad99511486835f3eb2685",
+  "sha256": "d49cc00e171de6c98f6c12ff3b71195c19e30d85b929032dae7030a908f96023",
   "stats": {
-    "boxes": 960,
-    "renderBoxes": 2064,
-    "triangles": 24768,
-    "drawCalls": 52,
-    "chunks": 36,
-    "instancedPrefabs": 16,
-    "instances": 62,
-    "shadowChunks": 6
+    "boxes": 1616,
+    "renderBoxes": 3040,
+    "triangles": 36480,
+    "drawCalls": 6,
+    "chunks": 4,
+    "instancedPrefabs": 2,
+    "instances": 94,
+    "shadowChunks": 4
   }
 }

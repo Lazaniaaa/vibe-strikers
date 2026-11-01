@@ -1,0 +1,615 @@
+{
+  "runtime": [
+    "src/maps/buildMap.ts",
+    "src/maps/types.ts",
+    "src/maps/data/toy-town.json",
+    "src/maps/data/toy-town-l1-r1.json",
+    "src/maps/data/toy-town-l1-r2.json",
+    "src/maps/data/toy-town-l2-r1.json",
+    "src/maps/data/toy-town-l2-r2.json"
+  ],
+  "files": [
+    {
+      "path": "src/maps/README.md",
+      "absolute": "D:/voxel-arena/src/maps/README.md",
+      "status": "changed",
+      "category": "preview / verification / documentation",
+      "bytes": 19186,
+      "sha256": "5c8676c35691edbc791fae4300815fdc1952b24a641b55058f0aeff9986f860d"
+    },
+    {
+      "path": "src/maps/baselines/colour-before.json.gz",
+      "absolute": "D:/voxel-arena/src/maps/baselines/colour-before.json.gz",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 54484,
+      "sha256": "cf294e1db2e57e35bef2419d2414ef6f6ec53aafab14b62e0daa29a7640ac49a"
+    },
+    {
+      "path": "src/maps/baselines/colour-source-guard.json",
+      "absolute": "D:/voxel-arena/src/maps/baselines/colour-source-guard.json",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 8898,
+      "sha256": "3e30f851912ed27a826b862371e7e91ba7e28c0dacfa55f285ce84bda97bf977"
+    },
+    {
+      "path": "src/maps/baselines/toy-town-l1-r1.sha256.json",
+      "absolute": "D:/voxel-arena/src/maps/baselines/toy-town-l1-r1.sha256.json",
+      "status": "changed",
+      "category": "evidence / verification data",
+      "bytes": 302,
+      "sha256": "9eb3be56d88b1b668d5ad37aa07373493c2dfd661ddaa78bca17abab93cb8f19"
+    },
+    {
+      "path": "src/maps/baselines/toy-town-l1-r2.sha256.json",
+      "absolute": "D:/voxel-arena/src/maps/baselines/toy-town-l1-r2.sha256.json",
+      "status": "changed",
+      "category": "evidence / verification data",
+      "bytes": 302,
+      "sha256": "8fff8b5a5d9d67bc96eeac9afe0235f200b971a8f634a4ba7ec25105f9c6fdb7"
+    },
+    {
+      "path": "src/maps/baselines/toy-town-l2-r1.sha256.json",
+      "absolute": "D:/voxel-arena/src/maps/baselines/toy-town-l2-r1.sha256.json",
+      "status": "changed",
+      "category": "evidence / verification data",
+      "bytes": 302,
+      "sha256": "a3675776fde65e3e5aee703ee3196b23684fa31ce99b602bf52bf31a42200ea6"
+    },
+    {
+      "path": "src/maps/baselines/toy-town-l2-r2.sha256.json",
+      "absolute": "D:/voxel-arena/src/maps/baselines/toy-town-l2-r2.sha256.json",
+      "status": "changed",
+      "category": "evidence / verification data",
+      "bytes": 302,
+      "sha256": "55479a14762500a5b6a02365f3a7133c41def4d027ad14010f52cbbe07016572"
+    },
+    {
+      "path": "src/maps/baselines/toy-town.sha256.json",
+      "absolute": "D:/voxel-arena/src/maps/baselines/toy-town.sha256.json",
+      "status": "changed",
+      "category": "evidence / verification data",
+      "bytes": 296,
+      "sha256": "d7a4fab8b336821baf6d512208f4a0eb77a80b52e59d613d2930011d79a2fd1d"
+    },
+    {
+      "path": "src/maps/buildMap.ts",
+      "absolute": "D:/voxel-arena/src/maps/buildMap.ts",
+      "status": "changed",
+      "category": "runtime",
+      "bytes": 6557,
+      "sha256": "788741ebd3c8c5f9cc4fd3896d94ca27a349cd691cfcecbe29fa603f0263c3d5"
+    },
+    {
+      "path": "src/maps/color-guard.mjs",
+      "absolute": "D:/voxel-arena/src/maps/color-guard.mjs",
+      "status": "changed",
+      "category": "preview / verification / documentation",
+      "bytes": 3233,
+      "sha256": "8ba74c29997b16018936aa826032b9722150d53bb703784007a155906f7b1b99"
+    },
+    {
+      "path": "src/maps/data/toy-town-l1-r1.json",
+      "absolute": "D:/voxel-arena/src/maps/data/toy-town-l1-r1.json",
+      "status": "changed",
+      "category": "runtime",
+      "bytes": 396104,
+      "sha256": "0865de4934233898b78eb0ebb26519135778627d0f11ab08dc3c55538a8f5a2d"
+    },
+    {
+      "path": "src/maps/data/toy-town-l1-r2.json",
+      "absolute": "D:/voxel-arena/src/maps/data/toy-town-l1-r2.json",
+      "status": "changed",
+      "category": "runtime",
+      "bytes": 387758,
+      "sha256": "346e434fa956ddaae8cdfa134662d85d0347ea952767f42308b2f5c61651ae17"
+    },
+    {
+      "path": "src/maps/data/toy-town-l2-r1.json",
+      "absolute": "D:/voxel-arena/src/maps/data/toy-town-l2-r1.json",
+      "status": "changed",
+      "category": "runtime",
+      "bytes": 395094,
+      "sha256": "57bc593cd864da62e78006f04f8038f0f77567278743fcc1334748f41d01acd9"
+    },
+    {
+      "path": "src/maps/data/toy-town-l2-r2.json",
+      "absolute": "D:/voxel-arena/src/maps/data/toy-town-l2-r2.json",
+      "status": "changed",
+      "category": "runtime",
+      "bytes": 387036,
+      "sha256": "a435db3ae47e2dbcd3ad8563652f73ad927fb09dfb6580baf340290b6d241f6c"
+    },
+    {
+      "path": "src/maps/data/toy-town.json",
+      "absolute": "D:/voxel-arena/src/maps/data/toy-town.json",
+      "status": "changed",
+      "category": "runtime",
+      "bytes": 308618,
+      "sha256": "103f19c1622daff5bf8cd956d04fff79842a2254746dfbb285be3e22c89531b7"
+    },
+    {
+      "path": "src/maps/palettes/endesga32.json",
+      "absolute": "D:/voxel-arena/src/maps/palettes/endesga32.json",
+      "status": "new",
+      "category": "preview / verification / documentation",
+      "bytes": 607,
+      "sha256": "fc3743ba8824b2e280f3f8f046874c1c3dc39a8e662ff00e761f3c4e3fa049cf"
+    },
+    {
+      "path": "src/maps/preview/colour.html",
+      "absolute": "D:/voxel-arena/src/maps/preview/colour.html",
+      "status": "new",
+      "category": "preview / verification / documentation",
+      "bytes": 1382,
+      "sha256": "c9753466ee8e3b08431a2813f9003cc656c9d04a6d7e42240baafa31d1ff7b89"
+    },
+    {
+      "path": "src/maps/preview/colour.ts",
+      "absolute": "D:/voxel-arena/src/maps/preview/colour.ts",
+      "status": "new",
+      "category": "preview / verification / documentation",
+      "bytes": 4027,
+      "sha256": "539c9a8face9f382d9a4237245eb5e9de663afdf3bb80ab68e4159dd903daeea"
+    },
+    {
+      "path": "src/maps/preview/comparison.html",
+      "absolute": "D:/voxel-arena/src/maps/preview/comparison.html",
+      "status": "new",
+      "category": "preview / verification / documentation",
+      "bytes": 1491,
+      "sha256": "4446e5d6884806cd8ce4da9649f6a228ff74fd6f7d8506544bc6a6c6d6bf39cd"
+    },
+    {
+      "path": "src/maps/preview/main.ts",
+      "absolute": "D:/voxel-arena/src/maps/preview/main.ts",
+      "status": "changed",
+      "category": "preview / verification / documentation",
+      "bytes": 18435,
+      "sha256": "650bb2e462d7e6a3495abeb9d1ffe2fc490959aba21359101bf2cc96ae7b6259"
+    },
+    {
+      "path": "src/maps/reports/colour/FILES.md",
+      "absolute": "D:/voxel-arena/src/maps/reports/colour/FILES.md",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "path": "src/maps/reports/colour/REPORT.md",
+      "absolute": "D:/voxel-arena/src/maps/reports/colour/REPORT.md",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 6273,
+      "sha256": "1820708ede7d3be8049c8f24150abd79e902dcfaea360a365fcf55c331a27c94"
+    },
+    {
+      "path": "src/maps/reports/colour/after-contact.png",
+      "absolute": "D:/voxel-arena/src/maps/reports/colour/after-contact.png",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 870448,
+      "sha256": "f79fa67cabc1ef2aee3e10be7c850c0e915dc5c508da697065c8247ca39c5f79"
+    },
+    {
+      "path": "src/maps/reports/colour/after-fountain.png",
+      "absolute": "D:/voxel-arena/src/maps/reports/colour/after-fountain.png",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 204980,
+      "sha256": "366d91824bd4cd7d1979196a4a7ec8f411bd1e30402f58fa3935e3d3210f0ec9"
+    },
+    {
+      "path": "src/maps/reports/colour/after-market.png",
+      "absolute": "D:/voxel-arena/src/maps/reports/colour/after-market.png",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 389631,
+      "sha256": "f8884269193e9c5fd44d75d621a42c06118e81ced6fcb825397d8ea7d63e11e3"
+    },
+    {
+      "path": "src/maps/reports/colour/after-spawn-a.png",
+      "absolute": "D:/voxel-arena/src/maps/reports/colour/after-spawn-a.png",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 135048,
+      "sha256": "7c5ede33cdcef7b1b39f108c904b6a7146842506afed9eaaa6ef965a0a1a0125"
+    },
+    {
+      "path": "src/maps/reports/colour/after-spawn-b.png",
+      "absolute": "D:/voxel-arena/src/maps/reports/colour/after-spawn-b.png",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 109063,
+      "sha256": "2e1b7fda14b7ba9081d1004804c73e57e40e7c0439fc8e80c9afbe28f2113333"
+    },
+    {
+      "path": "src/maps/reports/colour/after-views.json",
+      "absolute": "D:/voxel-arena/src/maps/reports/colour/after-views.json",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 2043,
+      "sha256": "2299be3621d3b432b8a254674205b10fadf15fba671b8037787f0e7968b51467"
+    },
+    {
+      "path": "src/maps/reports/colour/before-after.png",
+      "absolute": "D:/voxel-arena/src/maps/reports/colour/before-after.png",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 1064664,
+      "sha256": "6c1360664083adc0a2c7a736dc396bedf63c2c8b4f11849928f78adc9e4cf0d4"
+    },
+    {
+      "path": "src/maps/reports/colour/before-contact.png",
+      "absolute": "D:/voxel-arena/src/maps/reports/colour/before-contact.png",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 603211,
+      "sha256": "b5326f2527e1d480310fa5e09ff906b438d654aea429e7016fab43728863f811"
+    },
+    {
+      "path": "src/maps/reports/colour/before-files.json",
+      "absolute": "D:/voxel-arena/src/maps/reports/colour/before-files.json",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 5927,
+      "sha256": "b98fb72713ece67900216cdd63027d700495f602e9fb58c1a2fd772d5206a9c2"
+    },
+    {
+      "path": "src/maps/reports/colour/before-fountain.png",
+      "absolute": "D:/voxel-arena/src/maps/reports/colour/before-fountain.png",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 147444,
+      "sha256": "df59825867e62bca58ae895850350b56b678cd615a86d91632484972ccf9b6d1"
+    },
+    {
+      "path": "src/maps/reports/colour/before-market.png",
+      "absolute": "D:/voxel-arena/src/maps/reports/colour/before-market.png",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 298817,
+      "sha256": "5b1c9a8eb002dc47fcd74f630ef63a8b1ccb595ac22e20a2f84c828c638005f3"
+    },
+    {
+      "path": "src/maps/reports/colour/before-spawn-a.png",
+      "absolute": "D:/voxel-arena/src/maps/reports/colour/before-spawn-a.png",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 66425,
+      "sha256": "8a15dbb6558e151f578b1f6c53159ee5487cc8aa3ae8599c7db6431a0b25344e"
+    },
+    {
+      "path": "src/maps/reports/colour/before-spawn-b.png",
+      "absolute": "D:/voxel-arena/src/maps/reports/colour/before-spawn-b.png",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 65404,
+      "sha256": "866ed11fe0d6a78fcfa137f394371a12b56fb9b77cbeda25a6061c1754bc51a4"
+    },
+    {
+      "path": "src/maps/reports/colour/before-stats.json",
+      "absolute": "D:/voxel-arena/src/maps/reports/colour/before-stats.json",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 1017,
+      "sha256": "0544dda30434a20c2892c345d42e5f931a0aab49a724078dc7cd3f2b31496eca"
+    },
+    {
+      "path": "src/maps/reports/colour/before-views.json",
+      "absolute": "D:/voxel-arena/src/maps/reports/colour/before-views.json",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 2053,
+      "sha256": "0f7ea4e41a0e5026a3f8e63d86b8ebda52321f57fbd0daf5e64da137b4977ce7"
+    },
+    {
+      "path": "src/maps/reports/colour/contrast.csv",
+      "absolute": "D:/voxel-arena/src/maps/reports/colour/contrast.csv",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 1022787,
+      "sha256": "d576b4f16833d6a7ecf2ee4b0b96612664ada3f13d69bdfb0a66e3464ba02af6"
+    },
+    {
+      "path": "src/maps/reports/colour/design.json",
+      "absolute": "D:/voxel-arena/src/maps/reports/colour/design.json",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 49688,
+      "sha256": "853b268cb92f1cc663709e156a5177b8b29e638b0f726a0b6bc25642656d6237"
+    },
+    {
+      "path": "src/maps/reports/colour/geometry-guard.json",
+      "absolute": "D:/voxel-arena/src/maps/reports/colour/geometry-guard.json",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 43283,
+      "sha256": "3b9ef7608134fc0e2fd18b4edb77683c931e7b65ef8ceaa4126957fb30f5feac"
+    },
+    {
+      "path": "src/maps/reports/colour/manifest.json",
+      "absolute": "D:/voxel-arena/src/maps/reports/colour/manifest.json",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "path": "src/maps/reports/colour/maps-typecheck.log",
+      "absolute": "D:/voxel-arena/src/maps/reports/colour/maps-typecheck.log",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "src/maps/reports/colour/summary.json",
+      "absolute": "D:/voxel-arena/src/maps/reports/colour/summary.json",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 6229,
+      "sha256": "0e46152010dd6d9d0ffa14a8f57c980e15ed4991473dcca207e1936fd8ff5c17"
+    },
+    {
+      "path": "src/maps/reports/colour/toy-town-contrast.json",
+      "absolute": "D:/voxel-arena/src/maps/reports/colour/toy-town-contrast.json",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 395058,
+      "sha256": "18833655bb17ba7793440038c71f64b5c229cd0089619999f50396036f0a7dcf"
+    },
+    {
+      "path": "src/maps/reports/colour/toy-town-l1-r1-contrast.json",
+      "absolute": "D:/voxel-arena/src/maps/reports/colour/toy-town-l1-r1-contrast.json",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 394723,
+      "sha256": "6f9a8e39b33281b090d521b2bf5390db01ef93a526b450dd0ee6902dc1f3d030"
+    },
+    {
+      "path": "src/maps/reports/colour/toy-town-l1-r2-contrast.json",
+      "absolute": "D:/voxel-arena/src/maps/reports/colour/toy-town-l1-r2-contrast.json",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 394722,
+      "sha256": "fe92f844f440d50d1f8aca5265f83e4c9b91564b0989204f3ecb3e2dd6cf9657"
+    },
+    {
+      "path": "src/maps/reports/colour/toy-town-l2-r1-contrast.json",
+      "absolute": "D:/voxel-arena/src/maps/reports/colour/toy-town-l2-r1-contrast.json",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 394728,
+      "sha256": "0c6e84de874fe731e354dca569b194ebf9feeafc709e21342f7e74ee4d8a0d25"
+    },
+    {
+      "path": "src/maps/reports/colour/toy-town-l2-r2-contrast.json",
+      "absolute": "D:/voxel-arena/src/maps/reports/colour/toy-town-l2-r2-contrast.json",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 394727,
+      "sha256": "2b7417ff0d9a8843b213d9a34b762dfbae48f7bb1e50fa2c2286fc1615c45f43"
+    },
+    {
+      "path": "src/maps/reports/colour/typecheck.log",
+      "absolute": "D:/voxel-arena/src/maps/reports/colour/typecheck.log",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 116,
+      "sha256": "f7ac9ace628d406ff15ee1509dcff8e13edfb920e4b1e51c0800ea9675d2a68b"
+    },
+    {
+      "path": "src/maps/reports/colour/verify.log",
+      "absolute": "D:/voxel-arena/src/maps/reports/colour/verify.log",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 11560,
+      "sha256": "18b017e2dd4c4fb6f11e79f2df0d12bf51c07cce6ba8a4f9ef67e0b38d3ef188"
+    },
+    {
+      "path": "src/maps/reports/m2/after.json",
+      "absolute": "D:/voxel-arena/src/maps/reports/m2/after.json",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 441818,
+      "sha256": "411c55559150b6df0f0a1c961416ed529f13289632bba29f44080fb068593385"
+    },
+    {
+      "path": "src/maps/reports/m2/color-geometry-guard.json",
+      "absolute": "D:/voxel-arena/src/maps/reports/m2/color-geometry-guard.json",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 14386,
+      "sha256": "0c4ae6cdebf304648a6eed01e3c5921273e24302de661bade692c6344aa62588"
+    },
+    {
+      "path": "src/maps/reports/m2/contrast.json",
+      "absolute": "D:/voxel-arena/src/maps/reports/m2/contrast.json",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 179311,
+      "sha256": "186d21a3408693998bbfaf5fdf406d24a4315b58d7c64653a7b632295066ce1a"
+    },
+    {
+      "path": "src/maps/reports/m2/preview.json",
+      "absolute": "D:/voxel-arena/src/maps/reports/m2/preview.json",
+      "status": "changed",
+      "category": "evidence / verification data",
+      "bytes": 320207,
+      "sha256": "acba8a0c1473b7632e9eae10640d32dab109207484f7eb1872995440626a4f50"
+    },
+    {
+      "path": "src/maps/reports/m3/preview.json",
+      "absolute": "D:/voxel-arena/src/maps/reports/m3/preview.json",
+      "status": "changed",
+      "category": "evidence / verification data",
+      "bytes": 2745560,
+      "sha256": "b1355a5a750eead6cc06d1e745d9257f3063b79448c1afbcf61a8907ca2d12c7"
+    },
+    {
+      "path": "src/maps/reports/m3/source-guard.json",
+      "absolute": "D:/voxel-arena/src/maps/reports/m3/source-guard.json",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 226,
+      "sha256": "5c0a669a12e6848fe99ba3161fffe62bfb70abf34ef9affdc6382e3eb94f27f5"
+    },
+    {
+      "path": "src/maps/reports/m3/summary.json",
+      "absolute": "D:/voxel-arena/src/maps/reports/m3/summary.json",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 4843,
+      "sha256": "5ab73d8fcba8c9fe925a28e2065506e901e51ef37193062c21e31e7256395736"
+    },
+    {
+      "path": "src/maps/reports/m3/toy-town-l1-r1-contrast.json",
+      "absolute": "D:/voxel-arena/src/maps/reports/m3/toy-town-l1-r1-contrast.json",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 179496,
+      "sha256": "d2526a5337c12446bb542996a04031948b781265c6199536539b067f96810058"
+    },
+    {
+      "path": "src/maps/reports/m3/toy-town-l1-r1.json",
+      "absolute": "D:/voxel-arena/src/maps/reports/m3/toy-town-l1-r1.json",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 1031990,
+      "sha256": "d788058e6829cb7ddea8277b8716f227c345f8de571736659838be68f9c5b5d3"
+    },
+    {
+      "path": "src/maps/reports/m3/toy-town-l1-r2-contrast.json",
+      "absolute": "D:/voxel-arena/src/maps/reports/m3/toy-town-l1-r2-contrast.json",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 179496,
+      "sha256": "0e2012d2f588f6d6475010d7dcda202c5cb79721be0507eac3ef8713d23ce26a"
+    },
+    {
+      "path": "src/maps/reports/m3/toy-town-l1-r2.json",
+      "absolute": "D:/voxel-arena/src/maps/reports/m3/toy-town-l1-r2.json",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 1033337,
+      "sha256": "5f0c7ba46a4aac7545aa693bbe8a9ec688ec995b73ceb3cde5a33148f274f9b6"
+    },
+    {
+      "path": "src/maps/reports/m3/toy-town-l2-r1-contrast.json",
+      "absolute": "D:/voxel-arena/src/maps/reports/m3/toy-town-l2-r1-contrast.json",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 179337,
+      "sha256": "bcf02be8a5960979a98ab0c6b88ff3352f8863e5c5bb91d7774f3fe4008b22c0"
+    },
+    {
+      "path": "src/maps/reports/m3/toy-town-l2-r1.json",
+      "absolute": "D:/voxel-arena/src/maps/reports/m3/toy-town-l2-r1.json",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 1040290,
+      "sha256": "81fcfd4bffc0d8e20c6f61b59f6c4b898f4717dbbba38634511c80b35911dc91"
+    },
+    {
+      "path": "src/maps/reports/m3/toy-town-l2-r2-contrast.json",
+      "absolute": "D:/voxel-arena/src/maps/reports/m3/toy-town-l2-r2-contrast.json",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 179337,
+      "sha256": "7a7f106850bde7de8feb3a8cde1a16c445d7b71b305cc33e49ef961aad7e87c0"
+    },
+    {
+      "path": "src/maps/reports/m3/toy-town-l2-r2.json",
+      "absolute": "D:/voxel-arena/src/maps/reports/m3/toy-town-l2-r2.json",
+      "status": "new",
+      "category": "evidence / verification data",
+      "bytes": 1041701,
+      "sha256": "99e5c83f6903a9bfef1e671e3d6407baa7c48b216f8100a7afa99cd2ae4ba65b"
+    },
+    {
+      "path": "src/maps/reports/toy-town.json",
+      "absolute": "D:/voxel-arena/src/maps/reports/toy-town.json",
+      "status": "changed",
+      "category": "evidence / verification data",
+      "bytes": 154654,
+      "sha256": "a97ddbd18129ac27d18808387df3ecf3196514dec584860a3039eb266c2dec63"
+    },
+    {
+      "path": "src/maps/tools/colour-bugs.mjs",
+      "absolute": "D:/voxel-arena/src/maps/tools/colour-bugs.mjs",
+      "status": "new",
+      "category": "preview / verification / documentation",
+      "bytes": 4958,
+      "sha256": "c234be1ae2d4fe3232a914952f252ac48cea76f5609dfb6a98f06b4e4631bc0f"
+    },
+    {
+      "path": "src/maps/tools/colour-preview-server.mjs",
+      "absolute": "D:/voxel-arena/src/maps/tools/colour-preview-server.mjs",
+      "status": "new",
+      "category": "preview / verification / documentation",
+      "bytes": 463,
+      "sha256": "70cdf1ce99b0620cb9d4d0d42c8b9011e93e791fc31b9d95586d3a574eda3e4d"
+    },
+    {
+      "path": "src/maps/tools/refresh-colour.mjs",
+      "absolute": "D:/voxel-arena/src/maps/tools/refresh-colour.mjs",
+      "status": "new",
+      "category": "preview / verification / documentation",
+      "bytes": 9213,
+      "sha256": "da42838a72a39df8cdb8c3df6e1915b19796978b3e01feb7849e3c6cec64dbb4"
+    },
+    {
+      "path": "src/maps/tools/report-colour.mjs",
+      "absolute": "D:/voxel-arena/src/maps/tools/report-colour.mjs",
+      "status": "new",
+      "category": "preview / verification / documentation",
+      "bytes": 9719,
+      "sha256": "38f246121ce6c94bfaf3364b45fbb25641b937b0533538ead2558cab5188aa2b"
+    },
+    {
+      "path": "src/maps/tools/source-guard-colour.mjs",
+      "absolute": "D:/voxel-arena/src/maps/tools/source-guard-colour.mjs",
+      "status": "new",
+      "category": "preview / verification / documentation",
+      "bytes": 1101,
+      "sha256": "99b90cb035f50f6016612f7330c16a03f4702f3f55b8d1c410d8f2d5a33b0b0c"
+    },
+    {
+      "path": "src/maps/types.ts",
+      "absolute": "D:/voxel-arena/src/maps/types.ts",
+      "status": "changed",
+      "category": "runtime",
+      "bytes": 1478,
+      "sha256": "8431a09dbd1a80c457cdfa0b69ebe09e86016e2185dc9bef9e1572d5df2f55b3"
+    },
+    {
+      "path": "src/maps/verify-colour.mjs",
+      "absolute": "D:/voxel-arena/src/maps/verify-colour.mjs",
+      "status": "new",
+      "category": "preview / verification / documentation",
+      "bytes": 4522,
+      "sha256": "a201e5e0be8df94b87da62af5a4abf8b30803293bb78265cea477226cda649be"
+    },
+    {
+      "path": "src/maps/verify-m3.mjs",
+      "absolute": "D:/voxel-arena/src/maps/verify-m3.mjs",
+      "status": "changed",
+      "category": "preview / verification / documentation",
+      "bytes": 16142,
+      "sha256": "d44b71fd7f1a7ff2d9fc0cf05da448a0a5d9140e2c14c7b40a3b2f44675476ab"
+    },
+    {
+      "path": "src/maps/verify.mjs",
+      "absolute": "D:/voxel-arena/src/maps/verify.mjs",
+      "status": "changed",
+      "category": "preview / verification / documentation",
+      "bytes": 15968,
+      "sha256": "3b242fa6586f7647b5cdd8001d6173876271208f4e6c3632a34eaf99813ecd77"
+    }
+  ],
+  "deleted": [],
+  "selfNote": "FILES.md and manifest.json omit their own hash/size to avoid recursive hashes."
+}

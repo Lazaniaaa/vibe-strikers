@@ -1,0 +1,114 @@
+{
+  "stage": "before",
+  "id": "toy-town-l1-r1",
+  "frames": {
+    "spawn-a": {
+      "position": [
+        -30,
+        2.7,
+        -8
+      ],
+      "target": [
+        -20,
+        1.8,
+        9
+      ],
+      "fov": 70,
+      "width": 1280,
+      "height": 800,
+      "drawCalls": 35,
+      "triangles": 43704,
+      "mapStats": {
+        "boxes": 1068,
+        "renderBoxes": 3382,
+        "triangles": 40584,
+        "drawCalls": 42,
+        "chunks": 36,
+        "instancedPrefabs": 6,
+        "instances": 16,
+        "shadowChunks": 6
+      }
+    },
+    "spawn-b": {
+      "position": [
+        30,
+        2.7,
+        -8
+      ],
+      "target": [
+        20,
+        1.8,
+        9
+      ],
+      "fov": 70,
+      "width": 1280,
+      "height": 800,
+      "drawCalls": 35,
+      "triangles": 43704,
+      "mapStats": {
+        "boxes": 1068,
+        "renderBoxes": 3382,
+        "triangles": 40584,
+        "drawCalls": 42,
+        "chunks": 36,
+        "instancedPrefabs": 6,
+        "instances": 16,
+        "shadowChunks": 6
+      }
+    },
+    "fountain": {
+      "position": [
+        -10,
+        6,
+        -10
+      ],
+      "target": [
+        0,
+        1,
+        1
+      ],
+      "fov": 70,
+      "width": 1280,
+      "height": 800,
+      "drawCalls": 28,
+      "triangles": 40536,
+      "mapStats": {
+        "boxes": 1068,
+        "renderBoxes": 3382,
+        "triangles": 40584,
+        "drawCalls": 42,
+        "chunks": 36,
+        "instancedPrefabs": 6,
+        "instances": 16,
+        "shadowChunks": 6
+      }
+    },
+    "market": {
+      "position": [
+        -29,
+        8,
+        -15
+      ],
+      "target": [
+        -20,
+        1.7,
+        -25
+      ],
+      "fov": 70,
+      "width": 1280,
+      "height": 800,
+      "drawCalls": 26,
+      "triangles": 35328,
+      "mapStats": {
+        "boxes": 1068,
+        "renderBoxes": 3382,
+        "triangles": 40584,
+        "drawCalls": 42,
+        "chunks": 36,
+        "instancedPrefabs": 6,
+        "instances": 16,
+        "shadowChunks": 6
+      }
+    }
+  }
+}

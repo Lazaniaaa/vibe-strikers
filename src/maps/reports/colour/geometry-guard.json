@@ -1,0 +1,1697 @@
+{
+  "pass": true,
+  "rule": "Only the original named prop relocations and R1 stair-front counter removals are allowed. All other collider/nav/spawn/zone data must match.",
+  "rows": [
+    {
+      "id": "toy-town-l1-r1",
+      "geometrySame": true,
+      "navSame": true,
+      "spawnsSame": true,
+      "zonesSame": true,
+      "lootSame": true,
+      "boundsSame": true,
+      "colliderHashBefore": "95e315444517feda1622a4be7c0efe1afac702436b2e956eb16ad9fa14e504bc",
+      "colliderHashExpected": "89f32e99d2d1e5629a5f39d67c8377b37e2eecaa463f38bfe158b6f6fc6da189",
+      "colliderHashAfter": "89f32e99d2d1e5629a5f39d67c8377b37e2eecaa463f38bfe158b6f6fc6da189",
+      "walkableHashExpected": "f985737370891c1184c82c477e28dad1588c23a0c08137305b6b125c92d0423e",
+      "walkableHashAfter": "f985737370891c1184c82c477e28dad1588c23a0c08137305b6b125c92d0423e",
+      "nodes": 41192,
+      "allowedFixes": [
+        {
+          "type": "stair-entrance",
+          "before": {
+            "x": -20.9,
+            "y": 0.795102,
+            "z": -28.7,
+            "w": 2.999965,
+            "h": 1.612277,
+            "d": 0.999965,
+            "color": "accent:Spawn A",
+            "top": "accent:Spawn A",
+            "outline": true,
+            "kind": "wall",
+            "collide": true,
+            "blocksShots": true
+          },
+          "after": null
+        },
+        {
+          "type": "stair-entrance",
+          "before": {
+            "x": 20.9,
+            "y": 0.795102,
+            "z": -28.7,
+            "w": 2.999965,
+            "h": 1.612277,
+            "d": 0.999965,
+            "color": "awning:blue",
+            "top": "awning:blue",
+            "outline": true,
+            "kind": "wall",
+            "collide": true,
+            "blocksShots": true
+          },
+          "after": null
+        },
+        {
+          "type": "stair-entrance-post",
+          "before": {
+            "x": -19.52,
+            "y": 2.095105,
+            "z": -28.9,
+            "w": 0.239964,
+            "h": 4.212344,
+            "d": 1.999964,
+            "color": "accent:Spawn A",
+            "top": "accent:Spawn A",
+            "outline": true,
+            "kind": "wall",
+            "collide": true,
+            "blocksShots": true
+          },
+          "after": {
+            "x": -19.47,
+            "y": 2.095105,
+            "z": -28.9,
+            "w": 0.239964,
+            "h": 4.212344,
+            "d": 1.999964,
+            "color": "accent:Spawn A",
+            "top": "accent:Spawn A",
+            "outline": true,
+            "kind": "wall",
+            "collide": true,
+            "blocksShots": true
+          }
+        },
+        {
+          "type": "stair-entrance-post",
+          "before": {
+            "x": -22.28,
+            "y": 2.095108,
+            "z": -28.9,
+            "w": 0.239963,
+            "h": 4.212411,
+            "d": 1.999963,
+            "color": "accent:Spawn A",
+            "top": "accent:Spawn A",
+            "outline": true,
+            "kind": "wall",
+            "collide": true,
+            "blocksShots": true
+          },
+          "after": {
+            "x": -22.330000000000002,
+            "y": 2.095108,
+            "z": -28.9,
+            "w": 0.239963,
+            "h": 4.212411,
+            "d": 1.999963,
+            "color": "accent:Spawn A",
+            "top": "accent:Spawn A",
+            "outline": true,
+            "kind": "wall",
+            "collide": true,
+            "blocksShots": true
+          }
+        },
+        {
+          "type": "stair-entrance-post",
+          "before": {
+            "x": 19.52,
+            "y": 2.095105,
+            "z": -28.9,
+            "w": 0.239964,
+            "h": 4.212344,
+            "d": 1.999964,
+            "color": "awning:blue",
+            "top": "awning:blue",
+            "outline": true,
+            "kind": "wall",
+            "collide": true,
+            "blocksShots": true
+          },
+          "after": {
+            "x": 19.47,
+            "y": 2.095105,
+            "z": -28.9,
+            "w": 0.239964,
+            "h": 4.212344,
+            "d": 1.999964,
+            "color": "awning:blue",
+            "top": "awning:blue",
+            "outline": true,
+            "kind": "wall",
+            "collide": true,
+            "blocksShots": true
+          }
+        },
+        {
+          "type": "stair-entrance-post",
+          "before": {
+            "x": 22.28,
+            "y": 2.095108,
+            "z": -28.9,
+            "w": 0.239963,
+            "h": 4.212411,
+            "d": 1.999963,
+            "color": "awning:blue",
+            "top": "awning:blue",
+            "outline": true,
+            "kind": "wall",
+            "collide": true,
+            "blocksShots": true
+          },
+          "after": {
+            "x": 22.330000000000002,
+            "y": 2.095108,
+            "z": -28.9,
+            "w": 0.239963,
+            "h": 4.212411,
+            "d": 1.999963,
+            "color": "awning:blue",
+            "top": "awning:blue",
+            "outline": true,
+            "kind": "wall",
+            "collide": true,
+            "blocksShots": true
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "lampB",
+            "x": 28.5,
+            "y": 0,
+            "z": 8,
+            "yaw": 0
+          },
+          "after": {
+            "prefab": "lampB",
+            "x": 28.5,
+            "y": 0,
+            "z": 9,
+            "yaw": 0
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "lampA",
+            "x": -28.5,
+            "y": 0,
+            "z": 8,
+            "yaw": 0
+          },
+          "after": {
+            "prefab": "lampA",
+            "x": -28.5,
+            "y": 0,
+            "z": 9,
+            "yaw": 0
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "lampB",
+            "x": 28.5,
+            "y": 0,
+            "z": -8,
+            "yaw": 0
+          },
+          "after": {
+            "prefab": "lampB",
+            "x": 28.5,
+            "y": 0,
+            "z": -9,
+            "yaw": 0
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "lampA",
+            "x": -28.5,
+            "y": 0,
+            "z": -8,
+            "yaw": 0
+          },
+          "after": {
+            "prefab": "lampA",
+            "x": -28.5,
+            "y": 0,
+            "z": -9,
+            "yaw": 0
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "benchB",
+            "x": 26.5,
+            "y": 0,
+            "z": 8,
+            "yaw": 1.5707963267948966
+          },
+          "after": {
+            "prefab": "benchB",
+            "x": 26.5,
+            "y": 0,
+            "z": 9.25,
+            "yaw": 1.5707963267948966
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "benchA",
+            "x": -26.5,
+            "y": 0,
+            "z": 8,
+            "yaw": -1.5707963267948966
+          },
+          "after": {
+            "prefab": "benchA",
+            "x": -26.5,
+            "y": 0,
+            "z": 9.25,
+            "yaw": -1.5707963267948966
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "benchB",
+            "x": 26.5,
+            "y": 0,
+            "z": -8,
+            "yaw": 1.5707963267948966
+          },
+          "after": {
+            "prefab": "benchB",
+            "x": 26.5,
+            "y": 0,
+            "z": -9.25,
+            "yaw": 1.5707963267948966
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "benchA",
+            "x": -26.5,
+            "y": 0,
+            "z": -8,
+            "yaw": -1.5707963267948966
+          },
+          "after": {
+            "prefab": "benchA",
+            "x": -26.5,
+            "y": 0,
+            "z": -9.25,
+            "yaw": -1.5707963267948966
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "crateB",
+            "x": 7.7,
+            "y": 0,
+            "z": -22,
+            "yaw": 0
+          },
+          "after": {
+            "prefab": "crateB",
+            "x": 11.45,
+            "y": 0,
+            "z": -20.25,
+            "yaw": 0
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "crateA",
+            "x": -7.7,
+            "y": 0,
+            "z": -22,
+            "yaw": 0
+          },
+          "after": {
+            "prefab": "crateA",
+            "x": -11.45,
+            "y": 0,
+            "z": -20.25,
+            "yaw": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "toy-town-l1-r2",
+      "geometrySame": true,
+      "navSame": true,
+      "spawnsSame": true,
+      "zonesSame": true,
+      "lootSame": true,
+      "boundsSame": true,
+      "colliderHashBefore": "f44078e7dfe657ed6c9fb865eba2b282d225d11ed7451c08ac76866a4e48db31",
+      "colliderHashExpected": "a492849af48a7855e16c74241284897a9526942e5718a81d157bbb68ff471694",
+      "colliderHashAfter": "a492849af48a7855e16c74241284897a9526942e5718a81d157bbb68ff471694",
+      "walkableHashExpected": "6d35a4dea43db6a2ecb74d0d797b2ca11814f44b48bb21911b26bf20739024cc",
+      "walkableHashAfter": "6d35a4dea43db6a2ecb74d0d797b2ca11814f44b48bb21911b26bf20739024cc",
+      "nodes": 41130,
+      "allowedFixes": [
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "lampB",
+            "x": 28.5,
+            "y": 0,
+            "z": 8,
+            "yaw": 0
+          },
+          "after": {
+            "prefab": "lampB",
+            "x": 28.5,
+            "y": 0,
+            "z": 9,
+            "yaw": 0
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "lampA",
+            "x": -28.5,
+            "y": 0,
+            "z": 8,
+            "yaw": 0
+          },
+          "after": {
+            "prefab": "lampA",
+            "x": -28.5,
+            "y": 0,
+            "z": 9,
+            "yaw": 0
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "lampB",
+            "x": 28.5,
+            "y": 0,
+            "z": -8,
+            "yaw": 0
+          },
+          "after": {
+            "prefab": "lampB",
+            "x": 28.5,
+            "y": 0,
+            "z": -9,
+            "yaw": 0
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "lampA",
+            "x": -28.5,
+            "y": 0,
+            "z": -8,
+            "yaw": 0
+          },
+          "after": {
+            "prefab": "lampA",
+            "x": -28.5,
+            "y": 0,
+            "z": -9,
+            "yaw": 0
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "benchB",
+            "x": 26.5,
+            "y": 0,
+            "z": 8,
+            "yaw": 1.5707963267948966
+          },
+          "after": {
+            "prefab": "benchB",
+            "x": 26.5,
+            "y": 0,
+            "z": 9.25,
+            "yaw": 1.5707963267948966
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "benchA",
+            "x": -26.5,
+            "y": 0,
+            "z": 8,
+            "yaw": -1.5707963267948966
+          },
+          "after": {
+            "prefab": "benchA",
+            "x": -26.5,
+            "y": 0,
+            "z": 9.25,
+            "yaw": -1.5707963267948966
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "benchB",
+            "x": 26.5,
+            "y": 0,
+            "z": -8,
+            "yaw": 1.5707963267948966
+          },
+          "after": {
+            "prefab": "benchB",
+            "x": 26.5,
+            "y": 0,
+            "z": -9.25,
+            "yaw": 1.5707963267948966
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "benchA",
+            "x": -26.5,
+            "y": 0,
+            "z": -8,
+            "yaw": -1.5707963267948966
+          },
+          "after": {
+            "prefab": "benchA",
+            "x": -26.5,
+            "y": 0,
+            "z": -9.25,
+            "yaw": -1.5707963267948966
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "crateB",
+            "x": 7.7,
+            "y": 0,
+            "z": -22,
+            "yaw": 0
+          },
+          "after": {
+            "prefab": "crateB",
+            "x": 11.45,
+            "y": 0,
+            "z": -20.25,
+            "yaw": 0
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "crateA",
+            "x": -7.7,
+            "y": 0,
+            "z": -22,
+            "yaw": 0
+          },
+          "after": {
+            "prefab": "crateA",
+            "x": -11.45,
+            "y": 0,
+            "z": -20.25,
+            "yaw": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "toy-town-l2-r1",
+      "geometrySame": true,
+      "navSame": true,
+      "spawnsSame": true,
+      "zonesSame": true,
+      "lootSame": true,
+      "boundsSame": true,
+      "colliderHashBefore": "c98378f47839ce3027b572ea1c51953f0f4df5ce58775c0c20ca5b3e6d9bf32d",
+      "colliderHashExpected": "1176a2cb175c1b5cc3cfe890b1b31f073255505547c6a4ee04607f6a0a5a3940",
+      "colliderHashAfter": "1176a2cb175c1b5cc3cfe890b1b31f073255505547c6a4ee04607f6a0a5a3940",
+      "walkableHashExpected": "35b397d24b4ae5674ac3e2e19ab2d7e8d0f86481f7c8375a59bf2011ef9d780f",
+      "walkableHashAfter": "35b397d24b4ae5674ac3e2e19ab2d7e8d0f86481f7c8375a59bf2011ef9d780f",
+      "nodes": 41286,
+      "allowedFixes": [
+        {
+          "type": "stair-entrance",
+          "before": {
+            "x": -20.9,
+            "y": 0.795102,
+            "z": -28.7,
+            "w": 2.999965,
+            "h": 1.612277,
+            "d": 0.999965,
+            "color": "accent:Spawn A",
+            "top": "accent:Spawn A",
+            "outline": true,
+            "kind": "wall",
+            "collide": true,
+            "blocksShots": true
+          },
+          "after": null
+        },
+        {
+          "type": "stair-entrance",
+          "before": {
+            "x": 20.9,
+            "y": 0.795102,
+            "z": -28.7,
+            "w": 2.999965,
+            "h": 1.612277,
+            "d": 0.999965,
+            "color": "awning:blue",
+            "top": "awning:blue",
+            "outline": true,
+            "kind": "wall",
+            "collide": true,
+            "blocksShots": true
+          },
+          "after": null
+        },
+        {
+          "type": "stair-entrance-post",
+          "before": {
+            "x": -19.52,
+            "y": 2.095105,
+            "z": -28.9,
+            "w": 0.239964,
+            "h": 4.212344,
+            "d": 1.999964,
+            "color": "accent:Spawn A",
+            "top": "accent:Spawn A",
+            "outline": true,
+            "kind": "wall",
+            "collide": true,
+            "blocksShots": true
+          },
+          "after": {
+            "x": -19.47,
+            "y": 2.095105,
+            "z": -28.9,
+            "w": 0.239964,
+            "h": 4.212344,
+            "d": 1.999964,
+            "color": "accent:Spawn A",
+            "top": "accent:Spawn A",
+            "outline": true,
+            "kind": "wall",
+            "collide": true,
+            "blocksShots": true
+          }
+        },
+        {
+          "type": "stair-entrance-post",
+          "before": {
+            "x": -22.28,
+            "y": 2.095108,
+            "z": -28.9,
+            "w": 0.239963,
+            "h": 4.212411,
+            "d": 1.999963,
+            "color": "accent:Spawn A",
+            "top": "accent:Spawn A",
+            "outline": true,
+            "kind": "wall",
+            "collide": true,
+            "blocksShots": true
+          },
+          "after": {
+            "x": -22.330000000000002,
+            "y": 2.095108,
+            "z": -28.9,
+            "w": 0.239963,
+            "h": 4.212411,
+            "d": 1.999963,
+            "color": "accent:Spawn A",
+            "top": "accent:Spawn A",
+            "outline": true,
+            "kind": "wall",
+            "collide": true,
+            "blocksShots": true
+          }
+        },
+        {
+          "type": "stair-entrance-post",
+          "before": {
+            "x": 19.52,
+            "y": 2.095105,
+            "z": -28.9,
+            "w": 0.239964,
+            "h": 4.212344,
+            "d": 1.999964,
+            "color": "awning:blue",
+            "top": "awning:blue",
+            "outline": true,
+            "kind": "wall",
+            "collide": true,
+            "blocksShots": true
+          },
+          "after": {
+            "x": 19.47,
+            "y": 2.095105,
+            "z": -28.9,
+            "w": 0.239964,
+            "h": 4.212344,
+            "d": 1.999964,
+            "color": "awning:blue",
+            "top": "awning:blue",
+            "outline": true,
+            "kind": "wall",
+            "collide": true,
+            "blocksShots": true
+          }
+        },
+        {
+          "type": "stair-entrance-post",
+          "before": {
+            "x": 22.28,
+            "y": 2.095108,
+            "z": -28.9,
+            "w": 0.239963,
+            "h": 4.212411,
+            "d": 1.999963,
+            "color": "awning:blue",
+            "top": "awning:blue",
+            "outline": true,
+            "kind": "wall",
+            "collide": true,
+            "blocksShots": true
+          },
+          "after": {
+            "x": 22.330000000000002,
+            "y": 2.095108,
+            "z": -28.9,
+            "w": 0.239963,
+            "h": 4.212411,
+            "d": 1.999963,
+            "color": "awning:blue",
+            "top": "awning:blue",
+            "outline": true,
+            "kind": "wall",
+            "collide": true,
+            "blocksShots": true
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "lampB",
+            "x": 28.5,
+            "y": 0,
+            "z": 8,
+            "yaw": 0
+          },
+          "after": {
+            "prefab": "lampB",
+            "x": 28.5,
+            "y": 0,
+            "z": 9,
+            "yaw": 0
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "lampA",
+            "x": -28.5,
+            "y": 0,
+            "z": 8,
+            "yaw": 0
+          },
+          "after": {
+            "prefab": "lampA",
+            "x": -28.5,
+            "y": 0,
+            "z": 9,
+            "yaw": 0
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "lampB",
+            "x": 28.5,
+            "y": 0,
+            "z": -8,
+            "yaw": 0
+          },
+          "after": {
+            "prefab": "lampB",
+            "x": 28.5,
+            "y": 0,
+            "z": -9,
+            "yaw": 0
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "lampA",
+            "x": -28.5,
+            "y": 0,
+            "z": -8,
+            "yaw": 0
+          },
+          "after": {
+            "prefab": "lampA",
+            "x": -28.5,
+            "y": 0,
+            "z": -9,
+            "yaw": 0
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "benchB",
+            "x": 26.5,
+            "y": 0,
+            "z": 8,
+            "yaw": 1.5707963267948966
+          },
+          "after": {
+            "prefab": "benchB",
+            "x": 26.5,
+            "y": 0,
+            "z": 9.25,
+            "yaw": 1.5707963267948966
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "benchA",
+            "x": -26.5,
+            "y": 0,
+            "z": 8,
+            "yaw": -1.5707963267948966
+          },
+          "after": {
+            "prefab": "benchA",
+            "x": -26.5,
+            "y": 0,
+            "z": 9.25,
+            "yaw": -1.5707963267948966
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "benchB",
+            "x": 26.5,
+            "y": 0,
+            "z": -8,
+            "yaw": 1.5707963267948966
+          },
+          "after": {
+            "prefab": "benchB",
+            "x": 26.5,
+            "y": 0,
+            "z": -9.25,
+            "yaw": 1.5707963267948966
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "benchA",
+            "x": -26.5,
+            "y": 0,
+            "z": -8,
+            "yaw": -1.5707963267948966
+          },
+          "after": {
+            "prefab": "benchA",
+            "x": -26.5,
+            "y": 0,
+            "z": -9.25,
+            "yaw": -1.5707963267948966
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "crateB",
+            "x": 7.7,
+            "y": 0,
+            "z": -22,
+            "yaw": 0
+          },
+          "after": {
+            "prefab": "crateB",
+            "x": 11.45,
+            "y": 0,
+            "z": -20.25,
+            "yaw": 0
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "crateA",
+            "x": -7.7,
+            "y": 0,
+            "z": -22,
+            "yaw": 0
+          },
+          "after": {
+            "prefab": "crateA",
+            "x": -11.45,
+            "y": 0,
+            "z": -20.25,
+            "yaw": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "toy-town-l2-r2",
+      "geometrySame": true,
+      "navSame": true,
+      "spawnsSame": true,
+      "zonesSame": true,
+      "lootSame": true,
+      "boundsSame": true,
+      "colliderHashBefore": "ef719d5f41130d7196a4ad43e215a9cd53ce84a00fecf7c0ee0c3c713498a391",
+      "colliderHashExpected": "bf4c0db655d2e8ed06528506efcb0363bf273a06036e63b7a4224f5ebb311122",
+      "colliderHashAfter": "bf4c0db655d2e8ed06528506efcb0363bf273a06036e63b7a4224f5ebb311122",
+      "walkableHashExpected": "833c4b6a7a738342ab8158d0f75d7c1f705a8bc8ff8ec1f4b1f54a2d1e96b64f",
+      "walkableHashAfter": "833c4b6a7a738342ab8158d0f75d7c1f705a8bc8ff8ec1f4b1f54a2d1e96b64f",
+      "nodes": 41224,
+      "allowedFixes": [
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "lampB",
+            "x": 28.5,
+            "y": 0,
+            "z": 8,
+            "yaw": 0
+          },
+          "after": {
+            "prefab": "lampB",
+            "x": 28.5,
+            "y": 0,
+            "z": 9,
+            "yaw": 0
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "lampA",
+            "x": -28.5,
+            "y": 0,
+            "z": 8,
+            "yaw": 0
+          },
+          "after": {
+            "prefab": "lampA",
+            "x": -28.5,
+            "y": 0,
+            "z": 9,
+            "yaw": 0
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "lampB",
+            "x": 28.5,
+            "y": 0,
+            "z": -8,
+            "yaw": 0
+          },
+          "after": {
+            "prefab": "lampB",
+            "x": 28.5,
+            "y": 0,
+            "z": -9,
+            "yaw": 0
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "lampA",
+            "x": -28.5,
+            "y": 0,
+            "z": -8,
+            "yaw": 0
+          },
+          "after": {
+            "prefab": "lampA",
+            "x": -28.5,
+            "y": 0,
+            "z": -9,
+            "yaw": 0
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "benchB",
+            "x": 26.5,
+            "y": 0,
+            "z": 8,
+            "yaw": 1.5707963267948966
+          },
+          "after": {
+            "prefab": "benchB",
+            "x": 26.5,
+            "y": 0,
+            "z": 9.25,
+            "yaw": 1.5707963267948966
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "benchA",
+            "x": -26.5,
+            "y": 0,
+            "z": 8,
+            "yaw": -1.5707963267948966
+          },
+          "after": {
+            "prefab": "benchA",
+            "x": -26.5,
+            "y": 0,
+            "z": 9.25,
+            "yaw": -1.5707963267948966
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "benchB",
+            "x": 26.5,
+            "y": 0,
+            "z": -8,
+            "yaw": 1.5707963267948966
+          },
+          "after": {
+            "prefab": "benchB",
+            "x": 26.5,
+            "y": 0,
+            "z": -9.25,
+            "yaw": 1.5707963267948966
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "benchA",
+            "x": -26.5,
+            "y": 0,
+            "z": -8,
+            "yaw": -1.5707963267948966
+          },
+          "after": {
+            "prefab": "benchA",
+            "x": -26.5,
+            "y": 0,
+            "z": -9.25,
+            "yaw": -1.5707963267948966
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "crateB",
+            "x": 7.7,
+            "y": 0,
+            "z": -22,
+            "yaw": 0
+          },
+          "after": {
+            "prefab": "crateB",
+            "x": 11.45,
+            "y": 0,
+            "z": -20.25,
+            "yaw": 0
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "crateA",
+            "x": -7.7,
+            "y": 0,
+            "z": -22,
+            "yaw": 0
+          },
+          "after": {
+            "prefab": "crateA",
+            "x": -11.45,
+            "y": 0,
+            "z": -20.25,
+            "yaw": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "toy-town",
+      "geometrySame": true,
+      "navSame": true,
+      "spawnsSame": true,
+      "zonesSame": true,
+      "lootSame": true,
+      "boundsSame": true,
+      "colliderHashBefore": "a2d51f15076f4ad44dfdc8010dff2c07b8ad38377e58ee366756e274c5e15eff",
+      "colliderHashExpected": "1be2befe09b0f5d62aa7382bac7eaed6f09704d4e08cf4f0b50843cd98bedbcd",
+      "colliderHashAfter": "1be2befe09b0f5d62aa7382bac7eaed6f09704d4e08cf4f0b50843cd98bedbcd",
+      "walkableHashExpected": "62dea37fad574d63aae8e946e6f08465dfc75fa90e9d24f2f41778a8e4acbeb4",
+      "walkableHashAfter": "62dea37fad574d63aae8e946e6f08465dfc75fa90e9d24f2f41778a8e4acbeb4",
+      "nodes": 52842,
+      "allowedFixes": [
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "screenA",
+            "x": -25.026,
+            "y": 0,
+            "z": 20,
+            "yaw": 0
+          },
+          "after": {
+            "prefab": "screenA",
+            "x": -28.325000000000003,
+            "y": 0,
+            "z": 20,
+            "yaw": 0
+          },
+          "junctionTrim": {
+            "wallX": -23,
+            "gap": 0.004,
+            "beforePrefab": [
+              {
+                "x": 0,
+                "y": 1.494,
+                "z": 0,
+                "w": 16.452,
+                "h": 3,
+                "d": 0.4,
+                "color": "zone:Spawn A:sand",
+                "top": "zone:Spawn A:sandTop",
+                "outline": false,
+                "kind": "wall",
+                "collide": true,
+                "blocksShots": true
+              },
+              {
+                "x": 0,
+                "y": 3.002,
+                "z": 0,
+                "w": 16.452,
+                "h": 0.004,
+                "d": 0.4,
+                "color": "outline",
+                "top": "outline",
+                "outline": false,
+                "kind": "decor",
+                "collide": false,
+                "blocksShots": false
+              }
+            ],
+            "afterPrefab": [
+              {
+                "x": 0,
+                "y": 1.494,
+                "z": 0,
+                "w": 9.842000000000002,
+                "h": 3,
+                "d": 0.4,
+                "color": "zone:Spawn A:sand",
+                "top": "zone:Spawn A:sandTop",
+                "outline": false,
+                "kind": "wall",
+                "collide": true,
+                "blocksShots": true
+              },
+              {
+                "x": 8.627000000000002,
+                "y": 1.494,
+                "z": 0,
+                "w": 5.796000000000003,
+                "h": 3,
+                "d": 0.4,
+                "color": "zone:Spawn A:sand",
+                "top": "zone:Spawn A:sandTop",
+                "outline": false,
+                "kind": "wall",
+                "collide": true,
+                "blocksShots": true
+              },
+              {
+                "x": 0,
+                "y": 3.002,
+                "z": 0,
+                "w": 9.842000000000002,
+                "h": 0.004,
+                "d": 0.4,
+                "color": "outline",
+                "top": "outline",
+                "outline": false,
+                "kind": "decor",
+                "collide": false,
+                "blocksShots": false
+              },
+              {
+                "x": 8.627000000000002,
+                "y": 3.002,
+                "z": 0,
+                "w": 5.796000000000003,
+                "h": 0.004,
+                "d": 0.4,
+                "color": "outline",
+                "top": "outline",
+                "outline": false,
+                "kind": "decor",
+                "collide": false,
+                "blocksShots": false
+              }
+            ]
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "screenA",
+            "x": -25.026,
+            "y": 0,
+            "z": -20,
+            "yaw": 0
+          },
+          "after": {
+            "prefab": "screenA",
+            "x": -28.325000000000003,
+            "y": 0,
+            "z": -20,
+            "yaw": 0
+          },
+          "junctionTrim": {
+            "wallX": -23,
+            "gap": 0.004,
+            "beforePrefab": [
+              {
+                "x": 0,
+                "y": 1.494,
+                "z": 0,
+                "w": 16.452,
+                "h": 3,
+                "d": 0.4,
+                "color": "zone:Spawn A:sand",
+                "top": "zone:Spawn A:sandTop",
+                "outline": false,
+                "kind": "wall",
+                "collide": true,
+                "blocksShots": true
+              },
+              {
+                "x": 0,
+                "y": 3.002,
+                "z": 0,
+                "w": 16.452,
+                "h": 0.004,
+                "d": 0.4,
+                "color": "outline",
+                "top": "outline",
+                "outline": false,
+                "kind": "decor",
+                "collide": false,
+                "blocksShots": false
+              }
+            ],
+            "afterPrefab": [
+              {
+                "x": 0,
+                "y": 1.494,
+                "z": 0,
+                "w": 9.842000000000002,
+                "h": 3,
+                "d": 0.4,
+                "color": "zone:Spawn A:sand",
+                "top": "zone:Spawn A:sandTop",
+                "outline": false,
+                "kind": "wall",
+                "collide": true,
+                "blocksShots": true
+              },
+              {
+                "x": 8.627000000000002,
+                "y": 1.494,
+                "z": 0,
+                "w": 5.796000000000003,
+                "h": 3,
+                "d": 0.4,
+                "color": "zone:Spawn A:sand",
+                "top": "zone:Spawn A:sandTop",
+                "outline": false,
+                "kind": "wall",
+                "collide": true,
+                "blocksShots": true
+              },
+              {
+                "x": 0,
+                "y": 3.002,
+                "z": 0,
+                "w": 9.842000000000002,
+                "h": 0.004,
+                "d": 0.4,
+                "color": "outline",
+                "top": "outline",
+                "outline": false,
+                "kind": "decor",
+                "collide": false,
+                "blocksShots": false
+              },
+              {
+                "x": 8.627000000000002,
+                "y": 3.002,
+                "z": 0,
+                "w": 5.796000000000003,
+                "h": 0.004,
+                "d": 0.4,
+                "color": "outline",
+                "top": "outline",
+                "outline": false,
+                "kind": "decor",
+                "collide": false,
+                "blocksShots": false
+              }
+            ]
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "screenB",
+            "x": 25.026,
+            "y": 0,
+            "z": 20,
+            "yaw": 0
+          },
+          "after": {
+            "prefab": "screenB",
+            "x": 28.325000000000003,
+            "y": 0,
+            "z": 20,
+            "yaw": 0
+          },
+          "junctionTrim": {
+            "wallX": 23,
+            "gap": 0.004,
+            "beforePrefab": [
+              {
+                "x": 0,
+                "y": 1.494,
+                "z": 0,
+                "w": 16.452,
+                "h": 3,
+                "d": 0.4,
+                "color": "zone:Spawn B:sand",
+                "top": "zone:Spawn B:sandTop",
+                "outline": false,
+                "kind": "wall",
+                "collide": true,
+                "blocksShots": true
+              },
+              {
+                "x": 0,
+                "y": 3.002,
+                "z": 0,
+                "w": 16.452,
+                "h": 0.004,
+                "d": 0.4,
+                "color": "outline",
+                "top": "outline",
+                "outline": false,
+                "kind": "decor",
+                "collide": false,
+                "blocksShots": false
+              }
+            ],
+            "afterPrefab": [
+              {
+                "x": 0,
+                "y": 1.494,
+                "z": 0,
+                "w": 9.842000000000002,
+                "h": 3,
+                "d": 0.4,
+                "color": "zone:Spawn B:sand",
+                "top": "zone:Spawn B:sandTop",
+                "outline": false,
+                "kind": "wall",
+                "collide": true,
+                "blocksShots": true
+              },
+              {
+                "x": -8.627000000000002,
+                "y": 1.494,
+                "z": 0,
+                "w": 5.796000000000003,
+                "h": 3,
+                "d": 0.4,
+                "color": "zone:Spawn B:sand",
+                "top": "zone:Spawn B:sandTop",
+                "outline": false,
+                "kind": "wall",
+                "collide": true,
+                "blocksShots": true
+              },
+              {
+                "x": 0,
+                "y": 3.002,
+                "z": 0,
+                "w": 9.842000000000002,
+                "h": 0.004,
+                "d": 0.4,
+                "color": "outline",
+                "top": "outline",
+                "outline": false,
+                "kind": "decor",
+                "collide": false,
+                "blocksShots": false
+              },
+              {
+                "x": -8.627000000000002,
+                "y": 3.002,
+                "z": 0,
+                "w": 5.796000000000003,
+                "h": 0.004,
+                "d": 0.4,
+                "color": "outline",
+                "top": "outline",
+                "outline": false,
+                "kind": "decor",
+                "collide": false,
+                "blocksShots": false
+              }
+            ]
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "screenB",
+            "x": 25.026,
+            "y": 0,
+            "z": -20,
+            "yaw": 0
+          },
+          "after": {
+            "prefab": "screenB",
+            "x": 28.325000000000003,
+            "y": 0,
+            "z": -20,
+            "yaw": 0
+          },
+          "junctionTrim": {
+            "wallX": 23,
+            "gap": 0.004,
+            "beforePrefab": [
+              {
+                "x": 0,
+                "y": 1.494,
+                "z": 0,
+                "w": 16.452,
+                "h": 3,
+                "d": 0.4,
+                "color": "zone:Spawn B:sand",
+                "top": "zone:Spawn B:sandTop",
+                "outline": false,
+                "kind": "wall",
+                "collide": true,
+                "blocksShots": true
+              },
+              {
+                "x": 0,
+                "y": 3.002,
+                "z": 0,
+                "w": 16.452,
+                "h": 0.004,
+                "d": 0.4,
+                "color": "outline",
+                "top": "outline",
+                "outline": false,
+                "kind": "decor",
+                "collide": false,
+                "blocksShots": false
+              }
+            ],
+            "afterPrefab": [
+              {
+                "x": 0,
+                "y": 1.494,
+                "z": 0,
+                "w": 9.842000000000002,
+                "h": 3,
+                "d": 0.4,
+                "color": "zone:Spawn B:sand",
+                "top": "zone:Spawn B:sandTop",
+                "outline": false,
+                "kind": "wall",
+                "collide": true,
+                "blocksShots": true
+              },
+              {
+                "x": -8.627000000000002,
+                "y": 1.494,
+                "z": 0,
+                "w": 5.796000000000003,
+                "h": 3,
+                "d": 0.4,
+                "color": "zone:Spawn B:sand",
+                "top": "zone:Spawn B:sandTop",
+                "outline": false,
+                "kind": "wall",
+                "collide": true,
+                "blocksShots": true
+              },
+              {
+                "x": 0,
+                "y": 3.002,
+                "z": 0,
+                "w": 9.842000000000002,
+                "h": 0.004,
+                "d": 0.4,
+                "color": "outline",
+                "top": "outline",
+                "outline": false,
+                "kind": "decor",
+                "collide": false,
+                "blocksShots": false
+              },
+              {
+                "x": -8.627000000000002,
+                "y": 3.002,
+                "z": 0,
+                "w": 5.796000000000003,
+                "h": 0.004,
+                "d": 0.4,
+                "color": "outline",
+                "top": "outline",
+                "outline": false,
+                "kind": "decor",
+                "collide": false,
+                "blocksShots": false
+              }
+            ]
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "lampB",
+            "x": 28.5,
+            "y": 0,
+            "z": 8,
+            "yaw": 0
+          },
+          "after": {
+            "prefab": "lampB",
+            "x": 28.5,
+            "y": 0,
+            "z": 9,
+            "yaw": 0
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "lampA",
+            "x": -28.5,
+            "y": 0,
+            "z": 8,
+            "yaw": 0
+          },
+          "after": {
+            "prefab": "lampA",
+            "x": -28.5,
+            "y": 0,
+            "z": 9,
+            "yaw": 0
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "lampB",
+            "x": 28.5,
+            "y": 0,
+            "z": -8,
+            "yaw": 0
+          },
+          "after": {
+            "prefab": "lampB",
+            "x": 28.5,
+            "y": 0,
+            "z": -9,
+            "yaw": 0
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "lampA",
+            "x": -28.5,
+            "y": 0,
+            "z": -8,
+            "yaw": 0
+          },
+          "after": {
+            "prefab": "lampA",
+            "x": -28.5,
+            "y": 0,
+            "z": -9,
+            "yaw": 0
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "benchB",
+            "x": 26.5,
+            "y": 0,
+            "z": 8,
+            "yaw": 1.5707963267948966
+          },
+          "after": {
+            "prefab": "benchB",
+            "x": 26.5,
+            "y": 0,
+            "z": 9.25,
+            "yaw": 1.5707963267948966
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "benchA",
+            "x": -26.5,
+            "y": 0,
+            "z": 8,
+            "yaw": -1.5707963267948966
+          },
+          "after": {
+            "prefab": "benchA",
+            "x": -26.5,
+            "y": 0,
+            "z": 9.25,
+            "yaw": -1.5707963267948966
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "benchB",
+            "x": 26.5,
+            "y": 0,
+            "z": -8,
+            "yaw": 1.5707963267948966
+          },
+          "after": {
+            "prefab": "benchB",
+            "x": 26.5,
+            "y": 0,
+            "z": -9.25,
+            "yaw": 1.5707963267948966
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "benchA",
+            "x": -26.5,
+            "y": 0,
+            "z": -8,
+            "yaw": -1.5707963267948966
+          },
+          "after": {
+            "prefab": "benchA",
+            "x": -26.5,
+            "y": 0,
+            "z": -9.25,
+            "yaw": -1.5707963267948966
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "crateB",
+            "x": 7.7,
+            "y": 0,
+            "z": -22,
+            "yaw": 0
+          },
+          "after": {
+            "prefab": "crateB",
+            "x": 7.7,
+            "y": 0,
+            "z": -22.75,
+            "yaw": 0
+          }
+        },
+        {
+          "type": "prop-in-wall",
+          "before": {
+            "prefab": "crateA",
+            "x": -7.7,
+            "y": 0,
+            "z": -22,
+            "yaw": 0
+          },
+          "after": {
+            "prefab": "crateA",
+            "x": -7.7,
+            "y": 0,
+            "z": -22.75,
+            "yaw": 0
+          }
+        }
+      ]
+    }
+  ]
+}
