@@ -355,6 +355,11 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   hold", default toggle) a camera 2.5 m in front of the eye looking back at the own character (drawn only in this
   view, HIP hold); a ray against the map pulls it in (0.25 m from the wall, min 0.6 m). No shooting and no ADS in
   this view, reloading works; viewmodel and crosshair hidden. Client-only (others see nothing different).
+- 2026-11-01 batch2 step 4: team pings. Z or middle mouse: the client casts the view ray against the map (80 m;
+  no ping at the sky) and calls `ping{x, y, z}`; the server checks alive + range and allows one per second per
+  player, then inserts `ping_event`. Clients show only their own team's pings (free-for-all: only your own): a
+  yellow diamond + beam drawn through walls for 5 s, a HUD line "◆ Name · 12 m", a short ping sound. The event
+  reaches every client in the room (an enemy cheat client could read it; small, logged). Offline: your own ping only.
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 

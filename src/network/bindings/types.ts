@@ -33,6 +33,16 @@ export const KillEvent = __t.object("KillEvent", {
 });
 export type KillEvent = __Infer<typeof KillEvent>;
 
+export const PingEvent = __t.object("PingEvent", {
+  roomId: __t.u64(),
+  playerId: __t.u64(),
+  team: __t.string(),
+  x: __t.f32(),
+  y: __t.f32(),
+  z: __t.f32(),
+});
+export type PingEvent = __Infer<typeof PingEvent>;
+
 export const Player = __t.object("Player", {
   id: __t.u64(),
   roomId: __t.u64(),

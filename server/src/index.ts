@@ -12,6 +12,7 @@ import { CAPSULE, MOVEMENT } from '../../src/config/movement.ts';
 import { FIRE_CHECK, NET } from '../../src/config/net.ts';
 import { MATCH } from '../../src/config/rounds.ts';
 import { CORNUCOPIA, ITEMS } from '../../src/config/items.ts';
+import { PINGS } from '../../src/config/pings.ts';
 import { LOADOUT, loadoutFor, WEAPON_STATS } from '../../src/config/weapons.ts';
 import type { WeaponId } from '../../src/weapons/types.ts';
 import { setPrimary, type Actor } from '../../src/gameplay/actor.ts';
@@ -138,12 +139,20 @@ const item = table({ name: 'item', public: true }, {
   pedestal: t.bool(),
 });
 
+/** Team ping (marker for teammates; clients filter by team). Event table. */
+const pingEvent = table({ name: 'ping_event', public: true, event: true }, {
+  roomId: t.u64(),
+  playerId: t.u64(),
+  team: t.string(),
+  x: t.f32(), y: t.f32(), z: t.f32(),
+});
+
 const tickTimer = table({ name: 'tick_timer' }, {
   scheduledId: t.u64().primaryKey().autoInc(),
   scheduledAt: t.scheduleAt(),
 });
 
-const spacetimedb = schema({ room, player, shotEvent, killEvent, item, tickTimer });
+const spacetimedb = schema({ room, player, shotEvent, killEvent, item, pingEvent, tickTimer });
 export default spacetimedb;
 
 type Ctx = ReducerCtx<InferSchema<typeof spacetimedb>>;
@@ -600,6 +609,20 @@ export const pickUp = spacetimedb.reducer({ itemId: t.u64() }, (ctx, { itemId })
   if (!it || it.roomId !== row.roomId || !r || r.phase !== 'live') return;
   if (!inPickupRange(it, row.x, row.y, row.z, ITEMS.serverSlack)) return;
   pickUpItem(ctx, r, row, actorOf(row), it);
+});
+
+/** Last ping time per player id (module memory; rate limit). */
+const lastPing = new Map<bigint, number>();
+
+/** Team ping: a marker where the player looks (the client casts the ray). Rate-limited, range-checked. */
+export const ping = spacetimedb.reducer({ x: t.f32(), y: t.f32(), z: t.f32() }, (ctx, { x, y, z }) => {
+  const row = myRow(ctx);
+  if (!row || !row.alive || ![x, y, z].every(Number.isFinite)) return;
+  if (Math.hypot(x - row.x, y - row.y, z - row.z) > PINGS.maxDistance + PINGS.serverSlack) return;
+  const now = nowMs(ctx), last = lastPing.get(row.id) ?? -Infinity;
+  if (now - last < PINGS.cooldown * 1000) return;
+  lastPing.set(row.id, now);
+  ctx.db.pingEvent.insert({ roomId: row.roomId, playerId: row.id, team: row.team, x, y, z });
 });
 
 /** The client's measured round-trip time, for the scoreboard. */

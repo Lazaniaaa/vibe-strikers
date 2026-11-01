@@ -26,6 +26,9 @@ export class Input {
   /** Second-person view (V): toggled state; held = key down. debugSecondPerson overrides (tests). */
   private secondToggled = false;
   debugSecondPerson: boolean | null = null;
+  /** Ping request (Z or middle mouse), read once with takePing. */
+  private pingRequest = false;
+  takePing(): boolean { const p = this.pingRequest; this.pingRequest = false; return p; }
   /** Called once per Enter / click while the match is over. */
   onConfirm: (() => void) | null = null;
 
@@ -62,6 +65,7 @@ export class Input {
     if (primary >= 0) this.primaryRequest = primary;
     if (e.code === 'Enter') this.onConfirm?.();
     if (e.code === KEYS.secondPerson && !e.repeat) this.secondToggled = !this.secondToggled;
+    if (e.code === KEYS.ping && !e.repeat) this.pingRequest = true;
     if (e.code === KEYS.jump || e.code === KEYS.crouch || e.code === KEYS.scoreboard) e.preventDefault();
     if (!e.repeat) this.pressed.add(e.code);
     this.keys.add(e.code);
@@ -72,6 +76,7 @@ export class Input {
     if (!this.locked) { this.requestLock(); this.onConfirm?.(); return; }
     if (e.button === 0) this.fireHeld = true;
     if (e.button === 2) { this.adsHeld = true; this.adsToggled = !this.adsToggled; }
+    if (e.button === 1) { this.pingRequest = true; e.preventDefault(); }
   };
   private onMouseUp = (e: MouseEvent) => {
     if (e.button === 0) this.fireHeld = false;

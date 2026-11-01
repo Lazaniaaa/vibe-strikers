@@ -41,6 +41,7 @@ import JoinQuickReducer from "./join_quick_reducer";
 import LeaveRoomReducer from "./leave_room_reducer";
 import MoveReducer from "./move_reducer";
 import PickUpReducer from "./pick_up_reducer";
+import PingReducer from "./ping_reducer";
 import ReloadReducer from "./reload_reducer";
 import ReportPingReducer from "./report_ping_reducer";
 import SetPrimaryWeaponReducer from "./set_primary_weapon_reducer";
@@ -51,6 +52,7 @@ import SwitchWeaponReducer from "./switch_weapon_reducer";
 // Import all table schema definitions
 import ItemRow from "./item_table";
 import KillEventRow from "./kill_event_table";
+import PingEventRow from "./ping_event_table";
 import PlayerRow from "./player_table";
 import RoomRow from "./room_table";
 import ShotEventRow from "./shot_event_table";
@@ -81,6 +83,14 @@ const tablesSchema = __schema({
     ],
     event: true,
   }, KillEventRow),
+  pingEvent: __table({
+    name: 'ping_event',
+    indexes: [
+    ],
+    constraints: [
+    ],
+    event: true,
+  }, PingEventRow),
   player: __table({
     name: 'player',
     indexes: [
@@ -132,6 +142,7 @@ const reducersSchema = __reducers(
   __reducerSchema("leave_room", LeaveRoomReducer),
   __reducerSchema("move", MoveReducer),
   __reducerSchema("pick_up", PickUpReducer),
+  __reducerSchema("ping", PingReducer),
   __reducerSchema("reload", ReloadReducer),
   __reducerSchema("report_ping", ReportPingReducer),
   __reducerSchema("set_primary_weapon", SetPrimaryWeaponReducer),

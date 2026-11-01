@@ -35,6 +35,7 @@ export const SOUNDS = {
   reload: { ...d, wave: 'square', freq: 1200, freqEnd: 700, sustain: 0.01, release: 0.03, noise: 0.5, lowpass: 3000, volume: 0.3, pitchJitter: 0.08 },
   step: { ...d, wave: 'noise', freq: 120, freqEnd: 60, sustain: 0.015, release: 0.06, noise: 1, lowpass: 700, volume: 0.25, pitchJitter: 0.15 },
   ui: { ...d, wave: 'sine', freq: 660, freqEnd: 880, sustain: 0.02, release: 0.05, volume: 0.25, pitchJitter: 0 },
+  ping: { ...d, wave: 'sine', freq: 1046, freqEnd: 1568, sustain: 0.05, release: 0.18, volume: 0.35, pitchJitter: 0 },
 } as const satisfies Record<string, SoundDef>;
 
 export type SoundName = keyof typeof SOUNDS;

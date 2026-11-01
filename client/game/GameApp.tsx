@@ -21,6 +21,8 @@ import { FramePerf } from './perf';
 import { AdsController } from './ads';
 import { BootGlows, ItemViews } from './items';
 import { SecondPersonView } from './secondPerson';
+import { PingMarkers } from './pings';
+import { pingPoint } from './pingRay';
 import type { GameMode } from '../../src/gameplay/mode';
 import { CORNUCOPIA, ITEMS } from '../../src/config/items';
 import { cornucopiaEndText, cornucopiaScoreLine, healHint } from '../../src/ui/modeText';
@@ -156,7 +158,8 @@ function GameDriver({ options }: { options: GameOptions }) {
     const items = new ItemViews();
     const glows = new BootGlows();
     const second = new SecondPersonView(sim.local);
-    return { sim, input, hud, effects, rigs, viewmodel, ads, markers, items, glows, second, nameTags, tagger, stats, perf, disposables: [unitBox, tracerMat, impactMat, flashMat, flashGeo, allyMat, allyGeo] };
+    const pings = new PingMarkers();
+    return { sim, input, hud, effects, rigs, viewmodel, ads, markers, items, glows, second, pings, nameTags, tagger, stats, perf, disposables: [unitBox, tracerMat, impactMat, flashMat, flashGeo, allyMat, allyGeo] };
   }, [world, rapier, gl, options.freezeTime, options.mode, options.teams]);
 
   useEffect(() => {
@@ -166,6 +169,7 @@ function GameDriver({ options }: { options: GameOptions }) {
     scene.add(game.items.group);
     scene.add(game.glows.group);
     scene.add(game.second.rig.root);
+    scene.add(game.pings.group);
     const cam = camera as PerspectiveCamera;
     cam.rotation.order = 'YXZ';
     // Compile every material now so the first shot / tracer / flash does not stall a frame.
@@ -209,6 +213,8 @@ function GameDriver({ options }: { options: GameOptions }) {
       scene.remove(game.items.group);
       scene.remove(game.glows.group);
       scene.remove(game.second.rig.root);
+      scene.remove(game.pings.group);
+      game.pings.dispose();
       game.markers.dispose();
       game.input.dispose();
       game.ads.dispose();
@@ -243,6 +249,8 @@ function GameDriver({ options }: { options: GameOptions }) {
       game.ads.update(dt, input.wantAds(settings.adsMode) && !secondWanted && local.alive && local.slots[local.active].reloadLeft <= 0, wid);
       if (options.debug) input.debugLook = null;
       intent.aim = game.ads.scoped(wid);
+      // Z / middle mouse: ping (offline the teammates are bots, so only you see it).
+      if (input.takePing() && local.alive) { const p = pingPoint(local, blockersForDebug); if (p) { game.pings.add(p.x, p.y, p.z, 'You'); getSfx().play('ping'); } }
       sim.update(dt, intent);
     }
     perf.now.sim = performance.now() - frameStart;
@@ -326,6 +334,7 @@ function GameDriver({ options }: { options: GameOptions }) {
     hud.setCrosshairHidden(game.ads.hideCrosshair || !local.alive || secondView);
     effects.update(dt);
     game.items.sync(sim.items, state.clock.elapsedTime);
+    game.pings.update(dt);
     game.glows.begin();
     for (const a of sim.actors) if (a.alive && a.boots && a.sinceBoost < CORNUCOPIA.glowTime) game.glows.show(a.id, a.x, a.y, a.z);
     game.glows.end();
@@ -352,6 +361,7 @@ function GameDriver({ options }: { options: GameOptions }) {
       fillHudView(view, sim, input.locked || options.debug, stats);
       const near = sim.local.alive && sim.round.phase === 'live' ? sim.itemNear(sim.local) : null;
       view.hint = near ? itemHint(near) : healHint(sim.local.healLeft > 0);
+      view.pings = game.pings.text(sim.local.x, sim.local.z);
       view.perf += ` \u00b7 worst ${Math.round(perf.displayWorstMs)} ms (sim ${perf.displayWorstSimMs.toFixed(1)}) / 5 s`;
       hud.update(view);
     }

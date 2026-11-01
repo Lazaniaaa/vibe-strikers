@@ -85,3 +85,4 @@ body { font-family: system-ui, 'Segoe UI', sans-serif; user-select: none; }
 .loading-track { height: 10px; border-radius: 5px; background: #fff2; overflow: hidden; }
 .loading-bar { height: 100%; width: 0; background: #4fb6ff; transition: width 0.1s linear; }
 .loading-error .loading-label { color: #ff8a7a; }
+.hud-pings { position: absolute; left: 16px; top: 40%; font-size: 15px; font-weight: 700; color: #ffe14d; white-space: pre-line; text-shadow: 0 1px 3px #000; }

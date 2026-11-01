@@ -10,6 +10,8 @@ export const KEYS = {
   crouch: 'ControlLeft',
   crouchAlt: 'KeyC',
   reload: 'KeyR',
+  /** Team ping (also the middle mouse button). */
+  ping: 'KeyZ',
   /** Second-person view (GAME.md 5). */
   secondPerson: 'KeyV',
   /** Pick up / use an item on the ground. */

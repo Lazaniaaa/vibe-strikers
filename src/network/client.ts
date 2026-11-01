@@ -11,12 +11,14 @@ import type RoomRowDef from './bindings/room_table.ts';
 import type ShotEventDef from './bindings/shot_event_table.ts';
 import type KillEventDef from './bindings/kill_event_table.ts';
 import type ItemRowDef from './bindings/item_table.ts';
+import type PingEventDef from './bindings/ping_event_table.ts';
 
 export type PlayerRow = Infer<typeof PlayerRowDef>;
 export type RoomRow = Infer<typeof RoomRowDef>;
 export type ShotEvent = Infer<typeof ShotEventDef>;
 export type KillEvent = Infer<typeof KillEventDef>;
 export type ItemRow = Infer<typeof ItemRowDef>;
+export type PingEvent = Infer<typeof PingEventDef>;
 
 /** Samples kept for the server clock offset estimate (about 2 s of updates). */
 const OFFSET_SAMPLES = 64;
@@ -107,7 +109,7 @@ export interface NetOptions {
 
 type Pending = { at: number; kind: 'upsert' | 'delete'; row: PlayerRow }
   | { at: number; kind: 'shot'; row: ShotEvent } | { at: number; kind: 'kill'; row: KillEvent }
-  | { at: number; kind: 'item' | 'itemDelete'; row: ItemRow };
+  | { at: number; kind: 'item' | 'itemDelete'; row: ItemRow } | { at: number; kind: 'ping'; row: PingEvent };
 
 export class GameNet {
   conn: DbConnection | null = null;
@@ -126,6 +128,8 @@ export class GameNet {
   /** Server events of my room (after artificial lag). */
   onShot: ((e: ShotEvent) => void) | null = null;
   onKill: ((e: KillEvent) => void) | null = null;
+  /** Team pings of my room (all teams; the app shows only its own team's). */
+  onPing: ((e: PingEvent) => void) | null = null;
   /** Called when I (re)spawn: take position AND view direction from the row. */
   onSpawn: ((row: PlayerRow) => void) | null = null;
   lastError = '';
@@ -189,6 +193,7 @@ export class GameNet {
     c.db.player.onDelete((_ctx, row) => this.queue({ at: delay(), kind: 'delete', row }));
     c.db.shotEvent.onInsert((_ctx, row) => this.queue({ at: delay(), kind: 'shot', row }));
     c.db.killEvent.onInsert((_ctx, row) => this.queue({ at: delay(), kind: 'kill', row }));
+    c.db.pingEvent.onInsert((_ctx, row) => this.queue({ at: delay(), kind: 'ping', row }));
     c.db.item.onInsert((_ctx, row) => this.queue({ at: delay(), kind: 'item', row }));
     c.db.item.onUpdate((_ctx, _old, row) => this.queue({ at: delay(), kind: 'item', row }));
     c.db.item.onDelete((_ctx, row) => this.queue({ at: delay(), kind: 'itemDelete', row }));
@@ -210,6 +215,7 @@ export class GameNet {
       else if (p.kind === 'kill') { if (this.me && p.row.roomId === this.me.roomId) this.onKill?.(p.row); }
       else if (p.kind === 'item') { if (this.me && p.row.roomId === this.me.roomId) this.items.set(p.row.id, p.row); }
       else if (p.kind === 'itemDelete') this.items.delete(p.row.id);
+      else if (p.kind === 'ping') { if (this.me && p.row.roomId === this.me.roomId) this.onPing?.(p.row); }
     }
     if (n > 0) this.pending.splice(0, n);
     this.room = this.me ? this.allRooms.get(this.me.roomId) ?? null : null;
@@ -266,6 +272,7 @@ export class GameNet {
         `SELECT * FROM shot_event WHERE room_id = ${roomId}`,
         `SELECT * FROM kill_event WHERE room_id = ${roomId}`,
         `SELECT * FROM item WHERE room_id = ${roomId}`,
+        `SELECT * FROM ping_event WHERE room_id = ${roomId}`,
       ]);
     this.roomSub = { id: roomId, handle };
   }
@@ -304,7 +311,7 @@ export class GameNet {
     this.roomSub = null;
     this.me = null; this.room = null;
     this.players.clear(); this.buffers.clear(); this.allPlayers.clear(); this.items.clear(); this.pending.length = 0;
-    this.onCorrection = null; this.onSpawn = null; this.onShot = null; this.onKill = null; this.onPlayerRemoved = null;
+    this.onCorrection = null; this.onSpawn = null; this.onShot = null; this.onKill = null; this.onPing = null; this.onPlayerRemoved = null;
   }
 
   /** Send the local movement at NET.sendRateHz. Call every frame with the frame time. */
@@ -340,6 +347,9 @@ export class GameNet {
 
   /** Choose the primary (rifle / shotgun / sniper); rejects if the team already has a sniper. */
   setPrimary(weapon: string): Promise<void> { return this.call(() => this.conn!.reducers.setPrimaryWeapon({ weapon })); }
+
+  /** Team ping at a world point (the server rate-limits it). */
+  ping(x: number, y: number, z: number): void { if (this.conn) void this.call(() => this.conn!.reducers.ping({ x, y, z })).catch(() => undefined); }
 
   /** E on an item on the ground (the server checks range and phase). */
   pickUp(itemId: bigint): void { if (this.conn) void this.call(() => this.conn!.reducers.pickUp({ itemId })).catch(() => undefined); }

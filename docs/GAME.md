@@ -111,7 +111,9 @@ ignored), room reducers `join_quick{name, character}`, `create_private_room{name
 `join_by_code{code, name, character}`, `leave_room` (M2a), `fire{seq, yaw, pitch, viewTimeMs, scoped}` (server time of the world the client was showing, used for the
 rewind; scoped = sniper accuracy only), `reload`, `switch_weapon{slot}` (M2b), `set_primary_weapon{weapon}` (M3), `pick_up{itemId}` (drops: weapon swaps the primary, old one drops; live phase, range
 `ITEMS.pickupRadius` + server slack), `reload`, `switchWeapon{slot}`,
-`pickup{itemId}`, `useHeal`, `emote{id}`, `ping{x,y,z,kind}`,
+`pickup{itemId}`, `useHeal`, `emote{id}`, `ping{x,y,z,kind}` (built 2026-11-01 as `ping{x, y, z}`: event table
+`ping_event{roomId, playerId, team, x, y, z}`, one per `PINGS.cooldown` per player, alive players only; clients show
+only their own team's pings),
 `chat{text}` (private rooms only), `joinRoom{code|quick, nickname, characterId}`,
 `loadout{primary}`, `pingMeasure` (RTT every 1 s).
 

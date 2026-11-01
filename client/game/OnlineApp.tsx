@@ -30,6 +30,8 @@ import { AvatarRig, DeathMarkers, ShotEffects, ViewmodelRig } from './visuals';
 import { AdsController } from './ads';
 import { BootGlows, ItemViews } from './items';
 import { SecondPersonView } from './secondPerson';
+import { PingMarkers } from './pings';
+import { pingPoint } from './pingRay';
 import { cornucopiaLoadout, itemHint, nearestOf } from '../../src/gameplay/items';
 import { isFfaTeam } from '../../src/gameplay/mode';
 import { CORNUCOPIA } from '../../src/config/items';
@@ -109,11 +111,12 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
     const items = new ItemViews();
     const glows = new BootGlows();
     const second = new SecondPersonView(local);
+    const pings = new PingMarkers();
     const nameTags = new NameTags(hudRoot);
     const tagger = new TagProjector(nameTags, blockers);
     const remotes = new Map<bigint, Remote>();
     const perf = new FramePerf();
-    const stats = { frames: 0, fps: 0, triangles: 0, calls: 0, remotes: 0, shots: 0, hits: 0, hitsWithoutRewind: 0, kills: 0, deaths: 0, serverShots: 0 };
+    const stats = { frames: 0, fps: 0, triangles: 0, calls: 0, remotes: 0, shots: 0, hits: 0, hitsWithoutRewind: 0, kills: 0, deaths: 0, serverShots: 0, pings: 0 };
     const sample: Snapshot = { t: 0, x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0, yaw: 0, pitch: 0, crouch: false, grounded: true, alive: true };
     const feed: string[] = [];
     const feedEntries: KillFeedEntry[] = [];
@@ -168,6 +171,13 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
       }
       if (net.me && e.victimId === net.me.id && e.hitKind === 'player') { hud.damageFlash(EFFECTS.damageFlashTime); sfx.play('hurt'); }
     };
+    // Team pings: only my team's are shown (in free-for-all only my own).
+    net.onPing = (p) => {
+      if (!net.me || p.team !== net.me.team) return;
+      pings.add(p.x, p.y, p.z, p.playerId === net.me.id ? 'You' : name(p.playerId));
+      sfx.play('ping');
+      stats.pings++;
+    };
     net.onKill = (k: KillEvent) => {
       if (net.me && k.killerId === net.me.id) stats.kills++;
       if (net.me && k.victimId === net.me.id) stats.deaths++;
@@ -183,7 +193,7 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
         weapon: k.weapon, headshot: k.headshot });
       if (feedEntries.length > 4) feedEntries.shift();
     };
-    return { local, motor, input, hud, scoreboard, viewmodel, ads, view, sfx, audio, markers, items, glows, second, feedEntries, nameTags, tagger, effects, remotes, perf, stats, sample, feed, scratch, rewinds, allyMat, allyGeo,
+    return { local, motor, input, hud, scoreboard, viewmodel, ads, view, sfx, audio, markers, items, glows, second, pings, feedEntries, nameTags, tagger, effects, remotes, perf, stats, sample, feed, scratch, rewinds, allyMat, allyGeo,
       disposables: [unitBox, tracerMat, impactMat, flashMat, flashGeo, allyMat, allyGeo] };
   }, [net, world, rapier, gl, scene, debug, onLeave]);
 
@@ -195,6 +205,7 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
     scene.add(game.items.group);
     scene.add(game.glows.group);
     scene.add(game.second.rig.root);
+    scene.add(game.pings.group);
     if (debug) {
       window.__online = {
         net, local: game.local, stats: game.stats,
@@ -205,7 +216,7 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
           local: { x: game.local.x, y: game.local.y, z: game.local.z, grounded: game.local.grounded, mag: game.local.slots[game.local.active].mag },
           items: [...net.items.values()].map((i) => ({ id: String(i.id), kind: i.kind, weapon: i.weapon, mag: i.mag, reserve: i.reserve, x: i.x, y: i.y, z: i.z, pedestal: i.pedestal })),
           itemViews: game.items.count, hint: view.hint ?? '', primary: game.local.hasPrimary ? game.local.slots[0].stats.id : '',
-          glows: game.glows.visibleCount, secondPerson: game.second.active, secondDistance: game.second.distance, center: view.center, sub: view.sub, scoreLine: view.scoreLine ?? '', mode: net.room?.mode, teams: net.room?.teams,
+          glows: game.glows.visibleCount, pings: game.pings.count, pingText: view.pings ?? '', secondPerson: game.second.active, secondDistance: game.second.distance, center: view.center, sub: view.sub, scoreLine: view.scoreLine ?? '', mode: net.room?.mode, teams: net.room?.teams,
           localState: { boots: game.local.boots, active: game.local.active, healLeft: net.me?.healLeft ?? 0, pistol: [game.local.slots[1].mag, game.local.slots[1].reserve] },
           snapBacks: net.corrections, players: net.players.size, remotes: game.remotes.size, stats: { ...game.stats },
         }),
@@ -240,6 +251,8 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
       scene.remove(game.items.group);
       scene.remove(game.glows.group);
       scene.remove(game.second.rig.root);
+      scene.remove(game.pings.group);
+      game.pings.dispose();
       game.markers.dispose();
       game.input.dispose();
       game.ads.dispose();
@@ -310,6 +323,8 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
           weaponNow.moveSpeedScale * (game.ads.scoped(weaponNow.id) ? weaponNow.adsSpeedScale : 1));
         net.tickSend(delta, { x: local.x, y: local.y, z: local.z, vx: local.vx, vy: local.vy, vz: local.vz, yaw: local.yaw,
           pitch: local.pitch, crouch: local.crouching, grounded: local.grounded, walk: intent.walk });
+        // Z / middle mouse: team ping where I look.
+        if (input.takePing()) { const p = pingPoint(local, blockers); if (p) net.ping(p.x, p.y, p.z); }
         // E: pick up the nearest item (the server checks range and swaps the primary).
         if (intent.use && live) { const it = nearestOf(net.items.values(), local.x, local.y, local.z); if (it) net.pickUp(it.id); }
         // Weapon switch / reload / fire (the server repeats every check).
@@ -451,6 +466,7 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
       game.tagger.place(cam, size.width, size.height, Number(id), row.name, row.team === myTeam, a.x, a.y, a.z, !a.alive || r.rig.hiddenByCamera);
     }
     effects.update(dt);
+    game.pings.update(dt);
     game.items.sync(net.items, state.clock.elapsedTime);
 
     const renderStart = performance.now();
@@ -482,6 +498,7 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
       }
       const near = local.alive && room?.phase === 'live' ? nearestOf(net.items.values(), local.x, local.y, local.z) : null;
       view.hint = near ? itemHint(near) : healHint((me?.healLeft ?? 0) > 0);
+      view.pings = game.pings.text(local.x, local.z);
       view.fps = stats.fps;
       view.perf = `${Math.round(stats.triangles / 1000)}k tris · ${stats.calls} calls · worst ${Math.round(perf.displayWorstMs)} ms / 5 s · ping ${Math.round(net.pingMs)} · snap-backs ${net.corrections}`;
       game.scoreboard.setVisible(input.isDown(KEYS.scoreboard));
