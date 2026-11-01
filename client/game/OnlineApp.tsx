@@ -74,7 +74,7 @@ interface Remote { actor: Actor; rig: AvatarRig; stepDist: number }
 /** After death: 'killcam' follows the killer for KILLCAM.duration, then 'spectate' follows living teammates. */
 interface ViewState { mode: 'self' | 'killcam' | 'spectate'; target: bigint | null; until: number; killer: string; weapon: string; fireWas: boolean }
 
-function OnlineDriver({ net, debug, onLeave }: { net: GameNet; debug: boolean; onLeave: () => void }) {
+function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: boolean; onLeave: () => void; onReady?: () => void }) {
   const { world, rapier } = useRapier();
   const { gl, scene, camera, size } = useThree();
 
@@ -453,6 +453,7 @@ function OnlineDriver({ net, debug, onLeave }: { net: GameNet; debug: boolean; o
     gl.render(viewmodel.scene, viewmodel.camera);
     stats.triangles += gl.info.render.triangles; stats.calls += gl.info.render.calls;
     perf.now.render = performance.now() - renderStart;
+    if (stats.frames === 1) onReady?.();
 
     const s = local.slots[local.active];
     const spread = spreadDeg(s, local.moveFraction, !local.grounded, game.ads.scoped(s.stats.id)) * DEG;
@@ -532,7 +533,7 @@ function fillOnlineHud(v: HudView, net: GameNet, local: Actor, feed: readonly Ki
   v.feed = feed;
 }
 
-export function OnlineApp({ net, debug, onLeave }: { net: GameNet; debug: boolean; onLeave: () => void }) {
+export function OnlineApp({ net, debug, onLeave, onReady }: { net: GameNet; debug: boolean; onLeave: () => void; onReady?: () => void }) {
   const sceneSetup = useMemo(() => ({ background: new Color(map.sky.color), fog: new Fog(map.fog.color, map.fog.near, map.fog.far) }), []);
   return (
     <Canvas
@@ -543,7 +544,7 @@ export function OnlineApp({ net, debug, onLeave }: { net: GameNet; debug: boolea
     >
       <Physics gravity={[0, 0, 0]}>
         <MapView />
-        <OnlineDriver net={net} debug={debug} onLeave={onLeave} />
+        <OnlineDriver net={net} debug={debug} onLeave={onLeave} onReady={onReady} />
       </Physics>
     </Canvas>
   );

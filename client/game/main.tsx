@@ -1,15 +1,21 @@
 import { createRoot } from 'react-dom/client';
-import { characters } from '../../src/characters';
+import { characters } from '../../src/characters/characters';
 import { LOCAL_PLAYER } from '../../src/config/game';
 import { BOT_SKILLS, DEFAULT_DIFFICULTY, type BotDifficulty } from '../../src/config/bots';
-import { GameNet } from '../../src/network/client';
+import type { GameNet } from '../../src/network/client';
 import type { GameMode } from '../../src/gameplay/mode';
 import { Menu, type MenuChoice } from '../../src/ui/menu';
 import { getSettingsPanel, settingsButton } from '../../src/ui/settingsPanel';
 import { getSfx } from '../../src/ui/sfx';
-import { GameApp, type GameOptions } from './GameApp';
-import { OnlineApp } from './OnlineApp';
+import type { GameOptions } from './GameApp';
 import { characterLabel } from './characterLabel';
+import { Loading } from './loading';
+
+// The game (three.js, Rapier, map, characters, weapons) and the network SDK are separate chunks, loaded when a
+// match starts (and prefetched while the menu is open), so the menu shows quickly on a public link.
+const loadGame = () => import('./GameApp');
+const loadOnline = () => import('./OnlineApp');
+const loadNet = () => import('../../src/network/client');
 
 const params = new URLSearchParams(location.search);
 const freeze = params.get('freeze');
@@ -74,9 +80,17 @@ function backToMenu(): void {
   void leaving.then(() => { root.render(<></>); void menuLoop(); });
 }
 
-function startOffline(character?: number, difficulty: BotDifficulty = savedDifficulty(), mode: GameMode = savedMode(), teams = savedTeams): void {
+async function startOffline(character?: number, difficulty: BotDifficulty = savedDifficulty(), mode: GameMode = savedMode(), teams = savedTeams): Promise<void> {
   menu.hide();
-  root.render(<GameApp options={{ ...options, character, difficulty, mode, teams, onLeave: backToMenu }} />);
+  const loading = new Loading();
+  try {
+    loading.step('Loading game (3D engine, physics, map)', 0.05, 0.75);
+    const { GameApp } = await loadGame();
+    loading.step('Starting physics and building the map', 0.75, 1);
+    root.render(<GameApp options={{ ...options, character, difficulty, mode, teams, onLeave: backToMenu, onReady: () => loading.done() }} />);
+  } catch (e) {
+    loading.error(`Could not load the game: ${e instanceof Error ? e.message : String(e)}. Reload the page.`);
+  }
 }
 
 async function menuLoop(): Promise<void> {
@@ -90,10 +104,13 @@ async function menuLoop(): Promise<void> {
     const wasAuto = auto !== null;
     auto = null;
     storage('local')?.setItem('voxel-name', choice.name);
-    if (choice.kind === 'offline') { startOffline(menu.character, choice.difficulty, choice.mode, choice.teams); return; }
+    if (choice.kind === 'offline') { void startOffline(menu.character, choice.difficulty, choice.mode, choice.teams); return; }
     try {
       menu.setStatus('Connecting...');
+      const app = loadOnline(); // download the game while connecting
+      app.catch(() => undefined);
       if (!net) {
+        const { GameNet } = await loadNet();
         net = new GameNet({
           // Server: ?server= (tests) > build-time VITE_STDB_URI (hosting) > local default in src/config/net.ts.
           uri: params.get('server') ?? (import.meta.env.VITE_STDB_URI || undefined),
@@ -110,7 +127,11 @@ async function menuLoop(): Promise<void> {
       const savedPrimary = params.get('primary') ?? storage('local')?.getItem('voxel-primary');
       if (savedPrimary) await net.setPrimary(savedPrimary).catch(() => undefined);
       menu.hide();
-      root.render(<OnlineApp net={net} debug={debug} onLeave={backToMenu} />);
+      const loading = new Loading();
+      loading.step('Loading game (3D engine, physics, map)', 0.3, 0.8);
+      const { OnlineApp } = await app.catch((e: unknown) => { loading.error(`Could not load the game: ${String(e)}. Reload the page.`); throw e; });
+      loading.step('Starting physics and building the map', 0.8, 1);
+      root.render(<OnlineApp net={net} debug={debug} onLeave={backToMenu} onReady={() => loading.done()} />);
       return;
     } catch (e) {
       menu.setStatus(`Could not join: ${e instanceof Error ? e.message : String(e)}`);
@@ -120,5 +141,9 @@ async function menuLoop(): Promise<void> {
 }
 
 // ?offline=1 skips the menu (M1 single player); leaving it shows the menu.
-if (params.get('offline') === '1') startOffline();
-else void menuLoop();
+if (params.get('offline') === '1') void startOffline();
+else {
+  void menuLoop();
+  // Prefetch the game chunks while the player looks at the menu.
+  window.setTimeout(() => { loadGame().catch(() => undefined); loadNet().catch(() => undefined); }, 800);
+}

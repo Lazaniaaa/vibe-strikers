@@ -34,7 +34,8 @@ import { getSettingsPanel, settingsButton } from '../../src/ui/settingsPanel';
 export interface GameOptions { debug: boolean; freezeTime?: number; /** Local player's character (menu). */ character?: number;
   /** Back to the menu (Esc overlay "Leave match"). */ onLeave?: () => void;
   /** Bot difficulty (menu). */ difficulty?: BotDifficulty;
-  /** Game mode and Cornucopia teams / free-for-all (menu). */ mode?: GameMode; teams?: boolean }
+  /** Game mode and Cornucopia teams / free-for-all (menu). */ mode?: GameMode; teams?: boolean;
+  /** Called once when the first frame is rendered (hides the loading screen). */ onReady?: () => void }
 
 const map = loadMapData(MAP_ID);
 const blockersForDebug = mapShotBlockers(map).boxes;
@@ -319,6 +320,7 @@ function GameDriver({ options }: { options: GameOptions }) {
     gl.render(viewmodel.scene, viewmodel.camera);
     stats.triangles += gl.info.render.triangles; stats.calls += gl.info.render.calls;
     perf.now.render = performance.now() - renderStart;
+    if (stats.frames === 1) options.onReady?.();
 
     // HUD.
     const spread = spreadDeg(slot, local.moveFraction, !local.grounded) * DEG;

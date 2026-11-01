@@ -192,6 +192,10 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   not. The game uses the preview's method (second scene + camera, `clearDepth`). Fixed in ASSETS.md.
 - Known gaps (not needed yet): emotes, rocket-boot flames, ice-surface field.
 
+- **Async map loading (2026-11-01):** please export e.g. `loadMapDataAsync(id)` from `src/maps/index.ts` that
+  `import()`s only the requested map JSON. Today index.ts imports all 5 maps (1.6 MB); the game build stubs the
+  unused ones with a Vite plugin meanwhile.
+
 ## Decisions log
 - Aiming is visible only to the local player (first person); others see HIP hold.
 - Hit volumes identical for every character.
@@ -330,6 +334,18 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   about half of them also go for the centre (sniper, boots); pistol, then knife when out of ammo. Menu: mode select +
   "Cornucopia in teams" for private rooms and offline practice; Quick Play stays Elimination. Joining a running
   Cornucopia match spawns you alive (late join, simplest). No sniper limit in Cornucopia (loot decides).
+- 2026-11-01 batch2 step 1: faster loading. The menu no longer loads the game: GameApp / OnlineApp (three.js,
+  Rapier, R3F, map, characters, weapons) and the SpacetimeDB SDK are dynamic imports, prefetched 0.8 s after the
+  menu shows and awaited behind a loading screen (step text + bar; done at the first rendered frame). Library
+  chunks (rolldown advancedChunks in vite.game.config.ts): rapier, three, r3f, net, map. Map data: src/maps/index.ts
+  imports all 5 map JSONs (1.6 MB) and is not ours to edit, so the game BUILD replaces the unused maps with a tiny
+  stub (plugin `only-used-map`, MAP_ID read from src/config/game.ts; dev mode unchanged); request for an async
+  loader added below. Rapier stays one 2.2 MB chunk (its wasm is inlined in rapier3d-compat; gzip 0.84 MB).
+  Sizes (raw / gzip): before = index 229 KB + one 4.44 MB chunk (gzip 1.26 MB), all needed for the menu;
+  after = menu 18 KB (+12 KB client) / 7 KB gzip; game 3.4 MB total (rapier 2.24 MB, three 740 KB, game 252 KB,
+  weapons 216 KB, r3f 212 KB, map 166 KB, net 113 KB, GameApp 70 KB). Production build, headless (`scripts/
+  measure-load.cjs`): menu shown 956 -> 300 ms local, 1791 -> 1224 ms at 10 Mbit/s; menu + first game frame
+  2341 -> 1737 ms local, 2891 -> 2415 ms at 10 Mbit/s. Evidence `docs/evidence/loading-screen.jpg`.
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 
