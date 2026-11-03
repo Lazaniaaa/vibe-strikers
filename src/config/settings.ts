@@ -21,6 +21,8 @@ export const SETTINGS_DEFAULTS = {
   secondPersonMode: 'toggle' as AdsMode,
   /** Camera shake when the local player is hit (2026-11-01 audit). */
   screenShake: 'on' as OnOff,
+  /** Opt-in until the target laptop sustains 60 FPS with AO. */
+  ambientOcclusion: 'off' as OnOff,
 };
 
 export type OnOff = 'on' | 'off';

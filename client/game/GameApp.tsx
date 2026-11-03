@@ -5,7 +5,7 @@ import { CuboidCollider, Physics, RigidBody, useRapier } from '@react-three/rapi
 import { BoxGeometry, Color, Fog, Mesh, MeshBasicMaterial, PerspectiveCamera, Vector3, type DirectionalLight } from 'three';
 import { buildMap, loadMapData, mapColliders, mapShotBlockers, spawnPoints } from '../../src/maps';
 import { characters } from '../../src/characters';
-import { CAMERA, EFFECTS, LOCAL_PLAYER, MAP_ID, POSE, RENDER, TEAM_COLORS } from '../../src/config/game';
+import { CAMERA, EFFECTS, LIGHTING, LOCAL_PLAYER, MAP_ID, POSE, RENDER, TEAM_COLORS } from '../../src/config/game';
 import { BOT_NAMES, BOT_SKILLS, DEFAULT_DIFFICULTY, type BotDifficulty } from '../../src/config/bots';
 import { MAX_FRAME_DT } from '../../src/config/movement';
 import { DEG } from '../../src/gameplay/math';
@@ -36,6 +36,7 @@ import { getSfx } from '../../src/ui/sfx';
 import { AUDIO, type SoundName } from '../../src/config/audio';
 import { onSettingsChange, settings } from '../../src/ui/settings';
 import { getSettingsPanel, settingsButton } from '../../src/ui/settingsPanel';
+import { useWorldRenderer, lightingBaseline, reviewView } from './postfx';
 
 export interface GameOptions { debug: boolean; freezeTime?: number; /** Local player's character (menu). */ character?: number;
   /** Back to the menu (Esc overlay "Leave match"). */ onLeave?: () => void;
@@ -91,7 +92,7 @@ export function PedestalColliders() {
 }
 
 export function MapView() {
-  const group = useMemo(() => buildMap(map), []);
+  const group = useMemo(() => { const model = buildMap(map); if (!lightingBaseline) model.traverse(o => { if ((o as Mesh).isMesh) { o.castShadow = true; o.receiveShadow = true; } }); return model; }, []);
   const colliders = useMemo(() => mapColliders(map).boxes, []);
   const sunRef = useRef<DirectionalLight>(null);
   const sun = map.light.sun.direction;
@@ -99,8 +100,8 @@ export function MapView() {
   useEffect(() => {
     const s = sunRef.current;
     if (!s) return;
-    const cam = s.shadow.camera, e = RENDER.shadowExtent;
-    cam.left = -e; cam.right = e; cam.top = e; cam.bottom = -e; cam.near = 1; cam.far = RENDER.sunDistance * 2;
+    const cam = s.shadow.camera, e = lightingBaseline ? LIGHTING.baseline.extent : RENDER.shadowExtent;
+    cam.left = -e; cam.right = e; cam.top = e; cam.bottom = -e; cam.near = LIGHTING.shadowNear; cam.far = lightingBaseline ? RENDER.sunDistance * 2 : LIGHTING.shadowFar;
     cam.updateProjectionMatrix();
   }, []);
   return (
@@ -109,7 +110,7 @@ export function MapView() {
       <ambientLight color={map.light.ambient.color} intensity={map.light.ambient.intensity} />
       <directionalLight ref={sunRef} color={map.light.sun.color} intensity={map.light.sun.intensity}
         position={[sun[0] / len * RENDER.sunDistance, sun[1] / len * RENDER.sunDistance, sun[2] / len * RENDER.sunDistance]}
-        castShadow={RENDER.shadows} shadow-mapSize={[RENDER.shadowMapSize, RENDER.shadowMapSize]} shadow-bias={-0.0005} shadow-normalBias={0.03} />
+        castShadow={RENDER.shadows} shadow-mapSize={[RENDER.shadowMapSize, RENDER.shadowMapSize]} shadow-bias={lightingBaseline ? LIGHTING.baseline.bias : LIGHTING.shadowBias} shadow-normalBias={lightingBaseline ? LIGHTING.baseline.normalBias : LIGHTING.shadowNormalBias} shadow-radius={lightingBaseline ? LIGHTING.baseline.radius : LIGHTING.shadowRadius} />
       <RigidBody type="fixed" colliders={false}>
         {colliders.map((b, i) => <CuboidCollider key={i} position={[b.x, b.y, b.z]} args={[b.w / 2, b.h / 2, b.d / 2]} />)}
       </RigidBody>
@@ -120,6 +121,7 @@ export function MapView() {
 function GameDriver({ options }: { options: GameOptions }) {
   const { world, rapier } = useRapier();
   const { gl, scene, camera, size } = useThree();
+  const worldRenderer = useWorldRenderer(gl, scene, camera as PerspectiveCamera, map, size.width, size.height);
 
   const game = useMemo(() => {
     const blockers = mapShotBlockers(map).boxes;
@@ -257,7 +259,7 @@ function GameDriver({ options }: { options: GameOptions }) {
     stats.frames++;
     const local = sim.local;
     // Let Rapier step once so the static map is in the query structures before anyone moves.
-    if (stats.frames > 2) {
+    if (stats.frames > 2 && !reviewView) {
       const wid = local.slots[local.active].stats.id;
       const intent = input.sample(local.yaw, local.pitch, game.ads.sensitivity(wid));
       if (intent.slot >= 0 || intent.reload || !local.alive) input.cancelAds();
@@ -360,12 +362,13 @@ function GameDriver({ options }: { options: GameOptions }) {
 
     const renderStart = performance.now();
     gl.autoClear = true;
-    gl.render(scene, cam);
+    worldRenderer.render(cam, dt);
     stats.triangles = gl.info.render.triangles; stats.calls = gl.info.render.calls;
     gl.autoClear = false;
     gl.clearDepth();
-    if (!secondView) gl.render(viewmodel.scene, viewmodel.camera);
-    stats.triangles += gl.info.render.triangles; stats.calls += gl.info.render.calls;
+    if (!secondView) worldRenderer.renderViewmodel(viewmodel.scene, viewmodel.camera);
+    stats.triangles = gl.info.render.triangles; stats.calls = gl.info.render.calls;
+    worldRenderer.record(delta);
     perf.now.render = performance.now() - renderStart;
     if (stats.frames === 1) options.onReady?.();
 

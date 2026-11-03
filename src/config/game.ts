@@ -29,7 +29,7 @@ export const RENDER = {
   shadows: true,
   shadowMapSize: 2048,
   /** Half-size of the sun's orthographic shadow camera, metres (covers the 70 x 70 m map). */
-  shadowExtent: 40,
+  shadowExtent: 48,
   /** Distance of the sun light from the map centre along its direction. */
   sunDistance: 60,
   /** Cap on devicePixelRatio (performance on high-DPI laptops). */
@@ -137,4 +137,22 @@ export const NAME_TAGS = {
   enemyMaxAngleDeg: 7,
   /** Line-of-sight target on the enemy: this height above the feet. */
   enemyAimHeight: 1.35,
+} as const;
+/** All render tuning lives here; no gameplay values. */
+export const LIGHTING = {
+  baseline: { radius: 1, extent: 40, bias: -0.0005, normalBias: 0.03 },
+  actorShadowParts: ['head-boxes', 'torso-boxes'] as readonly string[],
+  /** Frames between re-applying the actor / weapon shadow policy (new rigs appear rarely). */
+  shadowPolicyEvery: 15,
+  exposure: 1, shadowBias: -0.0002, shadowNormalBias: 0.025, shadowRadius: 2,
+  shadowNear: 1, shadowFar: 140, skySize: 2, skyRise: 0.65,
+  ao: { radius: 0.65, falloff: 1, intensity: 1.8, samples: 8, denoiseSamples: 4, denoiseRadius: 6, denoiseIterations: 1, halfRes: true },
+  review: { frames: 90, warmup: 30, width: 1280, height: 720,
+    views: [
+      { id: 'spawn-a', position: [-28.5, 2.12, -5], target: [-22, 1.8, 5] },
+      { id: 'fountain', position: [-8, 3, -8], target: [0, 1, 1] },
+      { id: 'balcony', position: [-8, 4.12, -16], target: [0, 1.5, 0] },
+      { id: 'spawn-b', position: [28.5, 2.12, -5], target: [22, 1.8, 5] },
+    ],
+  },
 } as const;

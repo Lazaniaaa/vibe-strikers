@@ -191,6 +191,7 @@ Settings: mouse sensitivity, FOV (default 90, 70-110), volume (master/sfx/music)
 crosshair (color, size, style), second-view mode (toggle/hold), ADS mode (toggle
 default / hold, owner 2026-10-31, M3), ping+FPS on/off, screen shake when hit
 (on / off, default on; camera roll + small offset only, the aim point does not move; 2026-11-01).
+Ambient occlusion: on / off, default off until the target laptop sustains 60 FPS; applies live to the world only, never the weapon viewmodel.
 Key rebinding LATER.
 
 ## 11. Visual style — DECIDED

@@ -45,6 +45,7 @@ import { getSfx } from '../../src/ui/sfx';
 import { AUDIO, type SoundName } from '../../src/config/audio';
 import { onSettingsChange, settings } from '../../src/ui/settings';
 import { getSettingsPanel, settingsButton } from '../../src/ui/settingsPanel';
+import { useWorldRenderer } from './postfx';
 
 const map = loadMapData(MAP_ID);
 const blockers = mapShotBlockers(map).boxes;
@@ -83,6 +84,7 @@ interface ViewState { mode: 'self' | 'killcam' | 'spectate'; target: bigint | nu
 function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: boolean; onLeave: () => void; onReady?: () => void }) {
   const { world, rapier } = useRapier();
   const { gl, scene, camera, size } = useThree();
+  const worldRenderer = useWorldRenderer(gl, scene, camera as PerspectiveCamera, map, size.width, size.height);
 
   const game = useMemo(() => {
     const me = net.me!;
@@ -483,12 +485,13 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
 
     const renderStart = performance.now();
     gl.autoClear = true;
-    gl.render(scene, cam);
+    worldRenderer.render(cam, dt);
     stats.triangles = gl.info.render.triangles; stats.calls = gl.info.render.calls;
     gl.autoClear = false;
     gl.clearDepth();
-    if (!secondView) gl.render(viewmodel.scene, viewmodel.camera);
-    stats.triangles += gl.info.render.triangles; stats.calls += gl.info.render.calls;
+    if (!secondView) worldRenderer.renderViewmodel(viewmodel.scene, viewmodel.camera);
+    stats.triangles = gl.info.render.triangles; stats.calls = gl.info.render.calls;
+    worldRenderer.record(delta);
     perf.now.render = performance.now() - renderStart;
     if (stats.frames === 1) onReady?.();
 

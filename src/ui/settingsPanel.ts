@@ -30,6 +30,7 @@ export class SettingsPanel {
         <label>Aim (right mouse) <select data-key="adsMode"><option value="toggle">toggle (click on / off)</option><option value="hold">hold</option></select></label>
         <label>Second-person view (V) <select data-key="secondPersonMode"><option value="toggle">toggle</option><option value="hold">hold</option></select></label>
         <label>Screen shake when hit <select data-key="screenShake"><option value="on">on</option><option value="off">off</option></select></label>
+        <label>Ambient occlusion <select data-key="ambientOcclusion"><option value="on">on</option><option value="off">off</option></select></label>
         <div class="settings-row"><button class="settings-reset">Defaults</button><button class="settings-close">Close</button></div>
       </div>`;
     parent.appendChild(this.root);
@@ -50,6 +51,7 @@ export class SettingsPanel {
     else if (key === 'crosshairColor') settings.crosshairColor = el.value;
     else if (key === 'adsMode') settings.adsMode = el.value === 'hold' ? 'hold' : 'toggle';
     else if (key === 'secondPersonMode') settings.secondPersonMode = el.value === 'hold' ? 'hold' : 'toggle';
+    else if (key === 'ambientOcclusion') settings.ambientOcclusion = el.value === 'on' ? 'on' : 'off';
     else if (key === 'screenShake') settings.screenShake = el.value === 'off' ? 'off' : 'on';
     saveSettings();
     this.fillOutputs();

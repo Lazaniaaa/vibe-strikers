@@ -438,6 +438,15 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   60 FPS, 0 console errors. Checks: typecheck, 19 gameplay checks, prop overlaps 0 on all 5 maps, stairs 6/6, bot
   levels, server test PASS (first run had 1 flaky failure, 3 reruns passed). The server module imports the map:
   run `npm run server:publish` after pulling this.
+- 2026-11-03 lighting pass (Codex, one-time owner permission to edit the listed game files; report
+  `docs/lighting-report.md`): Neutral tone mapping (world; the viewmodel keeps ACES), gradient sky
+  (`client/game/sky.ts`, map `sky.horizon` -> `sky.color`), every map mesh casts shadows (PCF radius 2, extent 48 m),
+  actor sun shadows = head + torso only, optional n8ao 2.0.1 + postprocessing 6.39.6 AO (`client/game/postfx.ts`),
+  setting "Ambient occlusion" on / off (default off, live switch). Integration by Claude: GTAO review backend removed,
+  shadow-policy traversal every 15 frames, package-lock synced, evidence as JPG in `docs/evidence/lighting-*.jpg`.
+  GPU-synced FPS at 1920x1080, spawn A: integrated AMD 76 (old) / 68 (AO off) / 49 (AO on); GTX 1650 253 / 257 / 153.
+  Finding: Chrome on this laptop used the integrated AMD GPU by default (owner switched Chrome to "High performance"
+  in Windows Graphics settings, 2026-11-03).
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 

@@ -11,6 +11,7 @@ export interface Settings {
   musicVolume: number;
   secondPersonMode: AdsMode;
   screenShake: OnOff;
+  ambientOcclusion: OnOff;
 }
 
 const KEY = 'voxel-settings';
@@ -31,6 +32,7 @@ function load(): Settings {
     adsMode: raw.adsMode === 'hold' ? 'hold' : 'toggle',
     secondPersonMode: raw.secondPersonMode === 'hold' ? 'hold' : 'toggle',
     screenShake: raw.screenShake === 'off' ? 'off' : 'on',
+    ambientOcclusion: raw.ambientOcclusion === 'on' ? 'on' : 'off',
   };
 }
 
@@ -38,7 +40,7 @@ function load(): Settings {
 export const settings: Settings = load();
 
 const listeners: (() => void)[] = [];
-export function onSettingsChange(fn: () => void): void { listeners.push(fn); }
+export function onSettingsChange(fn: () => void): () => void { listeners.push(fn); return () => { const i = listeners.indexOf(fn); if (i >= 0) listeners.splice(i, 1); }; }
 
 export function saveSettings(): void {
   try { localStorage.setItem(KEY, JSON.stringify(settings)); } catch { /* storage blocked */ }
