@@ -12,6 +12,7 @@ export interface Settings {
   secondPersonMode: AdsMode;
   screenShake: OnOff;
   ambientOcclusion: OnOff;
+  autoResolution: OnOff;
 }
 
 const KEY = 'voxel-settings';
@@ -33,6 +34,7 @@ function load(): Settings {
     secondPersonMode: raw.secondPersonMode === 'hold' ? 'hold' : 'toggle',
     screenShake: raw.screenShake === 'off' ? 'off' : 'on',
     ambientOcclusion: raw.ambientOcclusion === 'on' ? 'on' : 'off',
+    autoResolution: raw.autoResolution === 'off' ? 'off' : 'on',
   };
 }
 

@@ -53,7 +53,7 @@ const blockers = mapShotBlockers(map).boxes;
 export interface OnlineDebug {
   net: GameNet;
   local: Actor;
-  stats: { frames: number; fps: number; triangles: number; calls: number; remotes: number;
+  stats: { frames: number; fps: number; triangles: number; calls: number; res: number; remotes: number;
     shots: number; hits: number; hitsWithoutRewind: number; kills: number; deaths: number; serverShots: number };
   snapshot(): unknown;
   /** Aim at the interpolated (rendered) position of a remote player: what a perfect human would aim at. */
@@ -127,7 +127,7 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
     const tagger = new TagProjector(nameTags, blockers);
     const remotes = new Map<bigint, Remote>();
     const perf = new FramePerf();
-    const stats = { frames: 0, fps: 0, triangles: 0, calls: 0, remotes: 0, shots: 0, hits: 0, hitsWithoutRewind: 0, kills: 0, deaths: 0, serverShots: 0, pings: 0 };
+    const stats = { frames: 0, fps: 0, triangles: 0, calls: 0, res: 1, remotes: 0, shots: 0, hits: 0, hitsWithoutRewind: 0, kills: 0, deaths: 0, serverShots: 0, pings: 0 };
     const sample: Snapshot = { t: 0, x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0, yaw: 0, pitch: 0, crouch: false, grounded: true, alive: true };
     const feed: string[] = [];
     const feedEntries: KillFeedEntry[] = [];
@@ -492,6 +492,7 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
     if (!secondView) worldRenderer.renderViewmodel(viewmodel.scene, viewmodel.camera);
     stats.triangles = gl.info.render.triangles; stats.calls = gl.info.render.calls;
     worldRenderer.record(delta);
+    worldRenderer.adapt(delta); stats.res = worldRenderer.pixelRatio;
     perf.now.render = performance.now() - renderStart;
     if (stats.frames === 1) onReady?.();
 
@@ -516,7 +517,7 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
       view.pings = game.pings.text(local.x, local.z);
       if (room) game.music.update(room.phase, room.timeLeft, room.phase === 'matchEnd' ? room.matchWinner : room.lastWinner, me?.team ?? '');
       view.fps = stats.fps;
-      view.perf = `${Math.round(stats.triangles / 1000)}k tris · ${stats.calls} calls · worst ${Math.round(perf.displayWorstMs)} ms / 5 s · ping ${Math.round(net.pingMs)} · snap-backs ${net.corrections}`;
+      view.perf = `${Math.round(stats.triangles / 1000)}k tris · ${stats.calls} calls · res ${stats.res}x · worst ${Math.round(perf.displayWorstMs)} ms / 5 s · ping ${Math.round(net.pingMs)} · snap-backs ${net.corrections}`;
       game.scoreboard.setVisible(input.isDown(KEYS.scoreboard));
       if (game.scoreboard.isVisible) game.scoreboard.update(scoreRows(net), String(net.me?.id ?? ''), net.room?.scoreA ?? 0, net.room?.scoreB ?? 0);
       view.locked = input.locked || debug;

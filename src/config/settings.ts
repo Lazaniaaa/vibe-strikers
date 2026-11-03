@@ -23,6 +23,8 @@ export const SETTINGS_DEFAULTS = {
   screenShake: 'on' as OnOff,
   /** Opt-in until the target laptop sustains 60 FPS with AO. */
   ambientOcclusion: 'off' as OnOff,
+  /** Lower the render resolution when FPS drops, raise it back with headroom (AUTO_RESOLUTION, 2026-11-03). */
+  autoResolution: 'on' as OnOff,
 };
 
 export type OnOff = 'on' | 'off';

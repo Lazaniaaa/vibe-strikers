@@ -192,6 +192,9 @@ crosshair (color, size, style), second-view mode (toggle/hold), ADS mode (toggle
 default / hold, owner 2026-10-31, M3), ping+FPS on/off, screen shake when hit
 (on / off, default on; camera roll + small offset only, the aim point does not move; 2026-11-01).
 Ambient occlusion: on / off, default off until the target laptop sustains 60 FPS; applies live to the world only, never the weapon viewmodel.
+Auto resolution: on / off, default on (2026-11-03): lowers the render pixel ratio (1.5 -> 0.75) when FPS drops
+because the GPU is too slow, raises it back with headroom (AUTO_RESOLUTION). The panel also shows the graphics card
+name and, for built-in graphics, the hint to set the browser to "High performance" in Windows graphics settings.
 Key rebinding LATER.
 
 ## 11. Visual style — DECIDED

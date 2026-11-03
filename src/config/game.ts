@@ -156,3 +156,36 @@ export const LIGHTING = {
     ],
   },
 } as const;
+
+/**
+ * Auto resolution (setting "Auto resolution", default on): every `window` seconds the average FPS is checked.
+ * Below `lowFps` -> one pixel-ratio level down; `highFps` or more for `upAfter` seconds -> one level up.
+ * The GPU frame time (WebGL timer query, when the browser has it) decides: low FPS with an idle GPU (CPU bound,
+ * browser frame cap) never lowers the resolution, and a raise happens only when the scaled GPU time still fits.
+ * A raise that drops FPS again is not retried for `retryAfter` seconds. Levels above the start ratio (screen DPR capped by
+ * RENDER.maxPixelRatio) are skipped.
+ */
+export const AUTO_RESOLUTION = {
+  levels: [1.5, 1.25, 1, 0.85, 0.75],
+  window: 1,
+  lowFps: 52,
+  highFps: 58,
+  upAfter: 8,
+  /** GPU ms per frame: below this, low FPS is not the GPU's fault (no drop). 16.7 ms = 60 FPS. */
+  gpuBusyMs: 12,
+  /** Predicted GPU ms per frame after a raise must stay below this. */
+  gpuRaiseMs: 11,
+  /** Timer queries in the fixed pool (results arrive a few frames late). */
+  gpuQueries: 8,
+  /** No decisions during the first seconds (loading, shader compile), seconds. */
+  warmup: 3,
+  /** Windows skipped after every change (render targets are re-created, FPS settles). */
+  settleWindows: 1,
+  /** A "do not raise above / do not drop below" limit is forgotten after this many seconds. */
+  retryAfter: 30,
+  /** Frames longer than this (tab switch, loading hitch) restart the current window, seconds. */
+  maxFrameTime: 0.25,
+} as const;
+
+/** GPU names that mean built-in (integrated) graphics: the settings panel then shows the "High performance" hint. */
+export const INTEGRATED_GPU = /intel|uhd|iris|radeon\(tm\) graphics|radeon graphics|vega \d|adreno|mali/i;

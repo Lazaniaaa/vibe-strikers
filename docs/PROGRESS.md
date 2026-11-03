@@ -447,6 +447,16 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   GPU-synced FPS at 1920x1080, spawn A: integrated AMD 76 (old) / 68 (AO off) / 49 (AO on); GTX 1650 253 / 257 / 153.
   Finding: Chrome on this laptop used the integrated AMD GPU by default (owner switched Chrome to "High performance"
   in Windows Graphics settings, 2026-11-03).
+- 2026-11-03 auto resolution + GPU hint (owner: "робимо все"): `WorldRenderer.adapt` checks FPS every 1 s and the
+  GPU frame time (EXT_disjoint_timer_query_webgl2, fixed pool of 8 queries); drops the pixel ratio one level
+  (1.5 / 1.25 / 1 / 0.85 / 0.75, capped by the start ratio) when FPS < 52 and the GPU is busy (>= 12 ms), raises it
+  when FPS >= 58 for 8 s and the scaled GPU time stays < 11 ms (no timer: FPS only + 30 s no-retry after a failed
+  raise). First try (FPS only, "undo if the drop gained < 3 FPS") locked up at 1.25x because FPS jumps 33 <-> 60 at
+  the same resolution (vsync), so the GPU timer replaced it. Measured 1920x1080 at DPR 1.5, AO on, normal vsync:
+  integrated AMD auto off 31-39 FPS at 2880x1620; auto on -> 1.0x within ~6 s, then a steady 60 FPS (GPU 9.5 ms);
+  GTX 1650 stays at 1.5x, 60 FPS. Debug HUD shows `res 1.5x`. Settings: "Auto resolution" on / off and the GPU
+  name; built-in graphics (`INTEGRATED_GPU` in `src/config/game.ts`) show the "High performance" hint
+  (`docs/evidence/autores-settings-gpu-hint.jpg`). Online smoke: lowGravity jump 2.42 m, 0 snap-backs, 0 errors.
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 

@@ -53,7 +53,7 @@ const spawnsA = spawnPoints(map, 'A'), spawnsB = spawnPoints(map, 'B');
 export interface GameDebug {
   sim: Simulation;
   input: Input;
-  stats: { frames: number; localShots: number; localHits: number; localDamage: number; triangles: number; calls: number; fps: number; localSteps: number };
+  stats: { frames: number; localShots: number; localHits: number; localDamage: number; triangles: number; calls: number; res: number; fps: number; localSteps: number };
   perf: FramePerf;
   sounds: Record<string, number>;
   /** Camera roll in radians (screen shake test). */
@@ -167,7 +167,7 @@ function GameDriver({ options }: { options: GameOptions }) {
     const applyStyle = () => hud.setCrosshairStyle(settings.crosshairColor, settings.crosshairSize);
     applyStyle();
     onSettingsChange(applyStyle);
-    const stats = { frames: 0, localShots: 0, localHits: 0, localDamage: 0, triangles: 0, calls: 0, fps: 0, localSteps: 0 };
+    const stats = { frames: 0, localShots: 0, localHits: 0, localDamage: 0, triangles: 0, calls: 0, res: 1, fps: 0, localSteps: 0 };
     input.onConfirm = () => { if (sim.round.phase === 'matchEnd') sim.restart(); };
     const items = new ItemViews();
     const glows = new BootGlows();
@@ -369,6 +369,7 @@ function GameDriver({ options }: { options: GameOptions }) {
     if (!secondView) worldRenderer.renderViewmodel(viewmodel.scene, viewmodel.camera);
     stats.triangles = gl.info.render.triangles; stats.calls = gl.info.render.calls;
     worldRenderer.record(delta);
+    worldRenderer.adapt(delta); stats.res = worldRenderer.pixelRatio;
     perf.now.render = performance.now() - renderStart;
     if (stats.frames === 1) options.onReady?.();
 
@@ -421,7 +422,7 @@ function fillHudView(v: HudView, sim: Simulation, locked: boolean, stats: GameDe
   v.feed = sim.kills.slice(-4).map((k) => ({ killer: names(k.killerId), killerAlly: ally(k.killerId), victim: names(k.victimId),
     victimAlly: ally(k.victimId), weapon: k.weapon, headshot: k.headshot }));
   v.fps = stats.fps;
-  v.perf = `${Math.round(stats.triangles / 1000)}k tris · ${stats.calls} calls`;
+  v.perf = `${Math.round(stats.triangles / 1000)}k tris · ${stats.calls} calls · res ${stats.res}x`;
   v.locked = locked;
 }
 

@@ -31,6 +31,11 @@ export class SettingsPanel {
         <label>Second-person view (V) <select data-key="secondPersonMode"><option value="toggle">toggle</option><option value="hold">hold</option></select></label>
         <label>Screen shake when hit <select data-key="screenShake"><option value="on">on</option><option value="off">off</option></select></label>
         <label>Ambient occlusion <select data-key="ambientOcclusion"><option value="on">on</option><option value="off">off</option></select></label>
+        <label>Auto resolution (keeps FPS up) <select data-key="autoResolution"><option value="on">on</option><option value="off">off</option></select></label>
+        <div class="settings-gpu">Graphics card: <span data-out="gpu">unknown</span>
+          <div class="settings-gpu-hint" data-out="gpuHint" style="display:none;opacity:0.8;font-size:0.85em;margin-top:4px">Low FPS on a laptop?
+            The browser may be using the built-in graphics. Windows: Settings → System → Display → Graphics →
+            add your browser → "High performance", then restart the browser.</div></div>
         <div class="settings-row"><button class="settings-reset">Defaults</button><button class="settings-close">Close</button></div>
       </div>`;
     parent.appendChild(this.root);
@@ -52,6 +57,7 @@ export class SettingsPanel {
     else if (key === 'adsMode') settings.adsMode = el.value === 'hold' ? 'hold' : 'toggle';
     else if (key === 'secondPersonMode') settings.secondPersonMode = el.value === 'hold' ? 'hold' : 'toggle';
     else if (key === 'ambientOcclusion') settings.ambientOcclusion = el.value === 'on' ? 'on' : 'off';
+    else if (key === 'autoResolution') settings.autoResolution = el.value === 'off' ? 'off' : 'on';
     else if (key === 'screenShake') settings.screenShake = el.value === 'off' ? 'off' : 'on';
     saveSettings();
     this.fillOutputs();
@@ -72,6 +78,12 @@ export class SettingsPanel {
     out('volume', `${Math.round(settings.volume * 100)}%`);
     out('musicVolume', `${Math.round(settings.musicVolume * 100)}%`);
     out('crosshairSize', `${settings.crosshairSize}px`);
+  }
+
+  /** The renderer reports its GPU once; integrated graphics show the "switch to High performance" hint. */
+  setGraphicsInfo(name: string, integrated: boolean): void {
+    this.root.querySelector('[data-out="gpu"]')!.textContent = name;
+    (this.root.querySelector('[data-out="gpuHint"]') as HTMLElement).style.display = integrated ? 'block' : 'none';
   }
 
   open(): void { this.fill(); this.root.style.display = 'flex'; }
