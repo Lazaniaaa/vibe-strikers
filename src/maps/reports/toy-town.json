@@ -17,7 +17,7 @@
   "stats": {
     "boxes": 1616,
     "renderBoxes": 3040,
-    "triangles": 36480,
+    "triangles": 42480,
     "drawCalls": 6,
     "chunks": 4,
     "instancedPrefabs": 2,
@@ -26,7 +26,7 @@
     "colliders": 337,
     "shotBlockers": 337
   },
-  "sha256": "d49cc00e171de6c98f6c12ff3b71195c19e30d85b929032dae7030a908f96023",
+  "sha256": "be6db96185183148d2df687b59100e7798110f07be6a208737c5d17c4a7b4ce0",
   "spawnClearance": {
     "minimumFreeRadius": 1.2502499750049985,
     "height": 2,
@@ -6262,13 +6262,13 @@
       "value": {
         "boxes": 1616,
         "renderBoxes": 3040,
-        "triangles": 36480,
+        "triangles": 42480,
         "drawCalls": 6,
         "chunks": 4,
         "instancedPrefabs": 2,
         "instances": 94,
         "shadowChunks": 4,
-        "measuredTriangles": 36480,
+        "measuredTriangles": 42480,
         "measuredCalls": 6
       }
     },
@@ -6285,14 +6285,14 @@
     {
       "name": "deterministic geometry",
       "pass": true,
-      "value": "d49cc00e171de6c98f6c12ff3b71195c19e30d85b929032dae7030a908f96023"
+      "value": "be6db96185183148d2df687b59100e7798110f07be6a208737c5d17c4a7b4ce0"
     },
     {
       "name": "SHA-256 baseline",
       "pass": true,
       "value": {
-        "expected": "d49cc00e171de6c98f6c12ff3b71195c19e30d85b929032dae7030a908f96023",
-        "actual": "d49cc00e171de6c98f6c12ff3b71195c19e30d85b929032dae7030a908f96023"
+        "expected": "be6db96185183148d2df687b59100e7798110f07be6a208737c5d17c4a7b4ce0",
+        "actual": "be6db96185183148d2df687b59100e7798110f07be6a208737c5d17c4a7b4ce0"
       }
     },
     {
@@ -7418,7 +7418,7 @@
     {
       "name": "M2 old/new palette identical shape and material",
       "pass": true,
-      "value": "b109bd0b06ef04739bae6a6e021e429d39e7dc066e123b3a4d3249ecd5fce7a5"
+      "value": "765a010224c5052cba473edf3d443d36d04f88d0500e814e06960a9633bef38c"
     },
     {
       "name": "dispose / fresh resources",

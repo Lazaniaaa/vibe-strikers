@@ -7,6 +7,7 @@ import { createServer } from 'vite';
 import os from 'node:os';
 import {verifyColourGuard} from './color-guard.mjs';
 import {verifyColour} from './verify-colour.mjs';
+import {verifyBakedAo} from './verify-baked-ao.mjs';
 const here=path.dirname(fileURLToPath(import.meta.url)),failures=[],checks=[];
 function check(name,condition,value){checks.push({name,pass:!!condition,value});if(!condition)failures.push({name,value});}
 const hash=buffer=>crypto.createHash('sha256').update(buffer).digest('hex');
@@ -16,6 +17,7 @@ try{
  const api=await vite.ssrLoadModule('../maps/index.ts'),{expandedBoxes,boxKey}=await vite.ssrLoadModule('../maps/boxes.ts'),{Navigation,NAV}=await vite.ssrLoadModule('../maps/navigation.ts'),{ShotTree,coplanarFaces,scanVisibility}=await vite.ssrLoadModule('../maps/analysis.ts'),{pathsFor,auditMap}=await vite.ssrLoadModule('../maps/audit.ts'),{contrastReport}=await vite.ssrLoadModule('../maps/contrast.ts'),{characters}=await vite.ssrLoadModule('./characters.ts'),{oldPaletteData}=await vite.ssrLoadModule('../maps/palette.ts');
  await verifyColourGuard(vite);
  await verifyColour(vite);
+ await verifyBakedAo(vite);
  const data=api.loadMapData('toy-town'),boxes=expandedBoxes(data),collidable=boxes.filter(b=>b.collide),colliders=api.mapColliders(data).boxes,shot=api.mapShotBlockers(data).boxes,report={id:data.id};
  const bad=[];const number=n=>typeof n==='number'&&Number.isFinite(n),color=c=>typeof c==='string'&&/^#[0-9a-f]{6}$/i.test(c);
  function finiteTree(v,loc){if(typeof v==='number'&&!Number.isFinite(v))bad.push(loc);else if(v&&typeof v==='object')for(const[k,x]of Object.entries(v))finiteTree(x,loc+'.'+k);}

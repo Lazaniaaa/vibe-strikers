@@ -457,6 +457,15 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   GTX 1650 stays at 1.5x, 60 FPS. Debug HUD shows `res 1.5x`. Settings: "Auto resolution" on / off and the GPU
   name; built-in graphics (`INTEGRATED_GPU` in `src/config/game.ts`) show the "High performance" hint
   (`docs/evidence/autores-settings-gpu-hint.jpg`). Online smoke: lowGravity jump 2.42 m, 0 snap-backs, 0 errors.
+- 2026-11-03 baked AO (asset owner, `src/maps/`; report `src/maps/reports/baked-ao/REPORT.md`): ambient occlusion
+  precomputed offline (`src/maps/tools/bake-ao.mjs`) into `src/maps/ao-data/*.ts` (~130 KB per map) and applied to
+  the static chunks' vertex colours by `buildMap` (default on; `buildMap(data, { bakedAo: false })` for comparisons).
+  Always on, no runtime pass: +6k triangles, 0 extra draw calls, build 59-73 ms (cache 2-3 ms). The server bundle
+  does not include the AO data (tree-shaken; checked). In game: 124-141k triangles, 44-100 calls, 60 FPS, 0 errors;
+  the effect is subtle at full view and clear in zoom (`docs/evidence/baked-ao-before-after.jpg`,
+  `baked-ao-zoom-spawn-a.jpg`, `baked-ao-zoom-balcony.jpg`, Codex's 3-way `baked-ao-codex-comparison.jpg`).
+  Codex's 15 MB of PNG evidence was left out of git (kept locally). Checks: typecheck, 19 gameplay checks,
+  `verify.mjs`, prop overlaps 0, server publish + server test PASS.
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 

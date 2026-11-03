@@ -5,7 +5,7 @@
     "stats": {
       "boxes": 1812,
       "renderBoxes": 4086,
-      "triangles": 49032,
+      "triangles": 55032,
       "drawCalls": 6,
       "chunks": 4,
       "instancedPrefabs": 2,
@@ -35915,7 +35915,7 @@
     "stats": {
       "boxes": 1794,
       "renderBoxes": 4138,
-      "triangles": 49656,
+      "triangles": 55656,
       "drawCalls": 6,
       "chunks": 4,
       "instancedPrefabs": 2,
@@ -71866,7 +71866,7 @@
     "stats": {
       "boxes": 1796,
       "renderBoxes": 4020,
-      "triangles": 48240,
+      "triangles": 54240,
       "drawCalls": 6,
       "chunks": 4,
       "instancedPrefabs": 2,
@@ -108154,7 +108154,7 @@
     "stats": {
       "boxes": 1792,
       "renderBoxes": 4116,
-      "triangles": 49392,
+      "triangles": 55392,
       "drawCalls": 6,
       "chunks": 4,
       "instancedPrefabs": 2,

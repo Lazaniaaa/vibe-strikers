@@ -1,0 +1,194 @@
+[
+  {
+    "mode": "baked-on",
+    "view": "fountain",
+    "fps": 60.164449496246064,
+    "calls": 76,
+    "triangles": 134246,
+    "frames": 90,
+    "maxCalls": 76,
+    "maxTriangles": 134246,
+    "dimensions": {
+      "cssHeight": 1192,
+      "cssWidth": 1325,
+      "height": 1192,
+      "width": 1324
+    }
+  },
+  {
+    "mode": "baked-on",
+    "view": "spawn-a",
+    "fps": 60.02801306990361,
+    "calls": 64,
+    "triangles": 129782,
+    "frames": 90,
+    "maxCalls": 64,
+    "maxTriangles": 129782,
+    "dimensions": {
+      "cssHeight": 1192,
+      "cssWidth": 1325,
+      "height": 1192,
+      "width": 1324
+    }
+  },
+  {
+    "mode": "baked-on",
+    "view": "balcony",
+    "fps": 60.18859091533138,
+    "calls": 69,
+    "triangles": 133382,
+    "frames": 90,
+    "maxCalls": 69,
+    "maxTriangles": 133382,
+    "dimensions": {
+      "cssHeight": 1192,
+      "cssWidth": 1325,
+      "height": 1192,
+      "width": 1324
+    }
+  },
+  {
+    "mode": "baked-on",
+    "view": "spawn-b",
+    "fps": 60.10418058062843,
+    "calls": 60,
+    "triangles": 131042,
+    "frames": 90,
+    "maxCalls": 60,
+    "maxTriangles": 131042,
+    "dimensions": {
+      "cssHeight": 1192,
+      "cssWidth": 1325,
+      "height": 1192,
+      "width": 1324
+    }
+  },
+  {
+    "mode": "baked-off",
+    "view": "spawn-a",
+    "fps": 60.26920243947893,
+    "calls": 63,
+    "triangles": 118142,
+    "frames": 90,
+    "maxCalls": 63,
+    "maxTriangles": 118142,
+    "dimensions": {
+      "cssHeight": 1192,
+      "cssWidth": 1325,
+      "height": 1192,
+      "width": 1324
+    }
+  },
+  {
+    "mode": "baked-off",
+    "view": "fountain",
+    "fps": 60.16847172273638,
+    "calls": 74,
+    "triangles": 122138,
+    "frames": 90,
+    "maxCalls": 74,
+    "maxTriangles": 122138,
+    "dimensions": {
+      "cssHeight": 1192,
+      "cssWidth": 1325,
+      "height": 1192,
+      "width": 1324
+    }
+  },
+  {
+    "mode": "baked-off",
+    "view": "balcony",
+    "fps": 60.15640666114362,
+    "calls": 71,
+    "triangles": 121490,
+    "frames": 90,
+    "maxCalls": 71,
+    "maxTriangles": 121490,
+    "dimensions": {
+      "cssHeight": 1192,
+      "cssWidth": 1325,
+      "height": 1192,
+      "width": 1324
+    }
+  },
+  {
+    "mode": "baked-off",
+    "view": "spawn-b",
+    "fps": 60.18054162487464,
+    "calls": 60,
+    "triangles": 119114,
+    "frames": 90,
+    "maxCalls": 60,
+    "maxTriangles": 119114,
+    "dimensions": {
+      "cssHeight": 1192,
+      "cssWidth": 1325,
+      "height": 1192,
+      "width": 1324
+    }
+  },
+  {
+    "mode": "runtime-n8ao",
+    "view": "spawn-a",
+    "fps": 58.700756585703736,
+    "calls": 68,
+    "triangles": 118041,
+    "frames": 90,
+    "maxCalls": 68,
+    "maxTriangles": 118041,
+    "dimensions": {
+      "cssHeight": 1192,
+      "cssWidth": 1325,
+      "height": 1192,
+      "width": 1324
+    }
+  },
+  {
+    "mode": "runtime-n8ao",
+    "view": "fountain",
+    "fps": 59.988002401426705,
+    "calls": 80,
+    "triangles": 121605,
+    "frames": 90,
+    "maxCalls": 80,
+    "maxTriangles": 121605,
+    "dimensions": {
+      "cssHeight": 1192,
+      "cssWidth": 1325,
+      "height": 1192,
+      "width": 1324
+    }
+  },
+  {
+    "mode": "runtime-n8ao",
+    "view": "balcony",
+    "fps": 57.666431727590364,
+    "calls": 80,
+    "triangles": 121605,
+    "frames": 90,
+    "maxCalls": 80,
+    "maxTriangles": 121605,
+    "dimensions": {
+      "cssHeight": 1192,
+      "cssWidth": 1325,
+      "height": 1192,
+      "width": 1324
+    }
+  },
+  {
+    "mode": "runtime-n8ao",
+    "view": "spawn-b",
+    "fps": 60.36217303822937,
+    "calls": 66,
+    "triangles": 118509,
+    "frames": 90,
+    "maxCalls": 66,
+    "maxTriangles": 118509,
+    "dimensions": {
+      "cssHeight": 1192,
+      "cssWidth": 1325,
+      "height": 1192,
+      "width": 1324
+    }
+  }
+]

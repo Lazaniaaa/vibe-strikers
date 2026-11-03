@@ -1,0 +1,68 @@
+{
+  "pass": true,
+  "rows": [
+    {
+      "id": "toy-town",
+      "coldMs": 36.71369999999979,
+      "warmMs": 1.2588000000000648,
+      "offTriangles": 36480,
+      "onTriangles": 42480,
+      "extraTriangles": 6000,
+      "drawCalls": 6,
+      "vertices": 67296,
+      "minColour": 0,
+      "maxColour": 1
+    },
+    {
+      "id": "toy-town-l1-r1",
+      "coldMs": 42.5940999999998,
+      "warmMs": 1.547900000000027,
+      "offTriangles": 49032,
+      "onTriangles": 55032,
+      "extraTriangles": 6000,
+      "drawCalls": 6,
+      "vertices": 92400,
+      "minColour": 0,
+      "maxColour": 1
+    },
+    {
+      "id": "toy-town-l1-r2",
+      "coldMs": 50.01389999999992,
+      "warmMs": 1.6724999999996726,
+      "offTriangles": 49656,
+      "onTriangles": 55656,
+      "extraTriangles": 6000,
+      "drawCalls": 6,
+      "vertices": 93648,
+      "minColour": 0,
+      "maxColour": 1
+    },
+    {
+      "id": "toy-town-l2-r1",
+      "coldMs": 44.096000000000004,
+      "warmMs": 1.737500000000182,
+      "offTriangles": 48240,
+      "onTriangles": 54240,
+      "extraTriangles": 6000,
+      "drawCalls": 6,
+      "vertices": 90816,
+      "minColour": 0,
+      "maxColour": 1
+    },
+    {
+      "id": "toy-town-l2-r2",
+      "coldMs": 46.446699999999964,
+      "warmMs": 1.4370999999996457,
+      "offTriangles": 49392,
+      "onTriangles": 55392,
+      "extraTriangles": 6000,
+      "drawCalls": 6,
+      "vertices": 93120,
+      "minColour": 0,
+      "maxColour": 1
+    }
+  ],
+  "contact": 0.8024598288952928,
+  "far": 1,
+  "serverImport": "No AO field/query constructed until explicit fixture sampling; shipped maps use precomputed data."
+}

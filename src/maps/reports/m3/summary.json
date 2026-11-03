@@ -2,11 +2,11 @@
   {
     "id": "toy-town-l1-r1",
     "pass": true,
-    "sha256": "950e2430894fea19d3dfd44b939211989fd1a3daa42cda9a721475e131d29031",
+    "sha256": "107bfeaa44f60b7712add365ae8d35d6a5200bb8d4849d37a42cfc2832c7e194",
     "stats": {
       "boxes": 1812,
       "renderBoxes": 4086,
-      "triangles": 49032,
+      "triangles": 55032,
       "drawCalls": 6,
       "chunks": 4,
       "instancedPrefabs": 2,
@@ -54,11 +54,11 @@
   {
     "id": "toy-town-l1-r2",
     "pass": true,
-    "sha256": "f36915940f9cea4894023d33bfe5f846f284eb15161d1875a664d3d7fdc56939",
+    "sha256": "3218568878b2c38526af489d75ce253db96977f1ab91e16dcad816690fa7fe20",
     "stats": {
       "boxes": 1794,
       "renderBoxes": 4138,
-      "triangles": 49656,
+      "triangles": 55656,
       "drawCalls": 6,
       "chunks": 4,
       "instancedPrefabs": 2,
@@ -106,11 +106,11 @@
   {
     "id": "toy-town-l2-r1",
     "pass": true,
-    "sha256": "31612f3b8b8074b03b589d5134cb98142b79561293702be48d370b805fb356c2",
+    "sha256": "2c3327f3644c5294fbe04aafe0c745024b7f6b2d30fc76e66cad890e4015d7de",
     "stats": {
       "boxes": 1796,
       "renderBoxes": 4020,
-      "triangles": 48240,
+      "triangles": 54240,
       "drawCalls": 6,
       "chunks": 4,
       "instancedPrefabs": 2,
@@ -158,11 +158,11 @@
   {
     "id": "toy-town-l2-r2",
     "pass": true,
-    "sha256": "8be4ea33f0595aaba9437be712afa0d07fd6f56750dd0cbb1dd28a9ee3bd9225",
+    "sha256": "0fe7359a4a6d1dd03e0df3da0040d0b4c6d7b9c0476cb9838e27f167e55b4518",
     "stats": {
       "boxes": 1792,
       "renderBoxes": 4116,
-      "triangles": 49392,
+      "triangles": 55392,
       "drawCalls": 6,
       "chunks": 4,
       "instancedPrefabs": 2,

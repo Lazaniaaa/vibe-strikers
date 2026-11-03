@@ -104,3 +104,34 @@ The only physical changes are the explicitly requested bug fixes. Named benches/
 Run `node src/maps/verify.mjs` from the repository root. It now includes `verify-colour.mjs`, all five colour guards, shared-resource/disposal checks, palette membership, fixed lighting, decor flags, named prop/wall penetration, R1 stair entry, budget and 33-character CIE76 reports, followed by all existing navigation/tactical audits. Historical M1/M2 snapshots remain unchanged; current render SHA-256 baselines include the approved colours/detail/batching changes. Low-contrast pairs (<15) are reported explicitly, without changing characters. This colour-only metric uses unlit data, not rendered shadows or silhouette recognition.
 
 A separate four-view review is available with `node src/maps/tools/colour-preview-server.mjs`, then `http://127.0.0.1:5176/src/maps/preview/colour.html`. It uses the game's ACES/sRGB output and matched sun/shadow settings. Original before images are immutable captures; the current page exports the after views. Camera positions, FOV, sizes and actual frame counts (including shadow submissions) are recorded in `reports/colour/before-views.json` and `after-views.json`. `reports/colour/REPORT.md` and `FILES.md` contain results and the exact transfer list. Runtime integration needs only **buildMap.ts, types.ts and the five map JSON files**; all other files are preview, verification or evidence.
+
+## Baked ambient occlusion (default ON)
+
+```ts
+const normal = buildMap(data); // cached, baked vertex colours
+const comparison = buildMap(data, { bakedAo: false }); // exact approved unbaked geometry/colours
+```
+
+`MapBuildOptions` is exported as a type from the public index. The added argument is optional; existing calls are unchanged. The geometry cache key contains the full MapData plus the effective AO option, so on/off entries cannot contaminate one another. Materials remain shared. `disposeMapResources()` releases both variants.
+
+AO is a static, stylised approximation multiplied into **linear RGB vertex colours**. It modulates all subsequent material lighting, rather than separating ambient/direct irradiance. It adds no texture, material, mesh, render pass or per-frame AO calculation. Extra vertices have a small rasterisation cost: the hard cap is 6,000 extra direct map triangles (at most 12,000 submissions when the same geometry is also shadow-rendered). Draw calls remain six.
+
+The offline baker uses eight deterministic short hemisphere rays against spatially indexed logical AABBs, radius 0.65m. This handles fractional blocks, wall-floor joints, stairs and small awning/frame contacts without voxelising the entire town. Only large faces with nearby projected contacts receive extra cuts; each of four chunks is capped at 1,500 added triangles. Existing outline plates are retained. AO clamps at 0.64 linear light and at 0.76 on upward surfaces, keeping floors readable. All strength/radius/mesh-density values are named and commented in `bakedAo.ts`.
+
+True InstancedMesh prefab assemblies receive **local self-AO only**, shared by every instance; no per-instance world AO is added. Small prefabs already baked into static chunks receive static world AO. No collider or map JSON changes are involved.
+
+### Offline data and server safety
+
+Run `node src/maps/tools/bake-ao.mjs` after changing geometry, renderer layout or AO constants. It writes five `ao-data/*.ts` files, roughly 104–134KB each. Each contains a deferred data-loader function, with sparse face patches encoded as delta-varints, float32 cut coordinates and 8-bit light factors. The maximum light quantisation error is 1/255. Data is decoded only inside an uncached buildMap call. No AO field, ray sampling or geometry is constructed when the server imports index.ts or calls loadMapData/mapColliders/mapShotBlockers/spawnPoints.
+
+A hash of geometry/instances and AO constants validates each precomputed record; palette-only changes reuse the same AO topology. Unknown/custom layouts fall back to construction-time baking and should be precomputed before shipping. All five shipped maps are verified to use offline data, with no runtime ray sampling. Geometry remains cached after the first construction. The offline computation takes approximately 330–370ms/map; loading and constructing the shipped geometry is below 100ms in standalone measurements, and approximately 40–45ms after JIT warm-up in the contract suite.
+
+`node src/maps/tools/bake-ao.mjs --compare-voxel` benchmarks a three-probe side/side/corner adaptation without overwriting the chosen bank. It is faster (~140–240ms/map), but yields discrete steps and depends on which side of a fractional face is treated as a voxel corner. This comparison uses the same adaptive topology/budget. The selected hemisphere approach has smoother finite-radius falloff and better coverage under irregular awnings. See [0fps](https://0fps.net/2013/07/03/ambient-occlusion-for-minecraft-like-worlds/) and the [BufferGeometry vertex attribute API](https://threejs.org/docs/pages/BufferGeometry.html).
+
+`verify.mjs` now runs `verify-baked-ao.mjs`: exact AO-off SHA-256 against the original, all five map JSON hashes unchanged, no extra draws, <=6,000 added triangles, finite bounded vertex colours, cache separation/sharing, cold build <300ms, no AO field construction for shipped maps, isolated-face/contact fixtures and per-file size limits. Existing collider/nav/source/disposal/tactical checks remain active. Current AO-on render hashes are intentionally updated; `baselines/baked-ao-off.json` retains the old hashes. The source guard takes its non-map snapshot from the task entry, preserving the previous colour-pass guard separately.
+
+### Game review
+
+All required four-view game captures are complete: baked off, baked on, and runtime n8ao only (baked off for that third mode). At the same 1325 × 1192 CSS canvas, baked-on captures ran at approximately 60 FPS, with a maximum 134246 submitted triangles and 76 draw calls. The map itself still uses six draws. At a 60Hz cap this demonstrates no measured FPS drop; the extra triangles retain a small rasterisation cost. Full raw measurements, original PNGs and the comparison sheet are linked from [reports/baked-ao/REPORT.md](reports/baked-ao/REPORT.md). All verification/typecheck/build checks pass; console errors: zero.
+
+For actual-game A/B without editing game files, run node src/maps/tools/build-ao-review.mjs off. This temporarily bundles an unbaked default and restores the source automatically. Capture the existing review URLs with ao=off (no AO) or ao=on (n8ao only). Finish with node src/maps/tools/build-ao-review.mjs on or npm run game:build; the final source and distribution are baked ON. The normal optional public buildMap argument remains the preferred integration API.

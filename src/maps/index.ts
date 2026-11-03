@@ -6,6 +6,7 @@ import l2r2 from './data/toy-town-l2-r2.json';
 import type { MapData,Team } from './types';
 import { expandedBoxes,mergeColliders } from './boxes';
 export { buildMap,disposeMapResources } from './buildMap';
+export type {MapBuildOptions} from './buildMap';
 export type { MapData,MapBox,MapInstance,SpawnPoint,ColliderBox,MapKind,Team,MapStats } from './types';
 function freeze<T>(v:T):T{if(v&&typeof v==='object'){Object.freeze(v);for(const x of Object.values(v))freeze(x);}return v;}
 const maps=freeze(Object.fromEntries([town,l1r1,l1r2,l2r1,l2r2].map(d=>[d.id,d as unknown as MapData])));

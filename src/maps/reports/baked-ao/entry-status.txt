@@ -1,0 +1,3 @@
+?? src/maps/baselines/baked-ao-data-guard.json
+?? src/maps/baselines/baked-ao-source-guard.json
+?? src/maps/reports/baked-ao/

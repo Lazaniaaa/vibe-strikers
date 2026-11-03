@@ -6,14 +6,14 @@
   "stats": {
     "boxes": 1794,
     "renderBoxes": 4138,
-    "triangles": 49656,
+    "triangles": 55656,
     "drawCalls": 6,
     "chunks": 4,
     "instancedPrefabs": 2,
     "instances": 56,
     "shadowChunks": 4
   },
-  "sha256": "f36915940f9cea4894023d33bfe5f846f284eb15161d1875a664d3d7fdc56939",
+  "sha256": "3218568878b2c38526af489d75ce253db96977f1ab91e16dcad816690fa7fe20",
   "checks": [
     {
       "name": "approved source files / public API",
@@ -90,13 +90,13 @@
       "value": {
         "boxes": 1794,
         "renderBoxes": 4138,
-        "triangles": 49656,
+        "triangles": 55656,
         "drawCalls": 6,
         "chunks": 4,
         "instancedPrefabs": 2,
         "instances": 56,
         "shadowChunks": 4,
-        "actualTriangles": 49656,
+        "actualTriangles": 55656,
         "actualCalls": 6
       }
     },
@@ -111,14 +111,14 @@
     {
       "name": "deterministic / both palettes same shape",
       "pass": true,
-      "value": "f36915940f9cea4894023d33bfe5f846f284eb15161d1875a664d3d7fdc56939"
+      "value": "3218568878b2c38526af489d75ce253db96977f1ab91e16dcad816690fa7fe20"
     },
     {
       "name": "SHA-256 baseline",
       "pass": true,
       "value": {
-        "expected": "f36915940f9cea4894023d33bfe5f846f284eb15161d1875a664d3d7fdc56939",
-        "actual": "f36915940f9cea4894023d33bfe5f846f284eb15161d1875a664d3d7fdc56939"
+        "expected": "3218568878b2c38526af489d75ce253db96977f1ab91e16dcad816690fa7fe20",
+        "actual": "3218568878b2c38526af489d75ce253db96977f1ab91e16dcad816690fa7fe20"
       }
     },
     {
