@@ -67,7 +67,7 @@ const menu = new Menu(document.body, params.get('name') ?? savedName, [],
   savedDifficulty(), (d) => storage('local')?.setItem('voxel-difficulty', d),
   savedMode(), (m) => storage('local')?.setItem('voxel-mode', m));
 const settingsTab = settingsButton(menu.settingsSlot, getSettingsPanel(), 'menu-tab menu-settings');
-settingsTab.innerHTML = '<kbd>4</kbd> SETTINGS';
+settingsTab.innerHTML = '<kbd>5</kbd> SETTINGS';
 settingsTab.setAttribute('aria-label', 'Settings');
 // Paint the plain DOM first. A generation token cancels a lazy import when a match starts meanwhile.
 let menuScene: MenuScene | null = null;
@@ -124,9 +124,9 @@ function ensureNet(): Promise<GameNet> {
       lagMs: Number(params.get('lag') ?? 0) || 0,
     });
     await n.connect();
-    n.onMarketChange = () => { menu.setCoins(n.market.wallet?.coins ?? null); marketPanel?.refresh(); };
+    n.onMarketChange = () => { showAccount(n); marketPanel?.refresh(); leaderPanel?.refresh(); };
     await n.subscribeMarket().catch(() => undefined); // the game works without the market
-    menu.setCoins(n.market.wallet?.coins ?? null);
+    showAccount(n);
     net = n;
     return n;
   })();
@@ -134,9 +134,44 @@ function ensureNet(): Promise<GameNet> {
   return connecting;
 }
 
+// Wallet login (GAME.md 6.8): sign a text in the browser wallet; testnet only, no transactions.
+let loginBusy = false;
+function showAccount(n: GameNet | null): void {
+  menu.setAccount({ online: !!n, address: n?.market.account ?? '', coins: n?.market.wallet?.coins ?? null, busy: loginBusy });
+}
+async function walletLogin(): Promise<void> {
+  if (loginBusy) return;
+  loginBusy = true; showAccount(net);
+  try {
+    const n = await ensureNet();
+    const { loginWithBrowserWallet } = await import('../../src/network/walletLogin');
+    await loginWithBrowserWallet(n);
+    menu.setStatus('');
+  } catch (e) {
+    const text = e instanceof Error ? e.message : String(e);
+    menu.setStatus(`Could not log in: ${text}`);
+    marketPanel?.setStatus(`Could not log in: ${text}`, true);
+  } finally {
+    loginBusy = false; showAccount(net);
+  }
+}
+menu.onLogin = () => { void walletLogin(); };
+menu.onLogout = () => { void net?.logout().catch(() => undefined); };
+
+// LEADERS tab: loads on first open.
+let leaderPanel: import('../../src/ui/leaderPanel').LeaderPanel | null = null;
+function openLeaders(): void {
+  void (async () => {
+    if (!leaderPanel) { const { LeaderPanel } = await import('../../src/ui/leaderPanel'); leaderPanel ??= new LeaderPanel(menu.root); }
+    leaderPanel.show();
+    try { leaderPanel.attach(await ensureNet()); } catch { leaderPanel.attach(null); }
+  })();
+}
+
 // MARKET tab: the panel and the catalog load on first open.
 let marketPanel: import('../../src/ui/marketPanel').MarketPanel | null = null;
 menu.onTab = (tab) => {
+  if (tab === 'leaders') openLeaders(); else leaderPanel?.hide();
   if (tab !== 'market') { marketPanel?.hide(); return; }
   void (async () => {
     if (!marketPanel) {
@@ -147,6 +182,7 @@ menu.onTab = (tab) => {
         if (item.kind === 'character') return { name: menu.characterName(item.index) ?? item.name, kind: 'character', portrait: menu.portraitOf(item.index) };
         return { name: item.name, kind: 'emote' };
       });
+      marketPanel.onLogin = () => { void walletLogin(); };
     }
     marketPanel.show();
     try { marketPanel.attach(await ensureNet()); } catch (e) { marketPanel.setStatus(`Market offline: ${e instanceof Error ? e.message : String(e)}`, true); }
