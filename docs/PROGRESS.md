@@ -488,6 +488,14 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   game build; lobby 61 FPS at 1920x1080 and 1366x768, 0 console errors; menu -> practice -> leave -> menu with
   the 3D back and one canvas; in-match views unchanged (`docs/evidence/lobby-task-game-unchanged.jpg`); online
   smoke OK. Evidence `docs/evidence/lobby-*.jpg`. Codex's 13 MB of review images were left out of git.
+- 2026-11-05 sound A/B round (owner: Claude and Codex each make one code-made set, compared blind): contract
+  `src/ui/sounds/types.ts` (10 ids: uiHover, knife, pistol, rifle, sniper, shotgun, step, hit, headshot, loot;
+  recipe = pure function returning mono samples, rendered once at load; limits per sound). Claude's set
+  `src/ui/sounds/claude.ts` on `src/ui/sounds/dsp.ts` (layered: noise transient, filtered-noise / gliding-tone
+  body, low thump, short tail, saturation, small Schroeder reverb). Codex's set in `src/ui/sounds/codex.ts` (+
+  `codex/`). Lab `client/game/soundLab.ts` (?soundlab=1): A/B shuffled per sound, matched on the loudest 50 ms
+  window, rifle as a 6-shot burst, steps 4 in a row. Not wired into the game yet: the winners per sound go in
+  after the owner's picks.
 - 2026-10-31 owner: ADS proposal approved
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
