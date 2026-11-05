@@ -5,7 +5,11 @@ export const MARKET = {
   /** Starter set for a new player (distinct catalog items, random). */
   starter: { characters: 3, emotes: 1 },
   /** Coins per match (humans only, paid at match end). */
-  reward: { win: 50, loss: 20, kill: 5, headshot: 2, matchCap: 150, firstWinOfDay: 50 },
+  reward: { win: 50, loss: 20, kill: 5, headshot: 2, matchCap: 150, firstWinOfDay: 50,
+    /** A match pays only with at least this many players in the room at the end (bots count) ... */
+    minPlayers: 2,
+    /** ... and only if it lasted this long (seconds from the match start): no farming of empty or instant matches. */
+    minMatchSeconds: 60 },
   /** Allowed listing price, integer coins. */
   price: { min: 10, max: 5000 },
   /** Share of every sale that is burned (taken out of the economy); at least 1 coin. */

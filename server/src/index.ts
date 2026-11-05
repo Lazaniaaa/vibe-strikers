@@ -28,7 +28,7 @@ import { restartMatch, type RoundPhase, type RoundState, type TeamId } from '../
 import { canFire, cancelReload, consumeShot, damageAt, resetSlot, spreadDeg, startReload, tickSlot } from '../../src/gameplay/weaponLogic.ts';
 import { actorFor, brainFor, forgetActor, getNav, getWorld, historyFor, terrainFor } from './world.ts';
 import { MARKET } from '../../src/config/market.ts';
-import { CATALOG, matchReward, priceError, RateLimiter, saleFee, starterRefs, utcDay } from '../../src/gameplay/market.ts';
+import { CATALOG, matchPays, matchReward, priceError, RateLimiter, saleFee, starterRefs, utcDay } from '../../src/gameplay/market.ts';
 
 const room = table({ name: 'room', public: true }, {
   id: t.u64().primaryKey().autoInc(),
@@ -206,13 +206,19 @@ const economy = table({ name: 'economy', public: true }, {
   burned: t.u64(),
 });
 
+/** When the current match of a room started (match rewards need a minimum length). */
+const matchClock = table({ name: 'match_clock' }, {
+  roomId: t.u64().primaryKey(),
+  startedAt: t.timestamp(),
+});
+
 /** Headshot kills per player row in the current match (for the match reward). */
 const matchStat = table({ name: 'match_stat' }, {
   playerId: t.u64().primaryKey(),
   headshots: t.u32(),
 });
 
-const spacetimedb = schema({ room, player, shotEvent, killEvent, item, pingEvent, tickTimer, wallet, ownedItem, listing, trade, economy, matchStat });
+const spacetimedb = schema({ room, player, shotEvent, killEvent, item, pingEvent, tickTimer, wallet, ownedItem, listing, trade, economy, matchStat, matchClock });
 export default spacetimedb;
 
 /** Row-level security: a client only receives the ping rows addressed to it. */
@@ -339,6 +345,7 @@ function closeRoomIfEmpty(ctx: Ctx, roomId: bigint): void {
   }
   for (const p of rows) { dropPlayer(ctx, p.id); }
   clearItems(ctx, roomId);
+  ctx.db.matchClock.roomId.delete(roomId);
   if (r) ctx.db.room.id.delete(roomId);
 }
 
@@ -379,6 +386,7 @@ function createRoom(ctx: Ctx, isPrivate: boolean, bots: boolean, difficulty: Bot
   const r = ctx.db.room.insert({ id: 0n, code: newRoomCode(ctx), isPrivate, bots, difficulty, mode, teams: mode === 'elimination' || teams, mutator: isMutator(mutator) ? mutator : '',
     phase: 'freeze', round: 1, scoreA: 0, scoreB: 0, timeLeft: presetFor(mode).freezeTime, lastWinner: '', matchWinner: '', createdAt: ctx.timestamp });
   if (mode === 'cornucopia') spawnLoot(ctx, r.id);
+  ctx.db.matchClock.insert({ roomId: r.id, startedAt: ctx.timestamp });
   return r;
 }
 
@@ -514,6 +522,10 @@ function fireShot(ctx: Ctx, r: RoomRow, shooter: PlayerRow, a: Actor, yaw: numbe
 /** Everyone back to the team spawns with full HP and ammo. */
 function respawnAll(ctx: Ctx, r: RoomRow, resetScores: boolean): void {
   clearItems(ctx, r.id);
+  if (resetScores) { // a new match starts now
+    ctx.db.matchClock.roomId.delete(r.id);
+    ctx.db.matchClock.insert({ roomId: r.id, startedAt: ctx.timestamp });
+  }
   const corn = modeOf(r) === 'cornucopia';
   if (corn) spawnLoot(ctx, r.id);
   const rows = playersIn(ctx, r.id).sort((p, q) => (p.id < q.id ? -1 : 1));
@@ -598,9 +610,13 @@ function payCoins(ctx: Ctx, w: WalletRow, coins: number, extra: Partial<WalletRo
 
 /** Match rewards for the humans in the room (bots get nothing). */
 function payMatch(ctx: Ctx, r: RoomRow, winner: string): void {
-  const day = utcDay(nowMs(ctx));
-  for (const p of playersIn(ctx, r.id)) {
+  const day = utcDay(nowMs(ctx)), rows = playersIn(ctx, r.id);
+  const clock = ctx.db.matchClock.roomId.find(r.id);
+  const seconds = clock ? (nowMs(ctx) - Number(clock.startedAt.microsSinceUnixEpoch) / 1000) / 1000 : 0;
+  const pays = matchPays(rows.length, seconds);
+  for (const p of rows) {
     if (p.isBot || p.ownerHex === '') continue;
+    if (!pays) { ctx.db.matchStat.playerId.delete(p.id); continue; }
     const w = ensureWallet(ctx, Identity.fromString(p.ownerHex));
     const won = winner !== '' && p.team === winner;
     const first = won && w.lastWinDay !== day;

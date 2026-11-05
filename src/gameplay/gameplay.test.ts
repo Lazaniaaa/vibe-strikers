@@ -17,7 +17,7 @@ import { lootPlan, tickModeRound } from './mode.ts';
 import { MUTATOR_IDS, mutatorOfDay, mutatorRules } from '../config/mutators.ts';
 import { CORNUCOPIA } from '../config/items.ts';
 import { MARKET } from '../config/market.ts';
-import { matchReward, priceError, RateLimiter, saleFee, starterRefs, utcDay, type CatalogItem } from './marketRules.ts';
+import { matchPays, matchReward, priceError, RateLimiter, saleFee, starterRefs, utcDay, type CatalogItem } from './marketRules.ts';
 import { buildNavGrid, findPath, groundAt, nearestWalkable, nodeY, pruneUnreachable, upperAreas } from './navGrid.ts';
 
 let passed = 0;
@@ -264,6 +264,9 @@ test('market rules: fee, price limits, match reward, rate limit, starter set', (
   assert.equal(matchReward(true, 100, 100, true), r.matchCap + r.firstWinOfDay, 'first win of the day on top of the cap');
   assert.equal(matchReward(false, 0, 0, true), r.loss, 'no first-win bonus for a loss');
   assert.equal(utcDay(Date.UTC(2026, 10, 5, 23, 59)), '2026-11-05');
+  assert.ok(matchPays(r.minPlayers, r.minMatchSeconds), 'a real match pays');
+  assert.ok(!matchPays(r.minPlayers - 1, 3600), 'alone in the room: no reward');
+  assert.ok(!matchPays(8, r.minMatchSeconds - 1), 'too short: no reward');
   const limit = new RateLimiter(3, 1000);
   assert.deepEqual([0, 10, 20, 30].map((t) => limit.allow('a', t)), [true, true, true, false]);
   assert.ok(limit.allow('b', 30), 'per key');

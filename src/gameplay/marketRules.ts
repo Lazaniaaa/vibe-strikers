@@ -29,6 +29,11 @@ export function matchReward(won: boolean, kills: number, headshots: number, firs
   return base + (won && firstWinOfDay ? r.firstWinOfDay : 0);
 }
 
+/** Does a finished match pay rewards? `players` in the room at the end (bots count), `seconds` since it started. */
+export function matchPays(players: number, seconds: number): boolean {
+  return players >= MARKET.reward.minPlayers && seconds >= MARKET.reward.minMatchSeconds;
+}
+
 /** UTC day key for the first-win bonus, e.g. `2026-11-05`. */
 export function utcDay(ms: number): string { return new Date(ms).toISOString().slice(0, 10); }
 

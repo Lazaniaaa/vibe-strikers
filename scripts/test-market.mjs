@@ -84,8 +84,8 @@ try {
   const burst = await Promise.all(Array.from({ length: MARKET.rateLimit.actions + 4 }, () => reason(c.cancelListing(999999n))));
   check(burst.filter((r) => r.includes('too many')).length >= 4, `rate limit: ${burst.filter((r) => r.includes('too many')).length} of ${burst.length} refused`);
 
-  // Match reward: Cornucopia free-for-all is one round; the last player alive wins the match.
-  const { matchReward } = await vite.ssrLoadModule('/src/gameplay/market.ts');
+  // Match reward farming: a free-for-all match where the only opponent leaves after the freeze ends at once
+  // (last player alive). Too short and alone at the end -> no reward (MARKET.reward.minPlayers / minMatchSeconds).
   const p1 = await client(), p2 = await client();
   await waitFor(() => p1.market.wallet && p2.market.wallet);
   await p1.createPrivateRoom('Winner', 1, false, 'normal', 'cornucopia', false, '');
@@ -95,16 +95,35 @@ try {
   check(p1.room?.phase === 'live', 'free-for-all match is live');
   const before1 = p1.market.wallet.coins, before2 = p2.market.wallet.coins, minted0 = audit.market.economy.minted;
   await p2.leave();
-  const paid = await waitFor(() => p1.market.wallet.coins !== before1, 8000);
-  const expected = matchReward(true, 0, 0, true);
-  check(!!paid && p1.market.wallet.coins - before1 === expected, `winner paid ${p1.market.wallet.coins - before1} coins (expected ${expected}: win + first win of the day)`);
+  await waitFor(() => p1.room?.phase === 'matchEnd', 4000);
+  await sleep(500);
+  check(p1.market.wallet.coins === before1, `instant win alone pays nothing (${p1.market.wallet.coins - before1})`);
   await waitFor(() => p1.room?.phase === 'matchEnd', 2000);
   check(p1.room?.phase === 'matchEnd', 'the match ended');
   check(p2.market.wallet.coins === before2, `the player who left gets nothing (${p2.market.wallet.coins - before2})`);
-  await waitFor(() => audit.market.economy.minted !== minted0, 3000);
-  check(audit.market.economy.minted - minted0 === BigInt(expected), 'match reward was minted');
-  check(p1.market.wallet.lastWinDay === new Date().toISOString().slice(0, 10), 'first-win day recorded');
+  check(audit.market.economy.minted === minted0 && p1.market.wallet.lastWinDay === '', 'nothing minted, first-win bonus not used up');
   await p1.leave();
+
+  // --slow: a real match pays. Free-for-all with bots (8 players): the human idles, bots fight until one is left
+  // (or the round timer ends); the human gets the loss (or win) reward for that match.
+  if (process.argv.includes('--slow')) {
+    const { matchReward } = await vite.ssrLoadModule('/src/gameplay/market.ts');
+    const h = await client();
+    await waitFor(() => h.market.wallet);
+    await h.createPrivateRoom('Idler', 4, true, 'easy', 'cornucopia', false, '');
+    await waitFor(() => h.me && h.room, 5000);
+    const coins0 = h.market.wallet.coins, started = Date.now();
+    let kills = 0;
+    const ended = await waitFor(() => { if (h.me) kills = h.me.kills; return h.room?.phase === 'matchEnd'; }, 330000);
+    const seconds = (Date.now() - started) / 1000;
+    await sleep(500);
+    const won = h.room?.matchWinner !== '' && h.room?.matchWinner === h.me?.team;
+    const expected = seconds >= MARKET.reward.minMatchSeconds ? matchReward(won, kills, 0, won && h.market.wallet.lastWinDay !== '') : 0;
+    check(!!ended, `slow: match ended after ${seconds.toFixed(0)} s (${h.players.size} players)`);
+    check(h.market.wallet.coins - coins0 === expected || (won && h.market.wallet.coins - coins0 === matchReward(won, kills, 0, false)),
+      `slow: paid ${h.market.wallet.coins - coins0} coins for a ${won ? 'win' : 'loss'} with ${kills} kills (expected ${expected})`);
+    await h.leave();
+  }
 
   // Economy invariant (auditor sees every wallet).
   await sleep(300);
