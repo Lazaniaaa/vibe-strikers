@@ -6,6 +6,7 @@ import { SOUND_IDS, SOUND_LIMITS } from '../src/ui/sounds/types.ts';
 import { CLAUDE_SOUNDS } from '../src/ui/sounds/claude.ts';
 import { CODEX_SOUNDS } from '../src/ui/sounds/codex.ts';
 import { ROUND2, ROUND3 } from '../src/ui/sounds/round2.ts';
+import { CODEX_SHOTGUN2 } from '../src/ui/sounds/codex/shotgun2.ts';
 
 const SR = 48000;
 const wavDir = process.argv.includes('--wav') ? process.argv[process.argv.indexOf('--wav') + 1] : null;
@@ -57,7 +58,7 @@ for (const [name, set] of [['claude', CLAUDE_SOUNDS], ['codex', CODEX_SOUNDS]]) 
 }
 // Round 2 variants (owner 2026-11-06): same limits; WAVs as round2-<id>-v<n>.wav, plus a rifle burst preview.
 const rows2 = [];
-for (const [round, variants] of [['round2', ROUND2], ['round3', ROUND3]]) for (const [id, list] of Object.entries(variants)) {
+for (const [round, variants] of [['round2', ROUND2], ['round3', ROUND3], ['codex2', { shotgun: CODEX_SHOTGUN2 }]]) for (const [id, list] of Object.entries(variants)) {
   list.forEach((recipe, k) => {
     recipe(SR, seeded(1));
     const t0 = performance.now();
