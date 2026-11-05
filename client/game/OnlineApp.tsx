@@ -338,7 +338,7 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
         // Z / middle mouse: team ping where I look.
         if (input.takePing()) { const p = pingPoint(local, blockers); if (p) net.ping(p.x, p.y, p.z); }
         // E: pick up the nearest item (the server checks range and swaps the primary).
-        if (intent.use && live) { const it = nearestOf(net.items.values(), local.x, local.y, local.z); if (it) net.pickUp(it.id); }
+        if (intent.use && live) { const it = nearestOf(net.items.values(), local.x, local.y, local.z); if (it) void net.pickUp(it.id).then((ok) => { if (ok) game.sfx.play('loot'); }); }
         // Weapon switch / reload / fire (the server repeats every check).
         if (intent.slot >= 0 && intent.slot < local.slots.length && intent.slot !== local.active && (intent.slot !== 0 || local.hasPrimary)) {
           input.cancelAds();

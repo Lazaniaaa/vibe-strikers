@@ -499,7 +499,11 @@ export class GameNet {
   ping(x: number, y: number, z: number): void { if (this.conn) void this.call(() => this.conn!.reducers.ping({ x, y, z })).catch(() => undefined); }
 
   /** E on an item on the ground (the server checks range and phase). */
-  pickUp(itemId: bigint): void { if (this.conn) void this.call(() => this.conn!.reducers.pickUp({ itemId })).catch(() => undefined); }
+  /** Use / pick up an item; resolves true if the server accepted it (the client then plays the loot sound). */
+  pickUp(itemId: bigint): Promise<boolean> {
+    if (!this.conn) return Promise.resolve(false);
+    return this.call(() => this.conn!.reducers.pickUp({ itemId })).then(() => true, () => false);
+  }
 
   reload(): void { if (this.conn) void this.call(() => this.conn!.reducers.reload({})).catch(() => undefined); }
 

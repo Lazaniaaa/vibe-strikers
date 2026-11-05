@@ -36,9 +36,34 @@ export const SOUNDS = {
   step: { ...d, wave: 'noise', freq: 120, freqEnd: 60, sustain: 0.015, release: 0.06, noise: 1, lowpass: 700, volume: 0.25, pitchJitter: 0.15 },
   ui: { ...d, wave: 'sine', freq: 660, freqEnd: 880, sustain: 0.02, release: 0.05, volume: 0.25, pitchJitter: 0 },
   ping: { ...d, wave: 'sine', freq: 1046, freqEnd: 1568, sustain: 0.05, release: 0.18, volume: 0.35, pitchJitter: 0 },
+  // Fallbacks only: these two always use their code-made recipe (PICKED_SOUNDS).
+  hover: { ...d, wave: 'sine', freq: 1800, freqEnd: 2100, sustain: 0.005, release: 0.02, volume: 0.15, pitchJitter: 0 },
+  loot: { ...d, wave: 'sine', freq: 1046, freqEnd: 1568, sustain: 0.04, release: 0.15, volume: 0.35, pitchJitter: 0 },
 } as const satisfies Record<string, SoundDef>;
 
 export type SoundName = keyof typeof SOUNDS;
+
+/**
+ * Code-made sounds picked by the owner in the A/B rounds (2026-11-06; recipes mapped in src/ui/sounds/picks.ts).
+ * They replace the synth defs above. `gain` = playback volume, set so each sound sits near the old synth level
+ * (peaks stay below full scale; the raw recipes differ a lot, e.g. Codex's hover is about 25 dB quieter),
+ * `jitter` = random playback-rate variation (+-).
+ */
+export const PICKED_SOUNDS = {
+  shot_knife: { gain: 0.55, jitter: 0.06 },
+  shot_pistol: { gain: 0.82, jitter: 0.04 },
+  shot_rifle: { gain: 0.7, jitter: 0.04 },
+  shot_shotgun: { gain: 0.42, jitter: 0.03 },
+  shot_sniper: { gain: 0.75, jitter: 0.02 },
+  hit: { gain: 0.9, jitter: 0.03 },
+  headshot: { gain: 1.05, jitter: 0 },
+  step: { gain: 0.2, jitter: 0.05 },
+  hover: { gain: 2.8, jitter: 0.02 },
+  loot: { gain: 1.5, jitter: 0 },
+} as const satisfies Partial<Record<SoundName, { gain: number; jitter: number }>>;
+
+/** Footsteps: this many renders of the step recipe (different random), one picked at random per step. */
+export const STEP_VARIANTS = 4;
 
 export const AUDIO = {
   /** Metres between footsteps while running. */

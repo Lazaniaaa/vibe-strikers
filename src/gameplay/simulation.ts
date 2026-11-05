@@ -83,6 +83,8 @@ export class Simulation {
   readonly preset: RoundPreset;
   readonly shots: ShotEvent[] = [];
   shotCount = 0;
+  /** Successful pickups per actor id, ever (the client plays the loot sound when its own count grows). */
+  readonly pickupTotal: number[] = [];
   readonly kills: KillEvent[] = [];
   /** Items on the ground (weapon drops); cleared when a round starts. */
   readonly items: SimItem[] = [];
@@ -247,6 +249,7 @@ export class Simulation {
     const it = this.items[i];
     if (!useItem(a, it, (w) => this.dropLater.push(w))) return false;
     this.items.splice(this.items.indexOf(it), 1);
+    this.pickupTotal[a.id] = (this.pickupTotal[a.id] ?? 0) + 1;
     for (const w of this.dropLater) this.drop(w, a.x, a.y, a.z);
     this.dropLater.length = 0;
     return true;

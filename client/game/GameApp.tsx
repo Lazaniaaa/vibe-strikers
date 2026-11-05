@@ -246,7 +246,7 @@ function GameDriver({ options }: { options: GameOptions }) {
   }, [game, scene, camera, gl, options.debug]);
 
   const scratch = useMemo(() => ({ from: new Vector3(), fwd: new Vector3(), right: new Vector3(), hudTimer: 0, fpsFrames: 0, fpsTimer: 0, punch: 0, shake: new CameraShake(),
-    audio: { prevReload: 0, steps: new Map<number, number>() } }), []);
+    audio: { prevReload: 0, pickups: 0, steps: new Map<number, number>() } }), []);
   const view = useMemo<HudView>(() => ({ hp: 100, alive: true, weapon: '', mag: 0, reserve: 0, reloading: false, phase: 'freeze',
     timeLeft: 0, round: 1, scoreA: 0, scoreB: 0, aliveA: 0, aliveB: 0, center: '', sub: '', feed: [], roomInfo: `Offline practice · ${options.mode === 'cornucopia' ? `Cornucopia${options.teams === false ? ' (free-for-all)' : ''}` : 'Elimination'}${options.mutator ? ` · Mutator: ${mutatorLabel(options.mutator)}` : ''} · bots ${options.difficulty ?? DEFAULT_DIFFICULTY}`, fps: 0, perf: '', locked: false }), []);
 
@@ -307,6 +307,9 @@ function GameDriver({ options }: { options: GameOptions }) {
     {
       const slot = local.slots[local.active], au = scratch.audio;
       if (slot.reloadLeft > 0 && au.prevReload <= 0) sfx.play('reload');
+      const picked = sim.pickupTotal[LOCAL_ID] ?? 0;
+      if (picked > au.pickups) sfx.play('loot');
+      au.pickups = picked;
       if (au.prevReload > AUDIO.reloadSecondClick && slot.reloadLeft > 0 && slot.reloadLeft <= AUDIO.reloadSecondClick) sfx.play('reload');
       au.prevReload = slot.reloadLeft;
       for (const a of sim.actors) {

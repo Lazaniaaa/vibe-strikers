@@ -257,7 +257,11 @@ second outline to them.
 
 ## 12. Audio
 SFX are procedural (ZzFX style), no files: shots per weapon, hit, headshot,
-reload, footsteps (positional, silent while sneaking), UI. Music is generative and
+reload, footsteps (positional, silent while sneaking), UI. Since 2026-11-06 the owner's picks from the sound A/B
+rounds (cartoon direction) replace the synth for: shots (knife, pistol, rifle, shotgun, sniper), hit, headshot,
+footsteps (4 renders, random per step), button hover (lobby, once per button entered) and loot (item picked up;
+online after the server accepts). Map in `src/ui/sounds/picks.ts`, volumes in `config/audio.ts` PICKED_SOUNDS.
+Kill, hurt, reload, ping and click keep the synth. Music is generative and
 subtle, layered by situation: lobby (calm), round (rhythm), last 15 s (tension), win
 sting. Code-generated, no music files.
 

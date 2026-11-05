@@ -32,6 +32,14 @@ function storage(kind: 'local' | 'session'): Storage | null {
 
 // UI click sound for every button (the first click also starts the audio context).
 document.addEventListener('click', (e) => { if ((e.target as HTMLElement).closest('button')) getSfx().play('ui'); });
+// Hover sound on buttons (owner's pick, sound A/B 2026-11-06): once per button entered, not for moves inside it.
+let hoverButton: Element | null = null;
+document.addEventListener('pointerover', (e) => {
+  const b = (e.target as HTMLElement).closest?.('button:not(:disabled)') ?? null;
+  if (b && b !== hoverButton) getSfx().play('hover');
+  hoverButton = b;
+});
+if (debug) (window as unknown as { __sfx?: unknown }).__sfx = getSfx();
 
 async function joinWith(net: GameNet, choice: MenuChoice, character: number): Promise<void> {
   if (choice.kind === 'quick') await net.joinQuick(choice.name, character);

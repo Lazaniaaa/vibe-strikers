@@ -550,7 +550,13 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   shotgun variants too), sniper none (echo, whistle) -> round 3: three dry sniper variants (`ROUND3`, no reverb).
   Round 3 pick: sniper v1 for now (owner will compare again after Codex's variants).
   Codex shotgun variants (`codex/shotgun2.ts`, 3) compared with Claude's round-2 v3 (loudness matched): owner kept
-  Claude's round-2 shotgun v3. All sounds picked; next: wire them into the game (owner's go-ahead).
+  Claude's round-2 shotgun v3. All sounds picked and wired into the game (owner's go-ahead): `src/ui/sounds/picks.ts`
+  maps game sounds to recipes, `PICKED_SOUNDS` (config/audio.ts) sets gain / pitch variation, chosen so each sits
+  near the old synth level (raw recipes differed up to 25 dB). Sfx renders them once after audio unlocks; steps
+  get 4 renders. New: hover sound on buttons (main.tsx, once per button entered), loot sound (offline:
+  `Simulation.pickupTotal`; online: `GameNet.pickUp` now resolves true when the server accepted). Checked in
+  Chromium: lobby hovers, offline Cornucopia shots / steps / loot, 0 console errors; test-drops, test-sounds,
+  gameplay tests pass.
 - 2026-10-31 owner: ADS proposal approved
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
