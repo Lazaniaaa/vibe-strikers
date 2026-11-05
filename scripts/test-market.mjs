@@ -173,7 +173,7 @@ try {
   check(e && sum === e.minted - e.burned, `coins conserved: sum ${sum} == minted ${e?.minted} - burned ${e?.burned}`);
   const owners = new Map();
   for (const it of audit.market.items.values()) owners.set(it.id, (owners.get(it.id) ?? 0) + 1);
-  check([...audit.market.listings.values()].every((l) => audit.market.items.get(l.itemId)?.owner.toHexString() === l.seller.toHexString()),
+  check([...audit.market.listings.values()].every((l) => audit.market.items.get(l.itemId)?.owner === l.seller),
     'every listing points at an item its seller owns');
 
   clearInterval(pump);
