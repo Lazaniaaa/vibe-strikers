@@ -534,6 +534,11 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   (`docs/evidence/market-sim-wallets-40bots.json`), test-server pass, Chromium with a fake provider: login, market,
   leaders, logout, 0 console errors (`docs/evidence/wallet-*.jpg`, `leaders-tab.jpg`). Real MetaMask not tested yet
   (owner's browser).
+- 2026-11-06 owner: project name **Vibe Strikers** (for the Robinhood Chain testnet submission). Renamed what the
+  player sees: lobby logo, page title, loading screen, wallet login text (`AUTH.appName`). Technical names stay
+  (`voxel-arena` database, repo, folders). Logo made in code (`docs/brand/`): token icon `vibe-strikers-icon.svg`
+  + PNG 1024 / 512 / 256 (round, transparent corners), full logo `vibe-strikers-logo.svg` / `.png`; lobby palette
+  and Lilita One (OFL, embedded in the SVGs).
 - 2026-10-31 owner: ADS proposal approved
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).

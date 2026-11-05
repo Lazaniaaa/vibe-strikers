@@ -1,4 +1,4 @@
-# CLAUDE.md — Voxel Arena FPS (working title)
+# CLAUDE.md — Vibe Strikers (was "Voxel Arena"; technical names such as the `voxel-arena` database stay)
 
 Browser 3D multiplayer FPS, Counter-Strike-style, with voxel NFT characters
 (vibe/vibe collection). Desktop only (keyboard + mouse). Wallet login only (owner

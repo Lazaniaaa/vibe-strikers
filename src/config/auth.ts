@@ -2,7 +2,7 @@
 // No transactions, no chain calls. Testnet only: Robinhood Chain testnet (an Ethereum L2); mainnet is never used.
 export const AUTH = {
   /** Shown in the message the wallet asks to sign. */
-  appName: 'Voxel Arena',
+  appName: 'Vibe Strikers',
   network: 'Robinhood Chain testnet',
   /** A signed login message is accepted only this long after its issue time ... */
   maxAgeMs: 5 * 60 * 1000,

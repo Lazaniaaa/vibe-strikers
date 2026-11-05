@@ -48,13 +48,13 @@ export class Menu {
     mode: GameMode = 'elimination', onMode: (mode: GameMode) => void = () => undefined) {
     this.character = selected; this.difficulty = difficulty; this.mode = mode;
     this.root = document.createElement('main'); this.root.className = 'menu'; this.root.dataset.tab = 'play';
-    this.root.setAttribute('aria-label', 'Voxel Arena lobby');
+    this.root.setAttribute('aria-label', 'Vibe Strikers lobby');
     for (const [key, color] of Object.entries(MENU.palette)) this.root.style.setProperty(`--menu-${key}`, color);
     this.root.style.setProperty('--menu-display', MENU.displayFont);
     this.root.innerHTML = `
       <div class="menu-scene-host"></div><div class="menu-vignette"></div><div class="menu-dimmer"></div>
       <header class="menu-header">
-        <div class="menu-logo" aria-label="Voxel Arena"><svg class="menu-block" viewBox="0 0 56 60" aria-hidden="true"><path class="block-top" d="M28 3 52 16 28 29 4 16Z"/><path class="block-left" d="M4 16 28 29 28 56 4 43Z"/><path class="block-right" d="M28 29 52 16 52 43 28 56Z"/><path class="block-notch" d="M16 24 16 36 28 43 40 36 40 24"/></svg><span>VOXEL<br>ARENA</span></div>
+        <div class="menu-logo" aria-label="Vibe Strikers"><svg class="menu-block" viewBox="0 0 56 60" aria-hidden="true"><path class="block-top" d="M28 3 52 16 28 29 4 16Z"/><path class="block-left" d="M4 16 28 29 28 56 4 43Z"/><path class="block-right" d="M28 29 52 16 52 43 28 56Z"/><path class="block-notch" d="M16 24 16 36 28 43 40 36 40 24"/></svg><span>VIBE<br>STRIKERS</span></div>
         <nav class="menu-tabs menu-toy" aria-label="Lobby tabs"><button class="menu-tab active" data-tab="play" aria-pressed="true"><kbd>1</kbd> PLAY</button><button class="menu-tab" data-tab="characters" aria-pressed="false"><kbd>2</kbd> CHARACTERS</button><button class="menu-tab" data-tab="market" aria-pressed="false"><kbd>3</kbd> MARKET</button><button class="menu-tab" data-tab="leaders" aria-pressed="false"><kbd>4</kbd> LEADERS</button><div class="menu-settings-slot"></div></nav>
       </header>
       <section class="menu-player menu-toy" aria-label="Player card"><div class="menu-mini"><img alt="Selected character portrait" hidden /></div><label><span class="menu-eyebrow">YOUR NICKNAME <b aria-hidden="true">✎</b></span><input class="menu-name" aria-label="Nickname" maxlength="${MENU.nameMaxLength}" placeholder="Your name" autocomplete="nickname" /></label><div class="menu-account" aria-live="polite" hidden></div></section>

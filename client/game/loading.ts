@@ -11,7 +11,7 @@ export class Loading {
   constructor(parent: HTMLElement = document.body) {
     this.root = document.createElement('div');
     this.root.className = 'loading';
-    this.root.innerHTML = '<div class="loading-card"><div class="loading-title">Voxel Arena</div>' +
+    this.root.innerHTML = '<div class="loading-card"><div class="loading-title">Vibe Strikers</div>' +
       '<div class="loading-label"></div><div class="loading-track"><div class="loading-bar"></div></div></div>';
     parent.appendChild(this.root);
     this.bar = this.root.querySelector('.loading-bar')!;
