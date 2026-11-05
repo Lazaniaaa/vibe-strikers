@@ -539,6 +539,13 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   (`voxel-arena` database, repo, folders). Logo made in code (`docs/brand/`): token icon `vibe-strikers-icon.svg`
   + PNG 1024 / 512 / 256 (round, transparent corners), full logo `vibe-strikers-logo.svg` / `.png`; lobby palette
   and Lilita One (OFL, embedded in the SVGs).
+- 2026-11-06 sound A/B round 1, owner's picks (loudness-matched WAVs): hover = Codex, step = Claude, hit = neither
+  (regenerate), headshot = Codex, loot = Codex (simpler), knife = Claude, pistol / rifle = regenerate (rifle also as
+  a burst), shotgun = Claude but more variants, sniper = Claude but too loud and too long. Direction: more cartoon,
+  less "almost real". Codex's set committed (only its imports got `.ts` so Node can load it). Round 2:
+  `src/ui/sounds/round2.ts`, 3 variants each for hit / pistol / rifle / shotgun / sniper (tonal pops, short tails,
+  quieter sniper and hit); `scripts/test-sounds.mjs --wav` also writes them and rifle burst previews (8 shots at the
+  600 rpm interval). Nothing wired into the game yet.
 - 2026-10-31 owner: ADS proposal approved
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
