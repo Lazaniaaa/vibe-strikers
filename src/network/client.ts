@@ -17,6 +17,8 @@ import type OwnedItemDef from './bindings/owned_item_table.ts';
 import type ListingDef from './bindings/listing_table.ts';
 import type TradeDef from './bindings/trade_table.ts';
 import type EconomyDef from './bindings/economy_table.ts';
+import type PlayerStatDef from './bindings/player_stat_table.ts';
+import type SessionDef from './bindings/session_table.ts';
 
 export type PlayerRow = Infer<typeof PlayerRowDef>;
 export type RoomRow = Infer<typeof RoomRowDef>;
@@ -29,15 +31,21 @@ export type OwnedItemRow = Infer<typeof OwnedItemDef>;
 export type ListingRow = Infer<typeof ListingDef>;
 export type TradeRow = Infer<typeof TradeDef>;
 export type EconomyRow = Infer<typeof EconomyDef>;
+export type PlayerStatRow = Infer<typeof PlayerStatDef>;
+export type SessionRow = Infer<typeof SessionDef>;
 
-/** Marketplace rows (GAME.md 6.7), kept current after GameNet.subscribeMarket. No artificial lag. */
+/** Marketplace rows (GAME.md 6.7, 6.8), kept current after GameNet.subscribeMarket. No artificial lag. */
 export class MarketView {
-  /** My wallet. */
+  /** The account (lowercase 0x address) this connection is logged in as; '' = guest. */
+  account = '';
+  /** My wallet (null for a guest). */
   wallet: WalletRow | null = null;
-  /** Wallets by owner hex (only mine, or all for an auditor subscription). */
+  /** Every wallet by account (public: the leaderboard shows coins). */
   readonly wallets = new Map<string, WalletRow>();
   /** Owned items by id (only mine, or all for an auditor subscription). */
   readonly items = new Map<bigint, OwnedItemRow>();
+  /** All-time stats by account (leaderboard). */
+  readonly stats = new Map<string, PlayerStatRow>();
   readonly listings = new Map<bigint, ListingRow>();
   readonly trades = new Map<bigint, TradeRow>();
   economy: EconomyRow | null = null;
@@ -189,6 +197,9 @@ export class GameNet {
   /** Called after any marketplace change. */
   onMarketChange: (() => void) | null = null;
   private marketSub: SubscriptionHandle | null = null;
+  /** My items (follows the logged-in account). */
+  private itemsSub: SubscriptionHandle | null = null;
+  private marketAll = false;
 
   constructor(opts: NetOptions = {}) {
     this.opts = opts;
@@ -237,19 +248,24 @@ export class GameNet {
     c.db.room.onDelete((_ctx, row) => { this.allRooms.delete(row.id); });
     const m = this.market, changed = () => { m.version++; this.onMarketChange?.(); };
     const setWallet = (row: WalletRow) => {
-      const hex = row.owner.toHexString();
-      m.wallets.set(hex, row);
-      if (hex === this.identityHex) m.wallet = row;
+      m.wallets.set(row.owner, row);
+      if (row.owner === m.account) m.wallet = row;
       changed();
     };
     c.db.wallet.onInsert((_ctx, row) => setWallet(row));
     c.db.wallet.onUpdate((_ctx, _old, row) => setWallet(row));
     c.db.wallet.onDelete((_ctx, row) => {
-      const hex = row.owner.toHexString();
-      m.wallets.delete(hex);
-      if (hex === this.identityHex) m.wallet = null;
+      m.wallets.delete(row.owner);
+      if (row.owner === m.account) m.wallet = null;
       changed();
     });
+    // My login session (row-level security: only my own row arrives).
+    c.db.session.onInsert((_ctx, row) => this.setAccount(row.address));
+    c.db.session.onUpdate((_ctx, _old, row) => this.setAccount(row.address));
+    c.db.session.onDelete(() => this.setAccount(''));
+    c.db.playerStat.onInsert((_ctx, row) => { m.stats.set(row.owner, row); changed(); });
+    c.db.playerStat.onUpdate((_ctx, _old, row) => { m.stats.set(row.owner, row); changed(); });
+    c.db.playerStat.onDelete((_ctx, row) => { m.stats.delete(row.owner); changed(); });
     c.db.ownedItem.onInsert((_ctx, row) => { m.items.set(row.id, row); changed(); });
     c.db.ownedItem.onUpdate((_ctx, _old, row) => { m.items.set(row.id, row); changed(); });
     c.db.ownedItem.onDelete((_ctx, row) => { m.items.delete(row.id); changed(); });
@@ -262,18 +278,35 @@ export class GameNet {
     c.db.economy.onUpdate((_ctx, _old, row) => { m.economy = row; changed(); });
   }
 
+  /** Logged in as another account (or logged out): follow my wallet and items. */
+  private setAccount(address: string): void {
+    const m = this.market;
+    if (m.account === address) return;
+    m.account = address;
+    m.wallet = address ? m.wallets.get(address) ?? null : null;
+    if (!this.marketAll) {
+      if (this.itemsSub?.isActive()) this.itemsSub.unsubscribe();
+      this.itemsSub = null;
+      m.items.clear();
+      if (address && this.conn && /^0x[0-9a-f]{40}$/.test(address)) {
+        this.itemsSub = this.conn.subscriptionBuilder().subscribe(`SELECT * FROM owned_item WHERE owner = '${address}'`);
+      }
+    }
+    m.version++;
+    this.onMarketChange?.();
+  }
+
   /**
-   * Subscribe to the marketplace: my wallet and items, every listing, recent trades, the economy row.
-   * `all` (tests / audits): every wallet and every owned item too.
+   * Subscribe to the marketplace: my session, wallets, my items (once logged in), every listing, recent trades,
+   * stats and the economy row. `all` (tests / audits): every owned item too.
    */
   subscribeMarket(all = false): Promise<void> {
     if (!this.conn) return Promise.reject(new Error('not connected'));
     if (this.marketSub) return Promise.resolve();
-    const mine = `0x${this.identityHex}`;
-    const queries = all
-      ? ['SELECT * FROM wallet', 'SELECT * FROM owned_item', 'SELECT * FROM listing', 'SELECT * FROM trade', 'SELECT * FROM economy']
-      : [`SELECT * FROM wallet WHERE owner = ${mine}`, `SELECT * FROM owned_item WHERE owner = ${mine}`,
-        'SELECT * FROM listing', 'SELECT * FROM trade', 'SELECT * FROM economy'];
+    this.marketAll = all;
+    const queries = ['SELECT * FROM session', 'SELECT * FROM wallet', 'SELECT * FROM listing', 'SELECT * FROM trade',
+      'SELECT * FROM economy', 'SELECT * FROM player_stat'];
+    if (all) queries.push('SELECT * FROM owned_item');
     return new Promise((resolve, reject) => {
       this.marketSub = this.conn!.subscriptionBuilder()
         .onApplied(() => resolve())
@@ -281,6 +314,12 @@ export class GameNet {
         .subscribe(queries);
     });
   }
+
+  /** Wallet login (GAME.md 6.8): a personal_sign signature of loginMessage(address, identityHex, issuedAtMs). */
+  login(address: string, issuedAtMs: number, signature: string): Promise<void> {
+    return this.call(() => this.conn!.reducers.login({ address, issuedAtMs, signature }));
+  }
+  logout(): Promise<void> { return this.call(() => this.conn!.reducers.logout({})); }
 
   /** Put one of my items on the market (integer coins, MARKET.price). Rejects with the server's reason. */
   listItem(itemId: bigint, price: number): Promise<void> { return this.call(() => this.conn!.reducers.listItem({ itemId, price })); }

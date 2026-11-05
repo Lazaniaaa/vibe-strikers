@@ -2,6 +2,8 @@
 // Plain DOM over a GameNet (the server decides everything; this panel only shows rows and sends intents).
 import { MARKET } from '../config/market.ts';
 import { priceError, saleFee } from '../gameplay/marketRules.ts';
+import { shortAddress } from '../gameplay/walletMessage.ts';
+import { AUTH } from '../config/auth.ts';
 import type { GameNet, ListingRow, OwnedItemRow } from '../network/client.ts';
 import '../../client/game/market.css';
 
@@ -34,6 +36,8 @@ export class MarketPanel {
   private lastDraw = 0;
   private message = '';
   private messageIsError = false;
+  /** Starts the wallet login (set by the lobby). */
+  onLogin: (() => void) | null = null;
 
   constructor(parent: HTMLElement, private readonly describe: (ref: string) => MarketItemView) {
     this.root = document.createElement('section');
@@ -81,12 +85,13 @@ export class MarketPanel {
     const focusItem = active?.matches?.('.market-price') && this.root.contains(active) ? active.dataset.item ?? null : null;
     const caret = focusItem !== null ? active!.selectionStart : null;
     const scroll = this.root.querySelector<HTMLElement>('.market-list')?.scrollTop ?? 0;
-    const m = this.net?.market, me = this.net?.identityHex ?? '';
+    const m = this.net?.market, me = m?.account ?? '';
     const coins = m?.wallet?.coins;
     const tabs = (['browse', 'mine', 'history'] as const).map((v) =>
       `<button data-view="${v}" aria-pressed="${this.view === v}">${v === 'browse' ? 'Browse' : v === 'mine' ? 'My items' : 'History'}</button>`).join('');
     let body = '';
     if (!m) body = '<p class="market-empty">Connecting to the market…</p>';
+    else if (!me && this.view !== 'browse') body = this.loginPrompt();
     else if (this.view === 'browse') body = this.browse(m.listings, me, coins ?? 0);
     else if (this.view === 'mine') body = this.mine(m.items, m.listings, me);
     else body = this.history(me);
@@ -98,7 +103,8 @@ export class MarketPanel {
         <select class="market-filter" aria-label="Filter"><option value="all">All items</option><option value="character">Characters</option><option value="emote">Emotes</option></select>
         <select class="market-sort" aria-label="Sort"><option value="cheap">Cheapest first</option><option value="expensive">Most expensive</option><option value="new">Newest</option></select></div>` : ''}
       <div class="market-list">${body}</div>
-      <footer><small>Every sale burns a ${Math.round(MARKET.feeRate * 100)}% fee (at least 1 coin). Coins come from matches.</small>
+      <footer><small class="market-testnet">${esc(AUTH.network)} only. Never use a wallet that holds real funds.</small>
+        <small>Every sale burns a ${Math.round(MARKET.feeRate * 100)}% fee (at least 1 coin). Coins come from matches.</small>
         <div class="market-status${this.messageIsError ? ' has-error' : ''}" role="status" aria-live="polite">${esc(this.message)}</div></footer>`;
     const f = this.root.querySelector<HTMLSelectElement>('.market-filter'), s = this.root.querySelector<HTMLSelectElement>('.market-sort');
     if (f) f.value = this.filter;
@@ -117,23 +123,30 @@ export class MarketPanel {
     rows.sort((a, b) => this.sort === 'cheap' ? a.price - b.price || Number(a.id - b.id)
       : this.sort === 'expensive' ? b.price - a.price || Number(a.id - b.id)
       : Number(b.id - a.id));
-    if (!rows.length) return '<p class="market-empty">Nothing for sale yet. List one of your items in "My items".</p>';
+    const guest = me === '' ? this.loginPrompt() : '';
+    if (!rows.length) return `${guest}<p class="market-empty">Nothing for sale yet. List one of your items in "My items".</p>`;
     const now = performance.now(), total = rows.length;
     rows = rows.slice(0, MAX_ROWS);
     const more = total > rows.length ? `<p class="market-empty">Showing ${rows.length} of ${total}. Use the filter and sort to find more.</p>` : '';
-    return rows.map((l) => {
-      const own = l.seller.toHexString() === me;
+    return guest + rows.map((l) => {
+      const own = me !== '' && l.seller === me;
       const confirming = this.confirm && this.confirm.id === l.id && this.confirm.until > now;
       const action = own ? `<button data-cancel="${l.id}" class="menu-small-action">Cancel</button>`
-        : `<button data-buy="${l.id}" data-price="${l.price}" class="menu-small-action market-buy${confirming ? ' confirm' : ''}" ${coins < l.price || this.busy ? 'disabled' : ''}>${confirming ? `Confirm ${l.price}?` : `Buy ◉ ${l.price}`}</button>`;
-      return `<div class="market-row">${this.itemCell(l.ref)}<div class="market-meta">${own ? 'Your listing' : `Seller …${l.seller.toHexString().slice(-5)}`}</div>${action}</div>`;
+        : `<button data-buy="${l.id}" data-price="${l.price}" class="menu-small-action market-buy${confirming ? ' confirm' : ''}" ${coins < l.price || this.busy || !me ? 'disabled' : ''}>${confirming ? `Confirm ${l.price}?` : `Buy ◉ ${l.price}`}</button>`;
+      return `<div class="market-row">${this.itemCell(l.ref)}<div class="market-meta">${own ? 'Your listing' : `Seller ${esc(shortAddress(l.seller))}`}</div>${action}</div>`;
     }).join('') + more;
+  }
+
+  private loginPrompt(): string {
+    return `<div class="market-login"><p>Log in with a wallet to buy, sell and keep your items.</p>
+      <button data-login class="menu-small-action">Log in with wallet</button>
+      <small>Signing is free: it is not a transaction. ${esc(AUTH.network)} only, mainnet is never used.</small></div>`;
   }
 
   private mine(items: ReadonlyMap<bigint, OwnedItemRow>, listings: ReadonlyMap<bigint, ListingRow>, me: string): string {
     const listed = new Map<bigint, ListingRow>();
-    for (const l of listings.values()) if (l.seller.toHexString() === me) listed.set(l.itemId, l);
-    const own = [...items.values()].filter((i) => i.owner.toHexString() === me).sort((a, b) => a.ref.localeCompare(b.ref) || Number(a.id - b.id));
+    for (const l of listings.values()) if (l.seller === me) listed.set(l.itemId, l);
+    const own = [...items.values()].filter((i) => i.owner === me).sort((a, b) => a.ref.localeCompare(b.ref) || Number(a.id - b.id));
     if (!own.length) return '<p class="market-empty">You have no items yet.</p>';
     return own.map((i) => {
       const l = listed.get(i.id);
@@ -149,7 +162,7 @@ export class MarketPanel {
     const trades = [...(this.net?.market.trades.values() ?? [])].sort((a, b) => Number(b.id - a.id)).slice(0, HISTORY_ROWS);
     if (!trades.length) return '<p class="market-empty">No trades yet.</p>';
     return trades.map((t) => {
-      const mine = t.buyer.toHexString() === me ? 'You bought' : t.seller.toHexString() === me ? `You sold (+${t.price - t.fee})` : 'Sold';
+      const mine = me && t.buyer === me ? 'You bought' : me && t.seller === me ? `You sold (+${t.price - t.fee})` : 'Sold';
       return `<div class="market-row">${this.itemCell(t.ref)}<div class="market-meta">${mine}</div><div class="market-price-tag">◉ ${t.price}</div></div>`;
     }).join('');
   }
@@ -171,6 +184,7 @@ export class MarketPanel {
     if (!b || b.disabled) return;
     e.stopPropagation();
     if (b.dataset.view) { this.view = b.dataset.view as View; this.confirm = null; this.message = ''; this.draw(); return; }
+    if (b.hasAttribute('data-login')) { this.onLogin?.(); return; }
     const net = this.net;
     if (!net) return;
     if (b.dataset.buy) {

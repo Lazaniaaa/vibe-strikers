@@ -28,6 +28,8 @@ import { restartMatch, type RoundPhase, type RoundState, type TeamId } from '../
 import { canFire, cancelReload, consumeShot, damageAt, resetSlot, spreadDeg, startReload, tickSlot } from '../../src/gameplay/weaponLogic.ts';
 import { actorFor, brainFor, forgetActor, getNav, getWorld, historyFor, terrainFor } from './world.ts';
 import { MARKET } from '../../src/config/market.ts';
+import { AUTH } from '../../src/config/auth.ts';
+import { loginError } from '../../src/gameplay/walletAuth.ts';
 import { CATALOG, matchPays, matchReward, priceError, RateLimiter, saleFee, starterRefs, utcDay } from '../../src/gameplay/market.ts';
 
 const room = table({ name: 'room', public: true }, {
@@ -160,9 +162,18 @@ const tickTimer = table({ name: 'tick_timer' }, {
   scheduledAt: t.scheduleAt(),
 });
 
-// Marketplace (GAME.md 6.7): coins and tradable items per identity. Public for now (balances visible).
+// Wallet login (GAME.md 6.8): which account (lowercase 0x address) a connection is logged in as.
+// A client only receives its own row (sessionVisibility). Several connections may share one address (devices).
+const session = table({ name: 'session', public: true }, {
+  identity: t.identity().primaryKey(),
+  address: t.string().index('btree'),
+  at: t.timestamp(),
+});
+
+// Marketplace (GAME.md 6.7): coins and tradable items per account (wallet address). Public for now (balances visible).
 const wallet = table({ name: 'wallet', public: true }, {
-  owner: t.identity().primaryKey(),
+  /** Account address (lowercase 0x...). */
+  owner: t.string().primaryKey(),
   coins: t.u32(),
   createdAt: t.timestamp(),
   /** UTC day (YYYY-MM-DD) of the last first-win-of-the-day bonus; '' = never. */
@@ -172,7 +183,7 @@ const wallet = table({ name: 'wallet', public: true }, {
 /** One copy of a catalog item; exactly one owner. */
 const ownedItem = table({ name: 'owned_item', public: true }, {
   id: t.u64().primaryKey().autoInc(),
-  owner: t.identity().index('btree'),
+  owner: t.string().index('btree'),
   /** Catalog id (src/gameplay/market.ts), e.g. 'character:vibe-vibers-viber-142', 'emote:wave'. */
   ref: t.string(),
   acquiredAt: t.timestamp(),
@@ -181,7 +192,7 @@ const ownedItem = table({ name: 'owned_item', public: true }, {
 const listing = table({ name: 'listing', public: true }, {
   id: t.u64().primaryKey().autoInc(),
   itemId: t.u64().unique(),
-  seller: t.identity().index('btree'),
+  seller: t.string().index('btree'),
   ref: t.string(),
   price: t.u32(),
   createdAt: t.timestamp(),
@@ -192,8 +203,8 @@ const trade = table({ name: 'trade', public: true }, {
   id: t.u64().primaryKey().autoInc(),
   itemId: t.u64(),
   ref: t.string(),
-  seller: t.identity(),
-  buyer: t.identity(),
+  seller: t.string(),
+  buyer: t.string(),
   price: t.u32(),
   fee: t.u32(),
   at: t.timestamp(),
@@ -218,11 +229,25 @@ const matchStat = table({ name: 'match_stat' }, {
   headshots: t.u32(),
 });
 
-const spacetimedb = schema({ room, player, shotEvent, killEvent, item, pingEvent, tickTimer, wallet, ownedItem, listing, trade, economy, matchStat, matchClock });
+/** All-time stats per account for the leaderboard (GAME.md 6.8): every online match counts. */
+const playerStat = table({ name: 'player_stat', public: true }, {
+  owner: t.string().primaryKey(),
+  /** Player name in the last match. */
+  name: t.string(),
+  matches: t.u32(),
+  wins: t.u32(),
+  kills: t.u32(),
+  deaths: t.u32(),
+  headshots: t.u32(),
+});
+
+const spacetimedb = schema({ room, player, shotEvent, killEvent, item, pingEvent, tickTimer, session, wallet, ownedItem, listing, trade, economy, matchStat, matchClock, playerStat });
 export default spacetimedb;
 
 /** Row-level security: a client only receives the ping rows addressed to it. */
 export const pingVisibility = spacetimedb.clientVisibilityFilter.sql('SELECT * FROM ping_event WHERE recipient = :sender');
+/** Row-level security: a client only receives its own login session. */
+export const sessionVisibility = spacetimedb.clientVisibilityFilter.sql('SELECT * FROM session WHERE identity = :sender');
 
 type Ctx = ReducerCtx<InferSchema<typeof spacetimedb>>;
 type PlayerRow = ReturnType<Ctx['db']['player']['id']['find']> & {};
@@ -413,9 +438,11 @@ function kill(ctx: Ctx, r: RoomRow, victimId: bigint, killerId: bigint, headshot
   if (va.hasPrimary) dropItem(ctx, r.id, primaryState(va), v.x, v.y, v.z);
   ctx.db.player.id.update({ ...v, hp: 0, alive: false, deaths: v.deaths + 1, vx: 0, vy: 0, vz: 0, reloading: false });
   actorFor(Number(v.id), v.team as TeamId, v.isBot).alive = false;
+  bumpStat(ctx, v, { deaths: 1 });
   const k = ctx.db.player.id.find(killerId);
   if (k && k.id !== v.id) {
     ctx.db.player.id.update({ ...k, kills: k.kills + 1 });
+    bumpStat(ctx, k, { kills: 1, headshots: headshot ? 1 : 0 });
     if (headshot && !k.isBot) {
       const st = ctx.db.matchStat.playerId.find(k.id);
       if (st) ctx.db.matchStat.playerId.update({ ...st, headshots: st.headshots + 1 });
@@ -581,9 +608,12 @@ function tickRoom(ctx: Ctx, r: RoomRow): RoomRow {
 // Marketplace (GAME.md 6.7)
 
 type WalletRow = ReturnType<Ctx['db']['wallet']['owner']['find']> & {};
+type StatRow = ReturnType<Ctx['db']['playerStat']['owner']['find']> & {};
 const U32_MAX = 0xffffffff;
-/** Market actions per identity (module memory: attempts count, refused ones too). */
+/** Market actions per account (module memory: attempts count, refused ones too). */
 const marketLimiter = new RateLimiter(MARKET.rateLimit.actions, MARKET.rateLimit.windowMs);
+/** Login attempts per identity. */
+const loginLimiter = new RateLimiter(AUTH.rateLimit.actions, AUTH.rateLimit.windowMs);
 
 function economyRow(ctx: Ctx) {
   return ctx.db.economy.id.find(0) ?? ctx.db.economy.insert({ id: 0, minted: 0n, burned: 0n });
@@ -591,13 +621,20 @@ function economyRow(ctx: Ctx) {
 function mint(ctx: Ctx, coins: number): void { const e = economyRow(ctx); ctx.db.economy.id.update({ ...e, minted: e.minted + BigInt(coins) }); }
 function burn(ctx: Ctx, coins: number): void { const e = economyRow(ctx); ctx.db.economy.id.update({ ...e, burned: e.burned + BigInt(coins) }); }
 
-/** The identity's wallet; a new one gets the start coins and the starter items. */
-function ensureWallet(ctx: Ctx, who: Identity): WalletRow {
-  const found = ctx.db.wallet.owner.find(who);
+/** The account (address) a connection is logged in as, or '' for a guest. */
+function accountOf(ctx: Ctx, who: Identity): string { return ctx.db.session.identity.find(who)?.address ?? ''; }
+/** The account of a player row ('' for bots and guests). */
+function accountOfPlayer(ctx: Ctx, p: PlayerRow): string {
+  return p.isBot || p.ownerHex === '' ? '' : accountOf(ctx, Identity.fromString(p.ownerHex));
+}
+
+/** The account's wallet; a new one gets the start coins and the starter items. */
+function ensureWallet(ctx: Ctx, owner: string): WalletRow {
+  const found = ctx.db.wallet.owner.find(owner);
   if (found) return found;
-  const w = ctx.db.wallet.insert({ owner: who, coins: MARKET.startCoins, createdAt: ctx.timestamp, lastWinDay: '' });
+  const w = ctx.db.wallet.insert({ owner, coins: MARKET.startCoins, createdAt: ctx.timestamp, lastWinDay: '' });
   mint(ctx, MARKET.startCoins);
-  for (const ref of starterRefs(CATALOG, () => ctx.random())) ctx.db.ownedItem.insert({ id: 0n, owner: who, ref, acquiredAt: ctx.timestamp });
+  for (const ref of starterRefs(CATALOG, () => ctx.random())) ctx.db.ownedItem.insert({ id: 0n, owner, ref, acquiredAt: ctx.timestamp });
   return w;
 }
 
@@ -608,60 +645,89 @@ function payCoins(ctx: Ctx, w: WalletRow, coins: number, extra: Partial<WalletRo
   mint(ctx, paid);
 }
 
-/** Match rewards for the humans in the room (bots get nothing). */
+/** Add to a logged-in player's all-time stats (bots and guests have none). */
+function bumpStat(ctx: Ctx, p: PlayerRow, d: Partial<Omit<StatRow, 'owner' | 'name'>>): void {
+  const owner = accountOfPlayer(ctx, p);
+  if (!owner) return;
+  const s = ctx.db.playerStat.owner.find(owner)
+    ?? ctx.db.playerStat.insert({ owner, name: p.name, matches: 0, wins: 0, kills: 0, deaths: 0, headshots: 0 });
+  const add = (a: number, b = 0) => Math.min(U32_MAX, a + b);
+  ctx.db.playerStat.owner.update({ ...s, name: p.name, matches: add(s.matches, d.matches), wins: add(s.wins, d.wins),
+    kills: add(s.kills, d.kills), deaths: add(s.deaths, d.deaths), headshots: add(s.headshots, d.headshots) });
+}
+
+/** Match end: stats for every logged-in human (every online match counts); coins only for a real match. */
 function payMatch(ctx: Ctx, r: RoomRow, winner: string): void {
   const day = utcDay(nowMs(ctx)), rows = playersIn(ctx, r.id);
   const clock = ctx.db.matchClock.roomId.find(r.id);
   const seconds = clock ? (nowMs(ctx) - Number(clock.startedAt.microsSinceUnixEpoch) / 1000) / 1000 : 0;
   const pays = matchPays(rows.length, seconds);
   for (const p of rows) {
-    if (p.isBot || p.ownerHex === '') continue;
-    if (!pays) { ctx.db.matchStat.playerId.delete(p.id); continue; }
-    const w = ensureWallet(ctx, Identity.fromString(p.ownerHex));
-    const won = winner !== '' && p.team === winner;
-    const first = won && w.lastWinDay !== day;
-    const coins = matchReward(won, p.kills, ctx.db.matchStat.playerId.find(p.id)?.headshots ?? 0, first);
-    payCoins(ctx, w, coins, first ? { lastWinDay: day } : {});
+    const owner = accountOfPlayer(ctx, p);
+    const headshots = ctx.db.matchStat.playerId.find(p.id)?.headshots ?? 0;
     ctx.db.matchStat.playerId.delete(p.id);
+    if (!owner) continue;
+    const won = winner !== '' && p.team === winner;
+    bumpStat(ctx, p, { matches: 1, wins: won ? 1 : 0 });
+    if (!pays) continue;
+    const w = ensureWallet(ctx, owner);
+    const first = won && w.lastWinDay !== day;
+    payCoins(ctx, w, matchReward(won, p.kills, headshots, first), first ? { lastWinDay: day } : {});
   }
 }
 
-function marketGate(ctx: Ctx): void {
-  if (!marketLimiter.allow(ctx.sender.toHexString(), nowMs(ctx))) throw new SenderError('too many market actions, wait a moment');
+/** Market reducers: the caller must be logged in; returns its account. */
+function marketGate(ctx: Ctx): string {
+  const owner = accountOf(ctx, ctx.sender);
+  if (!owner) throw new SenderError('log in with a wallet first');
+  if (!marketLimiter.allow(owner, nowMs(ctx))) throw new SenderError('too many market actions, wait a moment');
+  return owner;
 }
 
-export const onConnect = spacetimedb.clientConnected((ctx) => { ensureWallet(ctx, ctx.sender); });
+/** Wallet login (GAME.md 6.8): a personal_sign signature of loginMessage(address, own identity, issuedAtMs). */
+export const login = spacetimedb.reducer({ address: t.string(), issuedAtMs: t.f64(), signature: t.string() }, (ctx, { address, issuedAtMs, signature }) => {
+  if (!loginLimiter.allow(ctx.sender.toHexString(), nowMs(ctx))) throw new SenderError('too many login attempts, wait a moment');
+  const error = loginError(address, ctx.sender.toHexString(), issuedAtMs, signature, nowMs(ctx));
+  if (error) throw new SenderError(error);
+  const owner = address.toLowerCase();
+  const row = { identity: ctx.sender, address: owner, at: ctx.timestamp };
+  if (ctx.db.session.identity.find(ctx.sender)) ctx.db.session.identity.update(row);
+  else ctx.db.session.insert(row);
+  ensureWallet(ctx, owner);
+});
+
+export const logout = spacetimedb.reducer((ctx) => { ctx.db.session.identity.delete(ctx.sender); });
 
 export const listItem = spacetimedb.reducer({ itemId: t.u64(), price: t.u32() }, (ctx, { itemId, price }) => {
-  marketGate(ctx);
+  const me = marketGate(ctx);
   const error = priceError(price);
   if (error) throw new SenderError(error);
   const it = ctx.db.ownedItem.id.find(itemId);
-  if (!it || !it.owner.isEqual(ctx.sender)) throw new SenderError('you do not own this item');
+  if (!it || it.owner !== me) throw new SenderError('you do not own this item');
   if (ctx.db.listing.itemId.find(itemId)) throw new SenderError('this item is already listed');
   let open = 0;
-  for (const _ of ctx.db.listing.seller.filter(ctx.sender)) open++;
+  for (const _ of ctx.db.listing.seller.filter(me)) open++;
   if (open >= MARKET.maxListingsPerSeller) throw new SenderError(`at most ${MARKET.maxListingsPerSeller} listings at once`);
-  ctx.db.listing.insert({ id: 0n, itemId, seller: ctx.sender, ref: it.ref, price, createdAt: ctx.timestamp });
+  ctx.db.listing.insert({ id: 0n, itemId, seller: me, ref: it.ref, price, createdAt: ctx.timestamp });
 });
 
 export const cancelListing = spacetimedb.reducer({ listingId: t.u64() }, (ctx, { listingId }) => {
-  marketGate(ctx);
+  const me = marketGate(ctx);
   const l = ctx.db.listing.id.find(listingId);
   if (!l) throw new SenderError('listing is gone');
-  if (!l.seller.isEqual(ctx.sender)) throw new SenderError('not your listing');
+  if (l.seller !== me) throw new SenderError('not your listing');
   ctx.db.listing.id.delete(l.id);
 });
 
 export const buyListing = spacetimedb.reducer({ listingId: t.u64(), expectedPrice: t.u32() }, (ctx, { listingId, expectedPrice }) => {
-  marketGate(ctx);
+  const me = marketGate(ctx);
   const l = ctx.db.listing.id.find(listingId);
   if (!l) throw new SenderError('listing is gone');
-  if (l.seller.isEqual(ctx.sender)) throw new SenderError('you cannot buy your own listing');
+  if (l.seller === me) throw new SenderError('you cannot buy your own listing');
   if (l.price !== expectedPrice) throw new SenderError('price changed');
   const it = ctx.db.ownedItem.id.find(l.itemId);
-  if (!it || !it.owner.isEqual(l.seller)) throw new SenderError('listing is invalid');
-  const buyer = ensureWallet(ctx, ctx.sender);
+  if (!it || it.owner !== l.seller) throw new SenderError('listing is invalid');
+  const buyer = ensureWallet(ctx, me);
   if (buyer.coins < l.price) throw new SenderError('not enough coins');
   const seller = ctx.db.wallet.owner.find(l.seller);
   if (!seller) throw new SenderError('seller has no wallet');
@@ -670,9 +736,9 @@ export const buyListing = spacetimedb.reducer({ listingId: t.u64(), expectedPric
   ctx.db.wallet.owner.update({ ...buyer, coins: buyer.coins - l.price });
   ctx.db.wallet.owner.update({ ...seller, coins: seller.coins + net });
   burn(ctx, fee);
-  ctx.db.ownedItem.id.update({ ...it, owner: ctx.sender, acquiredAt: ctx.timestamp });
+  ctx.db.ownedItem.id.update({ ...it, owner: me, acquiredAt: ctx.timestamp });
   ctx.db.listing.id.delete(l.id);
-  ctx.db.trade.insert({ id: 0n, itemId: it.id, ref: it.ref, seller: l.seller, buyer: ctx.sender, price: l.price, fee, at: ctx.timestamp });
+  ctx.db.trade.insert({ id: 0n, itemId: it.id, ref: it.ref, seller: l.seller, buyer: me, price: l.price, fee, at: ctx.timestamp });
   // Keep the last MARKET.tradeHistory trades.
   let excess = Number(ctx.db.trade.count()) - MARKET.tradeHistory;
   if (excess > 0) {

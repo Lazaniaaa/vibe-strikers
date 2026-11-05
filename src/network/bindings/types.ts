@@ -43,12 +43,18 @@ export type KillEvent = __Infer<typeof KillEvent>;
 export const Listing = __t.object("Listing", {
   id: __t.u64(),
   itemId: __t.u64(),
-  seller: __t.identity(),
+  seller: __t.string(),
   ref: __t.string(),
   price: __t.u32(),
   createdAt: __t.timestamp(),
 });
 export type Listing = __Infer<typeof Listing>;
+
+export const MatchClock = __t.object("MatchClock", {
+  roomId: __t.u64(),
+  startedAt: __t.timestamp(),
+});
+export type MatchClock = __Infer<typeof MatchClock>;
 
 export const MatchStat = __t.object("MatchStat", {
   playerId: __t.u64(),
@@ -58,7 +64,7 @@ export type MatchStat = __Infer<typeof MatchStat>;
 
 export const OwnedItem = __t.object("OwnedItem", {
   id: __t.u64(),
-  owner: __t.identity(),
+  owner: __t.string(),
   ref: __t.string(),
   acquiredAt: __t.timestamp(),
 });
@@ -115,6 +121,17 @@ export const Player = __t.object("Player", {
 });
 export type Player = __Infer<typeof Player>;
 
+export const PlayerStat = __t.object("PlayerStat", {
+  owner: __t.string(),
+  name: __t.string(),
+  matches: __t.u32(),
+  wins: __t.u32(),
+  kills: __t.u32(),
+  deaths: __t.u32(),
+  headshots: __t.u32(),
+});
+export type PlayerStat = __Infer<typeof PlayerStat>;
+
 export const Room = __t.object("Room", {
   id: __t.u64(),
   code: __t.string(),
@@ -134,6 +151,13 @@ export const Room = __t.object("Room", {
   createdAt: __t.timestamp(),
 });
 export type Room = __Infer<typeof Room>;
+
+export const Session = __t.object("Session", {
+  identity: __t.identity(),
+  address: __t.string(),
+  at: __t.timestamp(),
+});
+export type Session = __Infer<typeof Session>;
 
 export const ShotEvent = __t.object("ShotEvent", {
   roomId: __t.u64(),
@@ -165,8 +189,8 @@ export const Trade = __t.object("Trade", {
   id: __t.u64(),
   itemId: __t.u64(),
   ref: __t.string(),
-  seller: __t.identity(),
-  buyer: __t.identity(),
+  seller: __t.string(),
+  buyer: __t.string(),
   price: __t.u32(),
   fee: __t.u32(),
   at: __t.timestamp(),
@@ -174,7 +198,7 @@ export const Trade = __t.object("Trade", {
 export type Trade = __Infer<typeof Trade>;
 
 export const Wallet = __t.object("Wallet", {
-  owner: __t.identity(),
+  owner: __t.string(),
   coins: __t.u32(),
   createdAt: __t.timestamp(),
   lastWinDay: __t.string(),

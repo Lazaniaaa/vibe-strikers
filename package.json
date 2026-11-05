@@ -17,6 +17,8 @@
     "server:reset": "spacetime publish --server local -y --delete-data=always --module-path server voxel-arena"
   },
   "dependencies": {
+    "@noble/curves": "2.4.0",
+    "@noble/hashes": "2.4.0",
     "@react-three/drei": "10.7.9",
     "@react-three/fiber": "9.8.2",
     "@react-three/rapier": "2.2.0",

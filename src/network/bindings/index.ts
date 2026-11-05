@@ -42,6 +42,8 @@ import JoinByCodeReducer from "./join_by_code_reducer";
 import JoinQuickReducer from "./join_quick_reducer";
 import LeaveRoomReducer from "./leave_room_reducer";
 import ListItemReducer from "./list_item_reducer";
+import LoginReducer from "./login_reducer";
+import LogoutReducer from "./logout_reducer";
 import MoveReducer from "./move_reducer";
 import PickUpReducer from "./pick_up_reducer";
 import PingReducer from "./ping_reducer";
@@ -60,7 +62,9 @@ import ListingRow from "./listing_table";
 import OwnedItemRow from "./owned_item_table";
 import PingEventRow from "./ping_event_table";
 import PlayerRow from "./player_table";
+import PlayerStatRow from "./player_stat_table";
 import RoomRow from "./room_table";
+import SessionRow from "./session_table";
 import ShotEventRow from "./shot_event_table";
 import TradeRow from "./trade_table";
 import WalletRow from "./wallet_table";
@@ -159,6 +163,17 @@ const tablesSchema = __schema({
       { name: 'player_id_key', constraint: 'unique', columns: ['id'] },
     ],
   }, PlayerRow),
+  playerStat: __table({
+    name: 'player_stat',
+    indexes: [
+      { accessor: 'owner', name: 'player_stat_owner_idx_btree', algorithm: 'btree', columns: [
+        'owner',
+      ] },
+    ],
+    constraints: [
+      { name: 'player_stat_owner_key', constraint: 'unique', columns: ['owner'] },
+    ],
+  }, PlayerStatRow),
   room: __table({
     name: 'room',
     indexes: [
@@ -174,6 +189,20 @@ const tablesSchema = __schema({
       { name: 'room_id_key', constraint: 'unique', columns: ['id'] },
     ],
   }, RoomRow),
+  session: __table({
+    name: 'session',
+    indexes: [
+      { accessor: 'address', name: 'session_address_idx_btree', algorithm: 'btree', columns: [
+        'address',
+      ] },
+      { accessor: 'identity', name: 'session_identity_idx_btree', algorithm: 'btree', columns: [
+        'identity',
+      ] },
+    ],
+    constraints: [
+      { name: 'session_identity_key', constraint: 'unique', columns: ['identity'] },
+    ],
+  }, SessionRow),
   shotEvent: __table({
     name: 'shot_event',
     indexes: [
@@ -216,6 +245,8 @@ const reducersSchema = __reducers(
   __reducerSchema("join_quick", JoinQuickReducer),
   __reducerSchema("leave_room", LeaveRoomReducer),
   __reducerSchema("list_item", ListItemReducer),
+  __reducerSchema("login", LoginReducer),
+  __reducerSchema("logout", LogoutReducer),
   __reducerSchema("move", MoveReducer),
   __reducerSchema("pick_up", PickUpReducer),
   __reducerSchema("ping", PingReducer),

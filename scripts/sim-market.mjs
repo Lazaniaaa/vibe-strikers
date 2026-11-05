@@ -1,4 +1,5 @@
-// Marketplace simulation (GAME.md 6.7): many bot traders at once against a local SpacetimeDB, with honest and
+// Marketplace simulation (GAME.md 6.7, 6.8): many bot traders (each logged in with its own test wallet key; every
+// fifth one also trades from a second connection with the same key, like a second device) at once against a local SpacetimeDB, with honest and
 // adversarial actions (selling someone else's item, buying your own, stale prices, several bots buying the same
 // listing at the same moment, bursts over the rate limit, disconnecting mid-trade and reconnecting with the same
 // token). An auditor connection sees every row and checks the invariants every `--check` ms and at the end.
@@ -19,10 +20,11 @@ const vite = await createServer({ configFile: false, root: process.cwd(), logLev
 const { GameNet } = await vite.ssrLoadModule('/src/network/client.ts');
 const { MARKET } = await vite.ssrLoadModule('/src/config/market.ts');
 const { saleFee, CATALOG } = await vite.ssrLoadModule('/src/gameplay/market.ts');
+const { signLogin } = await vite.ssrLoadModule('/src/gameplay/walletAuth.ts');
 
 /** Server refusals the rules expect; anything else is a bug. */
 const EXPECTED = ['price must', 'do not own', 'already listed', 'at most', 'listing is gone', 'not your listing', 'own listing',
-  'price changed', 'not enough coins', 'too many market actions', 'not connected', 'connection lost'];
+  'price changed', 'not enough coins', 'too many market actions', 'not connected', 'connection lost', 'log in with a wallet'];
 /** A call that gets no answer within this time counts as "no answer" (expected only when its connection was dropped). */
 const CALL_TIMEOUT_MS = 6000;
 const stats = { actions: {}, refusals: {}, unexpected: [], violations: [], checks: 0, trades: 0, feesSeen: 0, reconnects: 0 };
@@ -42,10 +44,17 @@ async function attempt(kind, promise) {
   } finally { clearTimeout(timer); }
 }
 
-async function connect(token) {
+/** Connect; with a key, log in (a reconnect with the same token keeps its login session). */
+async function connect(token, key) {
   const n = new GameNet({ token, onToken: (t) => { n.token = t; } });
   await n.connect();
   await n.subscribeMarket(false);
+  if (key) {
+    const t = Date.now(), s = signLogin(key, n.identityHex, t);
+    await n.login(s.address, t, s.signature);
+  }
+  const end = Date.now() + 5000;
+  while (Date.now() < end && !(n.market.account && n.market.wallet && n.market.items.size)) await sleep(20);
   return n;
 }
 
@@ -64,10 +73,15 @@ origTradeInsert.onInsert((_ctx, row) => {
 
 console.log(`connecting ${BOTS} traders...`);
 const bots = [];
-for (let i = 0; i < BOTS; i++) { bots.push(await connect(undefined)); if (i % 10 === 9) await sleep(50); }
+for (let i = 0; i < BOTS; i++) {
+  const key = crypto.getRandomValues(new Uint8Array(32));
+  bots.push(await connect(undefined, key));
+  if (i % 5 === 4) bots.push(await connect(undefined, key)); // second device of the same account
+  if (i % 10 === 9) await sleep(50);
+}
 await sleep(800);
 
-const hex = (id) => id.toHexString();
+const hex = (account) => account; // accounts are address strings
 function check(label) {
   stats.checks++;
   const m = audit.market, e = m.economy;
@@ -96,7 +110,7 @@ function check(label) {
 async function trader(bot, index, until) {
   while (Date.now() < until) {
     await sleep(250 + rand() * 450);
-    const m = bot.market, me = bot.identityHex;
+    const m = bot.market, me = bot.market.account;
     const mine = [...m.items.values()].filter((i) => hex(i.owner) === me);
     const myListed = new Set([...m.listings.values()].filter((l) => hex(l.seller) === me).map((l) => l.itemId));
     const others = [...m.listings.values()].filter((l) => hex(l.seller) !== me);
@@ -112,7 +126,7 @@ async function trader(bot, index, until) {
       await attempt('cancel', bot.cancelListing(l.id));
     } else if (r < 0.74 && others.length) {
       // Several bots buy the same listing at once.
-      const l = pick(others), buyers = bots.filter((b) => b.connected && b.identityHex !== hex(l.seller)).sort(() => rand() - 0.5).slice(0, 3);
+      const l = pick(others), buyers = bots.filter((b) => b.connected && b.market.account !== l.seller).sort(() => rand() - 0.5).slice(0, 3);
       const results = await Promise.all(buyers.map((b) => attempt('race-buy', b.buyListing(l.id, l.price))));
       if (results.filter(Boolean).length > 1) stats.violations.push(`race: listing ${l.id} sold ${results.filter(Boolean).length} times`);
     } else if (r < 0.78) {
@@ -135,8 +149,9 @@ async function trader(bot, index, until) {
       void attempt('buy-then-drop', bot.buyListing(l.id, l.price));
       bot.disconnect();
       await sleep(300 + rand() * 500);
-      const again = await connect(token);
-      if (again.identityHex !== me) stats.violations.push(`reconnect gave a new identity (${me.slice(0, 8)} -> ${again.identityHex.slice(0, 8)})`);
+      const id = bot.identityHex, again = await connect(token);
+      if (again.identityHex !== id) stats.violations.push(`reconnect gave a new identity (${id.slice(0, 8)} -> ${again.identityHex.slice(0, 8)})`);
+      if (again.market.account !== me) stats.violations.push(`reconnect lost the login (${me} -> ${again.market.account || 'guest'})`);
       bots[index] = again; bot = again; stats.reconnects++;
     }
   }
@@ -152,15 +167,15 @@ check('final');
 // Each trader's own view must match the auditor's (wallet and items).
 let mismatched = 0;
 for (const b of bots) {
-  const w = audit.market.wallets.get(b.identityHex);
-  const ownA = [...audit.market.items.values()].filter((i) => hex(i.owner) === b.identityHex).map((i) => i.id).sort();
-  const ownB = [...b.market.items.values()].filter((i) => hex(i.owner) === b.identityHex).map((i) => i.id).sort();
+  const me = b.market.account, w = audit.market.wallets.get(me);
+  const ownA = [...audit.market.items.values()].filter((i) => i.owner === me).map((i) => i.id).sort();
+  const ownB = [...b.market.items.values()].filter((i) => i.owner === me).map((i) => i.id).sort();
   if (!w || b.market.wallet?.coins !== w.coins || ownA.join() !== ownB.join()) mismatched++;
 }
 if (mismatched) stats.violations.push(`final: ${mismatched} trader views differ from the auditor`);
 
 const summary = {
-  bots: BOTS, seconds: SECONDS, seed: Number(arg('seed', 1)), trades: stats.trades, reconnects: stats.reconnects, checks: stats.checks,
+  bots: BOTS, connections: bots.length, seconds: SECONDS, seed: Number(arg('seed', 1)), trades: stats.trades, reconnects: stats.reconnects, checks: stats.checks,
   listingsOpenAtEnd: audit.market.listings.size, wallets: audit.market.wallets.size, items: audit.market.items.size,
   economy: { minted: String(audit.market.economy?.minted), burned: String(audit.market.economy?.burned) },
   actions: stats.actions, outcomes: stats.refusals,

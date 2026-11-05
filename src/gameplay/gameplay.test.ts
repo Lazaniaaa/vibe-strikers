@@ -18,6 +18,9 @@ import { MUTATOR_IDS, mutatorOfDay, mutatorRules } from '../config/mutators.ts';
 import { CORNUCOPIA } from '../config/items.ts';
 import { MARKET } from '../config/market.ts';
 import { matchPays, matchReward, priceError, RateLimiter, saleFee, starterRefs, utcDay, type CatalogItem } from './marketRules.ts';
+import { AUTH } from '../config/auth.ts';
+import { loginError, personalHash, recoverSigner, signLogin } from './walletAuth.ts';
+import { loginMessage } from './walletMessage.ts';
 import { buildNavGrid, findPath, groundAt, nearestWalkable, nodeY, pruneUnreachable, upperAreas } from './navGrid.ts';
 
 let passed = 0;
@@ -248,6 +251,24 @@ test('procedural sounds render audible, bounded samples', () => {
     assert.ok(peak <= 1 && rms > 0.005, `${name}: peak ${peak.toFixed(3)} rms ${rms.toFixed(4)}`);
     assert.ok(data.length / 22050 < 1, `${name} is short`);
   }
+});
+
+test('wallet login: personal_sign hash, signer recovery, refusals', () => {
+  const hex = (b: Uint8Array) => Array.from(b, (x) => x.toString(16).padStart(2, '0')).join('');
+  assert.equal(hex(personalHash('hello world')), 'd9eba16ed0ecae432b71fe008c98cc872bb4cc214d3220a36f365326cf807d68', 'EIP-191 hash');
+  const key = new Uint8Array(32); key[31] = 1; // private key 1 -> well-known address
+  const now = 1_800_000_000_000, id = 'c200ab';
+  const { address, signature } = signLogin(key, id, now);
+  assert.equal(address, '0x7e5f4552091a69125d5dfcb7b8c2659029395bdf');
+  assert.equal(recoverSigner(loginMessage(address, id, now), signature), address);
+  assert.equal(loginError(address, id, now, signature, now), '');
+  assert.equal(loginError(address.toUpperCase().replace('0X', '0x'), id, now, signature, now), '', 'address case does not matter');
+  assert.ok(loginError(address, 'c200ac', now, signature, now).includes('does not match'), 'another session');
+  assert.ok(loginError(address, id, now, signature, now + AUTH.maxAgeMs + 1).includes('expired'), 'too old');
+  assert.ok(loginError(address, id, now, signature, now - AUTH.maxClockSkewMs - 1).includes('expired'), 'from the future');
+  assert.ok(loginError(address, id, now, signature.slice(0, -2) + '1d', now), 'bad recovery byte');
+  assert.ok(loginError('0x1234', id, now, signature, now).includes('address'), 'not an address');
+  assert.ok(loginMessage(address, id, now).includes(AUTH.network) && loginMessage(address, id, now).includes('mainnet'), 'testnet warning in the text');
 });
 
 test('market rules: fee, price limits, match reward, rate limit, starter set', () => {

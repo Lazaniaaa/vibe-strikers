@@ -13,7 +13,7 @@ import {
 export default __t.row({
   id: __t.u64().primaryKey(),
   itemId: __t.u64().name("item_id"),
-  seller: __t.identity(),
+  seller: __t.string(),
   ref: __t.string(),
   price: __t.u32(),
   createdAt: __t.timestamp().name("created_at"),

@@ -11,7 +11,7 @@ import {
 } from "spacetimedb";
 
 export default __t.row({
-  owner: __t.identity().primaryKey(),
+  owner: __t.string().primaryKey(),
   coins: __t.u32(),
   createdAt: __t.timestamp().name("created_at"),
   lastWinDay: __t.string().name("last_win_day"),

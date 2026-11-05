@@ -12,7 +12,7 @@ import {
 
 export default __t.row({
   id: __t.u64().primaryKey(),
-  owner: __t.identity(),
+  owner: __t.string(),
   ref: __t.string(),
   acquiredAt: __t.timestamp().name("acquired_at"),
 });
