@@ -546,6 +546,8 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   `src/ui/sounds/round2.ts`, 3 variants each for hit / pistol / rifle / shotgun / sniper (tonal pops, short tails,
   quieter sniper and hit); `scripts/test-sounds.mjs --wav` also writes them and rifle burst previews (8 shots at the
   600 rpm interval). Nothing wired into the game yet.
+  Round-2 picks: hit v2, pistol v3 (v2 kept as the alternative), rifle v3, shotgun v3 (Codex asked for its own
+  shotgun variants too), sniper none (echo, whistle) -> round 3: three dry sniper variants (`ROUND3`, no reverb).
 - 2026-10-31 owner: ADS proposal approved
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).

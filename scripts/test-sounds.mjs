@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { SOUND_IDS, SOUND_LIMITS } from '../src/ui/sounds/types.ts';
 import { CLAUDE_SOUNDS } from '../src/ui/sounds/claude.ts';
 import { CODEX_SOUNDS } from '../src/ui/sounds/codex.ts';
-import { ROUND2 } from '../src/ui/sounds/round2.ts';
+import { ROUND2, ROUND3 } from '../src/ui/sounds/round2.ts';
 
 const SR = 48000;
 const wavDir = process.argv.includes('--wav') ? process.argv[process.argv.indexOf('--wav') + 1] : null;
@@ -57,7 +57,7 @@ for (const [name, set] of [['claude', CLAUDE_SOUNDS], ['codex', CODEX_SOUNDS]]) 
 }
 // Round 2 variants (owner 2026-11-06): same limits; WAVs as round2-<id>-v<n>.wav, plus a rifle burst preview.
 const rows2 = [];
-for (const [id, list] of Object.entries(ROUND2)) {
+for (const [round, variants] of [['round2', ROUND2], ['round3', ROUND3]]) for (const [id, list] of Object.entries(variants)) {
   list.forEach((recipe, k) => {
     recipe(SR, seeded(1));
     const t0 = performance.now();
@@ -73,21 +73,21 @@ for (const [id, list] of Object.entries(ROUND2)) {
     if (Math.abs(s[0]) > SOUND_LIMITS.edge || Math.abs(s[s.length - 1]) > SOUND_LIMITS.edge) errors.push('click at edge');
     if (ms > SOUND_LIMITS.maxRenderMs) errors.push(`render ${ms.toFixed(1)} ms`);
     failures += errors.length;
-    rows2.push({ id: `${id} v${k + 1}`, dur: dur.toFixed(3), peak: peak.toFixed(2), rmsDb: (10 * Math.log10(sum / s.length + 1e-12)).toFixed(1), ms: ms.toFixed(1), ok: errors.length ? errors.join('; ') : 'ok' });
+    rows2.push({ id: `${round} ${id} v${k + 1}`, dur: dur.toFixed(3), peak: peak.toFixed(2), rmsDb: (10 * Math.log10(sum / s.length + 1e-12)).toFixed(1), ms: ms.toFixed(1), ok: errors.length ? errors.join('; ') : 'ok' });
     if (wavDir) {
       mkdirSync(wavDir, { recursive: true });
-      writeFileSync(join(wavDir, `round2-${id}-v${k + 1}.wav`), wav(s));
+      writeFileSync(join(wavDir, `${round}-${id}-v${k + 1}.wav`), wav(s));
       if (id === 'rifle') {
         // Burst preview: 8 shots at the rifle's fire interval (the game plays the same sample each shot).
         const interval = 0.1, burst = new Float32Array(Math.round((interval * 7) * SR) + s.length);
         for (let n = 0; n < 8; n++) { const at = Math.round(n * interval * SR); for (let i = 0; i < s.length; i++) burst[at + i] += s[i]; }
         let m = 0; for (const v of burst) m = Math.max(m, Math.abs(v));
         if (m > 0.95) for (let i = 0; i < burst.length; i++) burst[i] *= 0.95 / m;
-        writeFileSync(join(wavDir, `round2-rifle-v${k + 1}-burst.wav`), wav(burst));
+        writeFileSync(join(wavDir, `${round}-rifle-v${k + 1}-burst.wav`), wav(burst));
       }
     }
   });
 }
-console.log('round 2 variants'); console.table(rows2);
+console.log('round 2-3 variants'); console.table(rows2);
 if (failures) { console.error(`SOUND TEST FAILED (${failures})`); process.exit(1); }
 console.log('SOUND TEST PASS');

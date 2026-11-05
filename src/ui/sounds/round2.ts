@@ -165,3 +165,47 @@ export const ROUND2: Partial<Record<SoundId, readonly SoundRecipe[]>> = {
     },
   ],
 };
+
+/**
+ * Owner's round-2 picks (2026-11-06): hit v2, pistol v3 (v2 kept as the alternative), rifle v3, shotgun v3 (Codex
+ * also tries a shotgun). Sniper: none (v1 had an echo, the v2 whistle did not work) -> ROUND3.
+ */
+export const ROUND2_PICKS = { hit: 1, pistol: 2, pistolAlt: 1, rifle: 2, shotgun: 2 } as const;
+
+/** Round 3 (owner 2026-11-06): sniper only. Completely dry (no reverb, no echo, no whistle), cartoon, short. */
+export const ROUND3: Partial<Record<SoundId, readonly SoundRecipe[]>> = {
+  sniper: [
+    // v1 "BAM": hard snap and one big round low punch, nothing after it.
+    (sr, random) => {
+      const out = buffer(sr, 0.4);
+      mix(out, burst(sr, random, 0.03, 'highpass', 2600, 0.9, 0.0025), sr, 0.9);
+      mix(out, burst(sr, random, 0.4, 'bandpass', 900, 0.8, 0.03), sr, 0.7);
+      mix(out, pop(sr, 0.4, 'sine', 170, 45, 0.09, 0.07), sr, 1.1);
+      saturate(out, 2);
+      return finish(out, sr, 0.47);
+    },
+    // v2 "KA-THOOM": snap, then a heavier, lower boom a few ms later (two hits read as one big shot).
+    (sr, random) => {
+      const out = buffer(sr, 0.5);
+      mix(out, burst(sr, random, 0.03, 'highpass', 3000, 0.9, 0.002), sr, 0.8);
+      mix(out, pop(sr, 0.5, 'triangle', 240, 90, 0.03, 0.025), sr, 0.5);
+      mix(out, shape(biquad(noise(sr, 0.5, random), sr, 'lowpass', (t) => 1800 * Math.pow(0.2, Math.min(1, t / 0.15)), 0.8), sr, 0.002, 0.07), sr, 0.8, 0.012);
+      mix(out, pop(sr, 0.5, 'sine', 110, 35, 0.14, 0.1), sr, 1.1, 0.012);
+      saturate(out, 2.4);
+      return finish(out, sr, 0.47);
+    },
+    // v3 "BAM + bolt": short dry shot, then a cartoon bolt "klik-klak" (the sniper is bolt-action).
+    (sr, random) => {
+      const out = buffer(sr, 0.62);
+      mix(out, burst(sr, random, 0.03, 'highpass', 2800, 0.9, 0.0025), sr, 0.9);
+      mix(out, burst(sr, random, 0.3, 'bandpass', 1000, 0.8, 0.025), sr, 0.6);
+      mix(out, pop(sr, 0.3, 'sine', 160, 48, 0.08, 0.06), sr, 1.1);
+      saturate(out, 2);
+      for (const [at, f] of [[0.4, 2300], [0.5, 1600]] as const) {
+        mix(out, burst(sr, random, 0.03, 'bandpass', f, 3.5, 0.004), sr, 0.25, at);
+        mix(out, pop(sr, 0.03, 'triangle', f * 0.5, f * 0.46, 0.01, 0.008), sr, 0.12, at);
+      }
+      return finish(out, sr, 0.58);
+    },
+  ],
+};
