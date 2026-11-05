@@ -12,6 +12,11 @@ import type ShotEventDef from './bindings/shot_event_table.ts';
 import type KillEventDef from './bindings/kill_event_table.ts';
 import type ItemRowDef from './bindings/item_table.ts';
 import type PingEventDef from './bindings/ping_event_table.ts';
+import type WalletDef from './bindings/wallet_table.ts';
+import type OwnedItemDef from './bindings/owned_item_table.ts';
+import type ListingDef from './bindings/listing_table.ts';
+import type TradeDef from './bindings/trade_table.ts';
+import type EconomyDef from './bindings/economy_table.ts';
 
 export type PlayerRow = Infer<typeof PlayerRowDef>;
 export type RoomRow = Infer<typeof RoomRowDef>;
@@ -19,6 +24,26 @@ export type ShotEvent = Infer<typeof ShotEventDef>;
 export type KillEvent = Infer<typeof KillEventDef>;
 export type ItemRow = Infer<typeof ItemRowDef>;
 export type PingEvent = Infer<typeof PingEventDef>;
+export type WalletRow = Infer<typeof WalletDef>;
+export type OwnedItemRow = Infer<typeof OwnedItemDef>;
+export type ListingRow = Infer<typeof ListingDef>;
+export type TradeRow = Infer<typeof TradeDef>;
+export type EconomyRow = Infer<typeof EconomyDef>;
+
+/** Marketplace rows (GAME.md 6.7), kept current after GameNet.subscribeMarket. No artificial lag. */
+export class MarketView {
+  /** My wallet. */
+  wallet: WalletRow | null = null;
+  /** Wallets by owner hex (only mine, or all for an auditor subscription). */
+  readonly wallets = new Map<string, WalletRow>();
+  /** Owned items by id (only mine, or all for an auditor subscription). */
+  readonly items = new Map<bigint, OwnedItemRow>();
+  readonly listings = new Map<bigint, ListingRow>();
+  readonly trades = new Map<bigint, TradeRow>();
+  economy: EconomyRow | null = null;
+  /** Bumped on every change (UI redraw check). */
+  version = 0;
+}
 
 /** Samples kept for the server clock offset estimate (about 2 s of updates). */
 const OFFSET_SAMPLES = 64;
@@ -155,6 +180,11 @@ export class GameNet {
   private lastPingReport = 0;
   /** Smoothed round-trip time (ms), measured from move acknowledgements. */
   pingMs = 0;
+  /** Marketplace view; empty until subscribeMarket. */
+  readonly market = new MarketView();
+  /** Called after any marketplace change. */
+  onMarketChange: (() => void) | null = null;
+  private marketSub: SubscriptionHandle | null = null;
 
   constructor(opts: NetOptions = {}) {
     this.opts = opts;
@@ -200,6 +230,59 @@ export class GameNet {
     c.db.room.onInsert((_ctx, row) => { this.allRooms.set(row.id, row); });
     c.db.room.onUpdate((_ctx, _old, row) => { this.allRooms.set(row.id, row); });
     c.db.room.onDelete((_ctx, row) => { this.allRooms.delete(row.id); });
+    const m = this.market, changed = () => { m.version++; this.onMarketChange?.(); };
+    const setWallet = (row: WalletRow) => {
+      const hex = row.owner.toHexString();
+      m.wallets.set(hex, row);
+      if (hex === this.identityHex) m.wallet = row;
+      changed();
+    };
+    c.db.wallet.onInsert((_ctx, row) => setWallet(row));
+    c.db.wallet.onUpdate((_ctx, _old, row) => setWallet(row));
+    c.db.wallet.onDelete((_ctx, row) => {
+      const hex = row.owner.toHexString();
+      m.wallets.delete(hex);
+      if (hex === this.identityHex) m.wallet = null;
+      changed();
+    });
+    c.db.ownedItem.onInsert((_ctx, row) => { m.items.set(row.id, row); changed(); });
+    c.db.ownedItem.onUpdate((_ctx, _old, row) => { m.items.set(row.id, row); changed(); });
+    c.db.ownedItem.onDelete((_ctx, row) => { m.items.delete(row.id); changed(); });
+    c.db.listing.onInsert((_ctx, row) => { m.listings.set(row.id, row); changed(); });
+    c.db.listing.onUpdate((_ctx, _old, row) => { m.listings.set(row.id, row); changed(); });
+    c.db.listing.onDelete((_ctx, row) => { m.listings.delete(row.id); changed(); });
+    c.db.trade.onInsert((_ctx, row) => { m.trades.set(row.id, row); changed(); });
+    c.db.trade.onDelete((_ctx, row) => { m.trades.delete(row.id); changed(); });
+    c.db.economy.onInsert((_ctx, row) => { m.economy = row; changed(); });
+    c.db.economy.onUpdate((_ctx, _old, row) => { m.economy = row; changed(); });
+  }
+
+  /**
+   * Subscribe to the marketplace: my wallet and items, every listing, recent trades, the economy row.
+   * `all` (tests / audits): every wallet and every owned item too.
+   */
+  subscribeMarket(all = false): Promise<void> {
+    if (!this.conn) return Promise.reject(new Error('not connected'));
+    if (this.marketSub) return Promise.resolve();
+    const mine = `0x${this.identityHex}`;
+    const queries = all
+      ? ['SELECT * FROM wallet', 'SELECT * FROM owned_item', 'SELECT * FROM listing', 'SELECT * FROM trade', 'SELECT * FROM economy']
+      : [`SELECT * FROM wallet WHERE owner = ${mine}`, `SELECT * FROM owned_item WHERE owner = ${mine}`,
+        'SELECT * FROM listing', 'SELECT * FROM trade', 'SELECT * FROM economy'];
+    return new Promise((resolve, reject) => {
+      this.marketSub = this.conn!.subscriptionBuilder()
+        .onApplied(() => resolve())
+        .onError(() => { this.marketSub = null; reject(new Error('market subscription failed')); })
+        .subscribe(queries);
+    });
+  }
+
+  /** Put one of my items on the market (integer coins, MARKET.price). Rejects with the server's reason. */
+  listItem(itemId: bigint, price: number): Promise<void> { return this.call(() => this.conn!.reducers.listItem({ itemId, price })); }
+  cancelListing(listingId: bigint): Promise<void> { return this.call(() => this.conn!.reducers.cancelListing({ listingId })); }
+  /** Buy a listing at the price I saw (the server refuses if it changed). */
+  buyListing(listingId: bigint, expectedPrice: number): Promise<void> {
+    return this.call(() => this.conn!.reducers.buyListing({ listingId, expectedPrice }));
   }
 
   /** Apply received updates whose (artificial) delay has passed. Call every frame. */

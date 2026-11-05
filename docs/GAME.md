@@ -164,6 +164,31 @@ rooms are independent so more regions can be added later.
 - One `MovementAuthority` interface on the server: `ClientValidated` now, a fully
   server-simulated version can replace it later without changing the contract for hits.
 
+### 6.7 Marketplace — DECIDED (owner 2026-11-05: in-game coins only, no wallets / crypto / real money)
+Player-to-player market for everything in the game (now: the 33 characters and the 5 lobby emotes; new item kinds
+are added to the catalog in `config/market.ts`). Owning an item is a collection only: every character stays
+playable for everyone (owner). Numbers in `config/market.ts` (`MARKET`).
+- Account = SpacetimeDB identity. The browser keeps one persistent identity (localStorage token); a second tab of
+  the same browser that cannot take the identity lock gets its own per-tab identity (two tabs = two players).
+- First connect (`clientConnected`): wallet with `startCoins` and a starter set (random characters + an emote,
+  distinct, from the catalog).
+- Coins come only from matches (humans only, at `matchEnd`): win / loss base + per kill + per headshot, capped per
+  match; the first win of a UTC day adds a bonus on top of the cap. A sale burns a fee (`feeRate`, at least 1 coin).
+- Tables (public): `wallet{owner identity pk, coins, createdAt, lastWinDay}`, `owned_item{id pk, owner, ref,
+  acquiredAt}` (ref = catalog id, e.g. `character:vibe-vibers-viber-142`, `emote:wave`; every row is one copy with
+  exactly one owner), `listing{id pk, itemId unique, seller, ref, price, createdAt}`, `trade{id pk, itemId, ref, seller,
+  buyer, price, fee, at}` (last `tradeHistory` kept), `economy{id pk = 0, minted, burned}` (coins created / destroyed,
+  so `sum(wallet.coins) == minted - burned` always holds). Private: `match_stat{playerId pk, headshots}`.
+- Reducers: `list_item{itemId, price}` (own, unlisted item; integer price in [`price.min`, `price.max`]; at most
+  `maxListingsPerSeller` open listings), `cancel_listing{listingId}` (seller only), `buy_listing{listingId,
+  expectedPrice}` (listing exists, not own, price unchanged, enough coins; moves the item, pays seller price - fee,
+  burns the fee, logs the trade). Every market reducer is rate-limited per identity (`rateLimit`) and throws a
+  `SenderError` with a readable message on refusal. Reducers are transactions: two buyers of one listing -> one
+  wins, the other gets "listing is gone".
+- Invariants (checked by `scripts/sim-market.mjs`): coins conserved (`sum == minted - burned`), no negative or
+  non-integer balance, every item exactly one owner, every listing points at an item its seller owns, at most one
+  listing per item, every trade moved the item to its buyer.
+
 ## 7. Bots — DECIDED
 Server-side fake players using the same intent path. Waypoint graph generated from
 `mapData`. Simple behavior: walk between waypoints, turn to visible enemies, shoot

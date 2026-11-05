@@ -6,11 +6,14 @@
 import { type Infer as __Infer } from "spacetimedb";
 
 // Import all reducer arg schemas
+import BuyListingReducer from "../buy_listing_reducer";
+import CancelListingReducer from "../cancel_listing_reducer";
 import CreatePrivateRoomReducer from "../create_private_room_reducer";
 import FireReducer from "../fire_reducer";
 import JoinByCodeReducer from "../join_by_code_reducer";
 import JoinQuickReducer from "../join_quick_reducer";
 import LeaveRoomReducer from "../leave_room_reducer";
+import ListItemReducer from "../list_item_reducer";
 import MoveReducer from "../move_reducer";
 import PickUpReducer from "../pick_up_reducer";
 import PingReducer from "../ping_reducer";
@@ -19,11 +22,14 @@ import ReportPingReducer from "../report_ping_reducer";
 import SetPrimaryWeaponReducer from "../set_primary_weapon_reducer";
 import SwitchWeaponReducer from "../switch_weapon_reducer";
 
+export type BuyListingParams = __Infer<typeof BuyListingReducer>;
+export type CancelListingParams = __Infer<typeof CancelListingReducer>;
 export type CreatePrivateRoomParams = __Infer<typeof CreatePrivateRoomReducer>;
 export type FireParams = __Infer<typeof FireReducer>;
 export type JoinByCodeParams = __Infer<typeof JoinByCodeReducer>;
 export type JoinQuickParams = __Infer<typeof JoinQuickReducer>;
 export type LeaveRoomParams = __Infer<typeof LeaveRoomReducer>;
+export type ListItemParams = __Infer<typeof ListItemReducer>;
 export type MoveParams = __Infer<typeof MoveReducer>;
 export type PickUpParams = __Infer<typeof PickUpReducer>;
 export type PingParams = __Infer<typeof PingReducer>;

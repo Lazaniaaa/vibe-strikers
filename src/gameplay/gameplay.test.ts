@@ -16,6 +16,8 @@ import { cornucopiaLoadout, nearestItem, primaryState, swapPrimary, tickHeal, us
 import { lootPlan, tickModeRound } from './mode.ts';
 import { MUTATOR_IDS, mutatorOfDay, mutatorRules } from '../config/mutators.ts';
 import { CORNUCOPIA } from '../config/items.ts';
+import { MARKET } from '../config/market.ts';
+import { matchReward, priceError, RateLimiter, saleFee, starterRefs, utcDay, type CatalogItem } from './marketRules.ts';
 import { buildNavGrid, findPath, groundAt, nearestWalkable, nodeY, pruneUnreachable, upperAreas } from './navGrid.ts';
 
 let passed = 0;
@@ -245,6 +247,38 @@ test('procedural sounds render audible, bounded samples', () => {
     const rms = Math.sqrt(sum / data.length);
     assert.ok(peak <= 1 && rms > 0.005, `${name}: peak ${peak.toFixed(3)} rms ${rms.toFixed(4)}`);
     assert.ok(data.length / 22050 < 1, `${name} is short`);
+  }
+});
+
+test('market rules: fee, price limits, match reward, rate limit, starter set', () => {
+  assert.equal(saleFee(100), Math.floor(100 * MARKET.feeRate));
+  assert.equal(saleFee(MARKET.price.min), Math.max(1, Math.floor(MARKET.price.min * MARKET.feeRate)), 'fee at least 1 coin');
+  assert.ok(saleFee(MARKET.price.max) < MARKET.price.max);
+  assert.equal(priceError(MARKET.price.min), '');
+  assert.equal(priceError(MARKET.price.max), '');
+  assert.ok(priceError(MARKET.price.min - 1) && priceError(MARKET.price.max + 1) && priceError(10.5), 'bad prices refused');
+  const r = MARKET.reward;
+  assert.equal(matchReward(false, 0, 0, false), r.loss);
+  assert.equal(matchReward(true, 2, 1, false), r.win + 2 * r.kill + r.headshot);
+  assert.equal(matchReward(true, 100, 100, false), r.matchCap, 'capped');
+  assert.equal(matchReward(true, 100, 100, true), r.matchCap + r.firstWinOfDay, 'first win of the day on top of the cap');
+  assert.equal(matchReward(false, 0, 0, true), r.loss, 'no first-win bonus for a loss');
+  assert.equal(utcDay(Date.UTC(2026, 10, 5, 23, 59)), '2026-11-05');
+  const limit = new RateLimiter(3, 1000);
+  assert.deepEqual([0, 10, 20, 30].map((t) => limit.allow('a', t)), [true, true, true, false]);
+  assert.ok(limit.allow('b', 30), 'per key');
+  assert.ok(limit.allow('a', 1001), 'window slides');
+  const cat: CatalogItem[] = [
+    ...Array.from({ length: 6 }, (_, i) => ({ ref: `character:c${i}`, kind: 'character' as const, index: i, name: `c${i}` })),
+    ...Array.from({ length: 2 }, (_, i) => ({ ref: `emote:e${i}`, kind: 'emote' as const, index: i, name: `e${i}` })),
+  ];
+  let seed = 1;
+  const random = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  for (let k = 0; k < 20; k++) {
+    const refs = starterRefs(cat, random);
+    assert.equal(refs.length, MARKET.starter.characters + MARKET.starter.emotes);
+    assert.equal(new Set(refs).size, refs.length, 'distinct');
+    assert.equal(refs.filter((x) => x.startsWith('emote:')).length, MARKET.starter.emotes);
   }
 });
 

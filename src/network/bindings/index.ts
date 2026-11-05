@@ -34,11 +34,14 @@ import {
 } from "spacetimedb";
 
 // Import all reducer arg schemas
+import BuyListingReducer from "./buy_listing_reducer";
+import CancelListingReducer from "./cancel_listing_reducer";
 import CreatePrivateRoomReducer from "./create_private_room_reducer";
 import FireReducer from "./fire_reducer";
 import JoinByCodeReducer from "./join_by_code_reducer";
 import JoinQuickReducer from "./join_quick_reducer";
 import LeaveRoomReducer from "./leave_room_reducer";
+import ListItemReducer from "./list_item_reducer";
 import MoveReducer from "./move_reducer";
 import PickUpReducer from "./pick_up_reducer";
 import PingReducer from "./ping_reducer";
@@ -50,17 +53,33 @@ import SwitchWeaponReducer from "./switch_weapon_reducer";
 // Import all procedure arg schemas
 
 // Import all table schema definitions
+import EconomyRow from "./economy_table";
 import ItemRow from "./item_table";
 import KillEventRow from "./kill_event_table";
+import ListingRow from "./listing_table";
+import OwnedItemRow from "./owned_item_table";
 import PingEventRow from "./ping_event_table";
 import PlayerRow from "./player_table";
 import RoomRow from "./room_table";
 import ShotEventRow from "./shot_event_table";
+import TradeRow from "./trade_table";
+import WalletRow from "./wallet_table";
 
 /** Type-only namespace exports for generated type groups. */
 
 /** The schema information for all tables in this module. This is defined the same was as the tables would have been defined in the server. */
 const tablesSchema = __schema({
+  economy: __table({
+    name: 'economy',
+    indexes: [
+      { accessor: 'id', name: 'economy_id_idx_btree', algorithm: 'btree', columns: [
+        'id',
+      ] },
+    ],
+    constraints: [
+      { name: 'economy_id_key', constraint: 'unique', columns: ['id'] },
+    ],
+  }, EconomyRow),
   item: __table({
     name: 'item',
     indexes: [
@@ -83,6 +102,38 @@ const tablesSchema = __schema({
     ],
     event: true,
   }, KillEventRow),
+  listing: __table({
+    name: 'listing',
+    indexes: [
+      { accessor: 'id', name: 'listing_id_idx_btree', algorithm: 'btree', columns: [
+        'id',
+      ] },
+      { accessor: 'itemId', name: 'listing_item_id_idx_btree', algorithm: 'btree', columns: [
+        'itemId',
+      ] },
+      { accessor: 'seller', name: 'listing_seller_idx_btree', algorithm: 'btree', columns: [
+        'seller',
+      ] },
+    ],
+    constraints: [
+      { name: 'listing_id_key', constraint: 'unique', columns: ['id'] },
+      { name: 'listing_item_id_key', constraint: 'unique', columns: ['itemId'] },
+    ],
+  }, ListingRow),
+  ownedItem: __table({
+    name: 'owned_item',
+    indexes: [
+      { accessor: 'id', name: 'owned_item_id_idx_btree', algorithm: 'btree', columns: [
+        'id',
+      ] },
+      { accessor: 'owner', name: 'owned_item_owner_idx_btree', algorithm: 'btree', columns: [
+        'owner',
+      ] },
+    ],
+    constraints: [
+      { name: 'owned_item_id_key', constraint: 'unique', columns: ['id'] },
+    ],
+  }, OwnedItemRow),
   pingEvent: __table({
     name: 'ping_event',
     indexes: [
@@ -131,15 +182,40 @@ const tablesSchema = __schema({
     ],
     event: true,
   }, ShotEventRow),
+  trade: __table({
+    name: 'trade',
+    indexes: [
+      { accessor: 'id', name: 'trade_id_idx_btree', algorithm: 'btree', columns: [
+        'id',
+      ] },
+    ],
+    constraints: [
+      { name: 'trade_id_key', constraint: 'unique', columns: ['id'] },
+    ],
+  }, TradeRow),
+  wallet: __table({
+    name: 'wallet',
+    indexes: [
+      { accessor: 'owner', name: 'wallet_owner_idx_btree', algorithm: 'btree', columns: [
+        'owner',
+      ] },
+    ],
+    constraints: [
+      { name: 'wallet_owner_key', constraint: 'unique', columns: ['owner'] },
+    ],
+  }, WalletRow),
 });
 
 /** The schema information for all reducers in this module. This is defined the same way as the reducers would have been defined in the server, except the body of the reducer is omitted in code generation. */
 const reducersSchema = __reducers(
+  __reducerSchema("buy_listing", BuyListingReducer),
+  __reducerSchema("cancel_listing", CancelListingReducer),
   __reducerSchema("create_private_room", CreatePrivateRoomReducer),
   __reducerSchema("fire", FireReducer),
   __reducerSchema("join_by_code", JoinByCodeReducer),
   __reducerSchema("join_quick", JoinQuickReducer),
   __reducerSchema("leave_room", LeaveRoomReducer),
+  __reducerSchema("list_item", ListItemReducer),
   __reducerSchema("move", MoveReducer),
   __reducerSchema("pick_up", PickUpReducer),
   __reducerSchema("ping", PingReducer),

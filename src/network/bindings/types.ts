@@ -10,6 +10,13 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
+export const Economy = __t.object("Economy", {
+  id: __t.u32(),
+  minted: __t.u64(),
+  burned: __t.u64(),
+});
+export type Economy = __Infer<typeof Economy>;
+
 export const Item = __t.object("Item", {
   id: __t.u64(),
   roomId: __t.u64(),
@@ -32,6 +39,30 @@ export const KillEvent = __t.object("KillEvent", {
   weapon: __t.string(),
 });
 export type KillEvent = __Infer<typeof KillEvent>;
+
+export const Listing = __t.object("Listing", {
+  id: __t.u64(),
+  itemId: __t.u64(),
+  seller: __t.identity(),
+  ref: __t.string(),
+  price: __t.u32(),
+  createdAt: __t.timestamp(),
+});
+export type Listing = __Infer<typeof Listing>;
+
+export const MatchStat = __t.object("MatchStat", {
+  playerId: __t.u64(),
+  headshots: __t.u32(),
+});
+export type MatchStat = __Infer<typeof MatchStat>;
+
+export const OwnedItem = __t.object("OwnedItem", {
+  id: __t.u64(),
+  owner: __t.identity(),
+  ref: __t.string(),
+  acquiredAt: __t.timestamp(),
+});
+export type OwnedItem = __Infer<typeof OwnedItem>;
 
 export const PingEvent = __t.object("PingEvent", {
   recipient: __t.identity(),
@@ -129,4 +160,24 @@ export const TickTimer = __t.object("TickTimer", {
   scheduledAt: __t.scheduleAt(),
 });
 export type TickTimer = __Infer<typeof TickTimer>;
+
+export const Trade = __t.object("Trade", {
+  id: __t.u64(),
+  itemId: __t.u64(),
+  ref: __t.string(),
+  seller: __t.identity(),
+  buyer: __t.identity(),
+  price: __t.u32(),
+  fee: __t.u32(),
+  at: __t.timestamp(),
+});
+export type Trade = __Infer<typeof Trade>;
+
+export const Wallet = __t.object("Wallet", {
+  owner: __t.identity(),
+  coins: __t.u32(),
+  createdAt: __t.timestamp(),
+  lastWinDay: __t.string(),
+});
+export type Wallet = __Infer<typeof Wallet>;
 

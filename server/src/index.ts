@@ -27,6 +27,8 @@ import type { MoveSample } from '../../src/gameplay/movementCheck.ts';
 import { restartMatch, type RoundPhase, type RoundState, type TeamId } from '../../src/gameplay/round.ts';
 import { canFire, cancelReload, consumeShot, damageAt, resetSlot, spreadDeg, startReload, tickSlot } from '../../src/gameplay/weaponLogic.ts';
 import { actorFor, brainFor, forgetActor, getNav, getWorld, historyFor, terrainFor } from './world.ts';
+import { MARKET } from '../../src/config/market.ts';
+import { CATALOG, matchReward, priceError, RateLimiter, saleFee, starterRefs, utcDay } from '../../src/gameplay/market.ts';
 
 const room = table({ name: 'room', public: true }, {
   id: t.u64().primaryKey().autoInc(),
@@ -158,7 +160,59 @@ const tickTimer = table({ name: 'tick_timer' }, {
   scheduledAt: t.scheduleAt(),
 });
 
-const spacetimedb = schema({ room, player, shotEvent, killEvent, item, pingEvent, tickTimer });
+// Marketplace (GAME.md 6.7): coins and tradable items per identity. Public for now (balances visible).
+const wallet = table({ name: 'wallet', public: true }, {
+  owner: t.identity().primaryKey(),
+  coins: t.u32(),
+  createdAt: t.timestamp(),
+  /** UTC day (YYYY-MM-DD) of the last first-win-of-the-day bonus; '' = never. */
+  lastWinDay: t.string(),
+});
+
+/** One copy of a catalog item; exactly one owner. */
+const ownedItem = table({ name: 'owned_item', public: true }, {
+  id: t.u64().primaryKey().autoInc(),
+  owner: t.identity().index('btree'),
+  /** Catalog id (src/gameplay/market.ts), e.g. 'character:vibe-vibers-viber-142', 'emote:wave'. */
+  ref: t.string(),
+  acquiredAt: t.timestamp(),
+});
+
+const listing = table({ name: 'listing', public: true }, {
+  id: t.u64().primaryKey().autoInc(),
+  itemId: t.u64().unique(),
+  seller: t.identity().index('btree'),
+  ref: t.string(),
+  price: t.u32(),
+  createdAt: t.timestamp(),
+});
+
+/** Sales log (last MARKET.tradeHistory kept). */
+const trade = table({ name: 'trade', public: true }, {
+  id: t.u64().primaryKey().autoInc(),
+  itemId: t.u64(),
+  ref: t.string(),
+  seller: t.identity(),
+  buyer: t.identity(),
+  price: t.u32(),
+  fee: t.u32(),
+  at: t.timestamp(),
+});
+
+/** One row (id 0): coins ever created and destroyed, so sum(wallet.coins) == minted - burned. */
+const economy = table({ name: 'economy', public: true }, {
+  id: t.u32().primaryKey(),
+  minted: t.u64(),
+  burned: t.u64(),
+});
+
+/** Headshot kills per player row in the current match (for the match reward). */
+const matchStat = table({ name: 'match_stat' }, {
+  playerId: t.u64().primaryKey(),
+  headshots: t.u32(),
+});
+
+const spacetimedb = schema({ room, player, shotEvent, killEvent, item, pingEvent, tickTimer, wallet, ownedItem, listing, trade, economy, matchStat });
 export default spacetimedb;
 
 /** Row-level security: a client only receives the ping rows addressed to it. */
@@ -261,11 +315,17 @@ function fillBots(ctx: Ctx, r: RoomRow): void {
   }
 }
 
+/** Delete a player row and everything kept per player row. */
+function dropPlayer(ctx: Ctx, id: bigint): void {
+  ctx.db.player.id.delete(id);
+  ctx.db.matchStat.playerId.delete(id);
+  forgetActor(Number(id));
+}
+
 function removeOwnRows(ctx: Ctx): void {
   const hex = ctx.sender.toHexString();
   for (const row of [...ctx.db.player.ownerHex.filter(hex)]) {
-    ctx.db.player.id.delete(row.id);
-    forgetActor(Number(row.id));
+    dropPlayer(ctx, row.id);
     closeRoomIfEmpty(ctx, row.roomId);
   }
 }
@@ -277,7 +337,7 @@ function closeRoomIfEmpty(ctx: Ctx, roomId: bigint): void {
     fillBots(ctx, r); // a human left: a bot takes the place
     return;
   }
-  for (const p of rows) { ctx.db.player.id.delete(p.id); forgetActor(Number(p.id)); }
+  for (const p of rows) { dropPlayer(ctx, p.id); }
   clearItems(ctx, roomId);
   if (r) ctx.db.room.id.delete(roomId);
 }
@@ -291,7 +351,7 @@ function joinRoom(ctx: Ctx, r: RoomRow, name: string, character: number): void {
   if (isFfa(r)) {
     // Free-for-all: take a bot's place (and its team id), else a new team id.
     const bot = rows.find((p) => p.isBot);
-    if (bot) { ctx.db.player.id.delete(bot.id); forgetActor(Number(bot.id)); }
+    if (bot) { dropPlayer(ctx, bot.id); }
     const team = bot ? (bot.team as TeamId) : freeFfaTeam(rows);
     spawnRow(ctx, r, team, false, ctx.sender.toHexString(), cleanName(name), character, rows.length);
     fillBots(ctx, r);
@@ -299,7 +359,7 @@ function joinRoom(ctx: Ctx, r: RoomRow, name: string, character: number): void {
   }
   const team: TeamId = humans('A') <= humans('B') ? 'A' : 'B';
   const bot = rows.find((p) => p.team === team && p.isBot);
-  if (bot) { ctx.db.player.id.delete(bot.id); forgetActor(Number(bot.id)); }
+  if (bot) { dropPlayer(ctx, bot.id); }
   const teamCount = rows.filter((p) => p.team === team).length - (bot ? 1 : 0);
   spawnRow(ctx, r, team, false, ctx.sender.toHexString(), cleanName(name), character, teamCount);
   fillBots(ctx, r);
@@ -346,7 +406,14 @@ function kill(ctx: Ctx, r: RoomRow, victimId: bigint, killerId: bigint, headshot
   ctx.db.player.id.update({ ...v, hp: 0, alive: false, deaths: v.deaths + 1, vx: 0, vy: 0, vz: 0, reloading: false });
   actorFor(Number(v.id), v.team as TeamId, v.isBot).alive = false;
   const k = ctx.db.player.id.find(killerId);
-  if (k && k.id !== v.id) ctx.db.player.id.update({ ...k, kills: k.kills + 1 });
+  if (k && k.id !== v.id) {
+    ctx.db.player.id.update({ ...k, kills: k.kills + 1 });
+    if (headshot && !k.isBot) {
+      const st = ctx.db.matchStat.playerId.find(k.id);
+      if (st) ctx.db.matchStat.playerId.update({ ...st, headshots: st.headshots + 1 });
+      else ctx.db.matchStat.insert({ playerId: k.id, headshots: 1 });
+    }
+  }
   ctx.db.killEvent.insert({ roomId: r.id, killerId, victimId, headshot, weapon });
 }
 
@@ -452,6 +519,7 @@ function respawnAll(ctx: Ctx, r: RoomRow, resetScores: boolean): void {
   const rows = playersIn(ctx, r.id).sort((p, q) => (p.id < q.id ? -1 : 1));
   const index: Record<string, number> = { A: 0, B: 0, F: 0 };
   for (const p of rows) {
+    if (resetScores) ctx.db.matchStat.playerId.delete(p.id); // a new match: headshots count from 0
     const team = p.team as TeamId, ffa = isFfaTeam(team);
     const spots = ffa ? terrainFor(corn).ffaSpawns : terrainFor(corn).spawns[team];
     const s = spots[index[ffa ? 'F' : team]++ % spots.length];
@@ -489,13 +557,113 @@ function tickRoom(ctx: Ctx, r: RoomRow): RoomRow {
   } else {
     const ev = tickModeRound(state, preset, TICK_DT, ctx.db.player.roomId.filter(r.id), isFfa(r));
     if (ev === 'roundStart') respawnAll(ctx, r, false);
-    if (ev === 'matchEnd') state.timeLeft = MATCH.matchRestartTime;
+    if (ev === 'matchEnd') { state.timeLeft = MATCH.matchRestartTime; payMatch(ctx, r, state.matchWinner ?? ''); }
   }
   const next = { ...r, phase: state.phase, timeLeft: Math.max(0, state.timeLeft), round: state.round, scoreA: state.scoreA,
     scoreB: state.scoreB, lastWinner: state.lastWinner ?? '', matchWinner: state.matchWinner ?? '' };
   ctx.db.room.id.update(next);
   return next;
 }
+
+// ---------------------------------------------------------------------------------------------
+// Marketplace (GAME.md 6.7)
+
+type WalletRow = ReturnType<Ctx['db']['wallet']['owner']['find']> & {};
+const U32_MAX = 0xffffffff;
+/** Market actions per identity (module memory: attempts count, refused ones too). */
+const marketLimiter = new RateLimiter(MARKET.rateLimit.actions, MARKET.rateLimit.windowMs);
+
+function economyRow(ctx: Ctx) {
+  return ctx.db.economy.id.find(0) ?? ctx.db.economy.insert({ id: 0, minted: 0n, burned: 0n });
+}
+function mint(ctx: Ctx, coins: number): void { const e = economyRow(ctx); ctx.db.economy.id.update({ ...e, minted: e.minted + BigInt(coins) }); }
+function burn(ctx: Ctx, coins: number): void { const e = economyRow(ctx); ctx.db.economy.id.update({ ...e, burned: e.burned + BigInt(coins) }); }
+
+/** The identity's wallet; a new one gets the start coins and the starter items. */
+function ensureWallet(ctx: Ctx, who: Identity): WalletRow {
+  const found = ctx.db.wallet.owner.find(who);
+  if (found) return found;
+  const w = ctx.db.wallet.insert({ owner: who, coins: MARKET.startCoins, createdAt: ctx.timestamp, lastWinDay: '' });
+  mint(ctx, MARKET.startCoins);
+  for (const ref of starterRefs(CATALOG, () => ctx.random())) ctx.db.ownedItem.insert({ id: 0n, owner: who, ref, acquiredAt: ctx.timestamp });
+  return w;
+}
+
+/** Add coins to a wallet (minted). Clamped at the u32 limit; the clamped part is never minted. */
+function payCoins(ctx: Ctx, w: WalletRow, coins: number, extra: Partial<WalletRow> = {}): void {
+  const paid = Math.min(coins, U32_MAX - w.coins);
+  ctx.db.wallet.owner.update({ ...w, ...extra, coins: w.coins + paid });
+  mint(ctx, paid);
+}
+
+/** Match rewards for the humans in the room (bots get nothing). */
+function payMatch(ctx: Ctx, r: RoomRow, winner: string): void {
+  const day = utcDay(nowMs(ctx));
+  for (const p of playersIn(ctx, r.id)) {
+    if (p.isBot || p.ownerHex === '') continue;
+    const w = ensureWallet(ctx, Identity.fromString(p.ownerHex));
+    const won = winner !== '' && p.team === winner;
+    const first = won && w.lastWinDay !== day;
+    const coins = matchReward(won, p.kills, ctx.db.matchStat.playerId.find(p.id)?.headshots ?? 0, first);
+    payCoins(ctx, w, coins, first ? { lastWinDay: day } : {});
+    ctx.db.matchStat.playerId.delete(p.id);
+  }
+}
+
+function marketGate(ctx: Ctx): void {
+  if (!marketLimiter.allow(ctx.sender.toHexString(), nowMs(ctx))) throw new SenderError('too many market actions, wait a moment');
+}
+
+export const onConnect = spacetimedb.clientConnected((ctx) => { ensureWallet(ctx, ctx.sender); });
+
+export const listItem = spacetimedb.reducer({ itemId: t.u64(), price: t.u32() }, (ctx, { itemId, price }) => {
+  marketGate(ctx);
+  const error = priceError(price);
+  if (error) throw new SenderError(error);
+  const it = ctx.db.ownedItem.id.find(itemId);
+  if (!it || !it.owner.isEqual(ctx.sender)) throw new SenderError('you do not own this item');
+  if (ctx.db.listing.itemId.find(itemId)) throw new SenderError('this item is already listed');
+  let open = 0;
+  for (const _ of ctx.db.listing.seller.filter(ctx.sender)) open++;
+  if (open >= MARKET.maxListingsPerSeller) throw new SenderError(`at most ${MARKET.maxListingsPerSeller} listings at once`);
+  ctx.db.listing.insert({ id: 0n, itemId, seller: ctx.sender, ref: it.ref, price, createdAt: ctx.timestamp });
+});
+
+export const cancelListing = spacetimedb.reducer({ listingId: t.u64() }, (ctx, { listingId }) => {
+  marketGate(ctx);
+  const l = ctx.db.listing.id.find(listingId);
+  if (!l) throw new SenderError('listing is gone');
+  if (!l.seller.isEqual(ctx.sender)) throw new SenderError('not your listing');
+  ctx.db.listing.id.delete(l.id);
+});
+
+export const buyListing = spacetimedb.reducer({ listingId: t.u64(), expectedPrice: t.u32() }, (ctx, { listingId, expectedPrice }) => {
+  marketGate(ctx);
+  const l = ctx.db.listing.id.find(listingId);
+  if (!l) throw new SenderError('listing is gone');
+  if (l.seller.isEqual(ctx.sender)) throw new SenderError('you cannot buy your own listing');
+  if (l.price !== expectedPrice) throw new SenderError('price changed');
+  const it = ctx.db.ownedItem.id.find(l.itemId);
+  if (!it || !it.owner.isEqual(l.seller)) throw new SenderError('listing is invalid');
+  const buyer = ensureWallet(ctx, ctx.sender);
+  if (buyer.coins < l.price) throw new SenderError('not enough coins');
+  const seller = ctx.db.wallet.owner.find(l.seller);
+  if (!seller) throw new SenderError('seller has no wallet');
+  const fee = saleFee(l.price), net = l.price - fee;
+  if (seller.coins + net > U32_MAX) throw new SenderError('seller wallet is full');
+  ctx.db.wallet.owner.update({ ...buyer, coins: buyer.coins - l.price });
+  ctx.db.wallet.owner.update({ ...seller, coins: seller.coins + net });
+  burn(ctx, fee);
+  ctx.db.ownedItem.id.update({ ...it, owner: ctx.sender, acquiredAt: ctx.timestamp });
+  ctx.db.listing.id.delete(l.id);
+  ctx.db.trade.insert({ id: 0n, itemId: it.id, ref: it.ref, seller: l.seller, buyer: ctx.sender, price: l.price, fee, at: ctx.timestamp });
+  // Keep the last MARKET.tradeHistory trades.
+  let excess = Number(ctx.db.trade.count()) - MARKET.tradeHistory;
+  if (excess > 0) {
+    const ids = [...ctx.db.trade.iter()].map((tr) => tr.id).sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+    for (const id of ids) { if (excess-- <= 0) break; ctx.db.trade.id.delete(id); }
+  }
+});
 
 // ---------------------------------------------------------------------------------------------
 // Reducers
