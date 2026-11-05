@@ -1,7 +1,7 @@
 // Lobby MARKET tab (GAME.md 6.7): browse listings, buy with a confirm step, list / cancel my items, recent trades.
 // Plain DOM over a GameNet (the server decides everything; this panel only shows rows and sends intents).
 import { MARKET } from '../config/market.ts';
-import { saleFee } from '../gameplay/marketRules.ts';
+import { priceError, saleFee } from '../gameplay/marketRules.ts';
 import type { GameNet, ListingRow, OwnedItemRow } from '../network/client.ts';
 import '../../client/game/market.css';
 
@@ -14,6 +14,10 @@ type Sort = 'cheap' | 'expensive' | 'new';
 
 const CONFIRM_MS = 3000;
 const HISTORY_ROWS = 20;
+/** Listings drawn at once (after filter and sort); the rest are counted, not drawn. */
+const MAX_ROWS = 60;
+/** At most one redraw per this many ms (a busy market changes many times per second). */
+const REDRAW_MS = 250;
 
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 
@@ -27,6 +31,7 @@ export class MarketPanel {
   private confirm: { id: bigint; until: number } | null = null;
   private busy = false;
   private drawQueued = false;
+  private lastDraw = 0;
   private message = '';
   private messageIsError = false;
 
@@ -53,7 +58,8 @@ export class MarketPanel {
   private queueDraw(): void {
     if (this.drawQueued) return;
     this.drawQueued = true;
-    requestAnimationFrame(() => { this.drawQueued = false; if (!this.root.hidden) this.draw(); });
+    const wait = Math.max(0, this.lastDraw + REDRAW_MS - performance.now());
+    setTimeout(() => requestAnimationFrame(() => { this.drawQueued = false; if (!this.root.hidden) this.draw(); }), wait);
   }
 
   show(): void { this.root.hidden = false; this.draw(); }
@@ -66,6 +72,15 @@ export class MarketPanel {
   }
 
   private draw(): void {
+    this.lastDraw = performance.now();
+    // Keep what the player is doing across a redraw (other players' trades redraw the list): typed prices, the
+    // focused field and the scroll position.
+    const typed = new Map<string, string>();
+    for (const input of this.root.querySelectorAll<HTMLInputElement>('.market-price')) if (input.value) typed.set(input.dataset.item ?? '', input.value);
+    const active = document.activeElement as HTMLInputElement | null;
+    const focusItem = active?.matches?.('.market-price') && this.root.contains(active) ? active.dataset.item ?? null : null;
+    const caret = focusItem !== null ? active!.selectionStart : null;
+    const scroll = this.root.querySelector<HTMLElement>('.market-list')?.scrollTop ?? 0;
     const m = this.net?.market, me = this.net?.identityHex ?? '';
     const coins = m?.wallet?.coins;
     const tabs = (['browse', 'mine', 'history'] as const).map((v) =>
@@ -88,6 +103,13 @@ export class MarketPanel {
     const f = this.root.querySelector<HTMLSelectElement>('.market-filter'), s = this.root.querySelector<HTMLSelectElement>('.market-sort');
     if (f) f.value = this.filter;
     if (s) s.value = this.sort;
+    for (const input of this.root.querySelectorAll<HTMLInputElement>('.market-price')) {
+      const value = typed.get(input.dataset.item ?? '');
+      if (value !== undefined) input.value = value;
+      if (focusItem !== null && input.dataset.item === focusItem) { input.focus(); try { input.setSelectionRange(caret, caret); } catch { /* number inputs */ } }
+    }
+    const list = this.root.querySelector<HTMLElement>('.market-list');
+    if (list) list.scrollTop = scroll;
   }
 
   private browse(listings: ReadonlyMap<bigint, ListingRow>, me: string, coins: number): string {
@@ -96,14 +118,16 @@ export class MarketPanel {
       : this.sort === 'expensive' ? b.price - a.price || Number(a.id - b.id)
       : Number(b.id - a.id));
     if (!rows.length) return '<p class="market-empty">Nothing for sale yet. List one of your items in "My items".</p>';
-    const now = performance.now();
+    const now = performance.now(), total = rows.length;
+    rows = rows.slice(0, MAX_ROWS);
+    const more = total > rows.length ? `<p class="market-empty">Showing ${rows.length} of ${total}. Use the filter and sort to find more.</p>` : '';
     return rows.map((l) => {
       const own = l.seller.toHexString() === me;
       const confirming = this.confirm && this.confirm.id === l.id && this.confirm.until > now;
       const action = own ? `<button data-cancel="${l.id}" class="menu-small-action">Cancel</button>`
         : `<button data-buy="${l.id}" data-price="${l.price}" class="menu-small-action market-buy${confirming ? ' confirm' : ''}" ${coins < l.price || this.busy ? 'disabled' : ''}>${confirming ? `Confirm ${l.price}?` : `Buy ◉ ${l.price}`}</button>`;
-      return `<div class="market-row">${this.itemCell(l.ref)}<div class="market-meta">${own ? 'Your listing' : `Seller ${l.seller.toHexString().slice(0, 6)}`}</div>${action}</div>`;
-    }).join('');
+      return `<div class="market-row">${this.itemCell(l.ref)}<div class="market-meta">${own ? 'Your listing' : `Seller …${l.seller.toHexString().slice(-5)}`}</div>${action}</div>`;
+    }).join('') + more;
   }
 
   private mine(items: ReadonlyMap<bigint, OwnedItemRow>, listings: ReadonlyMap<bigint, ListingRow>, me: string): string {
@@ -164,7 +188,9 @@ export class MarketPanel {
     } else if (b.dataset.sell) {
       const input = this.root.querySelector<HTMLInputElement>(`.market-price[data-item="${b.dataset.sell}"]`);
       const price = Number(input?.value);
-      if (!input?.value || !Number.isInteger(price)) { this.setStatus(`Enter a whole price, ${MARKET.price.min}-${MARKET.price.max} coins.`, true); return; }
+      // Check before sending: a negative or huge number would not even fit the server's u32 argument.
+      const error = input?.value ? priceError(price) : 'enter a price';
+      if (error) { this.setStatus(`${error[0].toUpperCase()}${error.slice(1)}.`, true); return; }
       const fee = saleFee(price);
       this.run(() => net.listItem(BigInt(b.dataset.sell!), price), `Listed for ${price} coins (you get ${price - fee} after the fee).`);
     }
