@@ -1,0 +1,205 @@
+{
+  "pass": true,
+  "calls": 47124,
+  "budgetMs": 1,
+  "results": [
+    {
+      "id": "reference-01",
+      "maxMs": 0.2568999999998596,
+      "meanMs": 0.005083123249297713,
+      "calls": 1428
+    },
+    {
+      "id": "vibe-vibers-bureau-8",
+      "maxMs": 0.04289999999991778,
+      "meanMs": 0.004362885154060328,
+      "calls": 1428
+    },
+    {
+      "id": "vibe-vibers-viber-extra-12",
+      "maxMs": 0.08969999999999345,
+      "meanMs": 0.005321148459384892,
+      "calls": 1428
+    },
+    {
+      "id": "vibe-vibers-viber-142",
+      "maxMs": 0.09990000000016153,
+      "meanMs": 0.004945588235297975,
+      "calls": 1428
+    },
+    {
+      "id": "vibe-vibers-viber-extra-11",
+      "maxMs": 0.02680000000009386,
+      "meanMs": 0.0040341736694713025,
+      "calls": 1428
+    },
+    {
+      "id": "vibe-vibers-bureau-25",
+      "maxMs": 0.07769999999982247,
+      "meanMs": 0.004913165266109043,
+      "calls": 1428
+    },
+    {
+      "id": "vibe-vibers-bureau-roll-22-11",
+      "maxMs": 0.06549999999970169,
+      "meanMs": 0.005416666666666756,
+      "calls": 1428
+    },
+    {
+      "id": "vibe-vibers-bureau-roll-48-7",
+      "maxMs": 0.054600000000391447,
+      "meanMs": 0.0042195378151277775,
+      "calls": 1428
+    },
+    {
+      "id": "vibe-vibers-bureau-roll-7-11",
+      "maxMs": 0.050200000000131695,
+      "meanMs": 0.005757492997197644,
+      "calls": 1428
+    },
+    {
+      "id": "vibe-vibers-viber-32",
+      "maxMs": 0.07729999999992287,
+      "meanMs": 0.0044887254902025225,
+      "calls": 1428
+    },
+    {
+      "id": "vibe-vibers-viber-10",
+      "maxMs": 0.0826999999999316,
+      "meanMs": 0.0048178571428599435,
+      "calls": 1428
+    },
+    {
+      "id": "vibe-vibers-viber-103",
+      "maxMs": 0.06289999999989959,
+      "meanMs": 0.0045172969187658235,
+      "calls": 1428
+    },
+    {
+      "id": "vibe-vibers-viber-31",
+      "maxMs": 0.041600000000016735,
+      "meanMs": 0.00496302521008399,
+      "calls": 1428
+    },
+    {
+      "id": "vibe-vibers-viber-42",
+      "maxMs": 0.10010000000011132,
+      "meanMs": 0.005333753501397578,
+      "calls": 1428
+    },
+    {
+      "id": "vibe-vibers-viber-71",
+      "maxMs": 0.05040000000008149,
+      "meanMs": 0.004819747899163104,
+      "calls": 1428
+    },
+    {
+      "id": "vibe-vibers-bureau-23",
+      "maxMs": 0.031899999999950523,
+      "meanMs": 0.00501421568626528,
+      "calls": 1428
+    },
+    {
+      "id": "vibe-vibers-bureau-4",
+      "maxMs": 0.2048000000004322,
+      "meanMs": 0.005742857142865792,
+      "calls": 1428
+    },
+    {
+      "id": "vibe-vibers-bureau-roll-40-10",
+      "maxMs": 0.0511000000005879,
+      "meanMs": 0.004985644257688285,
+      "calls": 1428
+    },
+    {
+      "id": "vibe-vibers-viber-141",
+      "maxMs": 0.04719999999997526,
+      "meanMs": 0.005521078431377159,
+      "calls": 1428
+    },
+    {
+      "id": "vibe-vibers-viber-48",
+      "maxMs": 0.03819999999996071,
+      "meanMs": 0.004450630252103791,
+      "calls": 1428
+    },
+    {
+      "id": "vibe-vibers-bureau-24",
+      "maxMs": 0.1629000000002634,
+      "meanMs": 0.005277591036422179,
+      "calls": 1428
+    },
+    {
+      "id": "vibe-vibers-bureau-roll-22-12",
+      "maxMs": 0.038600000000769796,
+      "meanMs": 0.004685924369737006,
+      "calls": 1428
+    },
+    {
+      "id": "vibe-vibers-viber-6",
+      "maxMs": 0.04179999999996653,
+      "meanMs": 0.004646498599421742,
+      "calls": 1428
+    },
+    {
+      "id": "vibe-vibers-viber-63",
+      "maxMs": 0.05820000000039727,
+      "meanMs": 0.0045417366946810395,
+      "calls": 1428
+    },
+    {
+      "id": "vibe-vibers-viber-84",
+      "maxMs": 0.08809999999994034,
+      "meanMs": 0.004850140056018221,
+      "calls": 1428
+    },
+    {
+      "id": "vibe-vibers-viber-extra-20",
+      "maxMs": 0.09709999999995489,
+      "meanMs": 0.0042168767506928035,
+      "calls": 1428
+    },
+    {
+      "id": "vibe-vibers-bureau-31",
+      "maxMs": 0.05870000000049913,
+      "meanMs": 0.004439775910376986,
+      "calls": 1428
+    },
+    {
+      "id": "vibe-vibers-bureau-roll-9-5",
+      "maxMs": 0.04640000000017608,
+      "meanMs": 0.004626330532209467,
+      "calls": 1428
+    },
+    {
+      "id": "vibe-vibers-viber-123",
+      "maxMs": 0.037100000000464206,
+      "meanMs": 0.004254761904761636,
+      "calls": 1428
+    },
+    {
+      "id": "vibe-vibers-viber-extra-19",
+      "maxMs": 0.054500000000189175,
+      "meanMs": 0.004874299719881046,
+      "calls": 1428
+    },
+    {
+      "id": "vibe-vibers-viber-extra-15",
+      "maxMs": 0.06120000000009895,
+      "meanMs": 0.00511806722689988,
+      "calls": 1428
+    },
+    {
+      "id": "vibe-vibers-viber-extra-24",
+      "maxMs": 0.050900000000183354,
+      "meanMs": 0.0042539215686350365,
+      "calls": 1428
+    },
+    {
+      "id": "vibe-vibers-viber-extra-9",
+      "maxMs": 0.08510000000023865,
+      "meanMs": 0.0044997198879491536,
+      "calls": 1428
+    }
+  ]
+}

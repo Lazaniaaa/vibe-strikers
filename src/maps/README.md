@@ -1,5 +1,29 @@
 # Toy Town · M2 / M3
 
+## Dedicated lobby island
+
+`src/maps/lobby.ts` is an explicit, menu-only public entry point:
+
+```ts
+import { loadLobbyScene, buildLobbyScene, disposeLobbySceneResources } from './src/maps/lobby';
+const data = loadLobbyScene(); // deeply frozen lobby-island.json
+const island = buildLobbyScene({ teamColors: { ally: '#4fb6ff', enemy: '#e8452c' } });
+// Optional bakedAo:false is useful for authoring comparisons; default is true.
+scene.add(island);
+// Stop rendering and remove the group before releasing resources:
+disposeLobbySceneResources();
+```
+
+The island is **not** in `mapIds`, `loadMapData` or the server map registry. Importing the normal map API does not import the island or build any lobby geometry. The five playable map files and their builder are unchanged. All island boxes are visual decor with no collision, spawns, loot or navigation zones.
+
+The rooftop and props use the existing box outline builder, shared vertex-colour Lambert material and cached baked AO. A single merged mesh supplies the round pedestal. One InstancedMesh renders all eight voxel clouds; the menu moves that whole mesh gently. The optional `teamColors` overrides only the two flag palette keys. All other geometry colours use Endesga 32. `pedestal` and `cloudShape`/`clouds` are menu-only metadata extending MapData in this separate entry.
+
+The menu owns all lighting numbers in `MENU`: sun, ambient, hemisphere, front key, rim and the tight 5 m / 1024 shadow camera. Island meshes neither cast nor receive live shadows, except `pedestal`, which receives the hero's shadow. Character meshes cast shadows but never receive them. `disposeLobbySceneResources()` also clears the shared map builder cache, so menu/game renderer lifetimes must not overlap.
+
+The menu-only screen-space gradient (`client/game/menuSky.ts`) uses `MENU.sky`; the downward camera still sees a blue upper sky and the fog matches its horizon colour. The game sky implementation is unchanged. With `?debug=1`, “Capture shadow check” captures three raw 3D frames roughly 200 ms apart; capture work runs only on that button click, outside the animation callback.
+
+Authoring: `node src/maps/tools/generate-lobby.mjs`. Independent contracts: `node src/maps/verify-lobby.mjs`. No work runs per frame in the map module.
+
 Поточні альтернативи M3, запуск і застереження: [M3.md](M3.md). Нижче збережено документацію схваленого M2.
 
 Самостійний модуль статичної карти. Один метр = одна одиниця; Y угору; початок координат у центрі площі. Карта дзеркальна відносно X=0. Північ на плані — +Z.

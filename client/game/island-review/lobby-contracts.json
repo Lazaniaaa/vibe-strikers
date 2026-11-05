@@ -1,0 +1,15 @@
+{
+  "pass": true,
+  "staticBoxes": 93,
+  "clouds": 8,
+  "drawCalls": 6,
+  "triangles": 9160,
+  "bakeMs": 111.46,
+  "playableMaps": [
+    "toy-town",
+    "toy-town-l1-r1",
+    "toy-town-l1-r2",
+    "toy-town-l2-r1",
+    "toy-town-l2-r2"
+  ]
+}

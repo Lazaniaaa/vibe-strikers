@@ -1,6 +1,13 @@
 {
   "protectedFiles": 82,
-  "changed": [],
+  "changed": [
+    "src/characters/index.ts",
+    "src/characters/README.md",
+    "src/characters/verify.mjs",
+    "src/weapons/round5-arm-lengths.json",
+    "src/weapons/round5-check-results.json",
+    "src/weapons/round5-summary.json"
+  ],
   "apiChanged": [],
   "registryOnly": true,
   "note": "Map rendering and colour data are authorised changes; non-map source and all existing public function signatures are frozen."

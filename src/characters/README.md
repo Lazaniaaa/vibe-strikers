@@ -106,7 +106,30 @@ solid teal за погодженим правилом, з прапорцем щ�
 одного гравця просто приберіть його групу; не dispose спільних geometry/material.
 `disposeCharacterResources()` викликається один раз після вилучення всіх.
 
-## Перевірки
+## Lobby idle and emotes (separate opt-in API)
+
+```ts
+import { createCharacter, prepareLobbyAnimation, playEmote, updateAnimation } from './src/characters';
+const player = createCharacter(config);
+prepareLobbyAnimation(player); // once, before the frame loop
+playEmote(player, 'wave');     // optional; wave | cheer | dance | shrug | hop
+// Your existing renderer loop:
+updateAnimation(player, dt);   // idle resumes automatically after the clip
+```
+
+This API is **unarmed and opt-in**. The game still calls `poseCharacter` exactly as before. No match pose, firearm hold, movement state, geometry, material or character config was changed. Stop calling `updateAnimation` before handing an instance back to `poseCharacter`; its ordinary reset restores the match pose without reading any lobby state. Emotes are not connected to client intents, networking or gameplay yet.
+
+`LOBBY_EMOTES` / `LobbyEmoteId` are also exported from the dependency-free `lobbyEmotes.ts` entry, so a menu can build buttons without eagerly loading Three.js. `LOBBY_ANIMATION` contains all animation times, angles and distances. Idle has a 4.2 s breathing cycle, gentle arm sway, planted feet with an upper-body weight shift and intermittent head glances. The phase is seeded deterministically from the character id. Each instance owns its clock, clip state, transition snapshot and scratch bounds in `userData.lobbyAnimation`; there are no hidden timers or shared mutable animation clocks.
+
+The five clips last 1.4–3.2 s. A 0.2 s smooth envelope returns to the continuing idle. Starting another clip captures the current transforms into a preallocated numeric buffer and crossfades without a reset snap. The outer group's position/yaw/scale are never touched. Setup allocates once; `updateAnimation` uses scalar math and existing transforms/buffers only. It never calls the firearm solver or edits vertices.
+
+All ordinary arms remain close to vertical. bureau-8, viber-141 and viber-6 need wider relaxed openings (about 45°, 39° and 24°) because their original fused hands otherwise reach below the feet. Their geometry is unchanged. A fixed 15-axis OBB/AABB separation calculation keeps the rotated upper-arm and fist boxes outside conservative head/torso bounds, with a 6 mm safety margin and no orientation search. Small shoulder translations and neck lift are lobby pose adjustments only. Hands remain joined to the same upper-arm mesh; there is no new hand mesh or stretched fist.
+
+The lobby UI uses **E, then 1–5**, keeping the existing unmodified 1/2/3 tab shortcuts when E is not armed. Buttons work without keyboard shortcuts. Changing characters plays a random introductory clip; portraits use relaxed idle instead of the match's unarmed ready pose.
+
+`node src/characters/verify-lobby.mjs` checks all 33 characters through idle and every clip, arm/body separation, feet, interruption/determinism, timing below 1 ms, unchanged geometry and the archived match transforms before and after using the lobby API. `npm run verify` runs it after the existing character/weapon contracts. The immutable fixture is `baselines/lobby-match-poses.json`; do not regenerate it to accept a pose change. In the lobby's `?debug=1` view, “Capture animation sheets” exports actual WebGL proof for all 33 idle poses and the five clips on three proportions, outside the animation loop.
+
+## Existing character and weapon contracts
 
 `verify.mjs` перевіряє кожен готовий конфіг, усі контракти API й окремий probe
 з нестандартними proportions/pivots: нормалізацію, extents без extras,

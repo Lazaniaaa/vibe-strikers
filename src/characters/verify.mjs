@@ -177,3 +177,4 @@ try{
 }finally{await server.close();}
 const {verifyWeapons}=await import('../weapons/verify.mjs');
 await verifyWeapons();
+await import('./verify-lobby.mjs');

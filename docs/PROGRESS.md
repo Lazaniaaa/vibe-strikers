@@ -183,6 +183,14 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
 - `npm run verify` now writes reports into `outputs/` (gitignored).
 
 ## Requests to asset owner
+- **(2026-11-05) Verify scripts after the lobby task.** (1) `node src/maps/verify.mjs` fails its source guard
+  because `src/characters/index.ts`, `README.md`, `verify.mjs` changed in the (approved) lobby animation task:
+  please refresh that baseline. (2) `src/characters/benchmark-lobby.mjs` asserts every single pose call < 1 ms;
+  on the laptop it failed 1 run of 3 (one 1.29-1.31 ms spike, typical max 0.07-0.09 ms, likely GC): please use a
+  percentile (e.g. p99) or a median. (3) `benchmark-lobby.mjs`, `src/characters/verify-lobby.mjs` and
+  `src/maps/verify-lobby.mjs` write into `client/game/animation-review/` and `client/game/island-review/` (game
+  folders): please write reports into your own folders. Only the small JSON files those scripts need are kept there
+  for now.
 - RESOLVED 2026-11-01 by the asset owner (map colour pass; `find-prop-overlaps` 0, stairs test 6/6). **Props inside walls (found 2026-10-31 by `node scripts/find-prop-overlaps.mjs`, owner screenshot = bench).**
   Map in use `toy-town-l1-r1` (same in l1-r2, l2-r1, l2-r2; overlap x / y / z in metres):
   - benchA at (-26.5, 8) and (-26.5, -8), yaw -90 -> wall at (-26.82, +-8): 0.65 / 0.18 / 0.55 (half inside the wall)
@@ -466,6 +474,18 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   `baked-ao-zoom-spawn-a.jpg`, `baked-ao-zoom-balcony.jpg`, Codex's 3-way `baked-ao-codex-comparison.jpg`).
   Codex's 15 MB of PNG evidence was left out of git (kept locally). Checks: typecheck, 19 gameplay checks,
   `verify.mjs`, prop overlaps 0, server publish + server test PASS.
+- 2026-11-05 new main menu / lobby (Codex, one-time owner permission for the menu files; reports `docs/lobby/`):
+  full-screen 3D lobby island (`src/maps/lobby.ts` + `data/lobby-island.json`, not in `mapIds`), selected
+  character on a pedestal with relaxed unarmed idle + 5 emotes (`src/characters/lobbyAnimation.ts`,
+  `lobbyEmotes.ts`; E then 1-5), toy-style UI (tabs PLAY / CHARACTERS / SETTINGS, nickname card, mode card with
+  Online / Practice, rules, mutator, Play with friends, big PLAY + Enter), 33 rendered portraits, Lilita One font
+  (OFL, local). Lobby shadows: character receives none, casts one onto the pedestal with a tight shadow camera.
+  MenuChoice API and all start paths unchanged; the lobby 3D is a lazy chunk, disposed when a match starts.
+  Checked by Claude: typecheck, 19 gameplay checks, `npm run verify` (characters + weapons), lobby verifiers,
+  game build; lobby 61 FPS at 1920x1080 and 1366x768, 0 console errors; menu -> practice -> leave -> menu with
+  the 3D back and one canvas; in-match views unchanged (`docs/evidence/lobby-task-game-unchanged.jpg`); online
+  smoke OK. Evidence `docs/evidence/lobby-*.jpg`. Codex's 13 MB of review images were left out of git.
+- 2026-10-31 owner: ADS proposal approved
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
 

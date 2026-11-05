@@ -1,6 +1,4 @@
-import { createRoot } from 'react-dom/client';
-import { characters } from '../../src/characters/characters';
-import { LOCAL_PLAYER } from '../../src/config/game';
+import { LOCAL_PLAYER, MENU } from '../../src/config/game';
 import { BOT_SKILLS, DEFAULT_DIFFICULTY, type BotDifficulty } from '../../src/config/bots';
 import type { GameNet } from '../../src/network/client';
 import type { GameMode } from '../../src/gameplay/mode';
@@ -9,14 +7,15 @@ import { getSettingsPanel, settingsButton } from '../../src/ui/settingsPanel';
 import { getSfx } from '../../src/ui/sfx';
 import { getMusic } from '../../src/ui/music';
 import type { GameOptions } from './GameApp';
-import { characterLabel } from './characterLabel';
 import { Loading } from './loading';
+import type { MenuScene } from './menuScene';
 
 // The game (three.js, Rapier, map, characters, weapons) and the network SDK are separate chunks, loaded when a
 // match starts (and prefetched while the menu is open), so the menu shows quickly on a public link.
 const loadGame = () => import('./GameApp');
 const loadOnline = () => import('./OnlineApp');
 const loadNet = () => import('../../src/network/client');
+const loadMount = () => import('./gameMount');
 
 const params = new URLSearchParams(location.search);
 const freeze = params.get('freeze');
@@ -33,9 +32,6 @@ function storage(kind: 'local' | 'session'): Storage | null {
 
 // UI click sound for every button (the first click also starts the audio context).
 document.addEventListener('click', (e) => { if ((e.target as HTMLElement).closest('button')) getSfx().play('ui'); });
-
-// No StrictMode: its double mount frees the Rapier world that the simulation holds.
-const root = createRoot(document.getElementById('root')!);
 
 async function joinWith(net: GameNet, choice: MenuChoice, character: number): Promise<void> {
   if (choice.kind === 'quick') await net.joinQuick(choice.name, character);
@@ -65,13 +61,35 @@ const urlMutator = params.get('mutator') ?? '';
 
 const savedName = storage('local')?.getItem('voxel-name') ?? '';
 const savedCharacter = Number(params.get('character') ?? storage('local')?.getItem('voxel-character') ?? LOCAL_PLAYER.characterIndex);
-const list = characters.map((c, i) => ({ name: characterLabel(i), body: c.colors.body, accent: c.colors.glove ?? c.colors.outline }));
-const menu = new Menu(document.body, params.get('name') ?? savedName, list,
+const menu = new Menu(document.body, params.get('name') ?? savedName, [],
   Number.isFinite(savedCharacter) ? savedCharacter : LOCAL_PLAYER.characterIndex,
   (i) => storage('local')?.setItem('voxel-character', String(i)),
   savedDifficulty(), (d) => storage('local')?.setItem('voxel-difficulty', d),
   savedMode(), (m) => storage('local')?.setItem('voxel-mode', m));
-settingsButton(menu.settingsSlot, getSettingsPanel(), 'menu-btn menu-settings');
+const settingsTab = settingsButton(menu.settingsSlot, getSettingsPanel(), 'menu-tab menu-settings');
+settingsTab.innerHTML = '<kbd>3</kbd> SETTINGS';
+settingsTab.setAttribute('aria-label', 'Settings');
+// Paint the plain DOM first. A generation token cancels a lazy import when a match starts meanwhile.
+let menuScene: MenuScene | null = null;
+let menuSceneGeneration = 0;
+menu.onCharacterView = index => menuScene?.select(index);
+menu.onVisibility = visible => {
+  const generation = ++menuSceneGeneration;
+  menuScene?.dispose(); menuScene = null;
+  if (!visible) return;
+  menu.setSceneStatus('Getting the arena ready…');
+  window.setTimeout(() => {
+    if (generation !== menuSceneGeneration || !menu.visible) return;
+    void import('./menuScene').then(({ createMenuScene, menuCharacters }) => {
+      if (generation !== menuSceneGeneration || !menu.visible) return;
+      if (!menu.characterCount) menu.setCharacters(menuCharacters());
+      menuScene = createMenuScene({ host: menu.sceneHost, selected: menu.character, debug,
+        onPortrait: (index, url, pixels) => menu.setPortrait(index, url, pixels), onStatus: text => menu.setSceneStatus(text) });
+    }).catch(() => {
+      if (generation === menuSceneGeneration && menu.visible) menu.setSceneStatus('3D preview unavailable. You can still play.');
+    });
+  }, MENU.lazyDelayMs);
+};
 // One connection for the whole page: leaving a match and joining another works without reloading.
 let net: GameNet | null = null;
 // Test shortcut, first round only: ?auto=quick | create (&bots=0) | join&code=XXXXX
@@ -81,7 +99,8 @@ let auto = params.get('auto');
 function backToMenu(): void {
   try { document.exitPointerLock?.(); } catch { /* not locked */ }
   const leaving = net?.me ? net.leave() : Promise.resolve();
-  void leaving.then(() => { root.render(<></>); void menuLoop(); });
+  // R3F has a separate root; await its renderer teardown before allocating the next menu renderer.
+  void leaving.then(async () => { await (await loadMount()).unmountGame(); void menuLoop(); });
 }
 
 async function startOffline(character?: number, difficulty: BotDifficulty = savedDifficulty(), mode: GameMode = savedMode(), teams = savedTeams,
@@ -92,7 +111,8 @@ async function startOffline(character?: number, difficulty: BotDifficulty = save
     loading.step('Loading game (3D engine, physics, map)', 0.05, 0.75);
     const { GameApp } = await loadGame();
     loading.step('Starting physics and building the map', 0.75, 1);
-    root.render(<GameApp options={{ ...options, character, difficulty, mode, teams, mutator, onLeave: backToMenu, onReady: () => loading.done() }} />);
+    const { mountOffline } = await loadMount();
+    mountOffline(GameApp, { ...options, character, difficulty, mode, teams, mutator, onLeave: backToMenu, onReady: () => loading.done() });
   } catch (e) {
     loading.error(`Could not load the game: ${e instanceof Error ? e.message : String(e)}. Reload the page.`);
   }
@@ -114,6 +134,11 @@ async function menuLoop(): Promise<void> {
     if (choice.kind === 'offline') { void startOffline(menu.character, choice.difficulty, choice.mode, choice.teams, choice.mutator); return; }
     try {
       menu.setStatus('Connecting...');
+      // Also validates URL character indices if auto-join beats the deferred menu import.
+      if (!menu.characterCount) {
+        const { menuCharacters } = await import('./menuScene');
+        menu.setCharacters(menuCharacters());
+      }
       const app = loadOnline(); // download the game while connecting
       app.catch(() => undefined);
       if (!net) {
@@ -138,7 +163,8 @@ async function menuLoop(): Promise<void> {
       loading.step('Loading game (3D engine, physics, map)', 0.3, 0.8);
       const { OnlineApp } = await app.catch((e: unknown) => { loading.error(`Could not load the game: ${String(e)}. Reload the page.`); throw e; });
       loading.step('Starting physics and building the map', 0.8, 1);
-      root.render(<OnlineApp net={net} debug={debug} onLeave={backToMenu} onReady={() => loading.done()} />);
+      const { mountOnline } = await loadMount();
+      mountOnline(OnlineApp, { net, debug, onLeave: backToMenu, onReady: () => loading.done() });
       return;
     } catch (e) {
       menu.setStatus(`Could not join: ${e instanceof Error ? e.message : String(e)}`);
@@ -152,5 +178,5 @@ if (params.get('offline') === '1') void startOffline();
 else {
   void menuLoop();
   // Prefetch the game chunks while the player looks at the menu.
-  window.setTimeout(() => { loadGame().catch(() => undefined); loadNet().catch(() => undefined); }, 800);
+  window.setTimeout(() => { loadGame().catch(() => undefined); loadNet().catch(() => undefined); }, MENU.prefetchDelayMs);
 }

@@ -1,0 +1,275 @@
+{
+  "pass": true,
+  "characters": 33,
+  "samples": 32472,
+  "minimumClearance": 0.005999999999999561,
+  "maxHandJointGap": 0,
+  "maxPivotStep": 0.04571767008312787,
+  "allocationSourceAudit": true,
+  "results": [
+    {
+      "id": "reference-01",
+      "idleRollL": 0.06,
+      "idleRollR": 0.06,
+      "minHandY": 0.18108504592770702,
+      "maxShoulderOffset": 0.0858592132634443,
+      "maxMs": 0.2568999999998596
+    },
+    {
+      "id": "vibe-vibers-bureau-8",
+      "idleRollL": 0.7800000000000005,
+      "idleRollR": 0.7800000000000005,
+      "minHandY": 0.0249999999999998,
+      "maxShoulderOffset": 0.07880949137222094,
+      "maxMs": 0.04289999999991778
+    },
+    {
+      "id": "vibe-vibers-viber-extra-12",
+      "idleRollL": 0.06,
+      "idleRollR": 0.06,
+      "minHandY": 0.034616843598378,
+      "maxShoulderOffset": 0.1534142370738507,
+      "maxMs": 0.08969999999999345
+    },
+    {
+      "id": "vibe-vibers-viber-142",
+      "idleRollL": 0.06,
+      "idleRollR": 0.06,
+      "minHandY": 0.3212547770928636,
+      "maxShoulderOffset": 0.1589565367994746,
+      "maxMs": 0.09990000000016153
+    },
+    {
+      "id": "vibe-vibers-viber-extra-11",
+      "idleRollL": 0.06,
+      "idleRollR": 0.06,
+      "minHandY": 0.3435691029657559,
+      "maxShoulderOffset": 0.02186724850556096,
+      "maxMs": 0.02680000000009386
+    },
+    {
+      "id": "vibe-vibers-bureau-25",
+      "idleRollL": 0.06,
+      "idleRollR": 0.06,
+      "minHandY": 0.3185444585298322,
+      "maxShoulderOffset": 0.05770995192158631,
+      "maxMs": 0.07769999999982247
+    },
+    {
+      "id": "vibe-vibers-bureau-roll-22-11",
+      "idleRollL": 0.06,
+      "idleRollR": 0.06,
+      "minHandY": 0.3196593871347688,
+      "maxShoulderOffset": 0.05303395547797318,
+      "maxMs": 0.06549999999970169
+    },
+    {
+      "id": "vibe-vibers-bureau-roll-48-7",
+      "idleRollL": 0.06,
+      "idleRollR": 0.06,
+      "minHandY": 0.3160796722974995,
+      "maxShoulderOffset": 0.07658095153556566,
+      "maxMs": 0.054600000000391447
+    },
+    {
+      "id": "vibe-vibers-bureau-roll-7-11",
+      "idleRollL": 0.06,
+      "idleRollR": 0.06,
+      "minHandY": 0.31727407471608887,
+      "maxShoulderOffset": 0.06230357369247123,
+      "maxMs": 0.050200000000131695
+    },
+    {
+      "id": "vibe-vibers-viber-32",
+      "idleRollL": 0.06,
+      "idleRollR": 0.06,
+      "minHandY": 0.31733822851896776,
+      "maxShoulderOffset": 0.05323285397113291,
+      "maxMs": 0.07729999999992287
+    },
+    {
+      "id": "vibe-vibers-viber-10",
+      "idleRollL": 0.06,
+      "idleRollR": 0.06,
+      "minHandY": 0.34866395656899557,
+      "maxShoulderOffset": 0.08256660317353526,
+      "maxMs": 0.0826999999999316
+    },
+    {
+      "id": "vibe-vibers-viber-103",
+      "idleRollL": 0.06,
+      "idleRollR": 0.06,
+      "minHandY": 0.3172190421883685,
+      "maxShoulderOffset": 0.02368057230203432,
+      "maxMs": 0.06289999999989959
+    },
+    {
+      "id": "vibe-vibers-viber-31",
+      "idleRollL": 0.06,
+      "idleRollR": 0.06,
+      "minHandY": 0.19412925405712828,
+      "maxShoulderOffset": 0.05335547212030158,
+      "maxMs": 0.041600000000016735
+    },
+    {
+      "id": "vibe-vibers-viber-42",
+      "idleRollL": 0.06,
+      "idleRollR": 0.06,
+      "minHandY": 0.31682498003868387,
+      "maxShoulderOffset": 0.053812923833402394,
+      "maxMs": 0.10010000000011132
+    },
+    {
+      "id": "vibe-vibers-viber-71",
+      "idleRollL": 0.06,
+      "idleRollR": 0.06,
+      "minHandY": 0.24539321064084496,
+      "maxShoulderOffset": 0.17333811418241496,
+      "maxMs": 0.05040000000008149
+    },
+    {
+      "id": "vibe-vibers-bureau-23",
+      "idleRollL": 0.06,
+      "idleRollR": 0.06,
+      "minHandY": 0.046143421720619804,
+      "maxShoulderOffset": 0.17762272791311287,
+      "maxMs": 0.031899999999950523
+    },
+    {
+      "id": "vibe-vibers-bureau-4",
+      "idleRollL": 0.06,
+      "idleRollR": 0.06,
+      "minHandY": 0.19250648089891753,
+      "maxShoulderOffset": 0.06889310959076694,
+      "maxMs": 0.2048000000004322
+    },
+    {
+      "id": "vibe-vibers-bureau-roll-40-10",
+      "idleRollL": 0.06,
+      "idleRollR": 0.06,
+      "minHandY": 0.05089532545356956,
+      "maxShoulderOffset": 0.13058380864003408,
+      "maxMs": 0.0511000000005879
+    },
+    {
+      "id": "vibe-vibers-viber-141",
+      "idleRollL": 0.6800000000000004,
+      "idleRollR": 0.6800000000000004,
+      "minHandY": 0.0249999999999998,
+      "maxShoulderOffset": 0.09067070641607389,
+      "maxMs": 0.04719999999997526
+    },
+    {
+      "id": "vibe-vibers-viber-48",
+      "idleRollL": 0.06,
+      "idleRollR": 0.06,
+      "minHandY": 0.11325840259130991,
+      "maxShoulderOffset": 0.1304559855030482,
+      "maxMs": 0.03819999999996071
+    },
+    {
+      "id": "vibe-vibers-bureau-24",
+      "idleRollL": 0.06,
+      "idleRollR": 0.06,
+      "minHandY": 0.16989371097259165,
+      "maxShoulderOffset": 0.0772704584852547,
+      "maxMs": 0.1629000000002634
+    },
+    {
+      "id": "vibe-vibers-bureau-roll-22-12",
+      "idleRollL": 0.06,
+      "idleRollR": 0.06,
+      "minHandY": 0.04589148695917866,
+      "maxShoulderOffset": 0.17284031580406944,
+      "maxMs": 0.038600000000769796
+    },
+    {
+      "id": "vibe-vibers-viber-6",
+      "idleRollL": 0.4100000000000002,
+      "idleRollR": 0.4100000000000002,
+      "minHandY": 0.0249999999999998,
+      "maxShoulderOffset": 0.16678128279958407,
+      "maxMs": 0.04179999999996653
+    },
+    {
+      "id": "vibe-vibers-viber-63",
+      "idleRollL": 0.06,
+      "idleRollR": 0.06,
+      "minHandY": 0.11685482181978685,
+      "maxShoulderOffset": 0.11912194172834956,
+      "maxMs": 0.05820000000039727
+    },
+    {
+      "id": "vibe-vibers-viber-84",
+      "idleRollL": 0.06,
+      "idleRollR": 0.06,
+      "minHandY": 0.10242084399962703,
+      "maxShoulderOffset": 0.14240142882385745,
+      "maxMs": 0.08809999999994034
+    },
+    {
+      "id": "vibe-vibers-viber-extra-20",
+      "idleRollL": 0.06,
+      "idleRollR": 0.06,
+      "minHandY": 0.16397163395030923,
+      "maxShoulderOffset": 0.08160024252316772,
+      "maxMs": 0.09709999999995489
+    },
+    {
+      "id": "vibe-vibers-bureau-31",
+      "idleRollL": 0.06,
+      "idleRollR": 0.06,
+      "minHandY": 0.16718328050666886,
+      "maxShoulderOffset": 0.054719347216947024,
+      "maxMs": 0.05870000000049913
+    },
+    {
+      "id": "vibe-vibers-bureau-roll-9-5",
+      "idleRollL": 0.06,
+      "idleRollR": 0.06,
+      "minHandY": 0.19160790508263992,
+      "maxShoulderOffset": 0.06750474430270352,
+      "maxMs": 0.04640000000017608
+    },
+    {
+      "id": "vibe-vibers-viber-123",
+      "idleRollL": 0.06,
+      "idleRollR": 0.06,
+      "minHandY": 0.23493558209496923,
+      "maxShoulderOffset": 0.08402948056223636,
+      "maxMs": 0.037100000000464206
+    },
+    {
+      "id": "vibe-vibers-viber-extra-19",
+      "idleRollL": 0.06,
+      "idleRollR": 0.06,
+      "minHandY": 0.3176349179311254,
+      "maxShoulderOffset": 0.06544531146544154,
+      "maxMs": 0.054500000000189175
+    },
+    {
+      "id": "vibe-vibers-viber-extra-15",
+      "idleRollL": 0.06,
+      "idleRollR": 0.06,
+      "minHandY": 0.21996127754777042,
+      "maxShoulderOffset": 0.06983873383910784,
+      "maxMs": 0.06120000000009895
+    },
+    {
+      "id": "vibe-vibers-viber-extra-24",
+      "idleRollL": 0.06,
+      "idleRollR": 0.06,
+      "minHandY": 0.2721792253619445,
+      "maxShoulderOffset": 0.08028820123097621,
+      "maxMs": 0.050900000000183354
+    },
+    {
+      "id": "vibe-vibers-viber-extra-9",
+      "idleRollL": 0.06,
+      "idleRollR": 0.06,
+      "minHandY": 0.0857230370944142,
+      "maxShoulderOffset": 0.07235808223527651,
+      "maxMs": 0.08510000000023865
+    }
+  ]
+}

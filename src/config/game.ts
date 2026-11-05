@@ -3,6 +3,35 @@
 /** Active map id from src/maps (`mapIds`). One line to switch lanes. */
 export const MAP_ID = 'toy-town-l1-r1';
 
+/** Lobby-only presentation. No gameplay values; scene tuning and UI colours live here. */
+export const MENU = {
+  palette: { ink: '#253644', panel: '#FFF8E9', panelLight: '#F1E7D4', cream: '#FFFCF4',
+    muted: '#65727A', line: '#253644', accent: '#FFB83D', accentDark: '#C88024',
+    teal: '#68C9D0', sky: '#A8D2E6', portrait: '#BDD9DF', ring: '#89E9E3', shadow: '#172D3E',
+    key: '#FFF3DF', rim: '#B9E7FF', error: '#A03A32', errorBg: '#FFE1D7' },
+  displayFont: "'Lilita One', 'Arial Rounded MT Bold', system-ui, sans-serif",
+  lazyDelayMs: 32, prefetchDelayMs: 800, nameMaxLength: 16, codeMaxLength: 5,
+  turntableSpeed: 0.065, initialYaw: -0.18, idleYawRange: 0.18, maxDelta: 0.05, timeScale: 0.001,
+  exposure: 1, minPixelRatio: 1, maxPixelRatio: 1.25,
+  sky: { size: 2, top: '#0099DB', horizon: '#C0CBDC' },
+  world: { fov: 31, near: 0.1, far: 160, position: [1.4, 2.7, -7.5], target: [0, 0.75, 0],
+    driftSpeed: 0.07, driftX: 0.07, driftZ: 0.035, driftY: 0.025 },
+  hero: { keyPosition: [1, 3, -5], keyIntensity: 2.6, rimPosition: [-3, 3, 2], rimIntensity: 1.1 },
+  light: { sun: { color: '#EAD4AA', intensity: 2.5, position: [-3, 6, -4] },
+    ambient: { color: '#C0CBDC', intensity: 0.75 },
+    hemisphere: { sky: '#C0CBDC', ground: '#B86F50', intensity: 0.65 } },
+  clouds: { speed: 0.025, driftX: 0.7, driftZ: 0.2 },
+  portrait: { size: 128, intervalMs: 0, perBatch: 2, fov: 33, near: 0.1, far: 20,
+    position: [2.7, 2.15, -4.5], target: [0, 1.05, 0], yaw: -0.12, pixelDelta: 12, minimumPixels: 128 },
+  shadow: { size: 1024, extent: 2.5, near: 0.5, far: 15, bias: -0.00008, normalBias: 0.018 },
+  metrics: { interval: 1, warmupFrames: 30 },
+  review: { frames: 3, intervalMs: 200, buttonLeft: 28, buttonBottom: 88 },
+  animationReview: { size: 192, labelHeight: 24, columns: 3, span: 3.5, targetY: 1.05,
+    camera: [1.2, 1.9, -5], near: .1, far: 20, step: 1/60, idleTimes: [0, 1.4, 2.8],
+    emoteFractions: [.2, .5, .8], examples: [3, 0, 18], font: '12px system-ui',
+    buttonLeft: 28, buttonBottom: 122 },
+} as const;
+
 export const CAMERA = {
   /** Default hip FOV in degrees (settings may change it later). */
   fov: 70,

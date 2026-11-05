@@ -1,0 +1,9 @@
+.menu .menu-identity { top: 76%; gap: 5px; }
+.menu-emote-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.menu-emote-hint { color: var(--menu-cream); font-size: 9px; font-weight: 800; text-shadow: 1px 1px 0 var(--menu-ink); }
+.menu-emotes { display: flex; padding: 3px; gap: 3px; border-width: 2px; border-radius: 9px; box-shadow: 3px 4px 0 var(--menu-ink); }
+.menu-emotes button { border: 0; border-radius: 5px; background: transparent; padding: 5px 7px; font-size: 10px; font-weight: 800; white-space: nowrap; }
+.menu-emotes button:hover, .menu-emotes button:focus-visible { background: var(--menu-accent); }
+.menu[data-emote-keys=true] .menu-emotes { outline: 3px solid var(--menu-accent); outline-offset: 3px; }
+.menu-emotes kbd { height: 16px; min-width: 16px; font-size: 8px; margin-right: 3px; box-shadow: none; border-width: 1px; }
+@media (max-height: 800px) { .menu .menu-identity { top: 74%; } .menu-emotes button { padding: 3px 5px; } .menu .menu-identity-tag { display: none; } }
