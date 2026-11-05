@@ -63,6 +63,9 @@ Date started: 2026-10-30. Credits expire 2026-11-05.
   each balcony / raised area and back; every 30 Hz sample checked with the server validation (0 corrections).
 - `node scripts/test-jump-feel.mjs [--expect-feel]` — coyote time and jump buffer on a 2 m ledge (Rapier KCC + server
   validation); results in `docs/evidence/jump-feel-{before,after}.txt`.
+- `node --experimental-strip-types --no-warnings scripts/test-sounds.mjs [--wav <dir>]` — checks the code-made sound
+  sets (`src/ui/sounds/claude.ts`, `codex.ts`) against `SOUND_LIMITS`; `--wav` writes WAV files to listen to.
+- `http://127.0.0.1:5191/?soundlab=1` — blind A/B sound lab (Claude vs Codex set, loudness matched, picks saved).
 - `node scripts/test-stairs.mjs [mapId]` — finds every stair flight in the map data and walks the Rapier KCC up
   and down each one, checking every 30 Hz sample with the server movement validation (0 corrections).
 - `node scripts/test-drops.mjs` — weapon drops (server, 2v2 Node clients): drop with ammo, range check, E swap, cleared next round.

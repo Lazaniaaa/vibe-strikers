@@ -175,6 +175,8 @@ async function menuLoop(): Promise<void> {
 
 // ?offline=1 skips the menu (M1 single player); leaving it shows the menu.
 if (params.get('offline') === '1') void startOffline();
+// ?soundlab=1: blind A/B comparison of the code-made sound sets (no menu, no game).
+else if (params.get('soundlab') === '1') { menu.hide(); void import('./soundLab').then(({ startSoundLab }) => startSoundLab()); }
 else {
   void menuLoop();
   // Prefetch the game chunks while the player looks at the menu.
