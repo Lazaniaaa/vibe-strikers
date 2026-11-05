@@ -549,6 +549,8 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   Round-2 picks: hit v2, pistol v3 (v2 kept as the alternative), rifle v3, shotgun v3 (Codex asked for its own
   shotgun variants too), sniper none (echo, whistle) -> round 3: three dry sniper variants (`ROUND3`, no reverb).
   Round 3 pick: sniper v1 for now (owner will compare again after Codex's variants).
+  Codex shotgun variants (`codex/shotgun2.ts`, 3) compared with Claude's round-2 v3 (loudness matched): owner kept
+  Claude's round-2 shotgun v3. All sounds picked; next: wire them into the game (owner's go-ahead).
 - 2026-10-31 owner: ADS proposal approved
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
