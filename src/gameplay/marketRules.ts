@@ -43,6 +43,9 @@ export function starterRefs(catalog: readonly CatalogItem[], random: () => numbe
   return [...pick('character', MARKET.starter.characters), ...pick('emote', MARKET.starter.emotes)];
 }
 
+/** Keys tracked before idle ones are pruned. */
+const RATE_LIMIT_PRUNE_AT = 2000;
+
 /**
  * Sliding-window rate limiter (per key): `allow` records the action and returns true, or returns false when `actions`
  * were already taken within the last `windowMs`.
@@ -53,6 +56,10 @@ export class RateLimiter {
   private readonly windowMs: number;
   constructor(actions: number, windowMs: number) { this.actions = actions; this.windowMs = windowMs; }
   allow(key: string, now: number): boolean {
+    // Forget idle keys now and then, so the map does not grow with every identity ever seen.
+    if (this.times.size > RATE_LIMIT_PRUNE_AT) {
+      for (const [k, list] of this.times) if (!list.length || now - list[list.length - 1] >= this.windowMs) this.times.delete(k);
+    }
     const list = (this.times.get(key) ?? []).filter((t) => now - t < this.windowMs);
     if (list.length >= this.actions) { this.times.set(key, list); return false; }
     list.push(now);

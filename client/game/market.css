@@ -1,0 +1,32 @@
+/* Lobby MARKET tab (src/ui/marketPanel.ts). Same toy style and palette variables as the lobby (hud.css). */
+.menu-market { position: absolute; right: 28px; top: 126px; bottom: 58px; width: clamp(450px, 35vw, 560px); display: flex; flex-direction: column; padding: 17px; gap: 11px; }
+.menu-market > header { display: flex; align-items: center; justify-content: space-between; }
+.menu-market h2 { margin: 3px 0 0; font: 30px var(--menu-display); line-height: 1; }
+.market-coins { display: flex; align-items: center; gap: 6px; padding: 6px 12px; border: 2px solid var(--menu-ink); border-radius: 9px; background: var(--menu-accent); box-shadow: 0 3px 0 var(--menu-ink); font: 20px var(--menu-display); }
+.market-coins b { font-size: 16px; }
+.market-views button { font-family: var(--menu-display); font-size: 15px; }
+.market-tools { display: flex; gap: 8px; }
+.market-tools select { width: 50%; }
+.market-list { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 7px; padding-right: 4px; }
+.market-row { display: flex; align-items: center; gap: 10px; padding: 7px 9px; border: 2px solid var(--menu-ink); border-radius: 9px; background: var(--menu-cream); }
+.market-thumb { flex: 0 0 44px; width: 44px; height: 48px; border: 2px solid var(--menu-ink); border-radius: 7px; background: var(--menu-portrait); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.market-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.market-icon { font-size: 22px; color: var(--menu-teal); -webkit-text-stroke: 1px var(--menu-ink); }
+.market-what { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.market-what strong { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.market-what small, .market-meta { font-size: 10px; font-weight: 700; color: var(--menu-muted); text-transform: uppercase; letter-spacing: .6px; }
+.market-meta { white-space: nowrap; }
+.market-price { width: 78px; border: 2px solid var(--menu-ink); border-radius: 7px; padding: 6px 8px; background: #fff; color: var(--menu-ink); font-weight: 800; font-size: 12px; }
+.market-price-tag { font: 16px var(--menu-display); white-space: nowrap; }
+.market-buy { background: var(--menu-accent) !important; white-space: nowrap; }
+.market-buy.confirm { background: var(--menu-teal) !important; }
+.menu-market button:disabled { opacity: .45; cursor: default; }
+.market-empty { margin: 20px 4px; font-size: 13px; font-weight: 700; color: var(--menu-muted); }
+.menu-market > footer { display: flex; flex-direction: column; gap: 5px; font-size: 10px; color: var(--menu-muted); }
+.market-status { min-height: 15px; font-size: 12px; font-weight: 800; color: var(--menu-ink); }
+.market-status.has-error { color: var(--menu-error); }
+.menu-coins { display: inline-flex; align-items: center; gap: 4px; margin-top: 3px; font: 15px var(--menu-display); color: var(--menu-ink); }
+@media (min-height: 950px) { .menu-market { top: 150px; bottom: 90px; } }
+@media (max-width: 1150px) { .menu-market { right: 18px; width: 400px; } }
+.menu[data-tab=market] .menu-dimmer { opacity: .28; }
+.menu[data-tab=market] .menu-emote-wrap { display: none; }

@@ -158,6 +158,10 @@ export class GameNet {
   /** Called when I (re)spawn: take position AND view direction from the row. */
   onSpawn: ((row: PlayerRow) => void) | null = null;
   lastError = '';
+  /** True between onConnect and a disconnect; reducer calls are refused while false. */
+  connected = false;
+  /** Rejecters of reducer calls still waiting for the server (failed at once when the connection drops). */
+  private inflight = new Set<(e: Error) => void>();
   /** Corrections seen (spawns included). */
   corrections = 0;
   private opts: NetOptions;
@@ -201,6 +205,7 @@ export class GameNet {
         .withToken(this.opts.token)
         .onConnect((c, identity, token) => {
           this.identityHex = identity.toHexString();
+          this.connected = true;
           this.opts.onToken?.(token);
           this.attach(c);
           // Only my own row until I am in a room; then the rows and events of that room (subscribeRoom).
@@ -208,7 +213,7 @@ export class GameNet {
             .subscribe(`SELECT * FROM player WHERE owner_hex = '${this.identityHex}'`);
         })
         .onConnectError((_ctx, err) => reject(err))
-        .onDisconnect((_ctx, err) => { this.lastError = err ? String(err) : 'disconnected'; })
+        .onDisconnect((_ctx, err) => { this.lastError = err ? String(err) : 'disconnected'; this.dropped(); })
         .build();
       this.conn = conn;
     });
@@ -376,8 +381,28 @@ export class GameNet {
     if (this.players.delete(row.id)) { this.buffers.delete(row.id); this.onPlayerRemoved?.(row.id); }
   }
 
+  /** Connection closed: refuse new calls and fail the ones still waiting (their answer will never come). */
+  private dropped(): void {
+    this.connected = false;
+    const waiting = [...this.inflight];
+    this.inflight.clear();
+    for (const fail of waiting) fail(new Error('connection lost'));
+  }
+
   private call(fn: () => Promise<void>): Promise<void> {
-    const run = () => fn().catch((e: unknown) => { this.lastError = e instanceof Error ? e.message : String(e); throw e; });
+    // A call on a closed connection would never settle: refuse it at once.
+    if (!this.connected) return Promise.reject(new Error('not connected'));
+    const run = () => new Promise<void>((resolve, reject) => {
+      if (!this.connected) { reject(new Error('not connected')); return; } // dropped during the artificial lag
+      const fail = (e: Error) => { this.inflight.delete(fail); reject(e); };
+      this.inflight.add(fail);
+      let sent: Promise<void>;
+      try { sent = fn(); } catch (e) { fail(e instanceof Error ? e : new Error(String(e))); return; }
+      sent.then(() => { if (this.inflight.delete(fail)) resolve(); }, (e: unknown) => {
+        this.lastError = e instanceof Error ? e.message : String(e);
+        if (this.inflight.delete(fail)) reject(e);
+      });
+    });
     if (this.lagMs <= 0) return run();
     return new Promise((resolve, reject) => setTimeout(() => run().then(resolve, reject), this.lagMs / 2));
   }
@@ -441,5 +466,5 @@ export class GameNet {
 
   switchWeapon(slot: number): void { if (this.conn) void this.call(() => this.conn!.reducers.switchWeapon({ slot })).catch(() => undefined); }
 
-  disconnect(): void { this.conn?.disconnect(); }
+  disconnect(): void { this.dropped(); this.conn?.disconnect(); }
 }

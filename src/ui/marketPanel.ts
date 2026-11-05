@@ -1,0 +1,172 @@
+// Lobby MARKET tab (GAME.md 6.7): browse listings, buy with a confirm step, list / cancel my items, recent trades.
+// Plain DOM over a GameNet (the server decides everything; this panel only shows rows and sends intents).
+import { MARKET } from '../config/market.ts';
+import { saleFee } from '../gameplay/marketRules.ts';
+import type { GameNet, ListingRow, OwnedItemRow } from '../network/client.ts';
+import '../../client/game/market.css';
+
+/** How the lobby shows a catalog item. */
+export interface MarketItemView { name: string; kind: string; portrait?: string }
+
+type View = 'browse' | 'mine' | 'history';
+type Filter = 'all' | 'character' | 'emote';
+type Sort = 'cheap' | 'expensive' | 'new';
+
+const CONFIRM_MS = 3000;
+const HISTORY_ROWS = 20;
+
+const esc = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+
+export class MarketPanel {
+  readonly root: HTMLElement;
+  private net: GameNet | null = null;
+  private view: View = 'browse';
+  private filter: Filter = 'all';
+  private sort: Sort = 'cheap';
+  /** Listing id waiting for the second (confirm) click, and until when. */
+  private confirm: { id: bigint; until: number } | null = null;
+  private busy = false;
+  private drawQueued = false;
+  private message = '';
+  private messageIsError = false;
+
+  constructor(parent: HTMLElement, private readonly describe: (ref: string) => MarketItemView) {
+    this.root = document.createElement('section');
+    this.root.className = 'menu-market menu-toy';
+    this.root.setAttribute('aria-label', 'Market');
+    this.root.hidden = true;
+    parent.append(this.root);
+    this.root.addEventListener('click', (e) => this.onClick(e));
+    this.root.addEventListener('change', (e) => this.onChange(e));
+    this.root.addEventListener('keydown', (e) => { if (e.key === 'Enter' && (e.target as HTMLElement).matches('.market-price')) (e.target as HTMLElement).closest('.market-row')?.querySelector<HTMLButtonElement>('[data-sell]')?.click(); });
+    this.draw();
+  }
+
+  /** Connect the panel to a market-subscribed GameNet (null = offline). Call refresh() on market changes. */
+  attach(net: GameNet | null): void { this.net = net; this.queueDraw(); }
+
+  /** Redraw on the next frame (after a market change). */
+  refresh(): void { this.queueDraw(); }
+
+  setStatus(text: string, error = false): void { this.message = text; this.messageIsError = error; this.queueDraw(); }
+
+  private queueDraw(): void {
+    if (this.drawQueued) return;
+    this.drawQueued = true;
+    requestAnimationFrame(() => { this.drawQueued = false; if (!this.root.hidden) this.draw(); });
+  }
+
+  show(): void { this.root.hidden = false; this.draw(); }
+  hide(): void { this.root.hidden = true; this.confirm = null; }
+
+  private itemCell(ref: string): string {
+    const d = this.describe(ref);
+    const img = d.portrait ? `<img src="${d.portrait}" alt="">` : `<span class="market-icon">${d.kind === 'emote' ? '✦' : '?'}</span>`;
+    return `<div class="market-thumb">${img}</div><div class="market-what"><strong>${esc(d.name)}</strong><small>${esc(d.kind)}</small></div>`;
+  }
+
+  private draw(): void {
+    const m = this.net?.market, me = this.net?.identityHex ?? '';
+    const coins = m?.wallet?.coins;
+    const tabs = (['browse', 'mine', 'history'] as const).map((v) =>
+      `<button data-view="${v}" aria-pressed="${this.view === v}">${v === 'browse' ? 'Browse' : v === 'mine' ? 'My items' : 'History'}</button>`).join('');
+    let body = '';
+    if (!m) body = '<p class="market-empty">Connecting to the market…</p>';
+    else if (this.view === 'browse') body = this.browse(m.listings, me, coins ?? 0);
+    else if (this.view === 'mine') body = this.mine(m.items, m.listings, me);
+    else body = this.history(me);
+    this.root.innerHTML = `
+      <header><div><span class="menu-eyebrow">TRADE WITH PLAYERS</span><h2>Market</h2></div>
+        <div class="market-coins" title="Your coins"><b>◉</b> ${coins === undefined ? '…' : coins}</div></header>
+      <div class="menu-segment market-views" role="group" aria-label="Market view">${tabs}</div>
+      ${this.view === 'browse' ? `<div class="market-tools">
+        <select class="market-filter" aria-label="Filter"><option value="all">All items</option><option value="character">Characters</option><option value="emote">Emotes</option></select>
+        <select class="market-sort" aria-label="Sort"><option value="cheap">Cheapest first</option><option value="expensive">Most expensive</option><option value="new">Newest</option></select></div>` : ''}
+      <div class="market-list">${body}</div>
+      <footer><small>Every sale burns a ${Math.round(MARKET.feeRate * 100)}% fee (at least 1 coin). Coins come from matches.</small>
+        <div class="market-status${this.messageIsError ? ' has-error' : ''}" role="status" aria-live="polite">${esc(this.message)}</div></footer>`;
+    const f = this.root.querySelector<HTMLSelectElement>('.market-filter'), s = this.root.querySelector<HTMLSelectElement>('.market-sort');
+    if (f) f.value = this.filter;
+    if (s) s.value = this.sort;
+  }
+
+  private browse(listings: ReadonlyMap<bigint, ListingRow>, me: string, coins: number): string {
+    let rows = [...listings.values()].filter((l) => this.filter === 'all' || l.ref.startsWith(`${this.filter}:`));
+    rows.sort((a, b) => this.sort === 'cheap' ? a.price - b.price || Number(a.id - b.id)
+      : this.sort === 'expensive' ? b.price - a.price || Number(a.id - b.id)
+      : Number(b.id - a.id));
+    if (!rows.length) return '<p class="market-empty">Nothing for sale yet. List one of your items in "My items".</p>';
+    const now = performance.now();
+    return rows.map((l) => {
+      const own = l.seller.toHexString() === me;
+      const confirming = this.confirm && this.confirm.id === l.id && this.confirm.until > now;
+      const action = own ? `<button data-cancel="${l.id}" class="menu-small-action">Cancel</button>`
+        : `<button data-buy="${l.id}" data-price="${l.price}" class="menu-small-action market-buy${confirming ? ' confirm' : ''}" ${coins < l.price || this.busy ? 'disabled' : ''}>${confirming ? `Confirm ${l.price}?` : `Buy ◉ ${l.price}`}</button>`;
+      return `<div class="market-row">${this.itemCell(l.ref)}<div class="market-meta">${own ? 'Your listing' : `Seller ${l.seller.toHexString().slice(0, 6)}`}</div>${action}</div>`;
+    }).join('');
+  }
+
+  private mine(items: ReadonlyMap<bigint, OwnedItemRow>, listings: ReadonlyMap<bigint, ListingRow>, me: string): string {
+    const listed = new Map<bigint, ListingRow>();
+    for (const l of listings.values()) if (l.seller.toHexString() === me) listed.set(l.itemId, l);
+    const own = [...items.values()].filter((i) => i.owner.toHexString() === me).sort((a, b) => a.ref.localeCompare(b.ref) || Number(a.id - b.id));
+    if (!own.length) return '<p class="market-empty">You have no items yet.</p>';
+    return own.map((i) => {
+      const l = listed.get(i.id);
+      const action = l
+        ? `<div class="market-meta">Listed at ◉ ${l.price}</div><button data-cancel="${l.id}" class="menu-small-action">Cancel</button>`
+        : `<input class="market-price" type="number" inputmode="numeric" min="${MARKET.price.min}" max="${MARKET.price.max}" step="1" placeholder="Price" aria-label="Price in coins" data-item="${i.id}">
+           <button data-sell="${i.id}" class="menu-small-action" ${this.busy ? 'disabled' : ''}>Sell</button>`;
+      return `<div class="market-row">${this.itemCell(i.ref)}${action}</div>`;
+    }).join('');
+  }
+
+  private history(me: string): string {
+    const trades = [...(this.net?.market.trades.values() ?? [])].sort((a, b) => Number(b.id - a.id)).slice(0, HISTORY_ROWS);
+    if (!trades.length) return '<p class="market-empty">No trades yet.</p>';
+    return trades.map((t) => {
+      const mine = t.buyer.toHexString() === me ? 'You bought' : t.seller.toHexString() === me ? `You sold (+${t.price - t.fee})` : 'Sold';
+      return `<div class="market-row">${this.itemCell(t.ref)}<div class="market-meta">${mine}</div><div class="market-price-tag">◉ ${t.price}</div></div>`;
+    }).join('');
+  }
+
+  private onChange(e: Event): void {
+    const t = e.target as HTMLElement;
+    if (t.matches('.market-filter')) { this.filter = (t as HTMLSelectElement).value as Filter; this.draw(); }
+    if (t.matches('.market-sort')) { this.sort = (t as HTMLSelectElement).value as Sort; this.draw(); }
+  }
+
+  private run(action: () => Promise<void>, done: string): void {
+    this.busy = true; this.setStatus('…');
+    action().then(() => this.setStatus(done), (err: unknown) => this.setStatus(err instanceof Error ? err.message : String(err), true))
+      .finally(() => { this.busy = false; this.queueDraw(); });
+  }
+
+  private onClick(e: Event): void {
+    const b = (e.target as HTMLElement).closest('button');
+    if (!b || b.disabled) return;
+    e.stopPropagation();
+    if (b.dataset.view) { this.view = b.dataset.view as View; this.confirm = null; this.message = ''; this.draw(); return; }
+    const net = this.net;
+    if (!net) return;
+    if (b.dataset.buy) {
+      const id = BigInt(b.dataset.buy), price = Number(b.dataset.price), now = performance.now();
+      if (!this.confirm || this.confirm.id !== id || this.confirm.until < now) {
+        this.confirm = { id, until: now + CONFIRM_MS };
+        this.draw();
+        setTimeout(() => this.queueDraw(), CONFIRM_MS + 50);
+        return;
+      }
+      this.confirm = null;
+      this.run(() => net.buyListing(id, price), `Bought for ${price} coins.`);
+    } else if (b.dataset.cancel) {
+      this.run(() => net.cancelListing(BigInt(b.dataset.cancel!)), 'Listing cancelled.');
+    } else if (b.dataset.sell) {
+      const input = this.root.querySelector<HTMLInputElement>(`.market-price[data-item="${b.dataset.sell}"]`);
+      const price = Number(input?.value);
+      if (!input?.value || !Number.isInteger(price)) { this.setStatus(`Enter a whole price, ${MARKET.price.min}-${MARKET.price.max} coins.`, true); return; }
+      const fee = saleFee(price);
+      this.run(() => net.listItem(BigInt(b.dataset.sell!), price), `Listed for ${price} coins (you get ${price - fee} after the fee).`);
+    }
+  }
+}

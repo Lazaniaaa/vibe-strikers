@@ -13,11 +13,15 @@ export type MenuChoice =
   | { kind: 'join'; name: string; code: string }
   | { kind: 'offline'; name: string; difficulty: BotDifficulty; mode: GameMode; teams: boolean; mutator: string };
 
+export type MenuTab = 'play' | 'characters' | 'market';
+
 export class Menu {
   readonly root: HTMLElement;
   character: number;
   onCharacterView: ((index: number) => void) | null = null;
   onVisibility: ((visible: boolean) => void) | null = null;
+  /** Called when a tab opens (the MARKET panel lives in main.tsx). */
+  onTab: ((tab: MenuTab) => void) | null = null;
   private resolve: ((choice: MenuChoice) => void) | null = null;
   private readonly status: HTMLElement;
   private readonly nameInput: HTMLInputElement;
@@ -27,7 +31,7 @@ export class Menu {
   private buttons: HTMLButtonElement[] = [];
   private images: HTMLImageElement[] = [];
   private portraits = new Map<number, { url: string; pixels: number }>();
-  private tab: 'play' | 'characters' = 'play';
+  private tab: MenuTab = 'play';
   private destination: 'online' | 'practice' = 'online';
   private difficulty: BotDifficulty;
   private mode: GameMode;
@@ -45,9 +49,9 @@ export class Menu {
       <div class="menu-scene-host"></div><div class="menu-vignette"></div><div class="menu-dimmer"></div>
       <header class="menu-header">
         <div class="menu-logo" aria-label="Voxel Arena"><svg class="menu-block" viewBox="0 0 56 60" aria-hidden="true"><path class="block-top" d="M28 3 52 16 28 29 4 16Z"/><path class="block-left" d="M4 16 28 29 28 56 4 43Z"/><path class="block-right" d="M28 29 52 16 52 43 28 56Z"/><path class="block-notch" d="M16 24 16 36 28 43 40 36 40 24"/></svg><span>VOXEL<br>ARENA</span></div>
-        <nav class="menu-tabs menu-toy" aria-label="Lobby tabs"><button class="menu-tab active" data-tab="play" aria-pressed="true"><kbd>1</kbd> PLAY</button><button class="menu-tab" data-tab="characters" aria-pressed="false"><kbd>2</kbd> CHARACTERS</button><div class="menu-settings-slot"></div></nav>
+        <nav class="menu-tabs menu-toy" aria-label="Lobby tabs"><button class="menu-tab active" data-tab="play" aria-pressed="true"><kbd>1</kbd> PLAY</button><button class="menu-tab" data-tab="characters" aria-pressed="false"><kbd>2</kbd> CHARACTERS</button><button class="menu-tab" data-tab="market" aria-pressed="false"><kbd>3</kbd> MARKET</button><div class="menu-settings-slot"></div></nav>
       </header>
-      <section class="menu-player menu-toy" aria-label="Player card"><div class="menu-mini"><img alt="Selected character portrait" hidden /></div><label><span class="menu-eyebrow">YOUR NICKNAME <b aria-hidden="true">✎</b></span><input class="menu-name" aria-label="Nickname" maxlength="${MENU.nameMaxLength}" placeholder="Your name" autocomplete="nickname" /></label></section>
+      <section class="menu-player menu-toy" aria-label="Player card"><div class="menu-mini"><img alt="Selected character portrait" hidden /></div><label><span class="menu-eyebrow">YOUR NICKNAME <b aria-hidden="true">✎</b></span><input class="menu-name" aria-label="Nickname" maxlength="${MENU.nameMaxLength}" placeholder="Your name" autocomplete="nickname" /><span class="menu-coins" title="Your coins" hidden></span></label></section>
       <section class="menu-identity" aria-label="Selected character"><span class="menu-identity-tag">READY FOR THE ARENA</span><h1 class="menu-hero-name">YOUR CHARACTER</h1><div class="menu-change menu-toy"><button class="menu-prev" aria-label="Previous character">‹</button><button class="menu-open-characters">Change character <kbd>← →</kbd></button><button class="menu-next" aria-label="Next character">›</button></div></section>
       <aside class="menu-card menu-toy" aria-label="Match setup">
         <div class="menu-card-heading"><div><span class="menu-eyebrow">ONE LIFE. MAKE IT COUNT.</span><h2>Let's play.</h2></div><span class="menu-card-icon" aria-hidden="true">✦</span></div>
@@ -66,7 +70,7 @@ export class Menu {
       </aside>
       <section class="menu-roster menu-toy" aria-label="Character selection" hidden><header><div><span class="menu-eyebrow">PICK YOUR LOOK</span><h2>Characters</h2></div><button class="menu-close-characters" aria-label="Close character selection">×</button></header><div class="menu-chars" role="group" aria-label="Character portraits"></div><footer><div><strong class="menu-char-name" aria-live="polite">Loading characters…</strong><small class="menu-char-count"></small></div><button class="menu-random menu-small-action">↝ Random</button></footer></section>
       <span class="menu-scene-status">Getting the arena ready…</span><output class="menu-perf" hidden></output>
-      <div class="menu-bottom-hint"><kbd>1</kbd> Play <kbd>2</kbd> Characters <kbd>3</kbd> Settings</div>`;
+      <div class="menu-bottom-hint"><kbd>1</kbd> Play <kbd>2</kbd> Characters <kbd>3</kbd> Market <kbd>4</kbd> Settings</div>`;
     parent.append(this.root);
     const emoteWrap=document.createElement('div');emoteWrap.className='menu-emote-wrap';
     emoteWrap.innerHTML='<span class="menu-emote-hint">Emotes · E then 1–5</span><div class="menu-emotes menu-toy" role="group" aria-label="Lobby emotes"></div>';
@@ -96,7 +100,7 @@ export class Menu {
     this.root.querySelector('.menu-prev')!.addEventListener('click', () => step(-1));
     this.root.querySelector('.menu-next')!.addEventListener('click', () => step(1));
     this.root.querySelector('.menu-random')!.addEventListener('click', () => step(1 + Math.floor(Math.random() * Math.max(1, this.list.length - 1))));
-    for (const button of this.root.querySelectorAll<HTMLElement>('[data-tab]')) button.addEventListener('click', () => this.showTab(button.dataset.tab as 'play' | 'characters'));
+    for (const button of this.root.querySelectorAll<HTMLElement>('[data-tab]')) button.addEventListener('click', () => this.showTab(button.dataset.tab as MenuTab));
     this.root.querySelector('.menu-open-characters')!.addEventListener('click', () => this.showTab('characters'));
     this.root.querySelector('.menu-close-characters')!.addEventListener('click', () => this.showTab('play'));
     this.root.querySelector('.menu-chars')!.addEventListener('pointerleave', () => this.previewCharacter(this.character));
@@ -127,7 +131,8 @@ export class Menu {
       if(this.emoteKeys){const index=Number(event.key)-1;this.emoteKeys=false;this.root.dataset.emoteKeys='false';if(Number.isInteger(index)&&index>=0&&index<LOBBY_EMOTES.length){event.preventDefault();this.emote(LOBBY_EMOTES[index].id);return;}}
       if (event.key === '1') this.showTab('play');
       else if (event.key === '2') this.showTab('characters');
-      else if (event.key === '3') this.settingsSlot.querySelector<HTMLButtonElement>('button')?.click();
+      else if (event.key === '3') this.showTab('market');
+      else if (event.key === '4') this.settingsSlot.querySelector<HTMLButtonElement>('button')?.click();
       else if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') { event.preventDefault(); step(event.key === 'ArrowLeft' ? -1 : 1); }
       else if (event.key === 'Escape') this.showTab('play');
       else if (event.key === 'Enter' && this.tab === 'play') {
@@ -177,13 +182,23 @@ export class Menu {
     this.root.querySelector('.menu-launch-caption')!.textContent = practice ? 'OFFLINE · WITH BOTS' : 'FIND AN ONLINE MATCH';
     this.root.querySelector('.menu-rules-label')!.textContent = practice ? 'PRACTICE RULES' : 'ROOM & PRACTICE RULES';
   }
-  private showTab(tab: 'play' | 'characters'): void {
+  private showTab(tab: MenuTab): void {
     this.tab = tab; this.root.dataset.tab = tab;
     this.root.querySelector<HTMLElement>('.menu-roster')!.hidden = tab !== 'characters';
     this.root.querySelector<HTMLElement>('.menu-card')!.hidden = tab !== 'play';
     for (const button of this.root.querySelectorAll<HTMLElement>('[data-tab]')) { button.classList.toggle('active', button.dataset.tab === tab); button.setAttribute('aria-pressed', String(button.dataset.tab === tab)); }
     this.previewCharacter(this.character);
+    this.onTab?.(tab);
   }
+  /** Coin balance on the player card (null = unknown / offline). */
+  setCoins(coins: number | null): void {
+    const el = this.root.querySelector<HTMLElement>('.menu-coins')!;
+    el.hidden = coins === null; el.textContent = coins === null ? '' : `◉ ${coins} coins`;
+  }
+  /** Display name of a character, if the list is loaded. */
+  characterName(index: number): string | undefined { return this.list[index]?.name; }
+  /** Rendered portrait of a character (data URL), if ready. */
+  portraitOf(index: number): string | undefined { return this.portraits.get(index)?.url; }
   get settingsSlot(): HTMLElement { return this.root.querySelector('.menu-settings-slot')!; }
   get sceneHost(): HTMLElement { return this.root.querySelector('.menu-scene-host')!; }
   get characterCount(): number { return this.list.length; }

@@ -21,6 +21,7 @@ try {
   const { CATALOG, saleFee } = await vite.ssrLoadModule('/src/gameplay/market.ts');
   const nets = [];
   const client = async (all = false) => { const n = new GameNet(); await n.connect(); await n.subscribeMarket(all); nets.push(n); return n; };
+  const pump = setInterval(() => nets.forEach((n) => n.update()), 10); // room rows arrive through GameNet.update()
 
   // Auditor sees everything; checks the invariants at the end.
   const audit = await client(true);
@@ -83,6 +84,28 @@ try {
   const burst = await Promise.all(Array.from({ length: MARKET.rateLimit.actions + 4 }, () => reason(c.cancelListing(999999n))));
   check(burst.filter((r) => r.includes('too many')).length >= 4, `rate limit: ${burst.filter((r) => r.includes('too many')).length} of ${burst.length} refused`);
 
+  // Match reward: Cornucopia free-for-all is one round; the last player alive wins the match.
+  const { matchReward } = await vite.ssrLoadModule('/src/gameplay/market.ts');
+  const p1 = await client(), p2 = await client();
+  await waitFor(() => p1.market.wallet && p2.market.wallet);
+  await p1.createPrivateRoom('Winner', 1, false, 'normal', 'cornucopia', false, '');
+  const ffa = await waitFor(() => p1.me && p1.room);
+  await p2.joinByCode(ffa.code, 'Leaver', 2);
+  await waitFor(() => p2.me && p1.room?.phase === 'live', 15000);
+  check(p1.room?.phase === 'live', 'free-for-all match is live');
+  const before1 = p1.market.wallet.coins, before2 = p2.market.wallet.coins, minted0 = audit.market.economy.minted;
+  await p2.leave();
+  const paid = await waitFor(() => p1.market.wallet.coins !== before1, 8000);
+  const expected = matchReward(true, 0, 0, true);
+  check(!!paid && p1.market.wallet.coins - before1 === expected, `winner paid ${p1.market.wallet.coins - before1} coins (expected ${expected}: win + first win of the day)`);
+  await waitFor(() => p1.room?.phase === 'matchEnd', 2000);
+  check(p1.room?.phase === 'matchEnd', 'the match ended');
+  check(p2.market.wallet.coins === before2, `the player who left gets nothing (${p2.market.wallet.coins - before2})`);
+  await waitFor(() => audit.market.economy.minted !== minted0, 3000);
+  check(audit.market.economy.minted - minted0 === BigInt(expected), 'match reward was minted');
+  check(p1.market.wallet.lastWinDay === new Date().toISOString().slice(0, 10), 'first-win day recorded');
+  await p1.leave();
+
   // Economy invariant (auditor sees every wallet).
   await sleep(300);
   const sum = [...audit.market.wallets.values()].reduce((s, w) => s + BigInt(w.coins), 0n);
@@ -93,6 +116,7 @@ try {
   check([...audit.market.listings.values()].every((l) => audit.market.items.get(l.itemId)?.owner.toHexString() === l.seller.toHexString()),
     'every listing points at an item its seller owns');
 
+  clearInterval(pump);
   for (const n of nets) n.disconnect();
 } catch (err) {
   failed++;

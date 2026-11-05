@@ -67,7 +67,7 @@ const menu = new Menu(document.body, params.get('name') ?? savedName, [],
   savedDifficulty(), (d) => storage('local')?.setItem('voxel-difficulty', d),
   savedMode(), (m) => storage('local')?.setItem('voxel-mode', m));
 const settingsTab = settingsButton(menu.settingsSlot, getSettingsPanel(), 'menu-tab menu-settings');
-settingsTab.innerHTML = '<kbd>3</kbd> SETTINGS';
+settingsTab.innerHTML = '<kbd>4</kbd> SETTINGS';
 settingsTab.setAttribute('aria-label', 'Settings');
 // Paint the plain DOM first. A generation token cancels a lazy import when a match starts meanwhile.
 let menuScene: MenuScene | null = null;
@@ -92,6 +92,66 @@ menu.onVisibility = visible => {
 };
 // One connection for the whole page: leaving a match and joining another works without reloading.
 let net: GameNet | null = null;
+let connecting: Promise<GameNet> | null = null;
+
+/**
+ * Which storage keeps the identity token: the first tab of this browser holds a Web Lock and uses the persistent
+ * token (localStorage: wallet and items survive a restart); a second tab gets its own per-tab identity
+ * (sessionStorage), so two tabs are still two players.
+ */
+const identityStore: Promise<'local' | 'session'> = new Promise((resolve) => {
+  const locks = (navigator as Navigator & { locks?: LockManager }).locks;
+  if (!locks) { resolve('local'); return; }
+  locks.request('voxel-arena-identity', { ifAvailable: true }, (lock) => {
+    resolve(lock ? 'local' : 'session');
+    return lock ? new Promise<void>(() => undefined) : undefined; // keep the lock while the page lives
+  }).catch(() => resolve('session'));
+});
+
+/** Connect once (menu market, coins, matches) and subscribe to the marketplace. */
+function ensureNet(): Promise<GameNet> {
+  if (net) return Promise.resolve(net);
+  connecting ??= (async () => {
+    const { GameNet } = await loadNet();
+    const store = storage(await identityStore);
+    const key = 'stdb-token';
+    const n = new GameNet({
+      // Server: ?server= (tests) > build-time VITE_STDB_URI (hosting) > local default in src/config/net.ts.
+      uri: params.get('server') ?? (import.meta.env.VITE_STDB_URI || undefined),
+      databaseName: params.get('db') ?? (import.meta.env.VITE_STDB_DB || undefined),
+      token: store?.getItem(key) ?? undefined,
+      onToken: (t) => store?.setItem(key, t),
+      lagMs: Number(params.get('lag') ?? 0) || 0,
+    });
+    await n.connect();
+    n.onMarketChange = () => { menu.setCoins(n.market.wallet?.coins ?? null); marketPanel?.refresh(); };
+    await n.subscribeMarket().catch(() => undefined); // the game works without the market
+    menu.setCoins(n.market.wallet?.coins ?? null);
+    net = n;
+    return n;
+  })();
+  connecting.catch(() => { connecting = null; });
+  return connecting;
+}
+
+// MARKET tab: the panel and the catalog load on first open.
+let marketPanel: import('../../src/ui/marketPanel').MarketPanel | null = null;
+menu.onTab = (tab) => {
+  if (tab !== 'market') { marketPanel?.hide(); return; }
+  void (async () => {
+    if (!marketPanel) {
+      const [{ MarketPanel }, { catalogItem }] = await Promise.all([import('../../src/ui/marketPanel'), import('../../src/gameplay/market')]);
+      marketPanel ??= new MarketPanel(menu.root, (ref) => {
+        const item = catalogItem(ref);
+        if (!item) return { name: ref, kind: 'unknown item' };
+        if (item.kind === 'character') return { name: menu.characterName(item.index) ?? item.name, kind: 'character', portrait: menu.portraitOf(item.index) };
+        return { name: item.name, kind: 'emote' };
+      });
+    }
+    marketPanel.show();
+    try { marketPanel.attach(await ensureNet()); } catch (e) { marketPanel.setStatus(`Market offline: ${e instanceof Error ? e.message : String(e)}`, true); }
+  })();
+};
 // Test shortcut, first round only: ?auto=quick | create (&bots=0) | join&code=XXXXX
 let auto = params.get('auto');
 
@@ -141,19 +201,7 @@ async function menuLoop(): Promise<void> {
       }
       const app = loadOnline(); // download the game while connecting
       app.catch(() => undefined);
-      if (!net) {
-        const { GameNet } = await loadNet();
-        net = new GameNet({
-          // Server: ?server= (tests) > build-time VITE_STDB_URI (hosting) > local default in src/config/net.ts.
-          uri: params.get('server') ?? (import.meta.env.VITE_STDB_URI || undefined),
-          databaseName: params.get('db') ?? (import.meta.env.VITE_STDB_DB || undefined),
-          // One identity per browser tab, so two tabs are two players.
-          token: storage('session')?.getItem('stdb-token') ?? undefined,
-          onToken: (t) => storage('session')?.setItem('stdb-token', t),
-          lagMs: Number(params.get('lag') ?? 0) || 0,
-        });
-        await net.connect();
-      }
+      const net = await ensureNet();
       await joinWith(net, choice, menu.character);
       // Saved primary choice (applies at once during the freeze phase, otherwise next round).
       const savedPrimary = params.get('primary') ?? storage('local')?.getItem('voxel-primary');
@@ -180,5 +228,6 @@ else if (params.get('soundlab') === '1') { menu.hide(); void import('./soundLab'
 else {
   void menuLoop();
   // Prefetch the game chunks while the player looks at the menu.
-  window.setTimeout(() => { loadGame().catch(() => undefined); loadNet().catch(() => undefined); }, MENU.prefetchDelayMs);
+  // Connect early too: the player card shows the coin balance.
+  window.setTimeout(() => { loadGame().catch(() => undefined); ensureNet().catch(() => undefined); }, MENU.prefetchDelayMs);
 }
