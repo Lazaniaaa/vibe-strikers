@@ -66,6 +66,12 @@ Date started: 2026-10-30. Credits expire 2026-11-05.
 - `node --experimental-strip-types --no-warnings scripts/test-sounds.mjs [--wav <dir>]` — checks the code-made sound
   sets (`src/ui/sounds/claude.ts`, `codex.ts`) against `SOUND_LIMITS`; `--wav` writes WAV files to listen to.
 - `http://127.0.0.1:5191/?soundlab=1` — blind A/B sound lab (Claude vs Codex set, loudness matched, picks saved).
+- `node scripts/test-market.mjs [--slow]` — marketplace rules against the local server (wallets, starter items, listing
+  checks, buy / fee / race / cancel / rate limit, no reward for an instant lonely win, coin conservation); `--slow`
+  adds a real ~5 min free-for-all with bots and checks its reward.
+- `node scripts/sim-market.mjs [--bots 30] [--seconds 60] [--seed 1] [--out file.json]` — many bot traders at once
+  (honest + cheating + same-moment buys + bursts + drop mid-trade and reconnect) with an auditor checking the
+  invariants (GAME.md 6.7); exit 1 on any violation or unexpected server answer.
 - `node scripts/test-stairs.mjs [mapId]` — finds every stair flight in the map data and walks the Rapier KCC up
   and down each one, checking every 30 Hz sample with the server movement validation (0 corrections).
 - `node scripts/test-drops.mjs` — weapon drops (server, 2v2 Node clients): drop with ammo, range check, E swap, cleared next round.
@@ -496,6 +502,25 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   `codex/`). Lab `client/game/soundLab.ts` (?soundlab=1): A/B shuffled per sound, matched on the loudest 50 ms
   window, rifle as a 6-shot burst, steps 4 in a row. Not wired into the game yet: the winners per sound go in
   after the owner's picks.
+- 2026-11-05/06 marketplace (owner: everything in the game is tradable, all characters stay playable, coins from
+  matches with the given numbers, player-to-player only, branch `market`, no push). Built overnight on branch
+  `market`: GAME.md 6.7 contract; `src/config/market.ts`; rules `src/gameplay/marketRules.ts` + catalog
+  `src/gameplay/market.ts` (33 characters + 5 emotes); server tables wallet / owned_item / listing / trade / economy
+  (+ private match_stat, match_clock), reducers list_item / cancel_listing / buy_listing, wallet + starter set (3
+  characters + 1 emote, 200 coins) on first connect, match rewards at match end; GameNet market view and calls;
+  lobby tab MARKET (`src/ui/marketPanel.ts`, `client/game/market.css`) and coins on the player card. Identity: the
+  first tab keeps a persistent token (Web Lock + localStorage), a second tab gets its own (two tabs = two players).
+  My additions (owner allowed): 5% sale fee burned, +50 first win of the UTC day.
+  Bugs found and fixed: (1) reducer calls on a dropped connection never settled (UI would wait forever) -> refused
+  at once, in-flight calls fail with "connection lost"; (2) every trade redrew the market list, wiping a price being
+  typed and the scroll, up to 18 redraws/s with 1000+ listings -> values / focus / scroll kept, 60 rows max, <= 4
+  redraws/s (60 FPS with 1091 listings while 40 bots trade); (3) negative / huge prices failed with a raw
+  serialization error -> checked before sending; (4) coin farming: an empty private free-for-all ended right after
+  the freeze and paid the win (~200 coins/min) -> rewards need >= 2 players at the end and >= 60 s; (5) the rate
+  limiter kept every identity forever -> idle keys pruned. Sims: 20 bots x 30 s, 60 x 90 s, 100 x 90 s, 40 x 45 s:
+  0 invariant violations, 0 unexpected answers (reports `docs/evidence/market-sim-*.json`). test-market 30+ checks,
+  --slow: real 305 s match paid 20 coins (loss). Screens `docs/evidence/market-tab*.jpg`. Report for the owner:
+  `docs/market-report.md`.
 - 2026-10-31 owner: ADS proposal approved
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).

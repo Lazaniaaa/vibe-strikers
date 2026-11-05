@@ -173,18 +173,23 @@ playable for everyone (owner). Numbers in `config/market.ts` (`MARKET`).
 - First connect (`clientConnected`): wallet with `startCoins` and a starter set (random characters + an emote,
   distinct, from the catalog).
 - Coins come only from matches (humans only, at `matchEnd`): win / loss base + per kill + per headshot, capped per
-  match; the first win of a UTC day adds a bonus on top of the cap. A sale burns a fee (`feeRate`, at least 1 coin).
+  match; the first win of a UTC day adds a bonus on top of the cap. A match pays only with at least
+  `reward.minPlayers` players in the room at the end (bots count) and after `reward.minMatchSeconds` (no farming of
+  empty or instant matches). A sale burns a fee (`feeRate`, at least 1 coin).
 - Tables (public): `wallet{owner identity pk, coins, createdAt, lastWinDay}`, `owned_item{id pk, owner, ref,
   acquiredAt}` (ref = catalog id, e.g. `character:vibe-vibers-viber-142`, `emote:wave`; every row is one copy with
   exactly one owner), `listing{id pk, itemId unique, seller, ref, price, createdAt}`, `trade{id pk, itemId, ref, seller,
   buyer, price, fee, at}` (last `tradeHistory` kept), `economy{id pk = 0, minted, burned}` (coins created / destroyed,
-  so `sum(wallet.coins) == minted - burned` always holds). Private: `match_stat{playerId pk, headshots}`.
+  so `sum(wallet.coins) == minted - burned` always holds). Private: `match_stat{playerId pk, headshots}`,
+  `match_clock{roomId pk, startedAt}`.
 - Reducers: `list_item{itemId, price}` (own, unlisted item; integer price in [`price.min`, `price.max`]; at most
   `maxListingsPerSeller` open listings), `cancel_listing{listingId}` (seller only), `buy_listing{listingId,
   expectedPrice}` (listing exists, not own, price unchanged, enough coins; moves the item, pays seller price - fee,
   burns the fee, logs the trade). Every market reducer is rate-limited per identity (`rateLimit`) and throws a
   `SenderError` with a readable message on refusal. Reducers are transactions: two buyers of one listing -> one
   wins, the other gets "listing is gone".
+- Lobby: tab MARKET (3; Settings moved to 4): Browse (filter, sort, at most 60 rows drawn, buy = two clicks),
+  My items (sell with a price, cancel), History (last 20 trades); coin balance on the player card.
 - Invariants (checked by `scripts/sim-market.mjs`): coins conserved (`sum == minted - burned`), no negative or
   non-integer balance, every item exactly one owner, every listing points at an item its seller owns, at most one
   listing per item, every trade moved the item to its buyer.
