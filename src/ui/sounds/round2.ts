@@ -171,8 +171,10 @@ export const ROUND2: Partial<Record<SoundId, readonly SoundRecipe[]>> = {
  * also tries a shotgun). Sniper: none (v1 had an echo, the v2 whistle did not work) -> ROUND3.
  */
 export const ROUND2_PICKS = { hit: 1, pistol: 2, pistolAlt: 1, rifle: 2, shotgun: 2 } as const;
+export const ROUND3_PICKS = { sniper: 0 } as const;
 
-/** Round 3 (owner 2026-11-06): sniper only. Completely dry (no reverb, no echo, no whistle), cartoon, short. */
+/** Round 3 (owner 2026-11-06): sniper only. Completely dry (no reverb, no echo, no whistle), cartoon, short.
+ * Owner's pick for now: v1 (may change after Codex's variants). */
 export const ROUND3: Partial<Record<SoundId, readonly SoundRecipe[]>> = {
   sniper: [
     // v1 "BAM": hard snap and one big round low punch, nothing after it.
