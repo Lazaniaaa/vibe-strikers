@@ -164,19 +164,18 @@ rooms are independent so more regions can be added later.
 - One `MovementAuthority` interface on the server: `ClientValidated` now, a fully
   server-simulated version can replace it later without changing the contract for hits.
 
-### 6.7 Marketplace — DECIDED (owner 2026-11-05: in-game coins only, no wallets / crypto / real money)
+### 6.7 Marketplace — DECIDED (owner 2026-11-05: in-game coins only, no real money; accounts by wallet login, 6.8)
 Player-to-player market for everything in the game (now: the 33 characters and the 5 lobby emotes; new item kinds
 are added to the catalog in `config/market.ts`). Owning an item is a collection only: every character stays
 playable for everyone (owner). Numbers in `config/market.ts` (`MARKET`).
-- Account = SpacetimeDB identity. The browser keeps one persistent identity (localStorage token); a second tab of
-  the same browser that cannot take the identity lock gets its own per-tab identity (two tabs = two players).
-- First connect (`clientConnected`): wallet with `startCoins` and a starter set (random characters + an emote,
-  distinct, from the catalog).
-- Coins come only from matches (humans only, at `matchEnd`): win / loss base + per kill + per headshot, capped per
+- Account = wallet address (6.8). Guests (not logged in) play normally but have no coins, items or market access.
+- First login of an address: wallet with `startCoins` and a starter set (random characters + an emote, distinct,
+  from the catalog).
+- Coins come only from matches (logged-in humans only, at `matchEnd`): win / loss base + per kill + per headshot, capped per
   match; the first win of a UTC day adds a bonus on top of the cap. A match pays only with at least
   `reward.minPlayers` players in the room at the end (bots count) and after `reward.minMatchSeconds` (no farming of
   empty or instant matches). A sale burns a fee (`feeRate`, at least 1 coin).
-- Tables (public): `wallet{owner identity pk, coins, createdAt, lastWinDay}`, `owned_item{id pk, owner, ref,
+- Tables (public; owner / seller / buyer are lowercase addresses): `wallet{owner pk, coins, createdAt, lastWinDay}`, `owned_item{id pk, owner, ref,
   acquiredAt}` (ref = catalog id, e.g. `character:vibe-vibers-viber-142`, `emote:wave`; every row is one copy with
   exactly one owner), `listing{id pk, itemId unique, seller, ref, price, createdAt}`, `trade{id pk, itemId, ref, seller,
   buyer, price, fee, at}` (last `tradeHistory` kept), `economy{id pk = 0, minted, burned}` (coins created / destroyed,
@@ -185,14 +184,35 @@ playable for everyone (owner). Numbers in `config/market.ts` (`MARKET`).
 - Reducers: `list_item{itemId, price}` (own, unlisted item; integer price in [`price.min`, `price.max`]; at most
   `maxListingsPerSeller` open listings), `cancel_listing{listingId}` (seller only), `buy_listing{listingId,
   expectedPrice}` (listing exists, not own, price unchanged, enough coins; moves the item, pays seller price - fee,
-  burns the fee, logs the trade). Every market reducer is rate-limited per identity (`rateLimit`) and throws a
+  burns the fee, logs the trade). Every market reducer needs a login ("log in with a wallet first") and is rate-limited per account (`rateLimit`) and throws a
   `SenderError` with a readable message on refusal. Reducers are transactions: two buyers of one listing -> one
   wins, the other gets "listing is gone".
-- Lobby: tab MARKET (3; Settings moved to 4): Browse (filter, sort, at most 60 rows drawn, buy = two clicks),
-  My items (sell with a price, cancel), History (last 20 trades); coin balance on the player card.
+- Lobby: tab MARKET (3): Browse (filter, sort, at most 60 rows drawn, buy = two clicks), My items (sell with a
+  price, cancel), History (last 20 trades); guests see Browse and a login prompt; testnet warning in the footer.
 - Invariants (checked by `scripts/sim-market.mjs`): coins conserved (`sum == minted - burned`), no negative or
   non-integer balance, every item exactly one owner, every listing points at an item its seller owns, at most one
   listing per item, every trade moved the item to its buyer.
+
+### 6.8 Wallet login and leaderboard — DECIDED (owner 2026-11-05/06)
+Testnet only: Robinhood Chain testnet (Ethereum L2). The game never uses mainnet, never sends a transaction and
+never calls a chain; a login is a free text signature. Numbers in `config/auth.ts` (`AUTH`).
+- Text (`gameplay/walletMessage.ts loginMessage`): app name + "testnet only" + "not a transaction, costs nothing" +
+  "never uses mainnet", then `Address`, `Session` (the connection's identity hex) and `Issued` (ISO time).
+  Naming the session stops another connection from reusing the signature.
+- Client (`network/walletLogin.ts`): injected EIP-1193 wallet (MetaMask): `eth_requestAccounts`, `personal_sign`.
+- Reducer `login{address, issuedAtMs, signature}`: EIP-191 signer recovery in the module (`gameplay/walletAuth.ts`,
+  @noble/curves + @noble/hashes), signer must equal the address, issue time within `maxAgeMs` (and at most
+  `maxClockSkewMs` ahead), low-S only, rate-limited per identity. Then `session{identity pk, address, at}` row
+  (row-level security: a client sees only its own) and the account's wallet (starter gift on first login).
+  `logout{}` deletes the session. Several connections (devices) may share one address; the session survives a
+  reconnect with the same token.
+- Leaderboard: public `player_stat{owner pk, name, matches, wins, kills, deaths, headshots}` per account. Every
+  online match counts (owner: testnet), bots and guests have none: kills / deaths / headshots at each kill,
+  matches / wins at `matchEnd` for logged-in humans in the room. Name = the player name in the last match.
+- Lobby: player card shows "Log in with wallet" (testnet note) or the short address, coins and Log out.
+  Tab LEADERS (4; Settings moved to 5): all time, sort by wins / kills / coins, top 50 plus my own place.
+- Not done (later, owner decides): NFT ownership checks on the chain, smart-contract wallets (EIP-1271), hiding
+  balances, one-account-per-person rules (a new wallet is free, so the starter gift can still be farmed on testnet).
 
 ## 7. Bots — DECIDED
 Server-side fake players using the same intent path. Waypoint graph generated from

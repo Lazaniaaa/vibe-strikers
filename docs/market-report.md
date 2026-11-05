@@ -67,3 +67,15 @@ Also passing: typecheck, 20 gameplay checks, `scripts/test-server.mjs`, online s
    `npm run game:preview`.
 2. Open http://127.0.0.1:5191/ (Ctrl+F5), press **3** for MARKET. Bot listings from the simulation are there.
 3. To fill the market with live traders while you watch: `node scripts/sim-market.mjs --bots 20 --seconds 60`.
+
+## Update 2026-11-06: wallet login and leaderboard
+- Owner decision: no X login ($0.01 per login on the X API); log in with a wallet instead ($0). Robinhood Chain
+  testnet only, never mainnet, no transactions: the player signs a text in MetaMask (free). GAME.md 6.8.
+- Accounts are wallet addresses: the same wallet on another computer is the same account (coins, items).
+  Guests still play, but have no coins and no market. The starter gift comes with the first login.
+- Leaderboard: tab **4 LEADERS** (Settings is now 5), all time, sort by wins / kills / coins. Every online
+  match counts for logged-in players.
+- Tested with test keys (forged, replayed, expired and broken signatures refused; one wallet on two connections;
+  logout) and a 40-bot simulation where every fifth bot trades from two connections: 0 violations.
+- Not tested yet: a real MetaMask (needs the owner's browser). Farming with new wallets is still possible
+  (accepted on testnet).

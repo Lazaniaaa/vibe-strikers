@@ -1,8 +1,9 @@
 # CLAUDE.md — Voxel Arena FPS (working title)
 
 Browser 3D multiplayer FPS, Counter-Strike-style, with voxel NFT characters
-(vibe/vibe collection). Desktop only (keyboard + mouse). No wallets, no crypto in
-this phase.
+(vibe/vibe collection). Desktop only (keyboard + mouse). Wallet login only (owner
+2026-11-05): sign a text message, Robinhood Chain testnet, never mainnet, no transactions,
+no real money (GAME.md 6.8).
 
 The owner speaks Ukrainian (English ~B1). Talk to the owner in Ukrainian, short and
 simple. Code, comments, commit messages and docs are in English.
@@ -111,7 +112,8 @@ credits fighting the toolchain.
 - Do not refactor for taste. Do not add features the owner did not ask for.
 
 ## Out of scope now (do not build; do not block)
-Levels/XP unlocks (keep an `unlock` field), wallet login, bomb mode, ice map and
+Levels/XP unlocks (keep an `unlock` field), on-chain anything (NFT ownership checks,
+transactions, mainnet), bomb mode, ice map and
 slide, seasonal characters, more weapons/skins, voice chat, mobile, regions beyond
 one. Leave clean extension points only.
 

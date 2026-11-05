@@ -66,7 +66,7 @@ Date started: 2026-10-30. Credits expire 2026-11-05.
 - `node --experimental-strip-types --no-warnings scripts/test-sounds.mjs [--wav <dir>]` — checks the code-made sound
   sets (`src/ui/sounds/claude.ts`, `codex.ts`) against `SOUND_LIMITS`; `--wav` writes WAV files to listen to.
 - `http://127.0.0.1:5191/?soundlab=1` — blind A/B sound lab (Claude vs Codex set, loudness matched, picks saved).
-- `node scripts/test-market.mjs [--slow]` — marketplace rules against the local server (wallets, starter items, listing
+- `node scripts/test-market.mjs [--slow]` — wallet login (test keys) + marketplace rules against the local server (wallets, starter items, listing
   checks, buy / fee / race / cancel / rate limit, no reward for an instant lonely win, coin conservation); `--slow`
   adds a real ~5 min free-for-all with bots and checks its reward.
 - `node scripts/sim-market.mjs [--bots 30] [--seconds 60] [--seed 1] [--out file.json]` — many bot traders at once
@@ -521,6 +521,19 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   0 invariant violations, 0 unexpected answers (reports `docs/evidence/market-sim-*.json`). test-market 30+ checks,
   --slow: real 305 s match paid 20 coins (loss). Screens `docs/evidence/market-tab*.jpg`. Report for the owner:
   `docs/market-report.md`.
+- 2026-11-06 wallet login + leaderboard (owner: X login costs $0.01 per login, use a wallet instead, $0; Robinhood
+  Chain testnet (Ethereum L2), never mainnet, show warnings; every online match counts for stats; the farming risk
+  is fine on testnet). GAME.md 6.8; CLAUDE.md "no wallets" line replaced by the owner's decision. Login = free
+  personal_sign of a text naming the connection identity, checked in the module (@noble/curves + @noble/hashes
+  2.4.0); accounts (wallet, items, listings, trades) keyed by address, `session` table with row-level security,
+  guests play without coins / market, starter gift on the first login. `player_stat` table + lobby tab LEADERS
+  (key 4, Settings now 5). Player card: login button with testnet note, or address + coins + Log out. Local DB was
+  reset (column types changed). Tests: gameplay 21 (incl. EIP-191 vector, key-1 address, refusals), test-market
+  40+ (login refusals: changed text, replay from another session, expired, malformed; same wallet on two
+  connections; logout; stats), sim 40 bots + 8 twin connections x 45 s: 0 violations, 0 unexpected
+  (`docs/evidence/market-sim-wallets-40bots.json`), test-server pass, Chromium with a fake provider: login, market,
+  leaders, logout, 0 console errors (`docs/evidence/wallet-*.jpg`, `leaders-tab.jpg`). Real MetaMask not tested yet
+  (owner's browser).
 - 2026-10-31 owner: ADS proposal approved
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
