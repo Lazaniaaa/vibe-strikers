@@ -19,6 +19,7 @@ import { CORNUCOPIA } from '../config/items.ts';
 import { MARKET } from '../config/market.ts';
 import { itemRarity, marketPrices, matchPays, matchReward, newSales, priceError, RateLimiter, saleFee, starterRefs, suggestedPrice, textRandom, utcDay, type CatalogItem } from './marketRules.ts';
 import { NFT } from '../config/nft.ts';
+import { formatEth, parseEthPrice, saleTypedData } from './nftSale.ts';
 import { nftListError, nftName, nftRarity, nftRef, nftSeed, nftSkinWord, nftTokenId, parseNftRef } from './nft.ts';
 import { AUTH } from '../config/auth.ts';
 import { loginError, personalHash, recoverSigner, signLogin } from './walletAuth.ts';
@@ -557,6 +558,22 @@ test('season NFTs: rewards, ids and words', () => {
   assert.equal(nftListError(undefined), '');
   assert.ok(nftListError('queued'));
   assert.ok(nftListError('sent'));
+});
+
+test('NFT sale prices', () => {
+  assert.equal(parseEthPrice('0.01'), 10n ** 16n);
+  assert.equal(parseEthPrice(' 1.5 '), 15n * 10n ** 17n);
+  assert.equal(parseEthPrice('0'), null);
+  assert.equal(parseEthPrice('0.00000001'), null, 'below the minimum');
+  assert.equal(parseEthPrice('abc'), null);
+  assert.equal(parseEthPrice('-1'), null);
+  assert.equal(parseEthPrice('1000000'), null, 'above the maximum');
+  assert.equal(formatEth(10n ** 16n), '0.01');
+  assert.equal(formatEth(15n * 10n ** 17n), '1.5');
+  assert.equal(formatEth(10n ** 18n), '1');
+  const data = saleTypedData('0x' + '11'.repeat(20), 46630, 5n, 7n, 9, 2n);
+  assert.deepEqual(data.message, { tokenId: '5', price: '7', expiry: '9', nonce: '2' });
+  assert.equal(data.domain.name, NFT.name);
 });
 
 console.log(`${passed} gameplay checks passed`);

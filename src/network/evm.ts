@@ -7,6 +7,7 @@ export type AbiArg =
   | { type: 'address'; value: string }
   | { type: 'uint256'; value: bigint }
   | { type: 'string'; value: string }
+  | { type: 'bytes'; value: string }
   | { type: 'address[]'; value: readonly string[] }
   | { type: 'uint256[]'; value: readonly bigint[] };
 
@@ -33,9 +34,9 @@ export function encodeArgs(args: readonly AbiArg[]): string {
   for (const a of args) {
     if (a.type === 'address') heads.push(addressWord(a.value));
     else if (a.type === 'uint256') heads.push(uintWord(a.value));
-    else if (a.type === 'string') {
+    else if (a.type === 'string' || a.type === 'bytes') {
       heads.push(uintWord(BigInt(tailBytes)));
-      const hex = bytesToHex(utf8ToBytes(a.value)), words = Math.ceil(hex.length / 64);
+      const hex = a.type === 'string' ? bytesToHex(utf8ToBytes(a.value)) : a.value.replace(/^0x/, ''), words = Math.ceil(hex.length / 64);
       tails.push(uintWord(BigInt(hex.length / 2)) + hex.padEnd(words * 64, '0'));
       tailBytes += 32 * (words + 1);
     } else {

@@ -16,6 +16,7 @@ export const REWARDS = {
     name: 'Robinhood Chain testnet',
     rpc: 'https://rpc.testnet.chain.robinhood.com',
     explorer: 'https://explorer.testnet.chain.robinhood.com',
+    faucet: 'https://faucet.testnet.chain.robinhood.com',
   },
   /** WeeklyDistributor contract (contracts/WeeklyDistributor.sol), deployed and funded by the owner 2026-11-06. */
   distributor: '0x5da751e2e288a5e1e8c6a80be24caac67ab988fb',

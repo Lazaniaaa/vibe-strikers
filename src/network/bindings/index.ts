@@ -36,6 +36,7 @@ import {
 // Import all reducer arg schemas
 import BuyListingReducer from "./buy_listing_reducer";
 import CancelListingReducer from "./cancel_listing_reducer";
+import CancelNftOrderReducer from "./cancel_nft_order_reducer";
 import ClaimSeasonRewardsReducer from "./claim_season_rewards_reducer";
 import CreatePrivateRoomReducer from "./create_private_room_reducer";
 import FireReducer from "./fire_reducer";
@@ -43,6 +44,7 @@ import JoinByCodeReducer from "./join_by_code_reducer";
 import JoinQuickReducer from "./join_quick_reducer";
 import LeaveRoomReducer from "./leave_room_reducer";
 import ListItemReducer from "./list_item_reducer";
+import ListNftOrderReducer from "./list_nft_order_reducer";
 import LoginReducer from "./login_reducer";
 import LogoutReducer from "./logout_reducer";
 import MarkNftsSentReducer from "./mark_nfts_sent_reducer";
@@ -50,6 +52,7 @@ import MoveReducer from "./move_reducer";
 import PickUpReducer from "./pick_up_reducer";
 import PingReducer from "./ping_reducer";
 import ReloadReducer from "./reload_reducer";
+import ReportNftSaleReducer from "./report_nft_sale_reducer";
 import ReportPingReducer from "./report_ping_reducer";
 import RequestNftSendReducer from "./request_nft_send_reducer";
 import SetPrimaryWeaponReducer from "./set_primary_weapon_reducer";
@@ -65,6 +68,7 @@ import KillEventRow from "./kill_event_table";
 import ListingRow from "./listing_table";
 import MissionProgressRow from "./mission_progress_table";
 import NftRow from "./nft_table";
+import NftOrderRow from "./nft_order_table";
 import OwnedItemRow from "./owned_item_table";
 import PingEventRow from "./ping_event_table";
 import PlayerRow from "./player_table";
@@ -173,6 +177,17 @@ const tablesSchema = __schema({
       { name: 'nft_ref_key', constraint: 'unique', columns: ['ref'] },
     ],
   }, NftRow),
+  nftOrder: __table({
+    name: 'nft_order',
+    indexes: [
+      { accessor: 'ref', name: 'nft_order_ref_idx_btree', algorithm: 'btree', columns: [
+        'ref',
+      ] },
+    ],
+    constraints: [
+      { name: 'nft_order_ref_key', constraint: 'unique', columns: ['ref'] },
+    ],
+  }, NftOrderRow),
   ownedItem: __table({
     name: 'owned_item',
     indexes: [
@@ -341,6 +356,7 @@ const tablesSchema = __schema({
 const reducersSchema = __reducers(
   __reducerSchema("buy_listing", BuyListingReducer),
   __reducerSchema("cancel_listing", CancelListingReducer),
+  __reducerSchema("cancel_nft_order", CancelNftOrderReducer),
   __reducerSchema("claim_season_rewards", ClaimSeasonRewardsReducer),
   __reducerSchema("create_private_room", CreatePrivateRoomReducer),
   __reducerSchema("fire", FireReducer),
@@ -348,6 +364,7 @@ const reducersSchema = __reducers(
   __reducerSchema("join_quick", JoinQuickReducer),
   __reducerSchema("leave_room", LeaveRoomReducer),
   __reducerSchema("list_item", ListItemReducer),
+  __reducerSchema("list_nft_order", ListNftOrderReducer),
   __reducerSchema("login", LoginReducer),
   __reducerSchema("logout", LogoutReducer),
   __reducerSchema("mark_nfts_sent", MarkNftsSentReducer),
@@ -355,6 +372,7 @@ const reducersSchema = __reducers(
   __reducerSchema("pick_up", PickUpReducer),
   __reducerSchema("ping", PingReducer),
   __reducerSchema("reload", ReloadReducer),
+  __reducerSchema("report_nft_sale", ReportNftSaleReducer),
   __reducerSchema("report_ping", ReportPingReducer),
   __reducerSchema("request_nft_send", RequestNftSendReducer),
   __reducerSchema("set_primary_weapon", SetPrimaryWeaponReducer),

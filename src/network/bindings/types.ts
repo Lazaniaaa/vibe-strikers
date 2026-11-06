@@ -102,6 +102,15 @@ export const NftAdmin = __t.object("NftAdmin", {
 });
 export type NftAdmin = __Infer<typeof NftAdmin>;
 
+export const NftOrder = __t.object("NftOrder", {
+  ref: __t.string(),
+  seller: __t.string(),
+  priceWei: __t.string(),
+  expiry: __t.f64(),
+  signature: __t.string(),
+});
+export type NftOrder = __Infer<typeof NftOrder>;
+
 export const OwnedItem = __t.object("OwnedItem", {
   id: __t.u64(),
   owner: __t.string(),

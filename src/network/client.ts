@@ -25,6 +25,7 @@ import type SeasonProgressDef from './bindings/season_progress_table.ts';
 import type QuestProgressDef from './bindings/quest_progress_table.ts';
 import type DayStreakDef from './bindings/day_streak_table.ts';
 import type NftDef from './bindings/nft_table.ts';
+import type NftOrderDef from './bindings/nft_order_table.ts';
 import { weekOf } from '../gameplay/rewards.ts';
 import { SEASON, type QuestKind } from '../config/season.ts';
 import { questScope } from '../gameplay/progression.ts';
@@ -44,6 +45,7 @@ export type PlayerStatRow = Infer<typeof PlayerStatDef>;
 export type SessionRow = Infer<typeof SessionDef>;
 export type WeekStatRow = Infer<typeof WeekStatDef>;
 export type NftRow = Infer<typeof NftDef>;
+export type NftOrderRow = Infer<typeof NftOrderDef>;
 export type PlayerProgressRow = Infer<typeof PlayerProgressDef>;
 export type SeasonProgressRow = Infer<typeof SeasonProgressDef>;
 export type QuestProgressRow = Infer<typeof QuestProgressDef>;
@@ -66,6 +68,8 @@ export class MarketView {
   readonly weekStats = new Map<string, WeekStatRow>();
   /** Season skin NFTs by item ref (GAME.md 6.11). */
   readonly nfts = new Map<string, NftRow>();
+  /** Open sales of NFTs in wallets, by item ref. */
+  readonly nftOrders = new Map<string, NftOrderRow>();
   /** Total XP by account (player level, GAME.md 6.10). */
   readonly progress = new Map<string, PlayerProgressRow>();
   /** This season's track by account. */
@@ -325,6 +329,9 @@ export class GameNet {
     c.db.nft.onInsert((_ctx, row) => { m.nfts.set(row.ref, row); changed(); });
     c.db.nft.onUpdate((_ctx, _old, row) => { m.nfts.set(row.ref, row); changed(); });
     c.db.nft.onDelete((_ctx, row) => { m.nfts.delete(row.ref); changed(); });
+    c.db.nftOrder.onInsert((_ctx, row) => { m.nftOrders.set(row.ref, row); changed(); });
+    c.db.nftOrder.onUpdate((_ctx, _old, row) => { m.nftOrders.set(row.ref, row); changed(); });
+    c.db.nftOrder.onDelete((_ctx, row) => { m.nftOrders.delete(row.ref); changed(); });
     c.db.economy.onInsert((_ctx, row) => { m.economy = row; changed(); });
     c.db.economy.onUpdate((_ctx, _old, row) => { m.economy = row; changed(); });
   }
@@ -355,7 +362,7 @@ export class GameNet {
     if (!this.conn) return Promise.reject(new Error('not connected'));
     if (this.marketSub) return Promise.resolve();
     this.marketAll = all;
-    const queries = ['SELECT * FROM session', 'SELECT * FROM wallet', 'SELECT * FROM listing', 'SELECT * FROM trade', 'SELECT * FROM nft',
+    const queries = ['SELECT * FROM session', 'SELECT * FROM wallet', 'SELECT * FROM listing', 'SELECT * FROM trade', 'SELECT * FROM nft', 'SELECT * FROM nft_order',
       'SELECT * FROM economy', 'SELECT * FROM player_stat'];
     this.market.week = weekOf(Date.now());
     queries.push(`SELECT * FROM week_stat WHERE week = ${this.market.week}`, 'SELECT * FROM player_progress', 'SELECT * FROM day_streak',
@@ -392,6 +399,11 @@ export class GameNet {
   claimSeasonRewards(): Promise<void> { return this.call(() => this.conn!.reducers.claimSeasonRewards({})); }
   /** Ask for one of my NFTs to be sent to my wallet (GAME.md 6.11). */
   requestNftSend(itemId: bigint): Promise<void> { return this.call(() => this.conn!.reducers.requestNftSend({ itemId })); }
+  /** List an NFT from my wallet with my free signature of the price. */
+  listNftOrder(itemId: bigint, priceWei: string, expiry: number, signature: string): Promise<void> { return this.call(() => this.conn!.reducers.listNftOrder({ itemId, priceWei, expiry, signature })); }
+  cancelNftOrder(ref: string): Promise<void> { return this.call(() => this.conn!.reducers.cancelNftOrder({ ref })); }
+  /** I bought this NFT on chain. */
+  reportNftSale(ref: string, tx: string): Promise<void> { return this.call(() => this.conn!.reducers.reportNftSale({ ref, tx })); }
 
   /** Put one of my items on the market (integer coins, MARKET.price). Rejects with the server's reason. */
   listItem(itemId: bigint, price: number): Promise<void> { return this.call(() => this.conn!.reducers.listItem({ itemId, price })); }

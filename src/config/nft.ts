@@ -12,6 +12,10 @@ export const NFT = {
   /** The game site used in metadata, and where tokenURI points (the Worker link: the owner's own network can reach it). */
   siteUrl: 'https://vibe-strikers.voxel-character-review.workers.dev',
   metadataBase: 'https://vibe-strikers.voxel-character-review.workers.dev/nft/',
+  /** Contract name: part of what sellers sign. */
+  name: 'Vibe Strikers Skins',
+  /** Sale from a wallet, in testnet ETH (wei as text): limits of a price and how long a signature lasts. */
+  sale: { minWei: '100000000000000', maxWei: '1000000000000000000000', expiryDays: 30 },
   /** Tokens per mintBatch transaction. */
   batchSize: 50,
   /** Season level => reward. Fixed and visible in advance: no random boxes. */

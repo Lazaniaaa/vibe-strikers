@@ -273,7 +273,8 @@ reward items only add to the tradable collection. Season-only NFTs: later (owner
 
 ### 6.11 Season skin NFTs — DECIDED (owner 2026-11-06)
 Testnet only (Robinhood Chain testnet). Numbers in `config/nft.ts`, rules in `gameplay/nft.ts`. Skins only change the
-look. Players never sign a transaction and never pay; only the owner signs, in MetaMask, on the admin site.
+look. Getting an NFT costs players nothing and takes no signature; the owner signs in MetaMask on the admin site. In a sale from a
+wallet the seller signs for free and the buyer sends the transaction (below): the only player transaction in the game.
 - Season levels 5 / 10 / 15 / 20 / 25 / 30 also give a fixed NFT: common pistol, common shotgun, rare rifle, epic sniper,
   legendary knife, mythic rifle. No random boxes: rarity and weapon are known in advance, and the look comes from the seed
   `nftSeed(ref)`, so it is fixed by the wallet and the level.
@@ -282,6 +283,13 @@ look. Players never sign a transaction and never pay; only the owner signs, in M
   It can be sold for coins on the market like any item. Levels claimed before NFTs existed are added on the next claim.
 - `requestNftSend{itemId}` (the holder, not listed): status `queued`, `recipient` = the holder. One way: a queued or sent NFT
   cannot be listed (`nftListError`), because the game cannot move a token out of a player's wallet.
+- Selling from a wallet (owner 2026-11-06, like OpenSea): the holder of a `sent` NFT sets a price in testnet ETH and signs it for
+  free (`eth_signTypedData_v4`, `gameplay/nftSale.ts`, no transaction, no approval). The order goes to the public table
+  `nft_order{ref pk, seller, priceWei, expiry, signature}` through `listNftOrder`; it shows in Browse. The buyer calls the contract's
+  `buy(tokenId, price, expiry, signature)` and pays the price and the gas; the whole price goes to the seller, no fee. Then the buyer's client
+  calls `reportNftSale{ref, tx}`, which moves the game's rows. The server cannot read the chain, so that report is trusted: the chain
+  is the truth for who holds a token. "Cancel" (`cancelNftOrder`) only removes the listing from the game; the signature stays valid
+  until a transfer, `cancelSale` or its expiry (`NFT.sale.expiryDays`). A `sent` NFT cannot be listed for coins (`nftListError`).
 - Admin site: loads the queue, the owner signs `mintBatch` (`batchSize` tokens), then the site calls `markNftsSent{refs, tx}`:
   status `sent`. Accepted only from a session of `NFT.admin` or an address in the private table `nft_admin` (local tests).
 - Minted directly to the recipient: one transaction, no step through the owner's wallet (owner chose this over minting to

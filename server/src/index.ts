@@ -325,12 +325,22 @@ const nft = table({ name: 'nft', public: true }, {
   recipient: t.string(),
   tx: t.string(),
 });
+/** Open sales of NFTs in wallets (GAME.md 6.11): the holder's free signature, used by the buyer on chain. */
+const nftOrder = table({ name: 'nft_order', public: true }, {
+  ref: t.string().primaryKey(),
+  seller: t.string(),
+  /** Price in wei, decimal text. */
+  priceWei: t.string(),
+  /** Unix seconds. */
+  expiry: t.f64(),
+  signature: t.string(),
+});
 /** More wallets allowed to mark NFTs as sent, next to NFT.admin (local tests). */
 const nftAdmin = table({ name: 'nft_admin' }, {
   address: t.string().primaryKey(),
 });
 
-const spacetimedb = schema({ room, player, shotEvent, killEvent, item, pingEvent, tickTimer, session, wallet, ownedItem, listing, trade, economy, matchStat, matchClock, playerStat, weekStat, playerProgress, seasonProgress, missionProgress, questProgress, dayStreak, nft, nftAdmin });
+const spacetimedb = schema({ room, player, shotEvent, killEvent, item, pingEvent, tickTimer, session, wallet, ownedItem, listing, trade, economy, matchStat, matchClock, playerStat, weekStat, playerProgress, seasonProgress, missionProgress, questProgress, dayStreak, nft, nftAdmin, nftOrder });
 export default spacetimedb;
 
 /** Row-level security: a client only receives the ping rows addressed to it. */
@@ -871,6 +881,42 @@ export const requestNftSend = spacetimedb.reducer({ itemId: t.u64() }, (ctx, { i
   if (row.status !== 'game') throw new SenderError('this NFT is already on its way');
   if (ctx.db.listing.itemId.find(itemId)) throw new SenderError('cancel the listing first');
   ctx.db.nft.ref.update({ ...row, status: 'queued', recipient: me });
+});
+
+/** List an NFT from my wallet: a price and my free signature of it. */
+export const listNftOrder = spacetimedb.reducer({ itemId: t.u64(), priceWei: t.string(), expiry: t.f64(), signature: t.string() }, (ctx, { itemId, priceWei, expiry, signature }) => {
+  const me = marketGate(ctx);
+  const it = ctx.db.ownedItem.id.find(itemId);
+  if (!it || it.owner !== me) throw new SenderError('you do not own this item');
+  if (ctx.db.nft.ref.find(it.ref)?.status !== 'sent') throw new SenderError('this NFT is not in your wallet');
+  if (!/^[1-9]\d{0,30}$/.test(priceWei) || BigInt(priceWei) < BigInt(NFT.sale.minWei) || BigInt(priceWei) > BigInt(NFT.sale.maxWei)) throw new SenderError('bad price');
+  if (!/^0x[0-9a-fA-F]{130}$/.test(signature)) throw new SenderError('bad signature');
+  if (!Number.isFinite(expiry) || expiry * 1000 <= nowMs(ctx)) throw new SenderError('this signature has expired');
+  const row = { ref: it.ref, seller: me, priceWei, expiry, signature };
+  if (ctx.db.nftOrder.ref.find(it.ref)) ctx.db.nftOrder.ref.update(row);
+  else ctx.db.nftOrder.insert(row);
+});
+
+/** Take my listing off the game's market. */
+export const cancelNftOrder = spacetimedb.reducer({ ref: t.string() }, (ctx, { ref }) => {
+  const me = marketGate(ctx);
+  const order = ctx.db.nftOrder.ref.find(ref);
+  if (!order || order.seller !== me) throw new SenderError('this is not your listing');
+  ctx.db.nftOrder.ref.delete(ref);
+});
+
+/** I bought this NFT on chain: move the game's rows to me. The server cannot read the chain; the chain stays the truth. */
+export const reportNftSale = spacetimedb.reducer({ ref: t.string(), tx: t.string() }, (ctx, { ref, tx }) => {
+  const me = marketGate(ctx);
+  if (!/^0x[0-9a-f]{64}$/.test(tx)) throw new SenderError('bad transaction hash');
+  const order = ctx.db.nftOrder.ref.find(ref), row = ctx.db.nft.ref.find(ref);
+  if (!order || !row) throw new SenderError('this NFT is not on sale');
+  if (order.seller === me) throw new SenderError('you cannot buy your own listing');
+  for (const it of ctx.db.ownedItem.owner.filter(order.seller)) {
+    if (it.ref === ref) { ctx.db.ownedItem.id.update({ ...it, owner: me, acquiredAt: ctx.timestamp }); break; }
+  }
+  ctx.db.nft.ref.update({ ...row, recipient: me, tx });
+  ctx.db.nftOrder.ref.delete(ref);
 });
 
 /** The admin site minted these NFTs in this transaction. */

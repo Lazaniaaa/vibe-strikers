@@ -80,6 +80,57 @@ const moved = await run(P2, nft, callData('transferFrom(address,address,uint256)
 check(moved.ok && await ownerOf(2n) === P1, 'the holder can transfer');
 check(!(await run(OWNER, nft, callData('transferFrom(address,address,uint256)', [{ type: 'address', value: P1 }, { type: 'address', value: OWNER }, { type: 'uint256', value: 2n }]))).ok, 'the contract owner cannot take a token');
 
+// Sale from a wallet: the holder signs for free, the buyer pays price and gas. No approval.
+const { secp256k1 } = await import('@noble/curves/secp256k1.js');
+const { keccak_256 } = await import('@noble/hashes/sha3.js');
+const { saleTypedData, SALE_TYPES } = await import('../src/gameplay/nftSale.ts');
+const { addressOfPublicKey } = await import('../src/gameplay/walletAuth.ts');
+const hex = (b) => Buffer.from(b).toString('hex');
+const w32 = (v) => BigInt(v).toString(16).padStart(64, '0');
+const kec = (h) => hex(keccak_256(Buffer.from(h, 'hex')));
+const kecText = (s) => hex(keccak_256(new TextEncoder().encode(s)));
+const encodeType = (name) => `${name}(${SALE_TYPES[name].map((f) => `${f.type} ${f.name}`).join(',')})`;
+/** EIP-712 hash of what the wallet would sign, from the same object the lobby sends to the wallet. */
+const typedHash = (d) => {
+  const dom = kec(kecText(encodeType('EIP712Domain')) + kecText(d.domain.name) + kecText(d.domain.version) + w32(d.domain.chainId) + w32(d.domain.verifyingContract));
+  const msg = kec(kecText(encodeType('Sale')) + w32(d.message.tokenId) + w32(d.message.price) + w32(d.message.expiry) + w32(d.message.nonce));
+  return Buffer.from(kec(`1901${dom}${msg}`), 'hex');
+};
+const chainId = Number(evm.common.chainId());
+const sign = (key, tokenId, price, expiry, nonce, contract = nft) => {
+  const sig = secp256k1.sign(typedHash(saleTypedData(contract, chainId, tokenId, price, expiry, nonce)), key, { prehash: false, format: 'recovered' });
+  return `0x${hex(sig.slice(1))}${(27 + sig[0]).toString(16)}`;
+};
+const sellerKey = crypto.getRandomValues(new Uint8Array(32)), otherKey = crypto.getRandomValues(new Uint8Array(32));
+const SELLER = addressOfPublicKey(secp256k1.getPublicKey(sellerKey, false));
+const BUYER = addr(0xb0b), PRICE = 10n ** 16n, FAR = 4102444800, SALE = 7777n;
+await mint(OWNER, [SELLER], [SALE]);
+const buyNow = (from, id, price, expiry, signature, value = price) => evm.runCall({ caller: createAddressFromString(from), to: createAddressFromString(nft),
+  data: hexToBytes(callData('buy(uint256,uint256,uint256,bytes)', [{ type: 'uint256', value: id }, { type: 'uint256', value: price }, { type: 'uint256', value: BigInt(expiry) }, { type: 'bytes', value: signature }])),
+  value, gasLimit: 30_000_000n, skipBalance: true }).then((r) => ({ ok: !r.execResult.exceptionError, ret: bytesToHex(r.execResult.returnValue), gas: r.execResult.executionGasUsed }));
+const balance = async (a) => (await evm.stateManager.getAccount(createAddressFromString(a)))?.balance ?? 0n;
+const good = sign(sellerKey, SALE, PRICE, FAR, 0n);
+const low = await buyNow(BUYER, SALE, PRICE, FAR, good, PRICE - 1n);
+check(!low.ok && errorIs(low.ret, 'WrongPrice'), 'sale: paying less is refused');
+const cheaper = await buyNow(BUYER, SALE, PRICE / 2n, FAR, good, PRICE / 2n);
+check(!cheaper.ok && errorIs(cheaper.ret, 'BadSignature'), 'sale: a changed price breaks the signature');
+const foreign = await buyNow(BUYER, SALE, PRICE, FAR, sign(otherKey, SALE, PRICE, FAR, 0n));
+check(!foreign.ok && errorIs(foreign.ret, 'BadSignature'), 'sale: only the holder can sign');
+const otherContract = await buyNow(BUYER, SALE, PRICE, FAR, sign(sellerKey, SALE, PRICE, FAR, 0n, addr(0x123)));
+check(!otherContract.ok && errorIs(otherContract.ret, 'BadSignature'), 'sale: a signature for another contract is refused');
+const before = await balance(SELLER);
+const sold = await buyNow(BUYER, SALE, PRICE, FAR, good);
+check(sold.ok && await ownerOf(SALE) === BUYER, `sale: the buyer gets the token (${sold.gas} gas)`);
+check((await balance(SELLER)) - before === PRICE, 'sale: the whole price goes to the seller');
+const replay = await buyNow(addr(0xb0c), SALE, PRICE, FAR, good);
+check(!replay.ok && await ownerOf(SALE) === BUYER, 'sale: the same signature cannot sell it again');
+const SALE2 = 7778n;
+await mint(OWNER, [SELLER], [SALE2]);
+const sig2 = sign(sellerKey, SALE2, PRICE, FAR, 0n);
+check((await run(STRANGER, nft, callData('cancelSale(uint256)', [{ type: 'uint256', value: SALE2 }]))).ok === false, 'sale: a stranger cannot cancel');
+check((await run(SELLER, nft, callData('cancelSale(uint256)', [{ type: 'uint256', value: SALE2 }]))).ok, 'sale: the holder cancels');
+check(!(await buyNow(BUYER, SALE2, PRICE, FAR, sig2)).ok, 'sale: a cancelled signature does not work');
+
 const handOver = await run(STRANGER, nft, callData('setOwner(address)', [{ type: 'address', value: STRANGER }]));
 check(!handOver.ok && errorIs(handOver.ret, 'NotOwner'), 'a stranger cannot take the contract');
 

@@ -282,7 +282,27 @@ try {
   const sent = await waitFor(() => { const r = nb.market.nfts.get(nft10.ref); return r?.status === 'sent' ? r : null; });
   check(sent?.tx === fakeTx, 'nft: sent, with its transaction');
   check(nb.market.nfts.get(nft15.ref)?.status === 'game', 'nft: an NFT nobody asked for stays in the game');
-  check((await reason(nb.listItem(bought.id, 100))).includes('in a wallet'), 'nft: a sent NFT cannot be listed');
+  check((await reason(nb.listItem(bought.id, 100))).includes('in a wallet'), 'nft: a sent NFT cannot be listed for coins');
+  // Sale from a wallet: the server keeps the signed order; the chain part is in test-nft-contract.mjs.
+  await sleep(MARKET.rateLimit.windowMs + 100);
+  const orderSig = `0x${'12'.repeat(65)}`, future = Date.now() / 1000 + 3600, price = '10000000000000000';
+  check((await reason(sp.listNftOrder(nft15.id, price, future, orderSig))).includes('not in your wallet'), 'order: an NFT still in the game cannot be listed on chain');
+  check((await reason(nb.listNftOrder(nft5.id, price, future, orderSig))).includes('do not own'), 'order: only the holder can list');
+  check((await reason(nb.listNftOrder(bought.id, '1', future, orderSig))).includes('bad price'), 'order: a price below the minimum is refused');
+  await sleep(MARKET.rateLimit.windowMs + 100);
+  check((await reason(nb.listNftOrder(bought.id, price, future, '0x12'))).includes('bad signature'), 'order: a bad signature is refused');
+  check((await reason(nb.listNftOrder(bought.id, price, 5, orderSig))).includes('expired'), 'order: an expired signature is refused');
+  check((await reason(nb.listNftOrder(bought.id, price, future, orderSig))) === '', 'order: the holder lists');
+  const open = await waitFor(() => sp.market.nftOrders.get(nft10.ref));
+  check(open?.seller === nb.market.account && open?.priceWei === price, 'order: visible to other players');
+  await sleep(MARKET.rateLimit.windowMs + 100);
+  check((await reason(sp.cancelNftOrder(nft10.ref))).includes('not your listing'), 'order: only the seller cancels');
+  check((await reason(nb.reportNftSale(nft10.ref, fakeTx))).includes('your own'), 'order: the seller cannot report buying it');
+  check((await reason(sp.reportNftSale(nft10.ref, 'nope'))).includes('bad transaction'), 'order: a bad hash is refused');
+  check((await reason(sp.reportNftSale(nft10.ref, fakeTx))) === '', 'order: the buyer reports the sale');
+  await waitFor(() => !nb.market.nftOrders.get(nft10.ref));
+  check(!nb.market.nftOrders.get(nft10.ref) && !!(await waitFor(() => [...sp.market.items.values()].find((i) => i.ref === nft10.ref))), 'order: closed, the item moved to the buyer');
+  check(sp.market.nfts.get(nft10.ref)?.recipient === spAddr && sp.market.nfts.get(nft10.ref)?.status === 'sent', 'order: the NFT row follows');
   check(!(await loadNftQueue(http, dbName)).some((x) => x.ref === nft10.ref), 'nft: it left the queue');
   check(NFT.admin === NFT.admin.toLowerCase(), 'nft: the admin address is lowercase, like accounts');
   const spAgain = await waitFor(() => sp.market.seasonProgress.get(spAddr)?.claimedLevel === SEASON.levels);

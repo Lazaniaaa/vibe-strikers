@@ -6,6 +6,7 @@ import { shortAddress } from '../gameplay/walletMessage.ts';
 import { AUTH } from '../config/auth.ts';
 import { NFT } from '../config/nft.ts';
 import { REWARDS } from '../config/rewards.ts';
+import { formatEth, parseEthPrice } from '../gameplay/nftSale.ts';
 import type { GameNet, ListingRow, OwnedItemRow } from '../network/client.ts';
 import '../../client/game/market.css';
 
@@ -18,6 +19,7 @@ const title = (s: string) => `${s[0].toUpperCase()}${s.slice(1)}`;
 type Sort = 'cheap' | 'expensive' | 'new';
 
 const CONFIRM_MS = 3000;
+const now0 = () => performance.now();
 const HISTORY_ROWS = 20;
 /** Listings drawn at once (after filter and sort); the rest are counted, not drawn. */
 const MAX_ROWS = 60;
@@ -38,6 +40,8 @@ export class MarketPanel {
   private confirm: { id: bigint; until: number } | null = null;
   /** Item id waiting for the second click on "To wallet", and until when. */
   private sendConfirm: { id: bigint; until: number } | null = null;
+  /** NFT order waiting for the second click on "Buy", and until when. */
+  private orderConfirm: { ref: string; until: number } | null = null;
   private busy = false;
   private drawQueued = false;
   private lastDraw = 0;
@@ -163,11 +167,13 @@ export class MarketPanel {
       : this.sort === 'expensive' ? b.price - a.price || Number(a.id - b.id)
       : Number(b.id - a.id));
     const guest = me === '' ? this.loginPrompt() : '';
+    const orders = this.orderRows(me, words, now0());
+    if (!rows.length && orders) return guest + orders;
     if (!rows.length) return `${guest}<p class="market-empty">${listings.size ? 'Nothing matches your search.' : 'Nothing for sale yet. List one of your items in "My items".'}</p>`;
     const now = performance.now(), total = rows.length, prices = this.prices();
     rows = rows.slice(0, MAX_ROWS);
     const more = total > rows.length ? `<p class="market-empty">Showing ${rows.length} of ${total}. Use the filter and sort to find more.</p>` : '';
-    return guest + rows.map((l) => {
+    return guest + orders + rows.map((l) => {
       const own = me !== '' && l.seller === me;
       const confirming = this.confirm && this.confirm.id === l.id && this.confirm.until > now;
       const action = own ? `<button data-cancel="${l.id}" class="menu-small-action">Cancel</button>`
@@ -176,6 +182,22 @@ export class MarketPanel {
       const hints = [p && p.lowest < l.price ? `Lowest ◉ ${p.lowest}` : '', p?.last ? `Last sale ◉ ${p.last}` : ''].filter(Boolean).join(' · ');
       return this.row(l.ref, `<div class="market-meta">${own ? 'Your listing' : `Seller ${esc(shortAddress(l.seller))}`}${hints ? `<br>${hints}` : ''}</div>${action}`);
     }).join('') + more;
+  }
+
+  /** NFTs on sale from wallets: paid on chain, so they stand apart from the coin listings. */
+  private orderRows(me: string, words: string, now: number): string {
+    const m = this.net?.market;
+    if (!m || this.filter === 'character' || this.filter === 'emote') return '';
+    const unix = Date.now() / 1000;
+    return [...m.nftOrders.values()]
+      .filter((o) => o.expiry > unix && (this.rarity === 'all' || itemRarity(o.ref) === this.rarity) && (!words || this.describe(o.ref).name.toLowerCase().includes(words)))
+      .map((o) => {
+        const eth = formatEth(BigInt(o.priceWei)), own = me !== '' && o.seller === me;
+        const confirming = this.orderConfirm?.ref === o.ref && this.orderConfirm.until > now;
+        const action = own ? `<button data-cancelorder="${esc(o.ref)}" class="menu-small-action" ${this.busy ? 'disabled' : ''}>Cancel</button>`
+          : `<button data-buyorder="${esc(o.ref)}" class="menu-small-action market-buy${confirming ? ' confirm' : ''}" ${this.busy || !me ? 'disabled' : ''} title="You send the transaction and pay the price and the gas.">${confirming ? `Pay ${eth} ETH + gas?` : `Buy ${eth} ETH`}</button>`;
+        return this.row(o.ref, `<div class="market-meta">${own ? 'Your listing' : `Seller ${esc(shortAddress(o.seller))}`}<br>On chain</div>${action}`);
+      }).join('');
   }
 
   private loginPrompt(): string {
@@ -193,10 +215,13 @@ export class MarketPanel {
     return own.map((i) => {
       const p = prices.get(i.ref);
       const nft = this.net?.market.nfts.get(i.ref);
-      if (nft && nft.status !== 'game') {
-        const where = nft.status === 'queued' ? 'Waiting to be sent to your wallet'
-          : `In your wallet${nft.tx ? ` · <a href="${REWARDS.chain.explorer}/tx/${esc(nft.tx)}" target="_blank" rel="noreferrer">transaction</a>` : ''}`;
-        return this.row(i.ref, `<div class="market-meta market-nft-state">${where}</div>`);
+      if (nft?.status === 'queued') return this.row(i.ref, '<div class="market-meta market-nft-state">Waiting to be sent to your wallet</div>');
+      if (nft?.status === 'sent') {
+        const where = `<div class="market-meta market-nft-state">In your wallet${nft.tx ? ` · <a href="${REWARDS.chain.explorer}/tx/${esc(nft.tx)}" target="_blank" rel="noreferrer">transaction</a>` : ''}</div>`;
+        const order = this.net?.market.nftOrders.get(i.ref);
+        return this.row(i.ref, order
+          ? `${where}<div class="market-meta">Listed at ${formatEth(BigInt(order.priceWei))} ETH</div><button data-cancelorder="${esc(i.ref)}" class="menu-small-action" ${this.busy ? 'disabled' : ''}>Cancel</button>`
+          : `${where}<input class="market-price" type="text" inputmode="decimal" placeholder="0.01" aria-label="Price in ETH" data-item="${i.id}"><div class="market-meta">ETH</div><button data-listorder="${i.id}" class="menu-small-action" ${this.busy ? 'disabled' : ''} title="Free signature, no transaction. The buyer pays the gas.">List</button>`);
       }
       const hint = p?.lowest || p?.last ? [p.lowest ? `Lowest ◉ ${p.lowest}` : '', p.last ? `Last sale ◉ ${p.last}` : ''].filter(Boolean).join('<br>') : 'No sales yet';
       const l = listed.get(i.id);
@@ -252,7 +277,38 @@ export class MarketPanel {
     }
     const net = this.net;
     if (!net) return;
-    if (b.dataset.towallet) {
+    if (b.dataset.listorder) {
+      const itemId = BigInt(b.dataset.listorder), account = net.market.account;
+      const input = this.root.querySelector<HTMLInputElement>(`.market-price[data-item="${b.dataset.listorder}"]`);
+      const wei = parseEthPrice(input?.value ?? ''), nft = net.market.nfts.get(net.market.items.get(itemId)?.ref ?? '');
+      if (wei === null || !nft) { this.setStatus(`Enter a price in ETH, at least ${formatEth(BigInt(NFT.sale.minWei))}.`, true); return; }
+      this.run(async () => {
+        this.setStatus('Sign the price in your wallet. It is free.');
+        const { signNftSale } = await import('../network/nftWallet.ts');
+        const signed = await signNftSale(BigInt(nft.tokenId), wei, account);
+        await net.listNftOrder(itemId, wei.toString(), signed.expiry, signed.signature);
+      }, `Listed for ${formatEth(wei)} ETH. The buyer pays the gas.`);
+    } else if (b.dataset.cancelorder) {
+      const ref = b.dataset.cancelorder;
+      this.run(() => net.cancelNftOrder(ref), 'Taken off the market.');
+    } else if (b.dataset.buyorder) {
+      const ref = b.dataset.buyorder, now = performance.now(), order = net.market.nftOrders.get(ref), nft = net.market.nfts.get(ref);
+      if (!order || !nft) return;
+      if (!this.orderConfirm || this.orderConfirm.ref !== ref || this.orderConfirm.until < now) {
+        this.orderConfirm = { ref, until: now + CONFIRM_MS };
+        this.draw();
+        setTimeout(() => this.queueDraw(), CONFIRM_MS + 50);
+        return;
+      }
+      this.orderConfirm = null;
+      const account = net.market.account, wei = BigInt(order.priceWei);
+      this.run(async () => {
+        this.setStatus('Confirm the transaction in your wallet.');
+        const { buyNftOnChain } = await import('../network/nftWallet.ts');
+        const tx = await buyNftOnChain(BigInt(nft.tokenId), wei, order.expiry, order.signature, account);
+        await net.reportNftSale(ref, tx);
+      }, `Bought for ${formatEth(wei)} ETH. It is in your wallet.`);
+    } else if (b.dataset.towallet) {
       const id = BigInt(b.dataset.towallet), now = performance.now();
       if (!this.sendConfirm || this.sendConfirm.id !== id || this.sendConfirm.until < now) {
         this.sendConfirm = { id, until: now + CONFIRM_MS };
