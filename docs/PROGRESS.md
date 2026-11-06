@@ -607,6 +607,10 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   only from season rewards.
   Checks: gameplay tests, market test (claim rules, economy invariant; `--slow` real match gives XP), Chromium with a
   fake wallet, 0 console errors (`docs/evidence/season-tab.jpg`, `season-guest.jpg`, `season-tab-1100.jpg`).
+  LIVE (owner's go, 2026-11-06 14:35 UTC): Maincloud `vibe-strikers` updated, Pages deployed from 28c22b0. Checked on
+  the live site as a guest only (no test wallet in the public tables): SEASON tab, LEADERS pool, online match, 0 console
+  errors (`docs/evidence/season-online-guest.jpg`). Maincloud has 0 wallets so far: nobody has logged in to the game
+  there yet, so login, XP and claim with a real MetaMask on the live server are still unchecked (owner).
   Local SpacetimeDB: the new CLI login (Maincloud) could not update the local database made by the old identity, so
   the old data folder was moved to `%LOCALAPPDATA%\SpacetimeDB\data-old-2026-11-06` and the local server started
   fresh (test data only; delete the old folder when sure).
