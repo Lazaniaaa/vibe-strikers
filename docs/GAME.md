@@ -305,7 +305,8 @@ wallet the seller signs for free and the buyer sends the transaction (below): th
 - Market closed for now (owner 2026-11-06): the MARKET tab shows SOON and does not open. `ui/marketPanel.ts`, its reducers and the wallet sale stay
   in the code. The live contract (`NFT.contract`) is the first one and has no `buy`; `contracts/SeasonSkins.sol` in the repo has it and
   needs a new deploy when the market opens. Do not press "Deploy NFT contract" until then.
-- Lobby panel on the left (`ui/armoryPanel.ts`): Weapons (try a standard weapon on the character) and My NFTs (try on, To wallet).
+- Lobby panel on the left (`ui/armoryPanel.ts`): Weapons (try a standard weapon on the character) and My NFTs (try on, Claim NFT). Claim opens a
+  warning first: it creates a blockchain transaction, Robinhood Chain testnet only; the owner sends the mint, so it is not instant.
 - Try on: the left panel, or a click on an NFT level of the season track, puts the skin in the lobby character's hand
   (`menuScene.previewSkin`). Only a preview; it clears when the tab changes. Dragging on the lobby scene turns the character around
   its vertical axis (`MENU.dragYawPerPixel`).

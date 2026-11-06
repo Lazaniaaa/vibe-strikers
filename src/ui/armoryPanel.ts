@@ -1,16 +1,16 @@
-// Lobby panel on the left (GAME.md 6.11): try a standard weapon or one of your NFT skins on the character, and send an NFT to
-// your wallet. Plain DOM over a market-subscribed GameNet; the server decides everything, this panel only shows rows and sends intents.
+// Lobby panel on the left (GAME.md 6.11): try a standard weapon or one of your NFT skins on the character, and claim an NFT to
+// your wallet, after a warning that this makes a testnet transaction. Plain DOM over a market-subscribed GameNet; the server decides everything, this panel only shows rows and sends intents.
 import { GAME_WEAPONS } from '../config/weapons.ts';
 import { REWARDS } from '../config/rewards.ts';
 import { itemRarity } from '../gameplay/marketRules.ts';
 import { nftName } from '../gameplay/nft.ts';
+import { shortAddress } from '../gameplay/walletMessage.ts';
 import type { GameNet } from '../network/client.ts';
 import '../../client/game/market.css';
 
 type View = 'weapons' | 'nfts';
 export interface ArmoryArt { nft(ref: string): string | undefined; weapon(id: string): string | undefined }
 
-const CONFIRM_MS = 3000;
 const REDRAW_MS = 250;
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 const cap = (s: string) => `${s[0].toUpperCase()}${s.slice(1)}`;
@@ -20,7 +20,8 @@ export class ArmoryPanel {
   private net: GameNet | null = null;
   private view: View = 'weapons';
   private previewRef: string | null = null;
-  private sendConfirm: { ref: string; until: number } | null = null;
+  /** The NFT whose claim warning is open. */
+  private claiming: { ref: string; itemId: string } | null = null;
   private busy = false;
   private message = '';
   private drawQueued = false;
@@ -67,19 +68,28 @@ export class ArmoryPanel {
     if (!m.account) return '<p class="market-empty">Log in with a wallet to see your NFTs.</p>';
     const own = [...m.items.values()].filter((i) => i.ref.startsWith('nft:'));
     if (!own.length) return '<p class="market-empty">No NFTs yet. The first one comes at season level 5.</p>';
-    const now = performance.now();
     return own.map((i) => {
       const row = m.nfts.get(i.ref), rarity = itemRarity(i.ref);
       const pill = `<i class="market-tier">${rarity}</i>`;
       let extra = '';
-      if (row?.status === 'queued') extra = '<div class="market-meta armory-state">Waiting to be sent</div>';
+      if (row?.status === 'queued') extra = '<div class="market-meta armory-state">Claimed · waiting for the mint</div>';
       else if (row?.status === 'sent') extra = `<div class="market-meta armory-state">In your wallet${row.tx ? ` · <a href="${REWARDS.chain.explorer}/tx/${esc(row.tx)}" target="_blank" rel="noreferrer">tx</a>` : ''}</div>`;
-      else {
-        const confirming = this.sendConfirm?.ref === i.ref && this.sendConfirm.until > now;
-        extra = `<button data-towallet="${i.id}" data-ref="${esc(i.ref)}" class="menu-small-action market-buy armory-send${confirming ? ' confirm' : ''}" ${this.busy ? 'disabled' : ''} title="Free. The owner mints it to your wallet.">${confirming ? 'Sure? Send it' : 'To wallet'}</button>`;
-      }
+      else extra = `<button data-claim-nft="${i.id}" data-ref="${esc(i.ref)}" class="menu-small-action market-buy armory-send" ${this.busy ? 'disabled' : ''}>Claim NFT</button>`;
       return this.row(i.ref, nftName(i.ref), this.art.nft(i.ref), pill, rarity, extra);
     }).join('');
+  }
+
+  /** The warning before a claim: what happens on the chain, and that it is testnet only. */
+  private dialog(): string {
+    if (!this.claiming) return '';
+    const { ref } = this.claiming, picture = this.art.nft(ref), account = this.net?.market.account ?? '';
+    return `<div class="armory-dialog" role="dialog" aria-modal="true" aria-label="Claim NFT"><div class="armory-dialog-card menu-toy" data-rarity="${itemRarity(ref)}">
+      <h3>Claim ${esc(nftName(ref))}?</h3>
+      ${picture ? `<img src="${esc(picture)}" alt="">` : ''}
+      <p class="armory-warning"><b>This creates a transaction on the blockchain.</b> It happens on ${esc(REWARDS.chain.name)} only, never on mainnet. Testnet tokens have no real value.</p>
+      <p>The NFT is minted to your wallet <code>${esc(shortAddress(account))}</code>. You do not sign or pay anything. It arrives when the game owner sends the next mint, not at once.</p>
+      <div class="armory-dialog-row"><button data-claim-cancel class="menu-small-action">Cancel</button><button data-claim-yes class="menu-small-action market-buy">Claim on testnet</button></div>
+    </div></div>`;
   }
 
   private draw(): void {
@@ -89,7 +99,7 @@ export class ArmoryPanel {
     const tabs = (['weapons', 'nfts'] as const).map((v) => `<button data-view="${v}" aria-pressed="${this.view === v}">${v === 'weapons' ? 'Weapons' : 'My NFTs'}</button>`).join('');
     this.root.innerHTML = `<div class="menu-segment">${tabs}</div>
       <div class="armory-list">${this.view === 'weapons' ? this.weapons() : this.nfts()}</div>
-      <small class="armory-note${this.message ? ' has-message' : ''}">${esc(this.message || 'Click to try it on. Drag the character to turn it.')}</small>`;
+      <small class="armory-note${this.message ? ' has-message' : ''}">${esc(this.message || 'Click to try it on. Drag the character to turn it.')}</small>${this.dialog()}`;
     const next = this.root.querySelector<HTMLElement>('.armory-list');
     if (next) next.scrollTop = scroll;
   }
@@ -105,18 +115,14 @@ export class ArmoryPanel {
       this.draw();
       return;
     }
-    if (b.dataset.towallet && b.dataset.ref && this.net) {
-      const ref = b.dataset.ref, now = performance.now();
-      if (!this.sendConfirm || this.sendConfirm.ref !== ref || this.sendConfirm.until < now) {
-        this.sendConfirm = { ref, until: now + CONFIRM_MS };
-        this.draw();
-        setTimeout(() => this.refresh(), CONFIRM_MS + 50);
-        return;
-      }
-      this.sendConfirm = null;
+    if (b.dataset.claimNft && b.dataset.ref) { this.claiming = { ref: b.dataset.ref, itemId: b.dataset.claimNft }; this.draw(); return; }
+    if (b.hasAttribute('data-claim-cancel')) { this.claiming = null; this.draw(); return; }
+    if (b.hasAttribute('data-claim-yes') && this.claiming && this.net) {
+      const itemId = BigInt(this.claiming.itemId);
+      this.claiming = null;
       this.busy = true;
-      this.net.requestNftSend(BigInt(b.dataset.towallet))
-        .then(() => { this.message = 'Asked to send it. It reaches your wallet with the next mint.'; }, (err: unknown) => { this.message = err instanceof Error ? err.message : String(err); })
+      this.net.requestNftSend(itemId)
+        .then(() => { this.message = 'Claimed. It reaches your wallet with the next testnet mint.'; }, (err: unknown) => { this.message = err instanceof Error ? err.message : String(err); })
         .finally(() => { this.busy = false; this.refresh(); });
       this.draw();
     }
