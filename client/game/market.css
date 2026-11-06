@@ -41,15 +41,15 @@
 .season-claim { padding: 6px 12px; border: 2px solid var(--menu-ink); border-radius: 9px; background: var(--menu-accent); color: var(--menu-ink); font: 16px var(--menu-display); cursor: pointer; box-shadow: 0 3px 0 var(--menu-ink); }
 .season-scroll { flex: 1; min-height: 0; overflow-y: auto; }
 .season-track { display: grid; grid-template-columns: repeat(auto-fill, minmax(44px, 1fr)); gap: 4px; margin: 0; padding: 2px 2px 4px; list-style: none; }
-.season-track li { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 40px; padding: 1px; border: 2px solid var(--menu-ink); border-radius: 9px; background: var(--menu-cream); opacity: .62; }
+.season-track li { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 36px; padding: 1px; border: 2px solid var(--menu-ink); border-radius: 9px; background: var(--menu-cream); opacity: .62; }
 .season-track li.has-item { background: var(--menu-panelLight); opacity: .85; }
 .season-track li.is-final { background: var(--menu-ring); opacity: 1; }
 .season-track li.is-ready { opacity: 1; background: var(--menu-accent); }
 .season-track li.is-claimed { opacity: 1; background: var(--menu-teal); }
 .season-track b { position: absolute; left: 4px; top: 2px; font: 11px var(--menu-display); }
-.season-track img { width: 26px; height: 26px; margin-top: 8px; object-fit: contain; }
+.season-track img { width: 22px; height: 22px; margin-top: 7px; object-fit: contain; }
 .season-track i { position: absolute; right: 4px; top: 1px; font: 13px var(--menu-display); font-style: normal; }
-.season-coins { margin-top: 9px; font: 10px var(--menu-display); white-space: nowrap; }
+.season-coins { margin-top: 8px; font: 10px var(--menu-display); white-space: nowrap; }
 .season-emote { margin-top: 7px; font: 16px var(--menu-display); }
 .menu-season h3 { display: flex; align-items: baseline; justify-content: space-between; margin: 6px 2px 3px; font: 15px var(--menu-display); }
 .season-quest-tabs { flex: 0 1 auto; margin: 0 auto 0 10px; padding: 2px; }
