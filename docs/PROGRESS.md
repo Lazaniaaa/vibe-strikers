@@ -611,6 +611,10 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   the live site as a guest only (no test wallet in the public tables): SEASON tab, LEADERS pool, online match, 0 console
   errors (`docs/evidence/season-online-guest.jpg`). Maincloud has 0 wallets so far: nobody has logged in to the game
   there yet, so login, XP and claim with a real MetaMask on the live server are still unchecked (owner).
+  Later the same day the owner logged in with a real wallet and played: login, coins, stats, week points, XP, season
+  track and missions all arrived on Maincloud (1 finished match won: 135 coins, 275 XP). Claiming a reward on the live
+  server is still unchecked (needs 1000 XP). Kills of a match left early count for stats and STRIKE points, not for the
+  match count, coins, XP or missions.
   Owner's network: the router's DNS (192.168.31.1) answers NXDOMAIN for every `*.pages.dev`, also names that are not
   ours (Google DNS resolves them), so this is a network filter, not a propagation delay. The Worker copy
   https://vibe-strikers.voxel-character-review.workers.dev resolves there and now has the same build as Pages.
