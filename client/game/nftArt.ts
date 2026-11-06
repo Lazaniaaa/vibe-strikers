@@ -14,6 +14,18 @@ export async function nftTraits(ref: string): Promise<SkinTraits | null> {
   const { generateSkinTraits } = await import('../../src/weapons/skinTraits');
   return generateSkinTraits({ weapon: reward.weapon as WeaponId, rarity: NFT.skinArt[reward.rarity] as SkinRarity, seed: nftSeed(ref) });
 }
+/** The picture of a standard weapon, drawn the same way. */
+export function weaponArt(id: string, ready: () => void): string | undefined {
+  const key = `weapon:${id}`, url = art.get(key);
+  if (url || asked.has(key)) return url;
+  asked.add(key);
+  void import('../../src/weapons/renderSkinImage').then(async ({ renderBaseWeaponImage }) => {
+    art.set(key, await renderBaseWeaponImage(id as WeaponId, ART_SIZE));
+    ready();
+  }).catch((e) => console.warn('Weapon picture failed', e));
+  return undefined;
+}
+
 const art = new Map<string, string>();
 const asked = new Set<string>();
 

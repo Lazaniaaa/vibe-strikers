@@ -682,6 +682,8 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
 - 2026-11-06 owner: sell NFTs from the wallet like OpenSea: the seller signs a price for free, the buyer sends the transaction (price in testnet ETH + gas).
   `SeasonSkins.buy`, `cancelSale`, table `nft_order`, `network/nftWallet.ts`, `gameplay/nftSale.ts`. The first contract (0x23e3...d589) has no `buy`: a new deploy is needed.
   Checked: contract test with real signatures from the same typed data the lobby sends, test-market, two-player browser run with MOCK wallets. NOT checked: a real sale, expiry on chain.
+- 2026-11-06 owner: Market tab closed (SOON), no wallet-sale test for now: the live contract stays 0x23e3...d589 without `buy`; the version with `buy` is only in the repo. New
+  left panel in the lobby (`ui/armoryPanel.ts`): standard weapons and My NFTs, try on, To wallet. Settings restyled like the lobby. Evidence: lobby-weapons-panel, lobby-nft-panel, settings-lobby-style.
 - 2026-10-31 owner: ADS proposal approved
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).

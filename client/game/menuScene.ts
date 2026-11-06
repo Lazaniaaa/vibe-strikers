@@ -3,7 +3,7 @@ import { AmbientLight, Color, DirectionalLight, Fog, HemisphereLight, Mesh, Vect
   type Group } from 'three';
 import { characterDisplayName } from '../../src/config/characterNames';
 import { characters, createCharacter, disposeCharacterResources, poseCharacter, prepareLobbyAnimation, playEmote, updateAnimation, LOBBY_EMOTES, BODY_HEIGHT, type LobbyEmoteId } from '../../src/characters';
-import { attachWeapon, createWeapon, poseWeapon } from '../../src/weapons';
+import { attachWeapon, createWeapon, poseWeapon, type WeaponId } from '../../src/weapons';
 import type { PoseState } from '../../src/characters/types';
 import { nftTraits } from './nftArt';
 import { buildLobbyScene, disposeLobbySceneResources, loadLobbyScene } from '../../src/maps/lobby';
@@ -23,7 +23,7 @@ export interface MenuSceneOptions {
   onPortrait: (index: number, url: string, pixels: number) => void;
   onStatus: (message: string) => void;
 }
-export interface MenuScene { select(index: number): void; /** Show an NFT skin in the character's hand (null = none). */ previewSkin(ref: string | null): void; dispose(): void }
+export interface MenuScene { select(index: number): void; /** Put `weapon:<id>` or an NFT skin in the character's hand (null = none). */ previewSkin(ref: string | null): void; dispose(): void }
 
 export function createMenuScene(options: MenuSceneOptions): MenuScene {
   const renderer = new WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'low-power' });
@@ -137,12 +137,16 @@ export function createMenuScene(options: MenuSceneOptions): MenuScene {
     dragYaw = 0; // each try-on starts from the angle that shows the weapon
     const request = ++skinRequest;
     if (!ref) { skinWeapon = null; rebuildCharacter(); return; }
+    const hold = (weapon: Group, id: string) => {
+      skinWeapon = weapon;
+      skinWeapon.traverse(object => { if (object instanceof Mesh) object.castShadow = true; });
+      skinPose.weapon = id as PoseState['weapon'];
+      rebuildCharacter();
+    };
+    if (ref.startsWith('weapon:')) { const id = ref.slice('weapon:'.length) as WeaponId; hold(createWeapon(id), id); return; }
     void nftTraits(ref).then(traits => {
       if (disposed || request !== skinRequest || !traits) return;
-      skinWeapon = createWeapon(traits.weapon, { skin: traits });
-      skinWeapon.traverse(object => { if (object instanceof Mesh) object.castShadow = true; });
-      skinPose.weapon = traits.weapon as PoseState['weapon'];
-      rebuildCharacter();
+      hold(createWeapon(traits.weapon, { skin: traits }), traits.weapon);
     }).catch(e => console.warn('NFT preview failed', e));
   };
   const resize = () => {

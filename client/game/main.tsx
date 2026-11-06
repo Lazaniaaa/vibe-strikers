@@ -7,7 +7,8 @@ import { getSettingsPanel, settingsButton } from '../../src/ui/settingsPanel';
 import { dayNumber, levelOf, seasonLevel, streakCoins } from '../../src/gameplay/progression';
 import { SEASON } from '../../src/config/season';
 import { nftName } from '../../src/gameplay/nft';
-import { nftArt } from './nftArt';
+import { nftArt, weaponArt } from './nftArt';
+import { ArmoryPanel } from '../../src/ui/armoryPanel';
 import { getSfx } from '../../src/ui/sfx';
 import type { GameOptions } from './GameApp';
 import { Loading } from './loading';
@@ -84,7 +85,15 @@ settingsTab.setAttribute('aria-label', 'Settings');
 let menuScene: MenuScene | null = null;
 let menuSceneGeneration = 0;
 menu.onCharacterView = index => menuScene?.select(index);
+// Left panel: try a weapon or an NFT on the character, send an NFT to the wallet.
+const armory = new ArmoryPanel(menu.root, {
+  nft: (ref) => nftArt(ref, () => armory.refresh()),
+  weapon: (id) => weaponArt(id, () => armory.refresh()),
+});
+armory.onPreview = (ref) => menuScene?.previewSkin(ref);
+const setPreview = (ref: string | null) => { menuScene?.previewSkin(ref); armory.setPreview(ref); };
 menu.onVisibility = visible => {
+  armory.setPreview(null); // the scene is rebuilt
   if (visible && net) void showSales(net);
   const generation = ++menuSceneGeneration;
   menuScene?.dispose(); menuScene = null;
@@ -136,10 +145,11 @@ function ensureNet(): Promise<GameNet> {
       lagMs: Number(params.get('lag') ?? 0) || 0,
     });
     await n.connect();
-    n.onMarketChange = () => { showAccount(n); marketPanel?.refresh(); leaderPanel?.refresh(); seasonPanel?.refresh(); if (net) void showSales(net); };
+    n.onMarketChange = () => { showAccount(n); armory.refresh(); marketPanel?.refresh(); leaderPanel?.refresh(); seasonPanel?.refresh(); if (net) void showSales(net); };
     await n.subscribeMarket().catch(() => undefined); // the game works without the market
     showAccount(n);
     net = n;
+    armory.attach(n);
     void showSales(n);
     return n;
   })();
@@ -216,7 +226,7 @@ function openSeason(): void {
       const [{ SeasonPanel }, { catalogItem }] = await Promise.all([import('../../src/ui/seasonPanel'), import('../../src/gameplay/market')]);
       seasonPanel ??= new SeasonPanel(menu.root, itemDescriber(catalogItem));
       seasonPanel.onLogin = () => { void walletLogin(); };
-      seasonPanel.onPreview = (ref) => menuScene?.previewSkin(ref);
+      seasonPanel.onPreview = setPreview;
     }
     seasonPanel.show();
     try { seasonPanel.attach(await ensureNet()); } catch { seasonPanel.attach(null); }
@@ -249,7 +259,7 @@ menu.onTab = (tab) => {
       const [{ MarketPanel }, { catalogItem }] = await Promise.all([import('../../src/ui/marketPanel'), import('../../src/gameplay/market')]);
       marketPanel ??= new MarketPanel(menu.root, itemDescriber(catalogItem));
       marketPanel.onLogin = () => { void walletLogin(); };
-      marketPanel.onPreview = (ref) => menuScene?.previewSkin(ref);
+      marketPanel.onPreview = setPreview;
     }
     marketPanel.show();
     try { marketPanel.attach(await ensureNet()); } catch (e) { marketPanel.setStatus(`Market offline: ${e instanceof Error ? e.message : String(e)}`, true); }

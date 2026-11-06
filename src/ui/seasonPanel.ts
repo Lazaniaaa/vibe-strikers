@@ -75,7 +75,7 @@ export class SeasonPanel {
     this.busy = true; this.status = ''; this.draw();
     try {
       await this.net.claimSeasonRewards();
-      this.status = 'Rewards claimed. Items and NFTs are in Market → My items.'; this.statusBad = false;
+      this.status = 'Rewards claimed. NFTs are in the My NFTs panel on the left.'; this.statusBad = false;
     } catch (e) {
       this.status = e instanceof Error ? e.message : String(e); this.statusBad = true;
     }

@@ -55,7 +55,7 @@ export class Menu {
       <div class="menu-scene-host"></div><div class="menu-vignette"></div><div class="menu-dimmer"></div>
       <header class="menu-header">
         <div class="menu-logo" aria-label="Vibe Strikers beta"><svg class="menu-block" viewBox="0 0 56 60" aria-hidden="true"><path class="block-top" d="M28 3 52 16 28 29 4 16Z"/><path class="block-left" d="M4 16 28 29 28 56 4 43Z"/><path class="block-right" d="M28 29 52 16 52 43 28 56Z"/><path class="block-notch" d="M16 24 16 36 28 43 40 36 40 24"/></svg><span>VIBE<br>STRIKERS</span><b class="menu-beta">BETA</b></div>
-        <nav class="menu-tabs menu-toy" aria-label="Lobby tabs"><button class="menu-tab active" data-tab="play" aria-pressed="true"><kbd>1</kbd> PLAY</button><button class="menu-tab" data-tab="characters" aria-pressed="false"><kbd>2</kbd> CHARACTERS</button><button class="menu-tab" data-tab="market" aria-pressed="false"><kbd>3</kbd> MARKET</button><button class="menu-tab" data-tab="leaders" aria-pressed="false"><kbd>4</kbd> LEADERS</button><button class="menu-tab" data-tab="season" aria-pressed="false"><kbd>5</kbd> SEASON</button><div class="menu-settings-slot"></div></nav>
+        <nav class="menu-tabs menu-toy" aria-label="Lobby tabs"><button class="menu-tab active" data-tab="play" aria-pressed="true"><kbd>1</kbd> PLAY</button><button class="menu-tab" data-tab="characters" aria-pressed="false"><kbd>2</kbd> CHARACTERS</button><button class="menu-tab is-soon" disabled title="Coming soon">MARKET<small>SOON</small></button><button class="menu-tab" data-tab="leaders" aria-pressed="false"><kbd>4</kbd> LEADERS</button><button class="menu-tab" data-tab="season" aria-pressed="false"><kbd>5</kbd> SEASON</button><div class="menu-settings-slot"></div></nav>
       </header>
       <section class="menu-player menu-toy" aria-label="Player card"><div class="menu-mini"><img alt="Selected character portrait" hidden /></div><label><span class="menu-eyebrow">YOUR NICKNAME <b aria-hidden="true">✎</b></span><input class="menu-name" aria-label="Nickname" maxlength="${MENU.nameMaxLength}" placeholder="Your name" autocomplete="nickname" /></label><div class="menu-account" aria-live="polite" hidden></div></section>
       <section class="menu-identity" aria-label="Selected character"><span class="menu-identity-tag">READY FOR THE ARENA</span><h1 class="menu-hero-name">YOUR CHARACTER</h1><div class="menu-change menu-toy"><button class="menu-prev" aria-label="Previous character">‹</button><button class="menu-open-characters">Change character <kbd>← →</kbd></button><button class="menu-next" aria-label="Next character">›</button></div></section>
@@ -76,7 +76,7 @@ export class Menu {
       </aside>
       <section class="menu-roster menu-toy" aria-label="Character selection" hidden><header><div><span class="menu-eyebrow">PICK YOUR LOOK</span><h2>Characters</h2></div><button class="menu-close-characters" aria-label="Close character selection">×</button></header><div class="menu-chars" role="group" aria-label="Character portraits"></div><footer><div><strong class="menu-char-name" aria-live="polite">Loading characters…</strong><small class="menu-char-count"></small></div><button class="menu-random menu-small-action">↝ Random</button></footer></section>
       <span class="menu-scene-status">Getting the arena ready…</span><output class="menu-perf" hidden></output>
-      <div class="menu-bottom-hint"><kbd>1</kbd> Play <kbd>2</kbd> Characters <kbd>3</kbd> Market <kbd>4</kbd> Leaders <kbd>5</kbd> Season <kbd>6</kbd> Settings</div>`;
+      <div class="menu-bottom-hint"><kbd>1</kbd> Play <kbd>2</kbd> Characters <kbd>4</kbd> Leaders <kbd>5</kbd> Season <kbd>6</kbd> Settings</div>`;
     parent.append(this.root);
     const emoteWrap=document.createElement('div');emoteWrap.className='menu-emote-wrap';
     emoteWrap.innerHTML='<span class="menu-emote-hint">Emotes · E then 1–5</span><div class="menu-emotes menu-toy" role="group" aria-label="Lobby emotes"></div>';
@@ -140,7 +140,6 @@ export class Menu {
       if(this.emoteKeys){const index=Number(event.key)-1;this.emoteKeys=false;this.root.dataset.emoteKeys='false';if(Number.isInteger(index)&&index>=0&&index<LOBBY_EMOTES.length){event.preventDefault();this.emote(LOBBY_EMOTES[index].id);return;}}
       if (event.key === '1') this.showTab('play');
       else if (event.key === '2') this.showTab('characters');
-      else if (event.key === '3') this.showTab('market');
       else if (event.key === '4') this.showTab('leaders');
       else if (event.key === '5') this.showTab('season');
       else if (event.key === '6') this.settingsSlot.querySelector<HTMLButtonElement>('button')?.click();
