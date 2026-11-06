@@ -1,6 +1,7 @@
 import { AmbientLight, Color, DirectionalLight, Fog, HemisphereLight, Mesh, Vector3,
   NeutralToneMapping, PCFSoftShadowMap, PerspectiveCamera, Scene, SRGBColorSpace, WebGLRenderer, WebGLRenderTarget,
   type Group } from 'three';
+import { characterDisplayName } from '../../src/config/characterNames';
 import { characters, createCharacter, disposeCharacterResources, prepareLobbyAnimation, playEmote, updateAnimation, LOBBY_EMOTES, BODY_HEIGHT, type LobbyEmoteId } from '../../src/characters';
 import { buildLobbyScene, disposeLobbySceneResources, loadLobbyScene } from '../../src/maps/lobby';
 import { MENU, RENDER, TEAM_COLORS } from '../../src/config/game';
@@ -11,7 +12,7 @@ import type { MenuCharacter } from '../../src/ui/menu';
 interface Portrait { url: string; pixels: number }
 const portraits = new Map<number, Portrait>();
 export function menuCharacters(): MenuCharacter[] {
-  return characters.map(character => ({ name: character.name.replace(/^vibe-vibers-/, '').replace('Малиновий', 'Malynovyi'),
+  return characters.map(character => ({ name: characterDisplayName(character),
     body: character.colors.body, accent: character.colors.glove ?? character.colors.outline, unlock: true }));
 }
 export interface MenuSceneOptions {

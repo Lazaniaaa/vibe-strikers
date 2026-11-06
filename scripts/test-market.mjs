@@ -24,6 +24,9 @@ try {
   const { signLogin } = await vite.ssrLoadModule('/src/gameplay/walletAuth.ts');
   const { AUTH } = await vite.ssrLoadModule('/src/config/auth.ts');
   const starter = MARKET.starter.characters + MARKET.starter.emotes;
+  const charNames = CATALOG.filter((c) => c.kind === 'character').map((c) => c.name);
+  check(new Set(charNames.map((n) => n.toLowerCase())).size === charNames.length && charNames.every((n) => /^[A-Z][A-Za-z ]{2,13}$/.test(n)),
+    `${charNames.length} characters have unique, short English names`);
   const nets = [];
   const newKey = () => crypto.getRandomValues(new Uint8Array(32));
   const login = async (n, key = newKey()) => {

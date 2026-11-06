@@ -191,6 +191,8 @@ playable for everyone (owner). Numbers in `config/market.ts` (`MARKET`).
   clicks), My items (sell with a price, cancel), History (last 20 trades); guests see Browse and a login prompt; testnet
   warning in the footer. Rows show the item's lowest listing and latest sale; a price field suggests the lowest listing,
   else the latest sale, else the tier's base price (`marketPrices`, `suggestedPrice`). All read from the public tables.
+- Character names shown to players: `config/characterNames.ts` by character id (owner 2026-11-06). Ids stay the keys in
+  the tables, so renaming changes nothing for owners.
 - Rarity (`MARKET.rarity`, `itemRarity`, owner 2026-11-06): a coloured label only, no gameplay effect. Tiers common to
   legendary for catalog items, mythic kept for season NFTs. Fixed for season rewards and starter emotes, otherwise stable
   from the item id. New players' starter set has nothing above `starterMax`; items they already own stay.

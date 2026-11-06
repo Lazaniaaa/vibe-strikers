@@ -1,7 +1,8 @@
 // Plain data module (no three.js) so the menu stays small.
 import { characters } from '../../src/characters/characters';
+import { characterDisplayName } from '../../src/config/characterNames';
 
-/** Short display name for a character ("vibe-vibers-bureau-8" -> "bureau-8"). */
+/** Display name for a character. */
 export function characterLabel(index: number): string {
-  return characters[index % characters.length].name.replace(/^vibe-vibers-/, '');
+  return characterDisplayName(characters[index % characters.length]);
 }

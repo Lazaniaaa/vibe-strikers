@@ -654,6 +654,8 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   so the first `ctx.random()` of a reducer looks biased low (the cause is not proven further). The pick now uses `textRandom` from
   the address and `ctx.random()`: 80 wallets, top 15 of expected 9.2, first character 12, chi-square 22 of about 44 allowed. Wallets
   that already exist keep their items. Other `ctx.random()` users (room codes, bots, shot spread) were not checked.
+- 2026-11-06 owner: English character names, chosen by Claude from the portraits (`config/characterNames.ts`). The asset folder
+  is unchanged; lobby, market, season track and scoreboard read the new names. Client only, the server was not published.
 - 2026-10-31 owner: ADS proposal approved
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
