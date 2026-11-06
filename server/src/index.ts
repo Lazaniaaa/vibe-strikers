@@ -712,7 +712,7 @@ function payCoins(ctx: Ctx, w: WalletRow, coins: number, extra: Partial<WalletRo
   mint(ctx, paid);
 }
 
-/** Add to a logged-in player's all-time and this week's stats (bots and guests have none). */
+/** Add to a logged-in player's all-time stats (bots and guests have none). */
 function bumpStat(ctx: Ctx, p: PlayerRow, d: Partial<Omit<StatRow, 'owner' | 'name'>>): void {
   const owner = accountOfPlayer(ctx, p);
   if (!owner) return;
@@ -721,11 +721,15 @@ function bumpStat(ctx: Ctx, p: PlayerRow, d: Partial<Omit<StatRow, 'owner' | 'na
   const add = (a: number, b = 0) => Math.min(U32_MAX, a + b);
   ctx.db.playerStat.owner.update({ ...s, name: p.name, matches: add(s.matches, d.matches), wins: add(s.wins, d.wins),
     kills: add(s.kills, d.kills), deaths: add(s.deaths, d.deaths), headshots: add(s.headshots, d.headshots) });
-  const week = weekOf(nowMs(ctx)), id = `${week}:${owner}`;
+}
+
+/** A real match ended: its counts go into the week's STRIKE points (GAME.md 6.9), so unfinished matches give none. */
+function payWeek(ctx: Ctx, owner: string, name: string, won: boolean, kills: number, headshots: number): void {
+  const week = weekOf(nowMs(ctx)), id = `${week}:${owner}`, add = (a: number, b: number) => Math.min(U32_MAX, a + b);
   const w = ctx.db.weekStat.id.find(id)
-    ?? ctx.db.weekStat.insert({ id, week, owner, name: p.name, matches: 0, wins: 0, kills: 0, headshots: 0 });
-  ctx.db.weekStat.id.update({ ...w, name: p.name, matches: add(w.matches, d.matches), wins: add(w.wins, d.wins),
-    kills: add(w.kills, d.kills), headshots: add(w.headshots, d.headshots) });
+    ?? ctx.db.weekStat.insert({ id, week, owner, name, matches: 0, wins: 0, kills: 0, headshots: 0 });
+  ctx.db.weekStat.id.update({ ...w, name, matches: add(w.matches, 1), wins: add(w.wins, won ? 1 : 0),
+    kills: add(w.kills, kills), headshots: add(w.headshots, headshots) });
 }
 
 /** Add XP to the account's level and, while the season runs, to its season track. */
@@ -765,7 +769,7 @@ function payStreak(ctx: Ctx, owner: string): void {
   payCoins(ctx, ensureWallet(ctx, owner), streakCoins(next.streak));
 }
 
-/** Match end: stats for every logged-in human (every online match counts); coins and XP only for a real match. */
+/** Match end: all-time stats for every logged-in human (every online match counts); coins, XP and STRIKE points only for a real match. */
 function payMatch(ctx: Ctx, r: RoomRow, winner: string): void {
   const day = utcDay(nowMs(ctx)), rows = playersIn(ctx, r.id);
   const clock = ctx.db.matchClock.roomId.find(r.id);
@@ -783,6 +787,7 @@ function payMatch(ctx: Ctx, r: RoomRow, winner: string): void {
     const first = won && w.lastWinDay !== day;
     payCoins(ctx, w, matchReward(won, p.kills, headshots, first), first ? { lastWinDay: day } : {});
     payProgress(ctx, owner, won, p.kills, headshots, first);
+    payWeek(ctx, owner, p.name, won, p.kills, headshots);
     payStreak(ctx, owner);
   }
 }

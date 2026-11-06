@@ -91,7 +91,7 @@ export class MatchSummary {
     const streakUp = now.streakDay > base.streakDay ? `<p class="hud-summary-line">🔥 Day ${now.streak} streak: ◉ ${streakCoins(now.streak)} included</p>` : '';
     this.body.innerHTML = `${mvp}
       <div class="hud-summary-chips"><strong>+${xp} XP</strong><span>◉ +${coins}</span><span>+${points} STRIKE points</span></div>
-      ${xp > 0 ? '' : `<p class="hud-summary-note">No XP or coins: the match must last at least ${MARKET.reward.minMatchSeconds} s.</p>`}
+      ${xp > 0 ? '' : `<p class="hud-summary-note">No XP, coins or STRIKE points: the match must last at least ${MARKET.reward.minMatchSeconds} s.</p>`}
       ${streakUp}
       ${done.length ? `<ul>${done.join('')}</ul>` : ''}
       <p class="hud-summary-line">${levelUp ? `<em>LEVEL UP!</em> ` : ''}Lv ${level} · ${seasonUp ? '<em>Season level up!</em> ' : ''}${SEASON.name}: level ${reached} / ${SEASON.levels} · ${into} / ${SEASON.xpPerLevel} XP</p>

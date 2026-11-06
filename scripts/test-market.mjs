@@ -142,10 +142,8 @@ try {
   const st1 = await waitFor(() => { const s = p1.market.stats.get(p1.market.account); return s && s.matches === 1 ? s : null; }, 2000);
   check(!!st1 && st1.wins === 1 && st1.name === 'Winner', `stats: the winner has 1 match, 1 win (${JSON.stringify(st1 && { m: st1.matches, w: st1.wins, n: st1.name })})`);
   check(!p2.market.stats.get(p2.market.account)?.matches, 'stats: the player who left has no match');
-  // Weekly stats (STRIKE rewards, GAME.md 6.9) mirror the all-time ones for this week.
-  const wk1 = await waitFor(() => { const w = p1.market.weekStats.get(p1.market.account); return w && w.matches === 1 ? w : null; }, 2000);
-  check(!!wk1 && wk1.wins === 1 && wk1.week === p1.market.week && wk1.kills === st1?.kills && wk1.headshots === st1?.headshots,
-    `week stats: the winner has 1 match, 1 win in week ${p1.market.week}`);
+  // Weekly STRIKE points (GAME.md 6.9) count real matches only.
+  check(!p1.market.weekStats.get(p1.market.account), 'week stats: a match that does not pay gives no STRIKE points');
   await p1.leave();
 
   // --slow: a real match pays. Free-for-all with bots (8 players): the human idles, bots fight until one is left
@@ -169,6 +167,11 @@ try {
     check(!!ended, `slow: match ended after ${seconds.toFixed(0)} s (${h.players.size} players)`);
     const hs = h.market.stats.get(h.market.account);
     check(!!hs && hs.matches === 1 && hs.kills === kills, `slow: stats ${hs?.matches} match, ${hs?.kills} kills, ${hs?.deaths} deaths`);
+    if (seconds >= MARKET.reward.minMatchSeconds) {
+      const wk = h.market.weekStats.get(h.market.account);
+      check(!!wk && wk.matches === 1 && wk.wins === (won ? 1 : 0) && wk.kills === kills && wk.week === h.market.week,
+        `slow: week stats ${wk?.matches} match, ${wk?.wins} wins, ${wk?.kills} kills`);
+    }
     check(h.market.wallet.coins - coins0 === expected || (won && h.market.wallet.coins - coins0 === matchReward(won, kills, 0, false) + dayOne),
       `slow: paid ${h.market.wallet.coins - coins0} coins for a ${won ? 'win' : 'loss'} with ${kills} kills (expected ${expected})`);
     if (seconds >= MARKET.reward.minMatchSeconds) {

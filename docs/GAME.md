@@ -218,9 +218,11 @@ never calls a chain; a login is a free text signature. Numbers in `config/auth.t
 Testnet only. Token STRIKE (`REWARDS.token`, the owner's ERC-20 on Robinhood Chain testnet). Numbers in
 `config/rewards.ts`, math in `gameplay/rewards.ts`, steps for the owner in docs/REWARDS.md.
 - Weeks start Monday 00:00 UTC (`weekOf`). Points per week: win 10, match 2, kill 1, headshot +1; logged-in
-  humans in online matches only (the same events as the all-time stats, 6.8).
-- Server: public `week_stat{id "week:owner" pk, week btree, owner, name, matches, wins, kills, headshots}`, bumped
-  next to `player_stat`. Clients subscribe to the current week only.
+  humans, finished real matches only (`matchPays`: at least 2 players at the end, at least 60 s, same as coins and
+  XP). Kills in a match the player leaves, or in a match that does not pay, give no points (owner 2026-11-06). The
+  all-time stats (6.8) still count every online match.
+- Server: public `week_stat{id "week:owner" pk, week btree, owner, name, matches, wins, kills, headshots}`, added at
+  match end (`payWeek`). Clients subscribe to the current week only.
 - Payout plan (`payoutPlan`): wallets with at least `minPoints` share the week's pool by points, each capped at
   `maxShareBps` (10%); the rest stays in the contract.
 - Contract `contracts/WeeklyDistributor.sol`: holds the pool (funded by the owner), owner-only

@@ -641,6 +641,10 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   fresh (test data only; delete the old folder when sure).
   Typecheck note: the working copy has Codex's uncommitted toy-weapon files (new WeaponId values), which break
   `config/weapons.ts` / `client/game/visuals.ts` types; my files type-check clean; checked on a clean copy too.
+- 2026-11-06 owner: STRIKE points only from finished real matches (`matchPays`, same as coins and XP; GAME.md 6.9). `payWeek`
+  adds the match counts at match end; kills in a left or non-paying match give no points. All-time stats unchanged. Points
+  already earned stay. Week 2965 check, read-only: 1 wallet, 48 points, plan pays 10 000 000 (the 10% cap), 90 000 000 stays;
+  distributor holds 100 000 000, owner has 13.37 test ETH. Checked: typecheck, gameplay, test-server, test-market --slow.
 - 2026-10-31 owner: ADS proposal approved
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
