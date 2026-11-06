@@ -187,8 +187,15 @@ playable for everyone (owner). Numbers in `config/market.ts` (`MARKET`).
   burns the fee, logs the trade). Every market reducer needs a login ("log in with a wallet first") and is rate-limited per account (`rateLimit`) and throws a
   `SenderError` with a readable message on refusal. Reducers are transactions: two buyers of one listing -> one
   wins, the other gets "listing is gone".
-- Lobby: tab MARKET (3): Browse (filter, sort, at most 60 rows drawn, buy = two clicks), My items (sell with a
-  price, cancel), History (last 20 trades); guests see Browse and a login prompt; testnet warning in the footer.
+- Lobby: tab MARKET (3): Browse (search by name, rarity and type filters, sort, at most 60 rows drawn, buy = two
+  clicks), My items (sell with a price, cancel), History (last 20 trades); guests see Browse and a login prompt; testnet
+  warning in the footer. Rows show the item's lowest listing and latest sale; a price field suggests the lowest listing,
+  else the latest sale, else the tier's base price (`marketPrices`, `suggestedPrice`). All read from the public tables.
+- Rarity (`MARKET.rarity`, `itemRarity`, owner 2026-11-06): a coloured label only, no gameplay effect. Tiers common to
+  legendary for catalog items, mythic kept for season NFTs. Fixed for season rewards and starter emotes, otherwise stable
+  from the item id. New players' starter set has nothing above `starterMax`; items they already own stay.
+- "Item sold" notice in the lobby (`ui/saleNotice.ts`): count and coins after the fee. Sales during a match or while
+  away wait for the lobby; the last one seen is kept per account in the browser, so a new browser starts from now.
 - Invariants (checked by `scripts/sim-market.mjs`): coins conserved (`sum == minted - burned`), no negative or
   non-integer balance, every item exactly one owner, every listing points at an item its seller owns, at most one
   listing per item, every trade moved the item to its buyer.

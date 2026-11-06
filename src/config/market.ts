@@ -1,4 +1,6 @@
 // In-game marketplace (GAME.md 6.7, owner 2026-11-05): coins only, no real money. Gameplay economy numbers.
+export type RarityId = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary' | 'mythic';
+
 export const MARKET = {
   /** Coins in a new wallet. */
   startCoins: 200,
@@ -20,4 +22,30 @@ export const MARKET = {
   rateLimit: { actions: 8, windowMs: 2000 },
   /** Trades kept in the `trade` table (oldest are deleted). */
   tradeHistory: 500,
+  /** How long the "item sold" notice stays in the lobby. */
+  saleNoticeMs: 7000,
+  /**
+   * How rare a catalog item is (visual label for the market, no gameplay effect). `tiers` run from most common to
+   * rarest. Items in `items` have a fixed tier: emotes given to new players stay common, season rewards are high and
+   * legendary comes only from there. Every other item gets a stable tier from its id by `weights` (percent), so changing
+   * the weights moves items between tiers. `mythic` is kept for season NFTs (GAME.md 6.7).
+   */
+  rarity: {
+    tiers: ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic'] as readonly RarityId[],
+    weights: { common: 55, uncommon: 28, rare: 12, epic: 5 },
+    items: {
+      'emote:wave': 'common',
+      'emote:shrug': 'common',
+      'emote:hop': 'rare',
+      'emote:dance': 'epic',
+      'emote:cheer': 'legendary',
+      'character:vibe-vibers-viber-142': 'rare',
+      'character:vibe-vibers-bureau-25': 'epic',
+      'character:vibe-vibers-viber-extra-20': 'legendary',
+    } as Readonly<Record<string, RarityId>>,
+    /** New players' starter set contains nothing above this tier. */
+    starterMax: 'uncommon' as RarityId,
+    /** Price suggested when an item has no listing and no sale yet (coins). */
+    basePrice: { common: 50, uncommon: 100, rare: 200, epic: 400, legendary: 800, mythic: 2000 } as Readonly<Record<RarityId, number>>,
+  },
 } as const;

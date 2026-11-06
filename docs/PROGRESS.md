@@ -645,6 +645,12 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   adds the match counts at match end; kills in a left or non-paying match give no points. All-time stats unchanged. Points
   already earned stay. Week 2965 check, read-only: 1 wallet, 48 points, plan pays 10 000 000 (the 10% cap), 90 000 000 stays;
   distributor holds 100 000 000, owner has 13.37 test ETH. Checked: typecheck, gameplay, test-server, test-market --slow.
+- 2026-11-06 owner: market additions (GAME.md 6.7): "item sold" notice in the lobby (`ui/saleNotice.ts`, sales during a match wait
+  for the lobby), lowest listing, latest sale and a suggested price, search by name, rarity label and filter (`MARKET.rarity`,
+  `itemRarity`: 18 common, 10 uncommon, 5 rare, 3 epic, 2 legendary; mythic kept for NFTs). Starter sets now hold common and
+  uncommon only. Checked with two real test wallets on the local server: docs/evidence/market-*.jpg, no console errors.
+  Found, not fixed: starter characters are skewed (4 of 7 new local wallets got the same two), probably `ctx.random` right
+  after a reducer starts. The NFT tab waits for the NFT plan (owner has not said yes yet) and for Codex.
 - 2026-10-31 owner: ADS proposal approved
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).

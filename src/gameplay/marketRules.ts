@@ -1,5 +1,5 @@
 // Marketplace rules without the catalog (GAME.md 6.7): pure, loadable in plain Node (unit tests).
-import { MARKET } from '../config/market.ts';
+import { MARKET, type RarityId } from '../config/market.ts';
 
 export type MarketKind = 'character' | 'emote';
 
@@ -10,6 +10,59 @@ export interface CatalogItem {
   /** Index in its own list (character index for the renderer / portraits). */
   index: number;
   name: string;
+}
+
+const RARITY = MARKET.rarity;
+
+/** Tier of a catalog item: fixed in the config, or stable from its id (FNV-1a, so every client and the server agree). */
+export function itemRarity(ref: string): RarityId {
+  const fixed = RARITY.items[ref];
+  if (fixed) return fixed;
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < ref.length; i++) hash = Math.imul(hash ^ ref.charCodeAt(i), 0x01000193);
+  let roll = (hash >>> 0) % 100;
+  for (const [tier, weight] of Object.entries(RARITY.weights)) {
+    if (roll < weight) return tier as RarityId;
+    roll -= weight;
+  }
+  return 'common';
+}
+
+export interface RefPrices { /** Cheapest open listing, 0 = none. */ lowest: number; /** Latest sale, 0 = none. */ last: number }
+interface PriceListing { ref: string; price: number }
+interface PriceTrade extends PriceListing { id: bigint }
+
+/** Lowest listing and latest sale of every item. */
+export function marketPrices(listings: Iterable<PriceListing>, trades: Iterable<PriceTrade>): Map<string, RefPrices> {
+  const out = new Map<string, RefPrices>();
+  const entry = (ref: string) => { let e = out.get(ref); if (!e) { e = { lowest: 0, last: 0 }; out.set(ref, e); } return e; };
+  for (const l of listings) { const e = entry(l.ref); if (e.lowest === 0 || l.price < e.lowest) e.lowest = l.price; }
+  const lastId = new Map<string, bigint>();
+  for (const t of trades) {
+    const seen = lastId.get(t.ref);
+    if (seen === undefined || t.id > seen) { lastId.set(t.ref, t.id); entry(t.ref).last = t.price; }
+  }
+  return out;
+}
+
+/** Price offered when listing an item: the lowest listing, else the latest sale, else the base price of its tier. */
+export function suggestedPrice(ref: string, prices: RefPrices | undefined): number {
+  return prices?.lowest || prices?.last || RARITY.basePrice[itemRarity(ref)];
+}
+
+export interface SaleRow extends PriceTrade { seller: string; fee: number }
+export interface NewSales { count: number; coins: number; /** Item of the newest sale. */ ref: string; /** Highest sale id so far (`seenId` if none, at least 0). */ lastId: bigint }
+
+/** The account's sales after `seenId`: how many, and the coins received after the fee. */
+export function newSales(trades: Iterable<SaleRow>, account: string, seenId: bigint): NewSales {
+  const out: NewSales = { count: 0, coins: 0, ref: '', lastId: seenId < 0n ? 0n : seenId };
+  for (const t of trades) {
+    if (t.seller !== account || t.id <= seenId) continue;
+    out.count++;
+    out.coins += t.price - t.fee;
+    if (t.id >= out.lastId) { out.lastId = t.id; out.ref = t.ref; }
+  }
+  return out;
 }
 
 /** Burned part of a sale: `feeRate` of the price, rounded down, at least 1 coin. */
@@ -37,10 +90,11 @@ export function matchPays(players: number, seconds: number): boolean {
 /** UTC day key for the first-win bonus, e.g. `2026-11-05`. */
 export function utcDay(ms: number): string { return new Date(ms).toISOString().slice(0, 10); }
 
-/** Starter set: distinct random characters and emotes. `random` in [0, 1). */
+/** Starter set: distinct random characters and emotes, none above `rarity.starterMax`. `random` in [0, 1). */
 export function starterRefs(catalog: readonly CatalogItem[], random: () => number): string[] {
   const pick = (kind: MarketKind, count: number) => {
-    const pool = catalog.filter((c) => c.kind === kind).map((c) => c.ref);
+    const max = RARITY.tiers.indexOf(RARITY.starterMax);
+    const pool = catalog.filter((c) => c.kind === kind && RARITY.tiers.indexOf(itemRarity(c.ref)) <= max).map((c) => c.ref);
     const out: string[] = [];
     while (out.length < count && pool.length > 0) out.push(pool.splice(Math.floor(random() * pool.length), 1)[0]);
     return out;

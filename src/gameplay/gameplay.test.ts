@@ -17,7 +17,7 @@ import { lootPlan, tickModeRound } from './mode.ts';
 import { MUTATOR_IDS, mutatorOfDay, mutatorRules } from '../config/mutators.ts';
 import { CORNUCOPIA } from '../config/items.ts';
 import { MARKET } from '../config/market.ts';
-import { matchPays, matchReward, priceError, RateLimiter, saleFee, starterRefs, utcDay, type CatalogItem } from './marketRules.ts';
+import { itemRarity, marketPrices, matchPays, matchReward, newSales, priceError, RateLimiter, saleFee, starterRefs, suggestedPrice, utcDay, type CatalogItem } from './marketRules.ts';
 import { AUTH } from '../config/auth.ts';
 import { loginError, personalHash, recoverSigner, signLogin } from './walletAuth.ts';
 import { loginMessage } from './walletMessage.ts';
@@ -467,6 +467,41 @@ test('missions: tiers ask for more and pay more, each pays once', () => {
   assert.notEqual(questScope('day', t), questScope('day', t + DAY_MS));
   assert.equal(questScope('week', Date.UTC(2026, 10, 2)), questScope('week', Date.UTC(2026, 10, 8, 23)));
   assert.equal(questScope('season', t), `s${SEASON.id}`);
+});
+
+test('market: rarity is stable, starter sets stay low, prices and sale notice read the rows', () => {
+  const allowed = new Set(MARKET.rarity.tiers);
+  for (const ref of Object.keys(MARKET.rarity.items)) assert.ok(allowed.has(itemRarity(ref)), ref);
+  assert.equal(itemRarity('character:vibe-vibers-viber-extra-20'), 'legendary');
+  assert.equal(itemRarity('character:x'), itemRarity('character:x'));
+  const refs = Array.from({ length: 400 }, (_, i) => `character:test-${i}`);
+  const counts = new Map<string, number>();
+  for (const ref of refs) counts.set(itemRarity(ref), (counts.get(itemRarity(ref)) ?? 0) + 1);
+  for (const tier of ['common', 'uncommon', 'rare', 'epic'] as const) assert.ok((counts.get(tier) ?? 0) > 0, tier);
+  assert.equal(counts.get('legendary'), undefined, 'legendary only from a fixed list');
+  assert.ok(counts.get('common')! > counts.get('rare')!);
+  const catalog: CatalogItem[] = [...refs.map((ref, index) => ({ ref, kind: 'character' as const, index, name: ref })),
+    ...['wave', 'shrug', 'cheer', 'dance', 'hop'].map((id, index) => ({ ref: `emote:${id}`, kind: 'emote' as const, index, name: id }))];
+  const max = MARKET.rarity.tiers.indexOf(MARKET.rarity.starterMax);
+  for (let seed = 0; seed < 50; seed++) {
+    let x = seed + 1;
+    const set = starterRefs(catalog, () => (x = (x * 16807) % 2147483647) / 2147483647);
+    assert.equal(set.length, MARKET.starter.characters + MARKET.starter.emotes);
+    for (const ref of set) assert.ok(MARKET.rarity.tiers.indexOf(itemRarity(ref)) <= max, ref);
+  }
+  const prices = marketPrices([{ ref: 'a', price: 90 }, { ref: 'a', price: 70 }], [{ id: 2n, ref: 'a', price: 60 }, { id: 5n, ref: 'a', price: 80 }, { id: 3n, ref: 'b', price: 40 }]);
+  assert.deepEqual(prices.get('a'), { lowest: 70, last: 80 });
+  assert.deepEqual(prices.get('b'), { lowest: 0, last: 40 });
+  assert.equal(suggestedPrice('a', prices.get('a')), 70);
+  assert.equal(suggestedPrice('b', prices.get('b')), 40);
+  assert.equal(suggestedPrice('emote:wave', undefined), MARKET.rarity.basePrice.common);
+  for (const price of Object.values(MARKET.rarity.basePrice)) assert.equal(priceError(price), '');
+  const row = (id: bigint, seller: string, price: number, ref = 'a') => ({ id, seller, price, ref, fee: saleFee(price) });
+  const trades = [row(1n, 'me', 100), row(2n, 'you', 100), row(4n, 'me', 200, 'b')];
+  assert.deepEqual(newSales(trades, 'me', 1n), { count: 1, coins: 190, ref: 'b', lastId: 4n });
+  assert.deepEqual(newSales(trades, 'me', 4n), { count: 0, coins: 0, ref: '', lastId: 4n });
+  assert.equal(newSales(trades, 'me', -1n).lastId, 4n);
+  assert.equal(newSales([], 'me', -1n).lastId, 0n);
 });
 
 console.log(`${passed} gameplay checks passed`);

@@ -6,7 +6,20 @@
 .market-coins b { font-size: 16px; }
 .market-views button { font-family: var(--menu-display); font-size: 15px; }
 .market-tools { display: flex; gap: 8px; }
-.market-tools select { width: 50%; }
+.market-tools { flex-wrap: wrap; }
+.market-tools select { flex: 1 1 0; min-width: 0; }
+.market-search { flex: 1 0 100%; border: 2px solid var(--menu-ink); border-radius: 7px; padding: 6px 8px; background: #fff; color: var(--menu-ink); font-weight: 800; font-size: 12px; }
+.market-row[data-rarity="common"] { --rarity: #6f747c; }
+.market-row[data-rarity="uncommon"] { --rarity: #2f8a3e; }
+.market-row[data-rarity="rare"] { --rarity: #2470cc; }
+.market-row[data-rarity="epic"] { --rarity: #8a3fd1; }
+.market-row[data-rarity="legendary"] { --rarity: #c96a08; }
+.market-row[data-rarity="mythic"] { --rarity: #d42a6e; }
+.market-row[data-rarity] { border-left: 7px solid var(--rarity); }
+.market-row[data-rarity] .market-thumb { border-color: var(--rarity); }
+.market-tier { padding: 1px 5px; border-radius: 4px; background: var(--rarity); color: #fff; font-style: normal; }
+.market-sale-notice { position: absolute; top: 92px; left: 50%; transform: translateX(-50%); z-index: 30; display: flex; gap: 12px; align-items: center; padding: 10px 16px; border: 2px solid var(--menu-ink); border-radius: 10px; background: var(--menu-accent); box-shadow: 0 3px 0 var(--menu-ink); color: var(--menu-ink); font-size: 14px; font-weight: 800; cursor: pointer; white-space: nowrap; }
+.market-sale-notice span { font: 18px var(--menu-display); }
 .market-list { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 7px; padding-right: 4px; }
 .market-row { display: flex; align-items: center; gap: 10px; padding: 7px 9px; border: 2px solid var(--menu-ink); border-radius: 9px; background: var(--menu-cream); }
 .market-thumb { flex: 0 0 44px; width: 44px; height: 48px; border: 2px solid var(--menu-ink); border-radius: 7px; background: var(--menu-portrait); overflow: hidden; display: flex; align-items: center; justify-content: center; }

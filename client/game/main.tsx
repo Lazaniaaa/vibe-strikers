@@ -83,6 +83,7 @@ let menuScene: MenuScene | null = null;
 let menuSceneGeneration = 0;
 menu.onCharacterView = index => menuScene?.select(index);
 menu.onVisibility = visible => {
+  if (visible && net) void showSales(net);
   const generation = ++menuSceneGeneration;
   menuScene?.dispose(); menuScene = null;
   if (!visible) return;
@@ -133,10 +134,11 @@ function ensureNet(): Promise<GameNet> {
       lagMs: Number(params.get('lag') ?? 0) || 0,
     });
     await n.connect();
-    n.onMarketChange = () => { showAccount(n); marketPanel?.refresh(); leaderPanel?.refresh(); seasonPanel?.refresh(); };
+    n.onMarketChange = () => { showAccount(n); marketPanel?.refresh(); leaderPanel?.refresh(); seasonPanel?.refresh(); if (net) void showSales(net); };
     await n.subscribeMarket().catch(() => undefined); // the game works without the market
     showAccount(n);
     net = n;
+    void showSales(n);
     return n;
   })();
   connecting.catch(() => { connecting = null; });
@@ -215,6 +217,21 @@ function openSeason(): void {
     seasonPanel.show();
     try { seasonPanel.attach(await ensureNet()); } catch { seasonPanel.attach(null); }
   })();
+}
+
+// "Item sold" notice: its code and the catalog load when a logged-in player is seen.
+let saleNotice: import('../../src/ui/saleNotice').SaleNotice | null = null;
+let saleNoticeLoading = false;
+async function showSales(n: GameNet): Promise<void> {
+  if (!n.market.account) return;
+  if (!saleNotice) {
+    if (saleNoticeLoading) return;
+    saleNoticeLoading = true;
+    const [{ SaleNotice }, { catalogItem }] = await Promise.all([import('../../src/ui/saleNotice'), import('../../src/gameplay/market')]);
+    const describe = itemDescriber(catalogItem);
+    saleNotice = new SaleNotice(menu.root, (ref) => describe(ref).name);
+  }
+  saleNotice.update(n.market.account, n.market.trades.values());
 }
 
 // MARKET tab: the panel and the catalog load on first open.

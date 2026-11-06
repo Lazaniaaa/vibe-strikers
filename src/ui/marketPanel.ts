@@ -1,7 +1,7 @@
 // Lobby MARKET tab (GAME.md 6.7): browse listings, buy with a confirm step, list / cancel my items, recent trades.
 // Plain DOM over a GameNet (the server decides everything; this panel only shows rows and sends intents).
 import { MARKET } from '../config/market.ts';
-import { priceError, saleFee } from '../gameplay/marketRules.ts';
+import { itemRarity, marketPrices, priceError, saleFee, suggestedPrice, type RefPrices } from '../gameplay/marketRules.ts';
 import { shortAddress } from '../gameplay/walletMessage.ts';
 import { AUTH } from '../config/auth.ts';
 import type { GameNet, ListingRow, OwnedItemRow } from '../network/client.ts';
@@ -12,6 +12,8 @@ export interface MarketItemView { name: string; kind: string; portrait?: string 
 
 type View = 'browse' | 'mine' | 'history';
 type Filter = 'all' | 'character' | 'emote';
+const LISTED_TIERS = MARKET.rarity.tiers.filter((tier) => tier !== 'mythic'); // no catalog item is mythic yet: NFTs only
+const title = (s: string) => `${s[0].toUpperCase()}${s.slice(1)}`;
 type Sort = 'cheap' | 'expensive' | 'new';
 
 const CONFIRM_MS = 3000;
@@ -28,6 +30,8 @@ export class MarketPanel {
   private net: GameNet | null = null;
   private view: View = 'browse';
   private filter: Filter = 'all';
+  private rarity = 'all';
+  private search = '';
   private sort: Sort = 'cheap';
   /** Listing id waiting for the second (confirm) click, and until when. */
   private confirm: { id: bigint; until: number } | null = null;
@@ -47,6 +51,10 @@ export class MarketPanel {
     parent.append(this.root);
     this.root.addEventListener('click', (e) => this.onClick(e));
     this.root.addEventListener('change', (e) => this.onChange(e));
+    this.root.addEventListener('input', (e) => {
+      const t = e.target as HTMLInputElement;
+      if (t.matches('.market-search')) { this.search = t.value; this.draw(); }
+    });
     this.root.addEventListener('keydown', (e) => { if (e.key === 'Enter' && (e.target as HTMLElement).matches('.market-price')) (e.target as HTMLElement).closest('.market-row')?.querySelector<HTMLButtonElement>('[data-sell]')?.click(); });
     this.draw();
   }
@@ -72,7 +80,17 @@ export class MarketPanel {
   private itemCell(ref: string): string {
     const d = this.describe(ref);
     const img = d.portrait ? `<img src="${d.portrait}" alt="">` : `<span class="market-icon">${d.kind === 'emote' ? '✦' : '?'}</span>`;
-    return `<div class="market-thumb">${img}</div><div class="market-what"><strong>${esc(d.name)}</strong><small>${esc(d.kind)}</small></div>`;
+    return `<div class="market-thumb">${img}</div><div class="market-what"><strong>${esc(d.name)}</strong><small><i class="market-tier">${itemRarity(ref)}</i> ${esc(d.kind)}</small></div>`;
+  }
+
+  /** One row, coloured by the item's rarity. */
+  private row(ref: string, rest: string): string {
+    return `<div class="market-row" data-rarity="${itemRarity(ref)}">${this.itemCell(ref)}${rest}</div>`;
+  }
+
+  private prices(): Map<string, RefPrices> {
+    const m = this.net?.market;
+    return m ? marketPrices(m.listings.values(), m.trades.values()) : new Map<string, RefPrices>();
   }
 
   private draw(): void {
@@ -83,7 +101,8 @@ export class MarketPanel {
     for (const input of this.root.querySelectorAll<HTMLInputElement>('.market-price')) if (input.value) typed.set(input.dataset.item ?? '', input.value);
     const active = document.activeElement as HTMLInputElement | null;
     const focusItem = active?.matches?.('.market-price') && this.root.contains(active) ? active.dataset.item ?? null : null;
-    const caret = focusItem !== null ? active!.selectionStart : null;
+    const searching = !!active?.matches?.('.market-search') && this.root.contains(active);
+    const caret = focusItem !== null || searching ? active!.selectionStart : null;
     const scroll = this.root.querySelector<HTMLElement>('.market-list')?.scrollTop ?? 0;
     const m = this.net?.market, me = m?.account ?? '';
     const coins = m?.wallet?.coins;
@@ -100,6 +119,8 @@ export class MarketPanel {
         <div class="market-coins" title="Your coins"><b>◉</b> ${coins === undefined ? '…' : coins}</div></header>
       <div class="menu-segment market-views" role="group" aria-label="Market view">${tabs}</div>
       ${this.view === 'browse' ? `<div class="market-tools">
+        <input class="market-search" type="search" placeholder="Search by name" aria-label="Search by name" maxlength="40">
+        <select class="market-rarity" aria-label="Rarity"><option value="all">All rarities</option>${LISTED_TIERS.map((tier) => `<option value="${tier}">${title(tier)}</option>`).join('')}</select>
         <select class="market-filter" aria-label="Filter"><option value="all">All items</option><option value="character">Characters</option><option value="emote">Emotes</option></select>
         <select class="market-sort" aria-label="Sort"><option value="cheap">Cheapest first</option><option value="expensive">Most expensive</option><option value="new">Newest</option></select></div>` : ''}
       <div class="market-list">${body}</div>
@@ -109,6 +130,10 @@ export class MarketPanel {
     const f = this.root.querySelector<HTMLSelectElement>('.market-filter'), s = this.root.querySelector<HTMLSelectElement>('.market-sort');
     if (f) f.value = this.filter;
     if (s) s.value = this.sort;
+    const r = this.root.querySelector<HTMLSelectElement>('.market-rarity');
+    if (r) r.value = this.rarity;
+    const find = this.root.querySelector<HTMLInputElement>('.market-search');
+    if (find) { find.value = this.search; if (searching) { find.focus(); find.setSelectionRange(caret, caret); } }
     for (const input of this.root.querySelectorAll<HTMLInputElement>('.market-price')) {
       const value = typed.get(input.dataset.item ?? '');
       if (value !== undefined) input.value = value;
@@ -119,13 +144,16 @@ export class MarketPanel {
   }
 
   private browse(listings: ReadonlyMap<bigint, ListingRow>, me: string, coins: number): string {
-    let rows = [...listings.values()].filter((l) => this.filter === 'all' || l.ref.startsWith(`${this.filter}:`));
+    const words = this.search.trim().toLowerCase();
+    let rows = [...listings.values()].filter((l) => (this.filter === 'all' || l.ref.startsWith(`${this.filter}:`))
+      && (this.rarity === 'all' || itemRarity(l.ref) === this.rarity)
+      && (!words || this.describe(l.ref).name.toLowerCase().includes(words)));
     rows.sort((a, b) => this.sort === 'cheap' ? a.price - b.price || Number(a.id - b.id)
       : this.sort === 'expensive' ? b.price - a.price || Number(a.id - b.id)
       : Number(b.id - a.id));
     const guest = me === '' ? this.loginPrompt() : '';
-    if (!rows.length) return `${guest}<p class="market-empty">Nothing for sale yet. List one of your items in "My items".</p>`;
-    const now = performance.now(), total = rows.length;
+    if (!rows.length) return `${guest}<p class="market-empty">${listings.size ? 'Nothing matches your search.' : 'Nothing for sale yet. List one of your items in "My items".'}</p>`;
+    const now = performance.now(), total = rows.length, prices = this.prices();
     rows = rows.slice(0, MAX_ROWS);
     const more = total > rows.length ? `<p class="market-empty">Showing ${rows.length} of ${total}. Use the filter and sort to find more.</p>` : '';
     return guest + rows.map((l) => {
@@ -133,7 +161,9 @@ export class MarketPanel {
       const confirming = this.confirm && this.confirm.id === l.id && this.confirm.until > now;
       const action = own ? `<button data-cancel="${l.id}" class="menu-small-action">Cancel</button>`
         : `<button data-buy="${l.id}" data-price="${l.price}" class="menu-small-action market-buy${confirming ? ' confirm' : ''}" ${coins < l.price || this.busy || !me ? 'disabled' : ''}>${confirming ? `Confirm ${l.price}?` : `Buy ◉ ${l.price}`}</button>`;
-      return `<div class="market-row">${this.itemCell(l.ref)}<div class="market-meta">${own ? 'Your listing' : `Seller ${esc(shortAddress(l.seller))}`}</div>${action}</div>`;
+      const p = prices.get(l.ref);
+      const hints = [p && p.lowest < l.price ? `Lowest ◉ ${p.lowest}` : '', p?.last ? `Last sale ◉ ${p.last}` : ''].filter(Boolean).join(' · ');
+      return this.row(l.ref, `<div class="market-meta">${own ? 'Your listing' : `Seller ${esc(shortAddress(l.seller))}`}${hints ? `<br>${hints}` : ''}</div>${action}`);
     }).join('') + more;
   }
 
@@ -148,13 +178,16 @@ export class MarketPanel {
     for (const l of listings.values()) if (l.seller === me) listed.set(l.itemId, l);
     const own = [...items.values()].filter((i) => i.owner === me).sort((a, b) => a.ref.localeCompare(b.ref) || Number(a.id - b.id));
     if (!own.length) return '<p class="market-empty">You have no items yet.</p>';
+    const prices = this.prices();
     return own.map((i) => {
+      const p = prices.get(i.ref);
+      const hint = p?.lowest || p?.last ? [p.lowest ? `Lowest ◉ ${p.lowest}` : '', p.last ? `Last sale ◉ ${p.last}` : ''].filter(Boolean).join('<br>') : 'No sales yet';
       const l = listed.get(i.id);
       const action = l
         ? `<div class="market-meta">Listed at ◉ ${l.price}</div><button data-cancel="${l.id}" class="menu-small-action">Cancel</button>`
-        : `<input class="market-price" type="number" inputmode="numeric" min="${MARKET.price.min}" max="${MARKET.price.max}" step="1" placeholder="Price" aria-label="Price in coins" data-item="${i.id}">
+        : `<div class="market-meta">${hint}</div><input class="market-price" type="number" inputmode="numeric" min="${MARKET.price.min}" max="${MARKET.price.max}" step="1" placeholder="${suggestedPrice(i.ref, p)}" aria-label="Price in coins" data-item="${i.id}">
            <button data-sell="${i.id}" class="menu-small-action" ${this.busy ? 'disabled' : ''}>Sell</button>`;
-      return `<div class="market-row">${this.itemCell(i.ref)}${action}</div>`;
+      return this.row(i.ref, action);
     }).join('');
   }
 
@@ -163,7 +196,7 @@ export class MarketPanel {
     if (!trades.length) return '<p class="market-empty">No trades yet.</p>';
     return trades.map((t) => {
       const mine = me && t.buyer === me ? 'You bought' : me && t.seller === me ? `You sold (+${t.price - t.fee})` : 'Sold';
-      return `<div class="market-row">${this.itemCell(t.ref)}<div class="market-meta">${mine}</div><div class="market-price-tag">◉ ${t.price}</div></div>`;
+      return this.row(t.ref, `<div class="market-meta">${mine}</div><div class="market-price-tag">◉ ${t.price}</div>`);
     }).join('');
   }
 
@@ -171,6 +204,7 @@ export class MarketPanel {
     const t = e.target as HTMLElement;
     if (t.matches('.market-filter')) { this.filter = (t as HTMLSelectElement).value as Filter; this.draw(); }
     if (t.matches('.market-sort')) { this.sort = (t as HTMLSelectElement).value as Sort; this.draw(); }
+    if (t.matches('.market-rarity')) { this.rarity = (t as HTMLSelectElement).value; this.draw(); }
   }
 
   private run(action: () => Promise<void>, done: string): void {
