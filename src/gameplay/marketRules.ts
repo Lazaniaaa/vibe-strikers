@@ -14,13 +14,29 @@ export interface CatalogItem {
 
 const RARITY = MARKET.rarity;
 
-/** Tier of a catalog item: fixed in the config, or stable from its id (FNV-1a, so every client and the server agree). */
+/** FNV-1a hash of a text, as an unsigned 32-bit number. */
+function textHash(text: string): number {
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < text.length; i++) hash = Math.imul(hash ^ text.charCodeAt(i), 0x01000193);
+  return hash >>> 0;
+}
+
+/** Repeatable random numbers in [0, 1) from a text (mulberry32). */
+export function textRandom(text: string): () => number {
+  let state = textHash(text);
+  return () => {
+    state = (state + 0x6d2b79f5) | 0;
+    let t = Math.imul(state ^ (state >>> 15), 1 | state);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/** Tier of a catalog item: fixed in the config, or stable from its id, so every client and the server agree. */
 export function itemRarity(ref: string): RarityId {
   const fixed = RARITY.items[ref];
   if (fixed) return fixed;
-  let hash = 0x811c9dc5;
-  for (let i = 0; i < ref.length; i++) hash = Math.imul(hash ^ ref.charCodeAt(i), 0x01000193);
-  let roll = (hash >>> 0) % 100;
+  let roll = textHash(ref) % 100;
   for (const [tier, weight] of Object.entries(RARITY.weights)) {
     if (roll < weight) return tier as RarityId;
     roll -= weight;

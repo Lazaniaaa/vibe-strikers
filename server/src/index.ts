@@ -33,7 +33,7 @@ import { loginError } from '../../src/gameplay/walletAuth.ts';
 import { weekOf } from '../../src/gameplay/rewards.ts';
 import { QUESTS, SEASON, type QuestKind } from '../../src/config/season.ts';
 import { dayNumber, matchXp, questScope, questsDone, questXp, seasonActive, seasonClaim, seasonLevel, streakAfterPlay, streakCoins } from '../../src/gameplay/progression.ts';
-import { CATALOG, matchPays, matchReward, priceError, RateLimiter, saleFee, starterRefs, utcDay } from '../../src/gameplay/market.ts';
+import { CATALOG, matchPays, matchReward, priceError, RateLimiter, saleFee, starterRefs, textRandom, utcDay } from '../../src/gameplay/market.ts';
 
 const room = table({ name: 'room', public: true }, {
   id: t.u64().primaryKey().autoInc(),
@@ -701,7 +701,8 @@ function ensureWallet(ctx: Ctx, owner: string): WalletRow {
   if (found) return found;
   const w = ctx.db.wallet.insert({ owner, coins: MARKET.startCoins, createdAt: ctx.timestamp, lastWinDay: '' });
   mint(ctx, MARKET.startCoins);
-  for (const ref of starterRefs(CATALOG, () => ctx.random())) ctx.db.ownedItem.insert({ id: 0n, owner, ref, acquiredAt: ctx.timestamp });
+  // Mixed with the address: the first ctx.random() of a reducer favoured the first character of the list.
+  for (const ref of starterRefs(CATALOG, textRandom(`${owner}:${ctx.random()}`))) ctx.db.ownedItem.insert({ id: 0n, owner, ref, acquiredAt: ctx.timestamp });
   return w;
 }
 

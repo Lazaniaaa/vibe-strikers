@@ -17,7 +17,7 @@ import { lootPlan, tickModeRound } from './mode.ts';
 import { MUTATOR_IDS, mutatorOfDay, mutatorRules } from '../config/mutators.ts';
 import { CORNUCOPIA } from '../config/items.ts';
 import { MARKET } from '../config/market.ts';
-import { itemRarity, marketPrices, matchPays, matchReward, newSales, priceError, RateLimiter, saleFee, starterRefs, suggestedPrice, utcDay, type CatalogItem } from './marketRules.ts';
+import { itemRarity, marketPrices, matchPays, matchReward, newSales, priceError, RateLimiter, saleFee, starterRefs, suggestedPrice, textRandom, utcDay, type CatalogItem } from './marketRules.ts';
 import { AUTH } from '../config/auth.ts';
 import { loginError, personalHash, recoverSigner, signLogin } from './walletAuth.ts';
 import { loginMessage } from './walletMessage.ts';
@@ -502,6 +502,26 @@ test('market: rarity is stable, starter sets stay low, prices and sale notice re
   assert.deepEqual(newSales(trades, 'me', 4n), { count: 0, coins: 0, ref: '', lastId: 4n });
   assert.equal(newSales(trades, 'me', -1n).lastId, 4n);
   assert.equal(newSales([], 'me', -1n).lastId, 0n);
+});
+
+test('market: starter sets are spread evenly over the wallets', () => {
+  const cat: CatalogItem[] = [
+    ...Array.from({ length: 26 }, (_, i) => ({ ref: `character:test-${i}`, kind: 'character' as const, index: i, name: `c${i}` })),
+    ...['wave', 'shrug'].map((id, index) => ({ ref: `emote:${id}`, kind: 'emote' as const, index, name: id })),
+  ].filter((c) => MARKET.rarity.tiers.indexOf(itemRarity(c.ref)) <= MARKET.rarity.tiers.indexOf(MARKET.rarity.starterMax));
+  const characters = cat.filter((c) => c.kind === 'character').length, wallets = 20000;
+  const counts = new Map<string, number>();
+  for (let w = 0; w < wallets; w++) {
+    for (const ref of starterRefs(cat, textRandom(`0x${w.toString(16).padStart(40, '0')}:0.5`))) counts.set(ref, (counts.get(ref) ?? 0) + 1);
+  }
+  const expected = wallets * MARKET.starter.characters / characters;
+  for (const c of cat.filter((x) => x.kind === 'character')) {
+    const seen = counts.get(c.ref) ?? 0;
+    assert.ok(Math.abs(seen - expected) < expected * 0.1, `${c.ref}: ${seen}, expected about ${expected}`);
+  }
+  const random = textRandom('a'), again = textRandom('a');
+  assert.equal(random(), again());
+  assert.notEqual(textRandom('a')(), textRandom('b')());
 });
 
 console.log(`${passed} gameplay checks passed`);

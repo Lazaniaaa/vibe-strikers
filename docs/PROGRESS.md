@@ -649,8 +649,11 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   for the lobby), lowest listing, latest sale and a suggested price, search by name, rarity label and filter (`MARKET.rarity`,
   `itemRarity`: 18 common, 10 uncommon, 5 rare, 3 epic, 2 legendary; mythic kept for NFTs). Starter sets now hold common and
   uncommon only. Checked with two real test wallets on the local server: docs/evidence/market-*.jpg, no console errors.
-  Found, not fixed: starter characters are skewed (4 of 7 new local wallets got the same two), probably `ctx.random` right
-  after a reducer starts. The NFT tab waits for the NFT plan (owner has not said yes yet) and for Codex.
+  The NFT tab waits for the NFT plan (owner has not said yes yet) and for Codex.
+- 2026-11-06 owner: starter sets evened out. 40 new local wallets: the first character of the list came 12 times (expected 4.6),
+  so the first `ctx.random()` of a reducer looks biased low (the cause is not proven further). The pick now uses `textRandom` from
+  the address and `ctx.random()`: 80 wallets, top 15 of expected 9.2, first character 12, chi-square 22 of about 44 allowed. Wallets
+  that already exist keep their items. Other `ctx.random()` users (room codes, bots, shot spread) were not checked.
 - 2026-10-31 owner: ADS proposal approved
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
