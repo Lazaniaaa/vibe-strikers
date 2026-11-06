@@ -19,7 +19,7 @@ export class Sfx {
   /** Plays per sound (tests / debug). */
   readonly played: Record<string, number> = {};
 
-  /** The shared AudioContext (music uses it too); null until audio can start. */
+  /** The shared AudioContext; null until audio can start. */
   context(): AudioContext | null { return this.ensure(); }
 
   constructor() {

@@ -272,7 +272,7 @@ word filter). Voice chat LATER.
 ## 10. HUD and settings
 HUD: crosshair, HP, ammo/weapon, round timer and score, kill feed, hit marker,
 damage direction, TAB scoreboard, killcam banner, spectate overlay, ping + FPS.
-Settings: mouse sensitivity, FOV (default 90, 70-110), volume (master/sfx/music),
+Settings: mouse sensitivity, FOV (default 90, 70-110), volume (master),
 crosshair (color, size, style), second-view mode (toggle/hold), ADS mode (toggle
 default / hold, owner 2026-10-31, M3), ping+FPS on/off, screen shake when hit
 (on / off, default on; camera roll + small offset only, the aim point does not move; 2026-11-01).
@@ -296,9 +296,8 @@ reload, footsteps (positional, silent while sneaking), UI. Since 2026-11-06 the 
 rounds (cartoon direction) replace the synth for: shots (knife, pistol, rifle, shotgun, sniper), hit, headshot,
 footsteps (4 renders, random per step), button hover (lobby, once per button entered) and loot (item picked up;
 online after the server accepts). Map in `src/ui/sounds/picks.ts`, volumes in `config/audio.ts` PICKED_SOUNDS.
-Kill, hurt, reload, ping and click keep the synth. Music is generative and
-subtle, layered by situation: lobby (calm), round (rhythm), last 15 s (tension), win
-sting. Code-generated, no music files.
+Kill, hurt, reload, ping and click keep the synth. No music: the owner removed the generative music and its win /
+lose stings on 2026-11-06; effects only.
 
 ## 13. Map: "Toy Town" — DECIDED (built and approved by the asset owner)
 - Map 1 is `src/maps/data/*.json`, loaded with `loadMapData`. Pastel voxel town,

@@ -615,6 +615,8 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   ours (Google DNS resolves them), so this is a network filter, not a propagation delay. The Worker copy
   https://vibe-strikers.voxel-character-review.workers.dev resolves there and now has the same build as Pages.
   Owner: give both links and update both on every deploy (steps in docs/HOSTING.md 5). Both are on the same build now.
+- 2026-11-06 owner: removed the music ("I can't stand this melody"): `src/ui/music.ts`, `MUSIC`, the Music volume setting
+  and `scripts/e2e-music.cjs` are gone, including the win / lose stings. All other sounds stay.
   Local SpacetimeDB: the new CLI login (Maincloud) could not update the local database made by the old identity, so
   the old data folder was moved to `%LOCALAPPDATA%\SpacetimeDB\data-old-2026-11-06` and the local server started
   fresh (test data only; delete the old folder when sure).

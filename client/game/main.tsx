@@ -6,7 +6,6 @@ import { Menu, type MenuChoice } from '../../src/ui/menu';
 import { getSettingsPanel, settingsButton } from '../../src/ui/settingsPanel';
 import { levelOf } from '../../src/gameplay/progression';
 import { getSfx } from '../../src/ui/sfx';
-import { getMusic } from '../../src/ui/music';
 import type { GameOptions } from './GameApp';
 import { Loading } from './loading';
 import type { MenuScene } from './menuScene';
@@ -247,8 +246,6 @@ async function startOffline(character?: number, difficulty: BotDifficulty = save
 
 async function menuLoop(): Promise<void> {
   menu.show();
-  getMusic().setMood('menu');
-  if (debug) (window as unknown as { __music?: unknown }).__music = getMusic();
   for (;;) {
     const autoName = params.get('name') ?? 'Tester';
     const choice: MenuChoice = auto === 'quick' ? { kind: 'quick', name: autoName }

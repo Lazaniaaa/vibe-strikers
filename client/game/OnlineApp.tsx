@@ -31,7 +31,6 @@ import { CameraShake } from './cameraShake';
 import { AdsController } from './ads';
 import { BootGlows, ItemViews } from './items';
 import { SecondPersonView } from './secondPerson';
-import { getMusic, MusicDirector } from '../../src/ui/music';
 import { mutatorLabel, mutatorRules } from '../../src/config/mutators';
 import { PingMarkers } from './pings';
 import { pingPoint } from './pingRay';
@@ -122,7 +121,6 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
     const second = new SecondPersonView(local);
     second.rig.setHeadScale(rules.headScale);
     const pings = new PingMarkers();
-    const music = new MusicDirector();
     const nameTags = new NameTags(hudRoot);
     const tagger = new TagProjector(nameTags, blockers);
     const remotes = new Map<bigint, Remote>();
@@ -204,7 +202,7 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
         weapon: k.weapon, headshot: k.headshot });
       if (feedEntries.length > 4) feedEntries.shift();
     };
-    return { music, rules, local, motor, input, hud, scoreboard, viewmodel, ads, view, sfx, audio, markers, items, glows, second, pings, feedEntries, nameTags, tagger, effects, remotes, perf, stats, sample, feed, scratch, rewinds, allyMat, allyGeo,
+    return { rules, local, motor, input, hud, scoreboard, viewmodel, ads, view, sfx, audio, markers, items, glows, second, pings, feedEntries, nameTags, tagger, effects, remotes, perf, stats, sample, feed, scratch, rewinds, allyMat, allyGeo,
       disposables: [unitBox, tracerMat, impactMat, chipMat, flashMat, flashGeo, allyMat, allyGeo] };
   }, [net, world, rapier, gl, scene, debug, onLeave]);
 
@@ -221,7 +219,6 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
       window.__online = {
         net, local: game.local, stats: game.stats,
         snapshot: () => ({
-          music: { mood: getMusic().mood, notes: { ...getMusic().notes }, stings: { ...getMusic().stings } },
           room: net.room?.code, mutator: net.room?.mutator, roomInfo: view.roomInfo, phase: net.room?.phase, round: net.room?.round, scoreA: net.room?.scoreA, scoreB: net.room?.scoreB,
           me: net.me && { id: String(net.me.id), team: net.me.team, x: net.me.x, z: net.me.z, hp: net.me.hp, alive: net.me.alive,
             mag: net.me.mag, reserve: net.me.reserve, violations: net.me.violations, kills: net.me.kills, deaths: net.me.deaths },
@@ -515,7 +512,6 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
       const near = local.alive && room?.phase === 'live' ? nearestOf(net.items.values(), local.x, local.y, local.z) : null;
       view.hint = near ? itemHint(near) : healHint((me?.healLeft ?? 0) > 0);
       view.pings = game.pings.text(local.x, local.z);
-      if (room) game.music.update(room.phase, room.timeLeft, room.phase === 'matchEnd' ? room.matchWinner : room.lastWinner, me?.team ?? '');
       view.fps = stats.fps;
       view.perf = `${Math.round(stats.triangles / 1000)}k tris · ${stats.calls} calls · res ${stats.res}x · worst ${Math.round(perf.displayWorstMs)} ms / 5 s · ping ${Math.round(net.pingMs)} · snap-backs ${net.corrections}`;
       game.scoreboard.setVisible(input.isDown(KEYS.scoreboard));
