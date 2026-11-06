@@ -106,6 +106,15 @@ npm run game:build
 Then upload again: Cloudflare dashboard → your Pages project → **Create deployment** (or
 **Deployments** → upload) → drag `work\game-dist` again. Or: `npx wrangler pages deploy work/game-dist --project-name voxel-arena`.
 
+**Live now (2026-11-06):** Maincloud database `vibe-strikers`, Pages project `vibe-strikers` →
+https://vibe-strikers.pages.dev. Update the client with wrangler from a folder OUTSIDE the repo that holds only the
+built files (wrangler 4.158 runs an "autoconfig" inside a project folder that rewrites package.json and
+vite.config.js):
+```powershell
+npx wrangler@4.158.0 pages deploy D:\vs-upload\site --project-name vibe-strikers --branch main
+```
+(`D:\vs-upload\site` = a copy of `work\game-dist` built from a clean `main`.)
+
 ## Notes
 
 - The game connects to the server written in `.env.production.local` at **build time**. Without that file

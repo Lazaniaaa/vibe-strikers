@@ -557,6 +557,23 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   `Simulation.pickupTotal`; online: `GameNet.pickUp` now resolves true when the server accepted). Checked in
   Chromium: lobby hovers, offline Cornucopia shots / steps / loot, 0 console errors; test-drops, test-sounds,
   gameplay tests pass.
+- 2026-11-06 ONLINE for the event submission (owner's go): `market` fast-forwarded into `main` and pushed. Server on
+  Maincloud, database **`vibe-strikers`** (owner's web login, identity c20075d4...). Site on Cloudflare Pages,
+  project `vibe-strikers`: **https://vibe-strikers.pages.dev** (built from a clean `main` worktree, not the working
+  copy with Codex's uncommitted weapon files). Checked online: lobby, Quick Play on Maincloud (1 player + 7 bots),
+  0 console errors (`docs/evidence/online-lobby.jpg`, `online-maincloud-match.jpg`). Wallet login / market / leaders
+  not yet checked online with a real MetaMask (owner).
+  Mishap: wrangler 4.158 "autoconfig" (run inside the repo copy) rewrote package.json / vite.config.js there (reverted,
+  nothing committed) and created a Worker `vibe-strikers` with the Voxel Lab; it was overwritten with the game build
+  (https://vibe-strikers.voxel-character-review.workers.dev; the account's workers.dev subdomain became
+  `voxel-character-review`). The owner may delete that Worker. Deploy rule now in docs/HOSTING.md 5.
+- 2026-11-06 owner: token **STRIKE** ("Vibe Strikers", 18 decimals, supply 1 000 000 000) at
+  `0x472E0121ac3BBC3474477B8319e8402a65FAC1fA`, Robinhood Chain testnet (chain id 46630, RPC
+  https://rpc.testnet.chain.robinhood.com). Owner holds ~90%. Next (owner approved the plan): weekly points
+  (win 10, match 2, kill 1, headshot +1; logged-in humans only; week starts Monday 00:00 UTC), a distributor
+  contract the owner funds with 10% of supply (may all go out in week 1), payout pushed by the owner from a local
+  admin page via MetaMask (players never sign a transaction), max 10% of a week's pool per wallet, weekly tab in
+  LEADERS. The owner's keys never touch the repo or Claude.
 - 2026-10-31 owner: ADS proposal approved
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
