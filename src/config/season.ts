@@ -9,7 +9,40 @@ export const PROGRESSION = {
   level: { baseXp: 500, stepXp: 100, max: 100 },
 } as const;
 
-export interface SeasonMission { readonly id: string; readonly label: string; readonly field: 'matches' | 'wins' | 'kills'; readonly target: number; readonly xp: number }
+export const DAY_MS = 24 * 60 * 60 * 1000;
+
+export type QuestKind = 'day' | 'week' | 'season';
+export type QuestField = 'matches' | 'wins' | 'kills' | 'headshots';
+/** One mission line: every next tier asks for more (`targets`) and pays more (the kind's `xp`). */
+export interface QuestTrack { readonly field: QuestField; readonly label: (n: number) => string; readonly targets: readonly number[] }
+
+const games = (n: number) => `Play ${n} game${n === 1 ? '' : 's'}`;
+const kills = (n: number) => `Get ${n} kills`;
+const wins = (n: number) => `Win ${n} game${n === 1 ? '' : 's'}`;
+const headshots = (n: number) => `Get ${n} headshots`;
+
+/**
+ * Missions with tiers (owner 2026-11-06). A game = a finished match, first to 3 round wins. XP is given once a tier is
+ * done. `xp` = XP of tier 1, 2, 3. Days start 00:00 UTC, weeks Monday 00:00 UTC, season missions last the whole season.
+ */
+export const QUESTS: Readonly<Record<QuestKind, { readonly label: string; readonly xp: readonly number[]; readonly tracks: readonly QuestTrack[] }>> = {
+  day: { label: 'Daily', xp: [50, 100, 200], tracks: [
+    { field: 'matches', label: games, targets: [2, 5, 10] },
+    { field: 'kills', label: kills, targets: [10, 25, 50] },
+    { field: 'wins', label: wins, targets: [1, 3, 5] },
+  ] },
+  week: { label: 'Weekly', xp: [100, 200, 400], tracks: [
+    { field: 'matches', label: games, targets: [5, 15, 30] },
+    { field: 'kills', label: kills, targets: [20, 60, 150] },
+    { field: 'wins', label: wins, targets: [3, 8, 15] },
+  ] },
+  season: { label: 'Season', xp: [300, 600, 1200], tracks: [
+    { field: 'matches', label: games, targets: [20, 60, 150] },
+    { field: 'kills', label: kills, targets: [100, 300, 800] },
+    { field: 'wins', label: wins, targets: [10, 30, 60] },
+    { field: 'headshots', label: headshots, targets: [20, 60, 150] },
+  ] },
+};
 
 export const SEASON = {
   id: 1,
@@ -19,10 +52,11 @@ export const SEASON = {
   endMs: Date.UTC(2026, 11, 4),
   levels: 30,
   /**
-   * Pacing: 25 minutes a day = about 7 matches = 800 XP a day with the first win; 28 days + 12 missions = about
-   * 26 000 XP = 87% of the track, so the last levels ask for a bit more play.
+   * Pacing: 25 minutes a day = about 7 matches, 3 wins, 20 kills = 800 XP from matches + 350 from daily tiers; over 28
+   * days with about 6800 from weekly and 7200 from season tiers = about 46 000 XP = 85% of the track, so the last levels
+   * ask for a bit more play.
    */
-  xpPerLevel: 1000,
+  xpPerLevel: 1800,
   /** Reward of a level without an item. */
   coinsPerLevel: 30,
   /** Fixed reward items (catalog refs; the unit test checks them against the catalog). */
@@ -36,10 +70,4 @@ export const SEASON = {
   } as Readonly<Record<number, string>>,
   /** Extra coins with the last level's item. */
   finalCoins: 500,
-  /** Missions of every week (weeks start Monday 00:00 UTC, weekOf); XP is given once a mission is done. */
-  missions: [
-    { id: 'matches', label: 'Play 5 games (first to 3 rounds)', field: 'matches', target: 5, xp: 300 },
-    { id: 'kills', label: 'Get 20 kills', field: 'kills', target: 20, xp: 300 },
-    { id: 'wins', label: 'Win 3 games', field: 'wins', target: 3, xp: 300 },
-  ] as readonly SeasonMission[],
 } as const;

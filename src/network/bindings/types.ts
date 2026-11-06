@@ -149,6 +149,18 @@ export const PlayerStat = __t.object("PlayerStat", {
 });
 export type PlayerStat = __Infer<typeof PlayerStat>;
 
+export const QuestProgress = __t.object("QuestProgress", {
+  id: __t.string(),
+  scope: __t.string(),
+  owner: __t.string(),
+  matches: __t.u32(),
+  wins: __t.u32(),
+  kills: __t.u32(),
+  headshots: __t.u32(),
+  done: __t.u32(),
+});
+export type QuestProgress = __Infer<typeof QuestProgress>;
+
 export const Room = __t.object("Room", {
   id: __t.u64(),
   code: __t.string(),

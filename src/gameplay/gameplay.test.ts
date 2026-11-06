@@ -23,10 +23,10 @@ import { loginError, personalHash, recoverSigner, signLogin } from './walletAuth
 import { loginMessage } from './walletMessage.ts';
 import { formatTokens, payoutPlan, toUnits, weekLabel, weekOf, weekPoints, weekStartMs } from './rewards.ts';
 import { REWARDS } from '../config/rewards.ts';
-import { PROGRESSION, SEASON } from '../config/season.ts';
+import { DAY_MS, PROGRESSION, QUESTS, SEASON } from '../config/season.ts';
 import { AUDIO } from '../config/audio.ts';
 import { hearingGain } from './hearing.ts';
-import { levelCost, levelOf, matchXp, missionsDone, missionXp, seasonActive, seasonClaim, seasonLevel, seasonReward } from './progression.ts';
+import { levelCost, levelOf, matchXp, questEndMs, questLine, questScope, questsDone, questXp, seasonActive, seasonClaim, seasonLevel, seasonReward } from './progression.ts';
 import { callData, decodeUint, encodeArgs, selector } from '../network/evm.ts';
 import { buildNavGrid, findPath, groundAt, nearestWalkable, nodeY, pruneUnreachable, upperAreas } from './navGrid.ts';
 
@@ -395,14 +395,40 @@ test('levels, season track, missions', () => {
   const part = seasonClaim(0, 12), rest = seasonClaim(12, SEASON.levels);
   assert.equal(part.coins + rest.coins, all.coins, 'claiming in parts gives the same total');
   assert.equal(part.items.length + rest.items.length, all.items.length);
-  const m = SEASON.missions;
-  assert.equal(missionsDone({ matches: 0, wins: 0, kills: 0 }), 0);
-  const some = missionsDone({ matches: m[0].target, wins: 0, kills: 0 });
-  assert.equal(some, 1);
-  assert.equal(missionXp(0, some), m[0].xp);
-  assert.equal(missionXp(some, some), 0, 'a mission pays once');
-  const every = missionsDone({ matches: 99, wins: 99, kills: 99 });
-  assert.equal(missionXp(some, every), m[1].xp + m[2].xp);
+});
+
+test('missions: tiers ask for more and pay more, each pays once', () => {
+  for (const q of Object.values(QUESTS)) {
+    for (let i = 1; i < q.xp.length; i++) assert.ok(q.xp[i] > q.xp[i - 1], 'next tier pays more');
+    for (const t of q.tracks) {
+      assert.equal(t.targets.length, q.xp.length);
+      for (let i = 1; i < t.targets.length; i++) assert.ok(t.targets[i] > t.targets[i - 1], 'next tier asks for more');
+    }
+  }
+  const none = { matches: 0, wins: 0, kills: 0, headshots: 0 };
+  const [g1, g2, g3] = QUESTS.day.tracks[0].targets, [x1, x2, x3] = QUESTS.day.xp;
+  assert.equal(questsDone('day', none), 0);
+  const first = questsDone('day', { ...none, matches: g1 });
+  assert.equal(questXp('day', 0, first), x1);
+  assert.equal(questXp('day', first, first), 0, 'a tier pays once');
+  const second = first | questsDone('day', { ...none, matches: g2 });
+  assert.equal(questXp('day', first, second), x2);
+  const jump = questsDone('day', { ...none, matches: g3 });
+  assert.equal(questXp('day', 0, jump), x1 + x2 + x3, 'a long session pays every tier it passed');
+  assert.deepEqual(questLine('day', 0, undefined, 0), { label: QUESTS.day.tracks[0].label(g1), tier: 0, tiers: 3, value: 0, target: g1, xp: x1, complete: false });
+  const line = questLine('day', 0, { ...none, matches: g1 }, first);
+  assert.ok(line.tier === 1 && line.target === g2 && line.value === g1 && line.xp === x2, 'moves to the next tier');
+  const end = questLine('day', 0, { ...none, matches: 99 }, jump);
+  assert.ok(end.complete && end.value === g3 && end.target === g3, 'the last tier stays shown as done');
+  const max = questsDone('season', { matches: 1e6, wins: 1e6, kills: 1e6, headshots: 1e6 });
+  assert.equal(questXp('season', 0, max), QUESTS.season.tracks.length * QUESTS.season.xp.reduce((a, b) => a + b, 0), 'every line has its own bits');
+  const t = Date.UTC(2026, 10, 6, 15);
+  assert.equal(questEndMs('day', t), Date.UTC(2026, 10, 7));
+  assert.equal(questEndMs('week', t), Date.UTC(2026, 10, 9), 'the week ends on Monday');
+  assert.equal(questEndMs('season', t), SEASON.endMs);
+  assert.notEqual(questScope('day', t), questScope('day', t + DAY_MS));
+  assert.equal(questScope('week', Date.UTC(2026, 10, 2)), questScope('week', Date.UTC(2026, 10, 8, 23)));
+  assert.equal(questScope('season', t), `s${SEASON.id}`);
 });
 
 console.log(`${passed} gameplay checks passed`);

@@ -31,8 +31,8 @@ import { MARKET } from '../../src/config/market.ts';
 import { AUTH } from '../../src/config/auth.ts';
 import { loginError } from '../../src/gameplay/walletAuth.ts';
 import { weekOf } from '../../src/gameplay/rewards.ts';
-import { SEASON } from '../../src/config/season.ts';
-import { matchXp, missionsDone, missionXp, seasonActive, seasonClaim, seasonLevel } from '../../src/gameplay/progression.ts';
+import { QUESTS, SEASON, type QuestKind } from '../../src/config/season.ts';
+import { matchXp, questScope, questsDone, questXp, seasonActive, seasonClaim, seasonLevel } from '../../src/gameplay/progression.ts';
 import { CATALOG, matchPays, matchReward, priceError, RateLimiter, saleFee, starterRefs, utcDay } from '../../src/gameplay/market.ts';
 
 const room = table({ name: 'room', public: true }, {
@@ -273,7 +273,7 @@ const seasonProgress = table({ name: 'season_progress', public: true }, {
   claimedLevel: t.u32(),
 });
 
-/** Weekly mission counters per account (real matches only); `done` = bit mask of SEASON.missions already paid. */
+/** Unused since the tiered missions (`quest_progress`): removing a table would need a data reset. */
 const missionProgress = table({ name: 'mission_progress', public: true }, {
   /** `${week}:${owner}` */
   id: t.string().primaryKey(),
@@ -285,7 +285,21 @@ const missionProgress = table({ name: 'mission_progress', public: true }, {
   done: t.u32(),
 });
 
-const spacetimedb = schema({ room, player, shotEvent, killEvent, item, pingEvent, tickTimer, session, wallet, ownedItem, listing, trade, economy, matchStat, matchClock, playerStat, weekStat, playerProgress, seasonProgress, missionProgress });
+/** Mission counters per account and period (real matches only); `done` = mask of the tiers already paid (GAME.md 6.10). */
+const questProgress = table({ name: 'quest_progress', public: true }, {
+  /** `${scope}:${owner}` */
+  id: t.string().primaryKey(),
+  /** Period: `d20398` (day), `w2965` (week), `s1` (season). */
+  scope: t.string().index('btree'),
+  owner: t.string(),
+  matches: t.u32(),
+  wins: t.u32(),
+  kills: t.u32(),
+  headshots: t.u32(),
+  done: t.u32(),
+});
+
+const spacetimedb = schema({ room, player, shotEvent, killEvent, item, pingEvent, tickTimer, session, wallet, ownedItem, listing, trade, economy, matchStat, matchClock, playerStat, weekStat, playerProgress, seasonProgress, missionProgress, questProgress });
 export default spacetimedb;
 
 /** Row-level security: a client only receives the ping rows addressed to it. */
@@ -716,16 +730,20 @@ function giveXp(ctx: Ctx, owner: string, xp: number): void {
   ctx.db.seasonProgress.id.update({ ...s, xp: add(s.xp) });
 }
 
-/** A real match ended: XP for the match, this week's mission counters and the XP of missions just completed. */
+/** A real match ended: XP for the match, then each period's mission counters and the XP of tiers just completed. */
 function payProgress(ctx: Ctx, owner: string, won: boolean, kills: number, headshots: number, firstWin: boolean): void {
   giveXp(ctx, owner, matchXp(won, kills, headshots, firstWin));
-  const week = weekOf(nowMs(ctx)), id = `${week}:${owner}`;
-  const m = ctx.db.missionProgress.id.find(id) ?? ctx.db.missionProgress.insert({ id, week, owner, matches: 0, wins: 0, kills: 0, done: 0 });
-  const counts = { matches: Math.min(U32_MAX, m.matches + 1), wins: Math.min(U32_MAX, m.wins + (won ? 1 : 0)), kills: Math.min(U32_MAX, m.kills + kills) };
-  const done = m.done | missionsDone(counts);
-  ctx.db.missionProgress.id.update({ ...m, ...counts, done });
-  const xp = missionXp(m.done, done);
-  if (xp > 0) giveXp(ctx, owner, xp);
+  const now = nowMs(ctx), add = (a: number, b: number) => Math.min(U32_MAX, a + b);
+  for (const kind of Object.keys(QUESTS) as QuestKind[]) {
+    if (kind === 'season' && !seasonActive(now)) continue;
+    const scope = questScope(kind, now), id = `${scope}:${owner}`;
+    const q = ctx.db.questProgress.id.find(id) ?? ctx.db.questProgress.insert({ id, scope, owner, matches: 0, wins: 0, kills: 0, headshots: 0, done: 0 });
+    const counts = { matches: add(q.matches, 1), wins: add(q.wins, won ? 1 : 0), kills: add(q.kills, kills), headshots: add(q.headshots, headshots) };
+    const done = q.done | questsDone(kind, counts);
+    ctx.db.questProgress.id.update({ ...q, ...counts, done });
+    const xp = questXp(kind, q.done, done);
+    if (xp > 0) giveXp(ctx, owner, xp);
+  }
 }
 
 /** Match end: stats for every logged-in human (every online match counts); coins and XP only for a real match. */

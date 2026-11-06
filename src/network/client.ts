@@ -22,9 +22,10 @@ import type SessionDef from './bindings/session_table.ts';
 import type WeekStatDef from './bindings/week_stat_table.ts';
 import type PlayerProgressDef from './bindings/player_progress_table.ts';
 import type SeasonProgressDef from './bindings/season_progress_table.ts';
-import type MissionProgressDef from './bindings/mission_progress_table.ts';
+import type QuestProgressDef from './bindings/quest_progress_table.ts';
 import { weekOf } from '../gameplay/rewards.ts';
-import { SEASON } from '../config/season.ts';
+import { SEASON, type QuestKind } from '../config/season.ts';
+import { questScope } from '../gameplay/progression.ts';
 
 export type PlayerRow = Infer<typeof PlayerRowDef>;
 export type RoomRow = Infer<typeof RoomRowDef>;
@@ -42,7 +43,7 @@ export type SessionRow = Infer<typeof SessionDef>;
 export type WeekStatRow = Infer<typeof WeekStatDef>;
 export type PlayerProgressRow = Infer<typeof PlayerProgressDef>;
 export type SeasonProgressRow = Infer<typeof SeasonProgressDef>;
-export type MissionProgressRow = Infer<typeof MissionProgressDef>;
+export type QuestProgressRow = Infer<typeof QuestProgressDef>;
 
 /** Marketplace rows (GAME.md 6.7, 6.8), kept current after GameNet.subscribeMarket. No artificial lag. */
 export class MarketView {
@@ -63,8 +64,11 @@ export class MarketView {
   readonly progress = new Map<string, PlayerProgressRow>();
   /** This season's track by account. */
   readonly seasonProgress = new Map<string, SeasonProgressRow>();
-  /** This week's missions by account. */
-  readonly missionProgress = new Map<string, MissionProgressRow>();
+  /** Current periods of the missions and their rows by id (`${scope}:${owner}`). */
+  questScopes: Record<QuestKind, string> = { day: '', week: '', season: '' };
+  readonly quests = new Map<string, QuestProgressRow>();
+  /** My row of a mission period, if I have played in it. */
+  myQuests(kind: QuestKind): QuestProgressRow | undefined { return this.quests.get(`${this.questScopes[kind]}:${this.account}`); }
   readonly listings = new Map<bigint, ListingRow>();
   readonly trades = new Map<bigint, TradeRow>();
   economy: EconomyRow | null = null;
@@ -218,6 +222,7 @@ export class GameNet {
   private marketSub: SubscriptionHandle | null = null;
   /** My items (follows the logged-in account). */
   private itemsSub: SubscriptionHandle | null = null;
+  private questSub: SubscriptionHandle | null = null;
   private marketAll = false;
 
   constructor(opts: NetOptions = {}) {
@@ -295,9 +300,9 @@ export class GameNet {
     c.db.seasonProgress.onInsert((_ctx, row) => { m.seasonProgress.set(row.owner, row); changed(); });
     c.db.seasonProgress.onUpdate((_ctx, _old, row) => { m.seasonProgress.set(row.owner, row); changed(); });
     c.db.seasonProgress.onDelete((_ctx, row) => { m.seasonProgress.delete(row.owner); changed(); });
-    c.db.missionProgress.onInsert((_ctx, row) => { m.missionProgress.set(row.owner, row); changed(); });
-    c.db.missionProgress.onUpdate((_ctx, _old, row) => { m.missionProgress.set(row.owner, row); changed(); });
-    c.db.missionProgress.onDelete((_ctx, row) => { m.missionProgress.delete(row.owner); changed(); });
+    c.db.questProgress.onInsert((_ctx, row) => { m.quests.set(row.id, row); changed(); });
+    c.db.questProgress.onUpdate((_ctx, _old, row) => { m.quests.set(row.id, row); changed(); });
+    c.db.questProgress.onDelete((_ctx, row) => { m.quests.delete(row.id); changed(); });
     c.db.ownedItem.onInsert((_ctx, row) => { m.items.set(row.id, row); changed(); });
     c.db.ownedItem.onUpdate((_ctx, _old, row) => { m.items.set(row.id, row); changed(); });
     c.db.ownedItem.onDelete((_ctx, row) => { m.items.delete(row.id); changed(); });
@@ -340,7 +345,8 @@ export class GameNet {
       'SELECT * FROM economy', 'SELECT * FROM player_stat'];
     this.market.week = weekOf(Date.now());
     queries.push(`SELECT * FROM week_stat WHERE week = ${this.market.week}`, 'SELECT * FROM player_progress',
-      `SELECT * FROM season_progress WHERE season = ${SEASON.id}`, `SELECT * FROM mission_progress WHERE week = ${this.market.week}`);
+      `SELECT * FROM season_progress WHERE season = ${SEASON.id}`);
+    this.syncQuests();
     if (all) queries.push('SELECT * FROM owned_item');
     return new Promise((resolve, reject) => {
       this.marketSub = this.conn!.subscriptionBuilder()
@@ -348,6 +354,19 @@ export class GameNet {
         .onError(() => { this.marketSub = null; reject(new Error('market subscription failed')); })
         .subscribe(queries);
     });
+  }
+
+  /** Follow the current mission periods: (re)subscribes when a day or week has turned. Cheap to call often. */
+  syncQuests(): void {
+    if (!this.conn) return;
+    const m = this.market, now = Date.now();
+    const scopes: Record<QuestKind, string> = { day: questScope('day', now), week: questScope('week', now), season: questScope('season', now) };
+    if (this.questSub && scopes.day === m.questScopes.day && scopes.week === m.questScopes.week) return;
+    if (this.questSub?.isActive()) this.questSub.unsubscribe();
+    m.questScopes = scopes;
+    m.quests.clear();
+    this.questSub = this.conn.subscriptionBuilder().onApplied(() => { m.version++; this.onMarketChange?.(); })
+      .subscribe(Object.values(scopes).map((s) => `SELECT * FROM quest_progress WHERE scope = '${s}'`));
   }
 
   /** Wallet login (GAME.md 6.8): a personal_sign signature of loginMessage(address, identityHex, issuedAtMs). */

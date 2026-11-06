@@ -66,6 +66,7 @@ import PingEventRow from "./ping_event_table";
 import PlayerRow from "./player_table";
 import PlayerProgressRow from "./player_progress_table";
 import PlayerStatRow from "./player_stat_table";
+import QuestProgressRow from "./quest_progress_table";
 import RoomRow from "./room_table";
 import SeasonProgressRow from "./season_progress_table";
 import SessionRow from "./session_table";
@@ -204,6 +205,20 @@ const tablesSchema = __schema({
       { name: 'player_stat_owner_key', constraint: 'unique', columns: ['owner'] },
     ],
   }, PlayerStatRow),
+  questProgress: __table({
+    name: 'quest_progress',
+    indexes: [
+      { accessor: 'id', name: 'quest_progress_id_idx_btree', algorithm: 'btree', columns: [
+        'id',
+      ] },
+      { accessor: 'scope', name: 'quest_progress_scope_idx_btree', algorithm: 'btree', columns: [
+        'scope',
+      ] },
+    ],
+    constraints: [
+      { name: 'quest_progress_id_key', constraint: 'unique', columns: ['id'] },
+    ],
+  }, QuestProgressRow),
   room: __table({
     name: 'room',
     indexes: [

@@ -172,10 +172,12 @@ try {
     if (seconds >= MARKET.reward.minMatchSeconds) {
       const { matchXp } = await vite.ssrLoadModule('/src/gameplay/progression.ts');
       const earned = (h.market.progress.get(h.market.account)?.xp ?? 0) - xp0;
-      const missions = h.market.missionProgress.get(h.market.account);
       check(earned >= matchXp(won, kills, 0, false), `slow: ${earned} XP for the match`);
       check(h.market.seasonProgress.get(h.market.account)?.xp === earned, 'slow: the season track got the same XP');
-      check(missions?.matches === 1 && missions?.kills === kills, `slow: missions count 1 match, ${kills} kills`);
+      for (const kind of ['day', 'week', 'season']) {
+        const q = h.market.myQuests(kind);
+        check(q?.matches === 1 && q?.kills === kills, `slow: ${kind} missions count 1 match, ${kills} kills`);
+      }
     }
     await h.leave();
   }

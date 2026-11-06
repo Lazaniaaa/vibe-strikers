@@ -52,9 +52,14 @@
 .season-coins { margin-top: 9px; font: 10px var(--menu-display); white-space: nowrap; }
 .season-emote { margin-top: 7px; font: 16px var(--menu-display); }
 .menu-season h3 { display: flex; align-items: baseline; justify-content: space-between; margin: 6px 2px 3px; font: 15px var(--menu-display); }
+.season-quest-tabs { flex: 0 1 auto; margin: 0 auto 0 10px; padding: 2px; }
+.season-quest-tabs button { padding: 2px 9px; font-size: 11px; }
+.season-pips { display: flex; gap: 3px; font-style: normal; }
+.season-pips i { width: 9px; height: 9px; border: 2px solid var(--menu-ink); border-radius: 50%; }
+.season-pips i.is-on { background: var(--menu-accent); }
 .menu-season h3 small { font: 800 10px sans-serif; color: var(--menu-muted); }
 .season-missions { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 0; list-style: none; }
-.season-missions li { display: grid; grid-template-columns: 1fr 96px 46px 62px; align-items: center; gap: 8px; padding: 3px 9px; border: 2px solid var(--menu-ink); border-radius: 8px; background: var(--menu-cream); font-size: 12px; font-weight: 800; }
+.season-missions li { display: grid; grid-template-columns: 1fr 42px 80px 54px 62px; align-items: center; gap: 8px; padding: 3px 9px; border: 2px solid var(--menu-ink); border-radius: 8px; background: var(--menu-cream); font-size: 12px; font-weight: 800; }
 .season-missions li.is-done { background: var(--menu-teal); }
 .season-missions small { font-size: 11px; text-align: right; color: var(--menu-muted); }
 .season-missions b { text-align: right; font: 13px var(--menu-display); }

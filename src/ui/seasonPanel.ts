@@ -1,8 +1,7 @@
 // Lobby SEASON tab (GAME.md 6.10): player level, the season reward track, this week's missions, one claim button.
 // Plain DOM over a market-subscribed GameNet; redraws are throttled like the market panel.
-import { PROGRESSION, SEASON } from '../config/season.ts';
-import { levelOf, seasonActive, seasonLevel, seasonReward } from '../gameplay/progression.ts';
-import { weekStartMs } from '../gameplay/rewards.ts';
+import { PROGRESSION, QUESTS, SEASON, type QuestKind } from '../config/season.ts';
+import { levelOf, questEndMs, questLine, seasonActive, seasonLevel, seasonReward } from '../gameplay/progression.ts';
 import type { GameNet } from '../network/client.ts';
 import type { MarketItemView } from './marketPanel.ts';
 import '../../client/game/market.css';
@@ -27,6 +26,7 @@ export class SeasonPanel {
   private status = '';
   private statusBad = false;
   private busy = false;
+  private questKind: QuestKind = 'day';
 
   constructor(parent: HTMLElement, private readonly describe: (ref: string) => MarketItemView) {
     this.root = document.createElement('section');
@@ -40,6 +40,7 @@ export class SeasonPanel {
       e.stopPropagation();
       if (b.dataset.login !== undefined) this.onLogin?.();
       else if (b.dataset.claim !== undefined) void this.claim();
+      else if (b.dataset.quests) { this.questKind = b.dataset.quests as QuestKind; this.draw(); }
     });
     this.draw();
   }
@@ -88,13 +89,15 @@ export class SeasonPanel {
     const into = reached >= SEASON.levels ? SEASON.xpPerLevel : xp % SEASON.xpPerLevel;
     const total = me ? m?.progress.get(me)?.xp ?? 0 : 0, player = levelOf(total);
     const toClaim = Math.max(0, reached - claimed);
-    const missionRow = me ? m?.missionProgress.get(me) : undefined;
-    const missions = SEASON.missions.map((q, i) => {
-      const value = Math.min(q.target, missionRow?.[q.field] ?? 0), done = ((missionRow?.done ?? 0) & (1 << i)) !== 0;
-      return `<li class="${done ? 'is-done' : ''}"><span>${esc(q.label)}</span><div class="season-bar"><i style="width:${pct(value, q.target)}%"></i></div><small>${value} / ${q.target}</small><b>${done ? '✓' : `+${q.xp} XP`}</b></li>`;
+    this.net?.syncQuests(); // a new day or week may have started while the lobby stayed open
+    const kind = this.questKind, questRow = me ? m?.myQuests(kind) : undefined;
+    const missions = QUESTS[kind].tracks.map((_, track) => {
+      const q = questLine(kind, track, questRow, questRow?.done ?? 0);
+      const pips = Array.from({ length: q.tiers }, (_x, i) => `<i class="${i < q.tier ? 'is-on' : ''}"></i>`).join('');
+      return `<li class="${q.complete ? 'is-done' : ''}"><span>${esc(q.label)}</span><em class="season-pips" title="Tier ${Math.min(q.tier + 1, q.tiers)} of ${q.tiers}">${pips}</em><div class="season-bar"><i style="width:${pct(q.value, q.target)}%"></i></div><small>${q.value} / ${q.target}</small><b>${q.complete ? '✓' : `+${q.xp} XP`}</b></li>`;
     }).join('');
+    const questTabs = (Object.keys(QUESTS) as QuestKind[]).map((k) => `<button data-quests="${k}" aria-pressed="${k === kind}">${QUESTS[k].label}</button>`).join('');
     const cells = Array.from({ length: SEASON.levels }, (_, i) => this.rewardCell(i + 1, reached, claimed)).join('');
-    const weekEnd = m ? weekStartMs(m.week + 1) : now;
     const when = now < SEASON.startMs ? 'STARTS SOON' : active ? `${timeLeft(SEASON.endMs - now).toUpperCase()} LEFT` : 'ENDED';
     const x = PROGRESSION.xp;
     const action = !m ? '<p class="market-empty">Connecting…</p>'
@@ -110,7 +113,8 @@ export class SeasonPanel {
       ${this.status ? `<p class="market-status ${this.statusBad ? 'has-error' : ''}">${esc(this.status)}</p>` : ''}
       <div class="market-list season-scroll">
         <ol class="season-track">${cells}</ol>
-        <h3>Weekly missions <small>new in ${timeLeft(weekEnd - now)}</small></h3>
+        <h3><span>Missions</span><div class="menu-segment season-quest-tabs" role="group" aria-label="Mission period">${questTabs}</div>
+          <small>${kind === 'season' ? 'all season' : `new in ${timeLeft(questEndMs(kind, now) - now)}`}</small></h3>
         <ul class="season-missions">${missions}</ul>
       </div>
       <footer><small>Match +${x.match} · win +${x.win} · kill +${x.kill} · headshot +${x.headshot} · first win of the day +${x.firstWinOfDay} XP.

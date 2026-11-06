@@ -240,12 +240,14 @@ reward items only add to the tradable collection. Season-only NFTs: later (owner
 - XP only from real matches of logged-in players (same guard as coins, `matchPays`): match 50, win 50, kill 10,
   headshot 5, capped at `matchCap`, first win of the day +100.
 - Player level: permanent, starts at 1, each level costs a bit more (`levelOf`), shown on the player card and in LEADERS.
-- Season 1: 2026-11-06 to 2026-12-04 UTC, 30 levels of 1000 XP. Levels give coins; every fifth gives an item (emote or
+- Season 1: 2026-11-06 to 2026-12-04 UTC, 30 levels of 1800 XP. Levels give coins; every fifth gives an item (emote or
   character); level 30 gives a character and 500 coins. Season XP stops at the end, earned rewards stay claimable.
-- Missions: 3 per week (Monday 00:00 UTC): 5 matches, 20 kills, 3 wins; +300 XP each, paid once when done. The UI says
-  "game" for a match, because the HUD counts rounds and a match is first to 3 round wins.
+- Missions (`QUESTS`): daily, weekly and season lines with 3 tiers each: a next tier asks for more and pays more XP
+  (daily: play 2 / 5 / 10 games for 50 / 100 / 200 XP). Paid once when a tier is done. The UI says "game" for a match,
+  because the HUD counts rounds and a match is first to 3 round wins. Counts come from real matches only.
 - Tables (public): `player_progress{owner pk, xp}`, `season_progress{id "season:owner" pk, season btree, owner, xp,
-  claimedLevel}`, `mission_progress{id "week:owner" pk, week btree, owner, matches, wins, kills, done}`.
+  claimedLevel}`, `quest_progress{id "scope:owner" pk, scope btree (d20398, w2965, s1), owner, matches, wins, kills,
+  headshots, done}`. `mission_progress` is unused (removing a table would need a data reset).
 - Reducer `claimSeasonRewards` (login + market rate limit): pays levels after `claimedLevel` up to the level reached;
   coins are minted like other coins (economy invariant holds), items are new `owned_item` rows.
 - Lobby: tab SEASON (5; Settings moved to 6): level bar, one claim button, the track, the missions.

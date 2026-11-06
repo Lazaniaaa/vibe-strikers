@@ -618,6 +618,11 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
 - 2026-11-06 owner's edits: own and other footsteps quieter (gain 0.2 -> 0.12), other players' steps only within 10 m
   (full to 3 m, then fade; no authoritative CS figure was found, one unsourced guide says about 8-12 m). Mission text
   says "games" (first to 3 rounds), season track more compact so all three missions fit.
+- 2026-11-06 owner: daily, weekly and season missions with tiers (play 2 -> 5 -> 10, XP grows per tier), GAME.md 6.10.
+  New table `quest_progress`; season level now costs 1800 XP so the pace stays about 85% at 25 minutes a day (nobody had
+  claimed a level yet). The owner's counters of the old weekly missions (1 game) were not carried over.
+  Next (owner's order): post-match reward screen, lobby hints, day streak, kill streaks, first-match controls hint; then
+  marketplace and NFTs.
   Owner's network: the router's DNS (192.168.31.1) answers NXDOMAIN for every `*.pages.dev`, also names that are not
   ours (Google DNS resolves them), so this is a network filter, not a propagation delay. The Worker copy
   https://vibe-strikers.voxel-character-review.workers.dev resolves there and now has the same build as Pages.

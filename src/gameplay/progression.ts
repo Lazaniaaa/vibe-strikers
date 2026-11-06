@@ -1,8 +1,11 @@
 // Player level, season track and weekly missions (GAME.md 6.10). Pure math shared by the server module and the UI.
-import { PROGRESSION, SEASON } from '../config/season.ts';
+import { DAY_MS, PROGRESSION, QUESTS, SEASON, type QuestKind } from '../config/season.ts';
+import { REWARDS } from '../config/rewards.ts';
 
 export interface LevelInfo { level: number; into: number; need: number }
-export interface MissionCounts { matches: number; wins: number; kills: number }
+export interface QuestCounts { matches: number; wins: number; kills: number; headshots: number }
+/** What the UI shows for one mission line. */
+export interface QuestLine { label: string; tier: number; tiers: number; value: number; target: number; xp: number; complete: boolean }
 export interface SeasonReward { coins: number; item: string }
 
 /** XP cost of going from `level` to the next one. */
@@ -50,16 +53,45 @@ export function seasonClaim(claimed: number, reached: number): { coins: number; 
   return { coins, items };
 }
 
-/** Bit mask of the missions these counts complete. */
-export function missionsDone(c: MissionCounts): number {
+/** Row key part of the current period of a kind: `d20398`, `w2965`, `s1`. */
+export function questScope(kind: QuestKind, ms: number): string {
+  if (kind === 'day') return `d${Math.floor(ms / DAY_MS)}`;
+  if (kind === 'week') return `w${Math.floor((ms - REWARDS.weekStartOffsetMs) / REWARDS.weekMs)}`;
+  return `s${SEASON.id}`;
+}
+
+/** When the current period of a kind ends. */
+export function questEndMs(kind: QuestKind, ms: number): number {
+  if (kind === 'day') return (Math.floor(ms / DAY_MS) + 1) * DAY_MS;
+  if (kind === 'week') return (Math.floor((ms - REWARDS.weekStartOffsetMs) / REWARDS.weekMs) + 1) * REWARDS.weekMs + REWARDS.weekStartOffsetMs;
+  return SEASON.endMs;
+}
+
+/** Bit of a tier in the `done` mask: 8 bits per line. */
+const questBit = (track: number, tier: number) => 1 << (track * 8 + tier);
+
+/** Mask of the tiers these counts complete. */
+export function questsDone(kind: QuestKind, c: QuestCounts): number {
   let done = 0;
-  SEASON.missions.forEach((m, i) => { if (c[m.field] >= m.target) done |= 1 << i; });
+  QUESTS[kind].tracks.forEach((t, track) => t.targets.forEach((target, tier) => { if (c[t.field] >= target) done |= questBit(track, tier); }));
   return done;
 }
 
-/** XP of the missions in `done` that are not in `before`. */
-export function missionXp(before: number, done: number): number {
+/** XP of the tiers in `done` that are not in `before`. */
+export function questXp(kind: QuestKind, before: number, done: number): number {
   let xp = 0;
-  SEASON.missions.forEach((m, i) => { if (done & ~before & (1 << i)) xp += m.xp; });
+  QUESTS[kind].tracks.forEach((t, track) => t.targets.forEach((_, tier) => {
+    const bit = questBit(track, tier);
+    if ((done & bit) !== 0 && (before & bit) === 0) xp += QUESTS[kind].xp[tier];
+  }));
   return xp;
+}
+
+/** The tier a mission line is on: the first one not done, or the last one when all are done. */
+export function questLine(kind: QuestKind, track: number, c: QuestCounts | undefined, done: number): QuestLine {
+  const t = QUESTS[kind].tracks[track], tiers = t.targets.length;
+  let tier = 0;
+  while (tier < tiers && (done & questBit(track, tier)) !== 0) tier++;
+  const complete = tier >= tiers, shown = complete ? tiers - 1 : tier, target = t.targets[shown];
+  return { label: t.label(target), tier, tiers, value: Math.min(target, c?.[t.field] ?? 0), target, xp: QUESTS[kind].xp[shown], complete };
 }
