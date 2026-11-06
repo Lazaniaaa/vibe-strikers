@@ -26,7 +26,7 @@ import { REWARDS } from '../config/rewards.ts';
 import { DAY_MS, PROGRESSION, QUESTS, SEASON } from '../config/season.ts';
 import { AUDIO } from '../config/audio.ts';
 import { hearingGain } from './hearing.ts';
-import { levelCost, levelOf, matchXp, questEndMs, questLine, questScope, questsDone, questXp, seasonActive, seasonClaim, seasonLevel, seasonReward } from './progression.ts';
+import { levelCost, levelOf, matchXp, questEndMs, questLine, questScope, questsDone, questsNewlyDone, questXp, seasonActive, seasonClaim, seasonLevel, seasonReward } from './progression.ts';
 import { callData, decodeUint, encodeArgs, selector } from '../network/evm.ts';
 import { buildNavGrid, findPath, groundAt, nearestWalkable, nodeY, pruneUnreachable, upperAreas } from './navGrid.ts';
 
@@ -416,6 +416,7 @@ test('missions: tiers ask for more and pay more, each pays once', () => {
   const jump = questsDone('day', { ...none, matches: g3 });
   assert.equal(questXp('day', 0, jump), x1 + x2 + x3, 'a long session pays every tier it passed');
   assert.deepEqual(questLine('day', 0, undefined, 0), { label: QUESTS.day.tracks[0].label(g1), tier: 0, tiers: 3, value: 0, target: g1, xp: x1, complete: false });
+  assert.deepEqual(questsNewlyDone('day', first, second), [{ label: QUESTS.day.tracks[0].label(g2), xp: x2 }], 'the card lists only new tiers');
   const line = questLine('day', 0, { ...none, matches: g1 }, first);
   assert.ok(line.tier === 1 && line.target === g2 && line.value === g1 && line.xp === x2, 'moves to the next tier');
   const end = questLine('day', 0, { ...none, matches: 99 }, jump);

@@ -251,6 +251,8 @@ reward items only add to the tradable collection. Season-only NFTs: later (owner
 - Reducer `claimSeasonRewards` (login + market rate limit): pays levels after `claimedLevel` up to the level reached;
   coins are minted like other coins (economy invariant holds), items are new `owned_item` rows.
 - Lobby: tab SEASON (5; Settings moved to 6): level bar, one claim button, the track, the missions.
+- End of an online match: reward card (`ui/matchSummary.ts`) with XP, coins, STRIKE points, mission tiers done, level
+  ups and rewards ready; it compares the account's rows with the match start. Nothing is sent or changed by it.
 
 ## 7. Bots — DECIDED
 Server-side fake players using the same intent path. Waypoint graph generated from

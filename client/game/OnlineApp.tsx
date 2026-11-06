@@ -44,6 +44,7 @@ import { getSfx } from '../../src/ui/sfx';
 import { AUDIO, type SoundName } from '../../src/config/audio';
 import { onSettingsChange, settings } from '../../src/ui/settings';
 import { getSettingsPanel, settingsButton } from '../../src/ui/settingsPanel';
+import { MatchSummary } from '../../src/ui/matchSummary';
 import { useWorldRenderer } from './postfx';
 
 const map = loadMapData(MAP_ID);
@@ -98,6 +99,7 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
     const hudRoot = document.getElementById('hud')!;
     const hud = new Hud(hudRoot);
     const scoreboard = new Scoreboard(hudRoot);
+    const summary = new MatchSummary(hudRoot, net.market);
     hud.addLeaveButton(onLeave);
     settingsButton(hud.overlay, getSettingsPanel(), 'hud-settings-btn');
     const unitBox = new BoxGeometry(1, 1, 1);
@@ -202,7 +204,7 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
         weapon: k.weapon, headshot: k.headshot });
       if (feedEntries.length > 4) feedEntries.shift();
     };
-    return { rules, local, motor, input, hud, scoreboard, viewmodel, ads, view, sfx, audio, markers, items, glows, second, pings, feedEntries, nameTags, tagger, effects, remotes, perf, stats, sample, feed, scratch, rewinds, allyMat, allyGeo,
+    return { summary, rules, local, motor, input, hud, scoreboard, viewmodel, ads, view, sfx, audio, markers, items, glows, second, pings, feedEntries, nameTags, tagger, effects, remotes, perf, stats, sample, feed, scratch, rewinds, allyMat, allyGeo,
       disposables: [unitBox, tracerMat, impactMat, chipMat, flashMat, flashGeo, allyMat, allyGeo] };
   }, [net, world, rapier, gl, scene, debug, onLeave]);
 
@@ -266,6 +268,7 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
       game.input.dispose();
       game.ads.dispose();
       game.scoreboard.dispose();
+      game.summary.dispose();
       game.nameTags.dispose();
       game.hud.dispose();
       for (const d of game.disposables) d.dispose();
@@ -518,6 +521,7 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
       if (game.scoreboard.isVisible) game.scoreboard.update(scoreRows(net), String(net.me?.id ?? ''), net.room?.scoreA ?? 0, net.room?.scoreB ?? 0);
       view.locked = input.locked || debug;
       hud.update(view);
+      game.summary.update(net.room?.phase ?? '');
     }
   }, 1);
 

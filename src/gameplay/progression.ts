@@ -87,6 +87,16 @@ export function questXp(kind: QuestKind, before: number, done: number): number {
   return xp;
 }
 
+/** The mission tiers in `done` that are not in `before`, for the end-of-match card. */
+export function questsNewlyDone(kind: QuestKind, before: number, done: number): { label: string; xp: number }[] {
+  const out: { label: string; xp: number }[] = [];
+  QUESTS[kind].tracks.forEach((t, track) => t.targets.forEach((target, tier) => {
+    const bit = questBit(track, tier);
+    if ((done & bit) !== 0 && (before & bit) === 0) out.push({ label: t.label(target), xp: QUESTS[kind].xp[tier] });
+  }));
+  return out;
+}
+
 /** The tier a mission line is on: the first one not done, or the last one when all are done. */
 export function questLine(kind: QuestKind, track: number, c: QuestCounts | undefined, done: number): QuestLine {
   const t = QUESTS[kind].tracks[track], tiers = t.targets.length;
