@@ -3,6 +3,7 @@
 import { PROGRESSION, QUESTS, SEASON, type QuestKind } from '../config/season.ts';
 import { levelOf, questEndMs, questLine, seasonActive, seasonLevel, seasonReward } from '../gameplay/progression.ts';
 import { nftRef, nftReward, nftRewardName } from '../gameplay/nft.ts';
+import { NFT } from '../config/nft.ts';
 import type { GameNet } from '../network/client.ts';
 import type { MarketItemView } from './marketPanel.ts';
 import '../../client/game/market.css';
@@ -75,7 +76,7 @@ export class SeasonPanel {
     this.busy = true; this.status = ''; this.draw();
     try {
       await this.net.claimSeasonRewards();
-      this.status = 'Rewards claimed. NFTs are in the My NFTs panel on the left.'; this.statusBad = false;
+      this.status = 'Rewards claimed. Skins are in the My skins panel on the left.'; this.statusBad = false;
     } catch (e) {
       this.status = e instanceof Error ? e.message : String(e); this.statusBad = true;
     }
@@ -93,8 +94,8 @@ export class SeasonPanel {
     const art = skin ? `<img src="${esc(skin)}" alt="" />` : item
       ? (item.portrait ? `<img src="${esc(item.portrait)}" alt="" />` : `<span class="season-emote">${esc(item.kind === 'emote' ? '♪' : '★')}</span>`)
       : `<span class="season-coins">◉ ${r.coins}</span>`;
-    const title = `${item ? `${item.name} (${item.kind})${r.coins ? ` + ${r.coins} coins` : ''}` : `${r.coins} coins`}${nft ? ` + ${nftRewardName(nft)} (NFT)` : ''}`;
-    return `<li class="${state}${r.item ? ' has-item' : ''}${level === SEASON.levels ? ' is-final' : ''}${skinRef && skinRef === this.previewRef ? ' is-preview' : ''}"${skinRef ? ` data-tryon="${esc(skinRef)}"` : ''} title="${esc(title)}"><b>${level}</b>${art}${nft ? `<em class="season-nft" data-rarity="${nft.rarity}">NFT</em>` : ''}${level <= claimed ? '<i aria-label="claimed">✓</i>' : ''}</li>`;
+    const title = `${item ? `${item.name} (${item.kind})${r.coins ? ` + ${r.coins} coins` : ''}` : `${r.coins} coins`}${nft ? ` + ${nftRewardName(nft)}${NFT.claimOpen ? ' (NFT)' : ''}` : ''}`;
+    return `<li class="${state}${r.item ? ' has-item' : ''}${level === SEASON.levels ? ' is-final' : ''}${skinRef && skinRef === this.previewRef ? ' is-preview' : ''}"${skinRef ? ` data-tryon="${esc(skinRef)}"` : ''} title="${esc(title)}"><b>${level}</b>${art}${nft ? `<em class="season-nft" data-rarity="${nft.rarity}">${NFT.claimOpen ? 'NFT' : 'SKIN'}</em>` : ''}${level <= claimed ? '<i aria-label="claimed">✓</i>' : ''}</li>`;
   }
 
   private draw(): void {
@@ -136,6 +137,6 @@ export class SeasonPanel {
         <ul class="season-missions">${missions}</ul>
       </div>
       <footer><small>Match +${x.match} · win +${x.win} · kill +${x.kill} · headshot +${x.headshot} · first win of the day +${x.firstWinOfDay} XP.
-        Real online matches only. Free for everyone, fixed rewards, all characters stay playable. Click an NFT level to see it on your character.</small></footer>`;
+        Real online matches only. Free for everyone, fixed rewards, all characters stay playable. Click a skin level to see it on your character.</small></footer>`;
   }
 }

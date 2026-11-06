@@ -5,6 +5,8 @@ import type { RarityId } from './market.ts';
 export interface NftReward { weapon: string; rarity: RarityId }
 
 export const NFT = {
+  /** Off for now (owner 2026-11-06): rewards are plain skins in the player's items; the lobby says nothing about NFTs or claiming. */
+  claimOpen: false,
   /** SeasonSkins contract (contracts/SeasonSkins.sol), deployed by the owner 2026-11-07. Empty = sending stays closed. */
   contract: '0x23e30403814d584a3a2b462b6cf3622d246cd589',
   /** The owner's wallet: the only account that may mark NFTs as sent. Local tests add theirs to the `nft_admin` table. */

@@ -684,6 +684,8 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   Checked: contract test with real signatures from the same typed data the lobby sends, test-market, two-player browser run with MOCK wallets. NOT checked: a real sale, expiry on chain.
 - 2026-11-06 owner: Market tab closed (SOON), no wallet-sale test for now: the live contract stays 0x23e3...d589 without `buy`; the version with `buy` is only in the repo. New
   left panel in the lobby (`ui/armoryPanel.ts`): standard weapons and My NFTs, try on, To wallet. Settings restyled like the lobby. Evidence: lobby-weapons-panel, lobby-nft-panel, settings-lobby-style.
+- 2026-11-06 owner, temporary: rewards are plain skins in the player's items, no claim and no NFT wording in the lobby (`NFT.claimOpen = false`). The claim dialog and the
+  contract stay in the code. A skin still cannot be worn in a match.
 - 2026-10-31 owner: ADS proposal approved
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).

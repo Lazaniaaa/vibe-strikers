@@ -1,6 +1,7 @@
 // Lobby panel on the left (GAME.md 6.11): try a standard weapon or one of your NFT skins on the character, and claim an NFT to
 // your wallet, after a warning that this makes a testnet transaction. Plain DOM over a market-subscribed GameNet; the server decides everything, this panel only shows rows and sends intents.
 import { GAME_WEAPONS } from '../config/weapons.ts';
+import { NFT } from '../config/nft.ts';
 import { REWARDS } from '../config/rewards.ts';
 import { itemRarity } from '../gameplay/marketRules.ts';
 import { nftName } from '../gameplay/nft.ts';
@@ -65,14 +66,15 @@ export class ArmoryPanel {
   private nfts(): string {
     const m = this.net?.market;
     if (!m) return '<p class="market-empty">Connecting…</p>';
-    if (!m.account) return '<p class="market-empty">Log in with a wallet to see your NFTs.</p>';
+    if (!m.account) return '<p class="market-empty">Log in with a wallet to see your skins.</p>';
     const own = [...m.items.values()].filter((i) => i.ref.startsWith('nft:'));
-    if (!own.length) return '<p class="market-empty">No NFTs yet. The first one comes at season level 5.</p>';
+    if (!own.length) return '<p class="market-empty">No skins yet. The first one comes at season level 5.</p>';
     return own.map((i) => {
       const row = m.nfts.get(i.ref), rarity = itemRarity(i.ref);
       const pill = `<i class="market-tier">${rarity}</i>`;
       let extra = '';
-      if (row?.status === 'queued') extra = '<div class="market-meta armory-state">Claimed · waiting for the mint</div>';
+      if (!NFT.claimOpen) extra = '';
+      else if (row?.status === 'queued') extra = '<div class="market-meta armory-state">Claimed · waiting for the mint</div>';
       else if (row?.status === 'sent') extra = `<div class="market-meta armory-state">In your wallet${row.tx ? ` · <a href="${REWARDS.chain.explorer}/tx/${esc(row.tx)}" target="_blank" rel="noreferrer">tx</a>` : ''}</div>`;
       else extra = `<button data-claim-nft="${i.id}" data-ref="${esc(i.ref)}" class="menu-small-action market-buy armory-send" ${this.busy ? 'disabled' : ''}>Claim NFT</button>`;
       return this.row(i.ref, nftName(i.ref), this.art.nft(i.ref), pill, rarity, extra);
@@ -96,7 +98,7 @@ export class ArmoryPanel {
     this.lastDraw = performance.now();
     const list = this.root.querySelector<HTMLElement>('.armory-list');
     const scroll = list?.scrollTop ?? 0;
-    const tabs = (['weapons', 'nfts'] as const).map((v) => `<button data-view="${v}" aria-pressed="${this.view === v}">${v === 'weapons' ? 'Weapons' : 'My NFTs'}</button>`).join('');
+    const tabs = (['weapons', 'nfts'] as const).map((v) => `<button data-view="${v}" aria-pressed="${this.view === v}">${v === 'weapons' ? 'Weapons' : NFT.claimOpen ? 'My NFTs' : 'My skins'}</button>`).join('');
     this.root.innerHTML = `<div class="menu-segment">${tabs}</div>
       <div class="armory-list">${this.view === 'weapons' ? this.weapons() : this.nfts()}</div>
       <small class="armory-note${this.message ? ' has-message' : ''}">${esc(this.message || 'Click to try it on. Drag the character to turn it.')}</small>${this.dialog()}`;
