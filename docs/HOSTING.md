@@ -106,14 +106,28 @@ npm run game:build
 Then upload again: Cloudflare dashboard → your Pages project → **Create deployment** (or
 **Deployments** → upload) → drag `work\game-dist` again. Or: `npx wrangler pages deploy work/game-dist --project-name voxel-arena`.
 
-**Live now (2026-11-06):** Maincloud database `vibe-strikers`, Pages project `vibe-strikers` →
-https://vibe-strikers.pages.dev. Update the client with wrangler from a folder OUTSIDE the repo that holds only the
-built files (wrangler 4.158 runs an "autoconfig" inside a project folder that rewrites package.json and
-vite.config.js):
-```powershell
-npx wrangler@4.158.0 pages deploy D:\vs-upload\site --project-name vibe-strikers --branch main
+**Live now: two links, ALWAYS update both (owner's decision).** Same build, same Maincloud database `vibe-strikers`:
+- Main: https://vibe-strikers.pages.dev (Cloudflare Pages project `vibe-strikers`)
+- Mirror: https://vibe-strikers.voxel-character-review.workers.dev (Worker `vibe-strikers`; some networks, such as
+  the owner's, block every `*.pages.dev`)
+
+Build from a clean checkout (not a working copy with someone's uncommitted files), with `.env.production.local` as in
+step 3. Deploy from a folder OUTSIDE the repo that holds only the built files, because wrangler 4.158 runs an
+"autoconfig" inside a project folder that rewrites package.json and vite.config.js. `D:\vs-upload` holds `site\` (a
+copy of `work\game-dist`) and this `wrangler.jsonc`:
+```json
+{
+  "name": "vibe-strikers",
+  "compatibility_date": "2026-11-04",
+  "assets": { "directory": "./site", "not_found_handling": "single-page-application" }
+}
 ```
-(`D:\vs-upload\site` = a copy of `work\game-dist` built from a clean `main`.)
+Then, in `D:\vs-upload`:
+```powershell
+npx wrangler@4.158.0 pages deploy site --project-name vibe-strikers --branch main --commit-dirty=true
+npx wrangler@4.158.0 deploy
+```
+Check that both links serve the same `assets/index-*.js` name in their HTML.
 
 ## Notes
 
