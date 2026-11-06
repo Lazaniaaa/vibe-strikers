@@ -506,8 +506,8 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
     if (timers.hud <= 0) {
       timers.hud = 0.1;
       fillOnlineHud(view, net, local, game.feedEntries);
-      // Killcam banner even if the round just ended; spectate hint only while the round is live.
-      if (me && !me.alive && (game.view.mode === 'killcam' || room?.phase === 'live')) {
+      // Killcam banner even if the round just ended (not over the match result); spectate hint only while the round is live.
+      if (me && !me.alive && room?.phase !== 'matchEnd' && (game.view.mode === 'killcam' || room?.phase === 'live')) {
         const target = game.view.target !== null ? net.players.get(game.view.target)?.name : undefined;
         if (game.view.mode === 'killcam') { view.center = `Killed by ${game.view.killer}`; view.sub = `${game.view.weapon} · killcam`; }
         else { view.center = 'You died'; view.sub = target ? `Spectating ${target} · click: next teammate` : 'No teammates alive'; }
