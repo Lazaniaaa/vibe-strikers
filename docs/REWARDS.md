@@ -3,7 +3,10 @@
 Robinhood Chain **testnet** only (chain id 46630). The game never asks players for a transaction; only the owner
 signs, in MetaMask, from the local admin page. Rules: GAME.md 6.9. Numbers: `src/config/rewards.ts`.
 
-## Once
+Live: distributor `0x5da751e2e288a5e1e8c6a80be24caac67ab988fb` (deployed and funded with 100 000 000 STRIKE
+on 2026-11-06), admin site https://vibe-strikers-admin.pages.dev.
+
+## Once (done 2026-11-06)
 1. MetaMask with the wallet that holds STRIKE. It needs a little **testnet ETH** for gas (Robinhood Chain testnet
    faucet: https://faucet.testnet.chain.robinhood.com).
 2. Open the admin site **https://vibe-strikers-admin.pages.dev** in the browser that has MetaMask

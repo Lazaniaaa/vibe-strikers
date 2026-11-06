@@ -590,6 +590,10 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   `vibe-strikers-admin`, https://vibe-strikers-admin.pages.dev (noindex; no secrets, every action is a MetaMask
   transaction and the contract is owner-only). Checked online with a fake read-only wallet: testnet reads and the
   Maincloud week load work, 0 console errors (`docs/evidence/rewards-admin-online.jpg`).
+  ON CHAIN (owner, MetaMask, 2026-11-06): WeeklyDistributor **0x5da751e2e288a5e1e8c6a80be24caac67ab988fb**
+  (`REWARDS.distributor`), owner 0x08e4f62ed093124aa3ce257830c81b2bc14a51e9, token STRIKE, funded with
+  100 000 000 STRIKE (checked over the RPC: chain 46630, code present, owner / token / balance as expected).
+  First payout: Monday 2026-11-09 for week 2965 (2026-11-02 – 2026-11-08).
   Local SpacetimeDB: the new CLI login (Maincloud) could not update the local database made by the old identity, so
   the old data folder was moved to `%LOCALAPPDATA%\SpacetimeDB\data-old-2026-11-06` and the local server started
   fresh (test data only; delete the old folder when sure).
