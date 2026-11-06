@@ -218,7 +218,7 @@ export class Menu {
     if (el.dataset.key === key) return;
     el.dataset.key = key;
     if (!a.address) {
-      el.innerHTML = `<button class="menu-login" ${a.busy ? 'disabled' : ''}>${a.busy ? 'Check your wallet…' : 'Log in with wallet'}</button><small>Testnet only · free, no transaction</small>`;
+      el.innerHTML = `<p class="menu-guest-note">No wallet needed to try it: just press PLAY. Log in to earn XP and rewards.</p><button class="menu-login" ${a.busy ? 'disabled' : ''}>${a.busy ? 'Check your wallet…' : 'Log in with wallet'}</button><small>Testnet only · free, no transaction</small>`;
       el.querySelector('button')!.addEventListener('click', (e) => { e.stopPropagation(); this.onLogin?.(); });
     } else {
       const short = a.address.length > 12 ? `${a.address.slice(0, 6)}…${a.address.slice(-4)}` : a.address;
