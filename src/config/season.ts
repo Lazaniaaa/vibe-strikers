@@ -38,8 +38,8 @@ export const SEASON = {
   finalCoins: 500,
   /** Missions of every week (weeks start Monday 00:00 UTC, weekOf); XP is given once a mission is done. */
   missions: [
-    { id: 'matches', label: 'Play 5 matches', field: 'matches', target: 5, xp: 300 },
+    { id: 'matches', label: 'Play 5 games (first to 3 rounds)', field: 'matches', target: 5, xp: 300 },
     { id: 'kills', label: 'Get 20 kills', field: 'kills', target: 20, xp: 300 },
-    { id: 'wins', label: 'Win 3 matches', field: 'wins', target: 3, xp: 300 },
+    { id: 'wins', label: 'Win 3 games', field: 'wins', target: 3, xp: 300 },
   ] as readonly SeasonMission[],
 } as const;

@@ -3,6 +3,7 @@
 import { AUDIO, PICKED_SOUNDS, SOUNDS, STEP_VARIANTS, type SoundName } from '../config/audio.ts';
 import { synth } from './sfxSynth.ts';
 import { PICKED_RECIPES } from './sounds/picks.ts';
+import { hearingGain } from '../gameplay/hearing.ts';
 
 /** Gain and pitch variation of a sound: the picked recipe's (PICKED_SOUNDS) or the synth def's. */
 function mixOf(name: SoundName): { gain: number; jitter: number } {
@@ -81,12 +82,12 @@ export class Sfx {
 
   /**
    * Play a sound at a world position heard by a listener at (lx, lz) looking along yaw.
-   * Falloff: 1 within refDistance, then refDistance / d; silent beyond maxDistance.
+   * Falloff by sound: hearingGain (gameplay/hearing.ts). Silent sounds still count as played.
    */
   playAt(name: SoundName, x: number, z: number, lx: number, lz: number, yaw: number): void {
     const dx = x - lx, dz = z - lz, dist = Math.hypot(dx, dz);
-    if (dist > AUDIO.maxDistance) { this.played[name] = (this.played[name] ?? 0) + 1; return; }
-    const gain = dist <= AUDIO.refDistance ? 1 : AUDIO.refDistance / dist;
+    const gain = hearingGain(name, dist);
+    if (gain <= 0) { this.played[name] = (this.played[name] ?? 0) + 1; return; }
     // Listener right vector for yaw (yaw 0 looks along -Z, right = +X).
     const rx = Math.cos(yaw), rz = -Math.sin(yaw);
     const pan = dist > 0.01 ? (dx * rx + dz * rz) / dist : 0;

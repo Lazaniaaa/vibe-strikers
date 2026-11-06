@@ -24,6 +24,8 @@ import { loginMessage } from './walletMessage.ts';
 import { formatTokens, payoutPlan, toUnits, weekLabel, weekOf, weekPoints, weekStartMs } from './rewards.ts';
 import { REWARDS } from '../config/rewards.ts';
 import { PROGRESSION, SEASON } from '../config/season.ts';
+import { AUDIO } from '../config/audio.ts';
+import { hearingGain } from './hearing.ts';
 import { levelCost, levelOf, matchXp, missionsDone, missionXp, seasonActive, seasonClaim, seasonLevel, seasonReward } from './progression.ts';
 import { callData, decodeUint, encodeArgs, selector } from '../network/evm.ts';
 import { buildNavGrid, findPath, groundAt, nearestWalkable, nodeY, pruneUnreachable, upperAreas } from './navGrid.ts';
@@ -352,6 +354,16 @@ test('ABI call data matches known vectors', () => {
   assert.equal(words[3], 2n);
   assert.deepEqual(words.slice(6), [1n, 9n]);
   assert.equal(decodeUint('0x' + '0'.repeat(62) + '2a'), 42n);
+});
+
+test('hearing range: footsteps stop at the short range, shots carry far', () => {
+  const s = AUDIO.hearing.step;
+  assert.equal(hearingGain('step', s.ref), 1);
+  assert.equal(hearingGain('step', (s.ref + s.max) / 2), 0.5);
+  assert.equal(hearingGain('step', s.max), 0, 'silent at the limit');
+  assert.equal(hearingGain('step', 40), 0);
+  assert.ok(hearingGain('shot_rifle', 40) > 0, 'shots are still heard far away');
+  assert.equal(hearingGain('shot_rifle', AUDIO.maxDistance + 1), 0);
 });
 
 test('levels, season track, missions', () => {

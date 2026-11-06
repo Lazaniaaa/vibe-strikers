@@ -57,7 +57,7 @@ export const PICKED_SOUNDS = {
   shot_sniper: { gain: 0.75, jitter: 0.02 },
   hit: { gain: 0.9, jitter: 0.03 },
   headshot: { gain: 1.05, jitter: 0 },
-  step: { gain: 0.2, jitter: 0.05 },
+  step: { gain: 0.12, jitter: 0.05 },
   hover: { gain: 2.8, jitter: 0.02 },
   loot: { gain: 1.5, jitter: 0 },
 } as const satisfies Partial<Record<SoundName, { gain: number; jitter: number }>>;
@@ -73,6 +73,8 @@ export const AUDIO = {
   /** Remote sounds: full volume until this distance, then 1/d falloff; silent beyond maxDistance. */
   refDistance: 4,
   maxDistance: 70,
+  /** Sounds with a short range: full volume until `ref` metres, then a linear fade to silence at `max` (owner: 5-10 m). */
+  hearing: { step: { ref: 3, max: 10 } },
   /** Second reload click, seconds before the reload ends. */
   reloadSecondClick: 0.35,
 } as const;

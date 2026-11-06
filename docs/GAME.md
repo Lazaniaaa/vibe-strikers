@@ -242,7 +242,8 @@ reward items only add to the tradable collection. Season-only NFTs: later (owner
 - Player level: permanent, starts at 1, each level costs a bit more (`levelOf`), shown on the player card and in LEADERS.
 - Season 1: 2026-11-06 to 2026-12-04 UTC, 30 levels of 1000 XP. Levels give coins; every fifth gives an item (emote or
   character); level 30 gives a character and 500 coins. Season XP stops at the end, earned rewards stay claimable.
-- Missions: 3 per week (Monday 00:00 UTC): 5 matches, 20 kills, 3 wins; +300 XP each, paid once when done.
+- Missions: 3 per week (Monday 00:00 UTC): 5 matches, 20 kills, 3 wins; +300 XP each, paid once when done. The UI says
+  "game" for a match, because the HUD counts rounds and a match is first to 3 round wins.
 - Tables (public): `player_progress{owner pk, xp}`, `season_progress{id "season:owner" pk, season btree, owner, xp,
   claimedLevel}`, `mission_progress{id "week:owner" pk, week btree, owner, matches, wins, kills, done}`.
 - Reducer `claimSeasonRewards` (login + market rate limit): pays levels after `claimedLevel` up to the level reached;
@@ -296,6 +297,8 @@ reload, footsteps (positional, silent while sneaking), UI. Since 2026-11-06 the 
 rounds (cartoon direction) replace the synth for: shots (knife, pistol, rifle, shotgun, sniper), hit, headshot,
 footsteps (4 renders, random per step), button hover (lobby, once per button entered) and loot (item picked up;
 online after the server accepts). Map in `src/ui/sounds/picks.ts`, volumes in `config/audio.ts` PICKED_SOUNDS.
+Footsteps of others are heard only nearby (owner 2026-11-06): full volume to 3 m, silence at 10 m (`AUDIO.hearing`,
+`gameplay/hearing.ts`); other sounds keep the 1/d falloff up to 70 m. Walls do not block sound.
 Kill, hurt, reload, ping and click keep the synth. No music: the owner removed the generative music and its win /
 lose stings on 2026-11-06; effects only.
 
