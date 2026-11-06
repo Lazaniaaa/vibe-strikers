@@ -14,7 +14,9 @@
     "game:preview": "vite preview --config vite.game.config.ts --host 127.0.0.1 --port 5191 --strictPort",
     "server:publish": "spacetime publish --server local -y --module-path server voxel-arena",
     "server:bindings": "spacetime generate --lang typescript --module-path server --out-dir src/network/bindings -y",
-    "server:reset": "spacetime publish --server local -y --delete-data=always --module-path server voxel-arena"
+    "server:reset": "spacetime publish --server local -y --delete-data=always --module-path server voxel-arena",
+    "contract:build": "node scripts/build-contract.mjs",
+    "contract:test": "node --experimental-strip-types --no-warnings scripts/test-contract.mjs"
   },
   "dependencies": {
     "@noble/curves": "2.4.0",
@@ -30,11 +32,15 @@
     "three": "0.186.1"
   },
   "devDependencies": {
+    "@ethereumjs/common": "10.1.3",
+    "@ethereumjs/evm": "10.1.3",
+    "@ethereumjs/util": "10.1.3",
     "@types/node": "22.20.5",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@types/three": "0.186.0",
     "@vitejs/plugin-react": "6.1.2",
+    "solc": "0.8.38",
     "typescript": "6.0.3",
     "vite": "8.3.5"
   }

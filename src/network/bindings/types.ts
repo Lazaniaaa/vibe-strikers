@@ -205,3 +205,15 @@ export const Wallet = __t.object("Wallet", {
 });
 export type Wallet = __Infer<typeof Wallet>;
 
+export const WeekStat = __t.object("WeekStat", {
+  id: __t.string(),
+  week: __t.u32(),
+  owner: __t.string(),
+  name: __t.string(),
+  matches: __t.u32(),
+  wins: __t.u32(),
+  kills: __t.u32(),
+  headshots: __t.u32(),
+});
+export type WeekStat = __Infer<typeof WeekStat>;
+

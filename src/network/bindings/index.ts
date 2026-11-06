@@ -68,6 +68,7 @@ import SessionRow from "./session_table";
 import ShotEventRow from "./shot_event_table";
 import TradeRow from "./trade_table";
 import WalletRow from "./wallet_table";
+import WeekStatRow from "./week_stat_table";
 
 /** Type-only namespace exports for generated type groups. */
 
@@ -233,6 +234,20 @@ const tablesSchema = __schema({
       { name: 'wallet_owner_key', constraint: 'unique', columns: ['owner'] },
     ],
   }, WalletRow),
+  weekStat: __table({
+    name: 'week_stat',
+    indexes: [
+      { accessor: 'id', name: 'week_stat_id_idx_btree', algorithm: 'btree', columns: [
+        'id',
+      ] },
+      { accessor: 'week', name: 'week_stat_week_idx_btree', algorithm: 'btree', columns: [
+        'week',
+      ] },
+    ],
+    constraints: [
+      { name: 'week_stat_id_key', constraint: 'unique', columns: ['id'] },
+    ],
+  }, WeekStatRow),
 });
 
 /** The schema information for all reducers in this module. This is defined the same way as the reducers would have been defined in the server, except the body of the reducer is omitted in code generation. */

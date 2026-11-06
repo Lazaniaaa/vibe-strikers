@@ -19,6 +19,8 @@ import type TradeDef from './bindings/trade_table.ts';
 import type EconomyDef from './bindings/economy_table.ts';
 import type PlayerStatDef from './bindings/player_stat_table.ts';
 import type SessionDef from './bindings/session_table.ts';
+import type WeekStatDef from './bindings/week_stat_table.ts';
+import { weekOf } from '../gameplay/rewards.ts';
 
 export type PlayerRow = Infer<typeof PlayerRowDef>;
 export type RoomRow = Infer<typeof RoomRowDef>;
@@ -33,6 +35,7 @@ export type TradeRow = Infer<typeof TradeDef>;
 export type EconomyRow = Infer<typeof EconomyDef>;
 export type PlayerStatRow = Infer<typeof PlayerStatDef>;
 export type SessionRow = Infer<typeof SessionDef>;
+export type WeekStatRow = Infer<typeof WeekStatDef>;
 
 /** Marketplace rows (GAME.md 6.7, 6.8), kept current after GameNet.subscribeMarket. No artificial lag. */
 export class MarketView {
@@ -46,6 +49,9 @@ export class MarketView {
   readonly items = new Map<bigint, OwnedItemRow>();
   /** All-time stats by account (leaderboard). */
   readonly stats = new Map<string, PlayerStatRow>();
+  /** The week subscribed (weekOf at subscribe time) and its stats by account (weekly STRIKE rewards). */
+  week = 0;
+  readonly weekStats = new Map<string, WeekStatRow>();
   readonly listings = new Map<bigint, ListingRow>();
   readonly trades = new Map<bigint, TradeRow>();
   economy: EconomyRow | null = null;
@@ -266,6 +272,10 @@ export class GameNet {
     c.db.playerStat.onInsert((_ctx, row) => { m.stats.set(row.owner, row); changed(); });
     c.db.playerStat.onUpdate((_ctx, _old, row) => { m.stats.set(row.owner, row); changed(); });
     c.db.playerStat.onDelete((_ctx, row) => { m.stats.delete(row.owner); changed(); });
+    const setWeek = (row: WeekStatRow) => { if (row.week === m.week) { m.weekStats.set(row.owner, row); changed(); } };
+    c.db.weekStat.onInsert((_ctx, row) => setWeek(row));
+    c.db.weekStat.onUpdate((_ctx, _old, row) => setWeek(row));
+    c.db.weekStat.onDelete((_ctx, row) => { if (m.weekStats.get(row.owner)?.id === row.id) { m.weekStats.delete(row.owner); changed(); } });
     c.db.ownedItem.onInsert((_ctx, row) => { m.items.set(row.id, row); changed(); });
     c.db.ownedItem.onUpdate((_ctx, _old, row) => { m.items.set(row.id, row); changed(); });
     c.db.ownedItem.onDelete((_ctx, row) => { m.items.delete(row.id); changed(); });
@@ -306,6 +316,8 @@ export class GameNet {
     this.marketAll = all;
     const queries = ['SELECT * FROM session', 'SELECT * FROM wallet', 'SELECT * FROM listing', 'SELECT * FROM trade',
       'SELECT * FROM economy', 'SELECT * FROM player_stat'];
+    this.market.week = weekOf(Date.now());
+    queries.push(`SELECT * FROM week_stat WHERE week = ${this.market.week}`);
     if (all) queries.push('SELECT * FROM owned_item');
     return new Promise((resolve, reject) => {
       this.marketSub = this.conn!.subscriptionBuilder()

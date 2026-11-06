@@ -214,6 +214,23 @@ never calls a chain; a login is a free text signature. Numbers in `config/auth.t
 - Not done (later, owner decides): NFT ownership checks on the chain, smart-contract wallets (EIP-1271), hiding
   balances, one-account-per-person rules (a new wallet is free, so the starter gift can still be farmed on testnet).
 
+### 6.9 Weekly STRIKE rewards — DECIDED (owner 2026-11-06)
+Testnet only. Token STRIKE (`REWARDS.token`, the owner's ERC-20 on Robinhood Chain testnet). Numbers in
+`config/rewards.ts`, math in `gameplay/rewards.ts`, steps for the owner in docs/REWARDS.md.
+- Weeks start Monday 00:00 UTC (`weekOf`). Points per week: win 10, match 2, kill 1, headshot +1; logged-in
+  humans in online matches only (the same events as the all-time stats, 6.8).
+- Server: public `week_stat{id "week:owner" pk, week btree, owner, name, matches, wins, kills, headshots}`, bumped
+  next to `player_stat`. Clients subscribe to the current week only.
+- Payout plan (`payoutPlan`): wallets with at least `minPoints` share the week's pool by points, each capped at
+  `maxShareBps` (10%); the rest stays in the contract.
+- Contract `contracts/WeeklyDistributor.sol`: holds the pool (funded by the owner), owner-only
+  `distribute(week, players[], amounts[])` in batches of `batchSize`; each (week, player) pays at most once, so
+  re-sending a batch is safe; `withdraw`, `setOwner`. Players never call it and never sign a transaction.
+- Admin page `client/admin.html` (dev server only, not in the production build): connect MetaMask (switches to the
+  testnet), deploy, fund, load a week from the server's SQL endpoint, pay, withdraw. No private keys anywhere.
+- LEADERS tab: "This week" (default: points, wins, kills, matches, estimated STRIKE if the week ended now with
+  `weekPoolTokens`) and "All time" (6.8).
+
 ## 7. Bots — DECIDED
 Server-side fake players using the same intent path. Waypoint graph generated from
 `mapData`. Simple behavior: walk between waypoints, turn to visible enemies, shoot

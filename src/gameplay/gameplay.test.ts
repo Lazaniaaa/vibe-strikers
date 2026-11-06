@@ -21,6 +21,9 @@ import { matchPays, matchReward, priceError, RateLimiter, saleFee, starterRefs, 
 import { AUTH } from '../config/auth.ts';
 import { loginError, personalHash, recoverSigner, signLogin } from './walletAuth.ts';
 import { loginMessage } from './walletMessage.ts';
+import { formatTokens, payoutPlan, toUnits, weekLabel, weekOf, weekPoints, weekStartMs } from './rewards.ts';
+import { REWARDS } from '../config/rewards.ts';
+import { callData, decodeUint, encodeArgs, selector } from '../network/evm.ts';
 import { buildNavGrid, findPath, groundAt, nearestWalkable, nodeY, pruneUnreachable, upperAreas } from './navGrid.ts';
 
 let passed = 0;
@@ -304,6 +307,49 @@ test('market rules: fee, price limits, match reward, rate limit, starter set', (
     assert.equal(new Set(refs).size, refs.length, 'distinct');
     assert.equal(refs.filter((x) => x.startsWith('emote:')).length, MARKET.starter.emotes);
   }
+});
+
+test('weekly rewards: weeks, points, payout plan', () => {
+  const mon = Date.UTC(2026, 10, 2), sunLast = Date.UTC(2026, 10, 8, 23, 59, 59, 999);
+  assert.equal(new Date(mon).getUTCDay(), 1, 'Nov 2 2026 is a Monday');
+  assert.equal(weekOf(mon), weekOf(sunLast), 'Monday..Sunday is one week');
+  assert.equal(weekOf(mon - 1), weekOf(mon) - 1, 'Sunday before is the previous week');
+  assert.equal(weekStartMs(weekOf(sunLast)), mon);
+  assert.equal(weekLabel(weekOf(mon)), '2026-11-02 – 2026-11-08');
+  const p = REWARDS.points;
+  assert.equal(weekPoints({ matches: 3, wins: 2, kills: 7, headshots: 4 }), 3 * p.match + 2 * p.win + 7 * p.kill + 4 * p.headshot);
+  const pool = toUnits(1000);
+  // Two wallets: equal points, each capped at maxShareBps; one below minPoints gets nothing.
+  const plan = payoutPlan([
+    { owner: '0xb', matches: 5, wins: 0, kills: 0, headshots: 0 },
+    { owner: '0xa', matches: 5, wins: 0, kills: 0, headshots: 0 },
+    { owner: '0xc', matches: 1, wins: 0, kills: 0, headshots: 0 },
+  ], pool);
+  const cap = pool * BigInt(REWARDS.maxShareBps) / 10_000n;
+  assert.deepEqual(plan.map((x) => x.owner), ['0xa', '0xb'], 'below min left out, ties by address');
+  assert.ok(plan.every((x) => x.amount === cap), 'capped');
+  // Many wallets: proportional, sum within the pool.
+  const many = Array.from({ length: 50 }, (_, i) => ({ owner: `0x${i}`, matches: 5 + i, wins: 0, kills: 0, headshots: 0 }));
+  const big = payoutPlan(many, pool);
+  assert.ok(big.reduce((s, x) => s + x.amount, 0n) <= pool && big[0].amount > big[big.length - 1].amount, 'proportional');
+  assert.deepEqual(payoutPlan([], pool), []);
+  assert.equal(formatTokens(toUnits(1234567)), '1 234 567');
+  assert.equal(formatTokens(toUnits(3) / 2n), '1.5');
+});
+
+test('ABI call data matches known vectors', () => {
+  assert.equal(selector('transfer(address,uint256)'), 'a9059cbb');
+  assert.equal(selector('balanceOf(address)'), '70a08231');
+  const to = '0x7e5f4552091a69125d5dfcb7b8c2659029395bdf';
+  assert.equal(callData('transfer(address,uint256)', [{ type: 'address', value: to }, { type: 'uint256', value: 5n }]),
+    `0xa9059cbb${'0'.repeat(24)}${to.slice(2)}${'0'.repeat(63)}5`);
+  // uint256, address[2], uint256[1]: heads 3 words, first tail at 0x60, second at 0x60 + 3 * 32 = 0xc0.
+  const enc = encodeArgs([{ type: 'uint256', value: 7n }, { type: 'address[]', value: [to, to] }, { type: 'uint256[]', value: [9n] }]);
+  const words = enc.match(/.{64}/g)!.map((w) => BigInt(`0x${w}`));
+  assert.deepEqual(words.slice(0, 3), [7n, 0x60n, 0xc0n]);
+  assert.equal(words[3], 2n);
+  assert.deepEqual(words.slice(6), [1n, 9n]);
+  assert.equal(decodeUint('0x' + '0'.repeat(62) + '2a'), 42n);
 });
 
 console.log(`${passed} gameplay checks passed`);

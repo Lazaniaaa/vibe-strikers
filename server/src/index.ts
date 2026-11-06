@@ -30,6 +30,7 @@ import { actorFor, brainFor, forgetActor, getNav, getWorld, historyFor, terrainF
 import { MARKET } from '../../src/config/market.ts';
 import { AUTH } from '../../src/config/auth.ts';
 import { loginError } from '../../src/gameplay/walletAuth.ts';
+import { weekOf } from '../../src/gameplay/rewards.ts';
 import { CATALOG, matchPays, matchReward, priceError, RateLimiter, saleFee, starterRefs, utcDay } from '../../src/gameplay/market.ts';
 
 const room = table({ name: 'room', public: true }, {
@@ -241,7 +242,20 @@ const playerStat = table({ name: 'player_stat', public: true }, {
   headshots: t.u32(),
 });
 
-const spacetimedb = schema({ room, player, shotEvent, killEvent, item, pingEvent, tickTimer, session, wallet, ownedItem, listing, trade, economy, matchStat, matchClock, playerStat });
+/** Stats per account per week (Monday 00:00 UTC) for the weekly STRIKE rewards (GAME.md 6.9). */
+const weekStat = table({ name: 'week_stat', public: true }, {
+  /** `${week}:${owner}` */
+  id: t.string().primaryKey(),
+  week: t.u32().index('btree'),
+  owner: t.string(),
+  name: t.string(),
+  matches: t.u32(),
+  wins: t.u32(),
+  kills: t.u32(),
+  headshots: t.u32(),
+});
+
+const spacetimedb = schema({ room, player, shotEvent, killEvent, item, pingEvent, tickTimer, session, wallet, ownedItem, listing, trade, economy, matchStat, matchClock, playerStat, weekStat });
 export default spacetimedb;
 
 /** Row-level security: a client only receives the ping rows addressed to it. */
@@ -645,7 +659,7 @@ function payCoins(ctx: Ctx, w: WalletRow, coins: number, extra: Partial<WalletRo
   mint(ctx, paid);
 }
 
-/** Add to a logged-in player's all-time stats (bots and guests have none). */
+/** Add to a logged-in player's all-time and this week's stats (bots and guests have none). */
 function bumpStat(ctx: Ctx, p: PlayerRow, d: Partial<Omit<StatRow, 'owner' | 'name'>>): void {
   const owner = accountOfPlayer(ctx, p);
   if (!owner) return;
@@ -654,6 +668,11 @@ function bumpStat(ctx: Ctx, p: PlayerRow, d: Partial<Omit<StatRow, 'owner' | 'na
   const add = (a: number, b = 0) => Math.min(U32_MAX, a + b);
   ctx.db.playerStat.owner.update({ ...s, name: p.name, matches: add(s.matches, d.matches), wins: add(s.wins, d.wins),
     kills: add(s.kills, d.kills), deaths: add(s.deaths, d.deaths), headshots: add(s.headshots, d.headshots) });
+  const week = weekOf(nowMs(ctx)), id = `${week}:${owner}`;
+  const w = ctx.db.weekStat.id.find(id)
+    ?? ctx.db.weekStat.insert({ id, week, owner, name: p.name, matches: 0, wins: 0, kills: 0, headshots: 0 });
+  ctx.db.weekStat.id.update({ ...w, name: p.name, matches: add(w.matches, d.matches), wins: add(w.wins, d.wins),
+    kills: add(w.kills, d.kills), headshots: add(w.headshots, d.headshots) });
 }
 
 /** Match end: stats for every logged-in human (every online match counts); coins only for a real match. */

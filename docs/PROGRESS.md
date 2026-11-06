@@ -574,6 +574,21 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   contract the owner funds with 10% of supply (may all go out in week 1), payout pushed by the owner from a local
   admin page via MetaMask (players never sign a transaction), max 10% of a week's pool per wallet, weekly tab in
   LEADERS. The owner's keys never touch the repo or Claude.
+- 2026-11-06 weekly STRIKE rewards built (GAME.md 6.9, owner steps docs/REWARDS.md): `config/rewards.ts`,
+  `gameplay/rewards.ts` (weeks, points, payout plan), server table `week_stat` (bumped with `player_stat`), LEADERS
+  "This week" / "All time" (LEADERS now imports market.css itself: before, it was empty when MARKET had never been
+  opened), contract `contracts/WeeklyDistributor.sol` + build/test scripts (solc 0.8.38, @ethereumjs/evm 10.1.3 as
+  exact devDependencies), ABI helpers `network/evm.ts`, admin page `client/admin.html` (dev only). Checks:
+  contract test on an in-process EVM (400 players in 4 batches, ~5.1M gas per 100, re-send skips, overspend reverts
+  the batch, owner-only guards, withdraw, setOwner): PASS; 23 gameplay checks; server test; market test (week stats);
+  LEADERS + admin page in Chromium with a fake wallet (reads from the real testnet RPC, no transactions), 0 console
+  errors (`docs/evidence/leaders-this-week.jpg`, `rewards-admin.jpg`). Not yet done on the real chain: deploy, fund,
+  first payout (owner, MetaMask, needs testnet ETH).
+  Local SpacetimeDB: the new CLI login (Maincloud) could not update the local database made by the old identity, so
+  the old data folder was moved to `%LOCALAPPDATA%\SpacetimeDB\data-old-2026-11-06` and the local server started
+  fresh (test data only; delete the old folder when sure).
+  Typecheck note: the working copy has Codex's uncommitted toy-weapon files (new WeaponId values), which break
+  `config/weapons.ts` / `client/game/visuals.ts` types; my files type-check clean; checked on a clean copy too.
 - 2026-10-31 owner: ADS proposal approved
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
