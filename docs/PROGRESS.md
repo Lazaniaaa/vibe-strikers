@@ -677,6 +677,8 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   matches the rules; the game row is `sent` with this tx. No metadata yet, so wallets and the explorer show no picture.
 - 2026-11-06 owner: "Try on" shows an NFT skin on the lobby character (market rows, season track), and metadata with a picture for wallets:
   `npm run nft:metadata` writes static files into client/public after each mint, then deploy. Admin site: Set metadata address (owner, one transaction).
+- 2026-11-06 owner set the metadata address on chain. Checked: tokenURI points to the Worker link, metadata and PNG answer 200. The explorer (Blockscout) shows
+  name, attributes and picture after its "Refresh metadata" button; it had kept the empty result from before. MetaMask not checked. Still open: skin in a match, NFT tab, merge market into main.
 - 2026-10-31 owner: ADS proposal approved
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).
