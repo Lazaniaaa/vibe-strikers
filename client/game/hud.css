@@ -43,6 +43,7 @@ body { font-family: system-ui, 'Segoe UI', sans-serif; user-select: none; }
 .menu[data-tab=characters] .menu-dimmer { opacity: .28; }
 .menu-header { position: absolute; inset: 22px 28px auto; display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; pointer-events: none; }
 .menu-header > * { pointer-events: auto; }
+.menu-beta { align-self: flex-start; margin: 2px 0 0 -2px; padding: 3px 7px 2px; background: var(--menu-accent, #ffb83d); color: var(--menu-ink); border: 2px solid var(--menu-ink); border-radius: 7px; box-shadow: 0 3px 0 var(--menu-ink); font-family: var(--menu-display); font-size: 13px; letter-spacing: .8px; line-height: 1; -webkit-text-stroke: 0; text-shadow: none; transform: rotate(-6deg); }
 .menu-logo { display: flex; align-items: center; gap: 9px; color: var(--menu-cream); font-family: var(--menu-display); font-size: 30px; line-height: .87; letter-spacing: .6px; -webkit-text-stroke: 1px var(--menu-ink); paint-order: stroke fill; text-shadow: 2px 3px 0 var(--menu-ink); }
 .menu-block { width: 51px; height: 57px; overflow: visible; stroke: var(--menu-ink); stroke-width: 3; stroke-linejoin: round; filter: drop-shadow(2px 3px 0 var(--menu-ink)); }
 .block-top { fill: var(--menu-accent); } .block-left { fill: var(--menu-cream); } .block-right { fill: var(--menu-teal); } .block-notch { fill: none; }
