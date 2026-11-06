@@ -4,6 +4,7 @@ import profiles from './holdProfiles.json';
 import { readyProfile } from './hold';
 import { applyCachedHold } from './holdSolve';
 import { selectArmGeometry } from '../characters/armVariants';
+import { isToyWeapon } from './toyWeapons';
 
 type Profile = {goal:number[];yaw?:number;aimScale?:number;L:{offset:number[];index:number;twist:number};R:{offset:number[];index:number;twist:number};quality:{minClearance:number;maxFistError:number};failed?:boolean};
 const data=profiles as unknown as {characters:Record<string,{configKey:string;weapons:Record<string,Profile>}>;weapons:Record<string,string>};
@@ -17,8 +18,9 @@ function createHoldCache(d:CharacterRuntime,weapon:WeaponId,state:PoseState):Fir
   let entry=data.characters[d.characterId];
   // Config identity, rather than a game's display name, owns the calibration.
   if(entry?.configKey!==d.configKey)entry=Object.values(data.characters).find(c=>c.configKey===d.configKey)!;
-  const p=entry?.weapons[weapon];
-  if(!p||p.failed||data.weapons[weapon]!==JSON.stringify(readyProfile(weapon)!.config))throw new Error('Missing/stale HIP preflight: '+d.characterId+'/'+weapon);
+  const inherited=isToyWeapon(weapon)&&weapon!=='paintGrenade';
+  const p=entry?.weapons[inherited?'rifle':weapon];
+  if(!p||p.failed||(!inherited&&data.weapons[weapon]!==JSON.stringify(readyProfile(weapon)!.config)))throw new Error('Missing/stale HIP preflight: '+d.characterId+'/'+weapon);
   const config=readyProfile(weapon)!.config;
   const cache=bank[weapon]={support:(config.foregrip??config.supportGrip)!,goal:p.goal as [number,number,number],yaw:p.yaw??0,aimScale:p.aimScale??.22,lengths:{L:p.L.index,R:p.R.index},offsetL:p.L.offset as [number,number,number],offsetR:p.R.offset as [number,number,number],twistL:p.L.twist,twistR:p.R.twist,quality:p.quality,solves:1};
   selectArmGeometry(d,state);

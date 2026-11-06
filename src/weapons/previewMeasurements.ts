@@ -78,6 +78,6 @@ export function createPreviewMeasurements(read:()=>PreviewMeasurementInput,show:
  return {stats,request(){
   stats.requests++;stats.scheduled=true;cancelAnimationFrame(gate);if(idle){if('cancelIdleCallback'in window)window.cancelIdleCallback(idle);else clearTimeout(idle);}
   // Let the visual frame present first. All per-vertex work then happens off the UI thread.
-  gate=requestAnimationFrame(()=>{idle='requestIdleCallback'in window?window.requestIdleCallback(launch,{timeout:500}):window.setTimeout(launch,0);});
+  gate=requestAnimationFrame(()=>{idle='requestIdleCallback'in window?window.requestIdleCallback(launch,{timeout:500}):globalThis.setTimeout(launch,0);});
  },dispose(){disposed=true;cancelAnimationFrame(gate);if(idle){if('cancelIdleCallback'in window)window.cancelIdleCallback(idle);else clearTimeout(idle);}worker.terminate();cache.clear();}};
 }

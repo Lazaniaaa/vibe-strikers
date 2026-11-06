@@ -7,6 +7,7 @@ import { bounded, poseWeapon, unit } from './poseWeapon';
 import type { ViewmodelOptions, ViewmodelRuntime, ViewmodelState, WeaponBox, WeaponId, WeaponPalette, WeaponRuntime } from './types';
 import { ADS_DISTANCE, SNIPER_ADS_DISTANCE } from './ads';
 import { readyProfile } from './hold';
+import { TOY_VISUALS } from './toyWeapons';
 
 const hipPosition=new Vector3(),eyePosition=new Vector3(),sightPosition=new Vector3();
 const hipRotation=new Quaternion(),eyeRotation=new Quaternion(),sightRotation=new Quaternion();
@@ -22,7 +23,7 @@ function surface(config:CharacterConfig,part:PhysicalComponent):Surface{
 /** Camera-local, metre scale. All hand/arm colors and normalized sizes belong to this NFT. */
 export function createViewmodel(weaponId:WeaponId,characterConfig:CharacterConfig,options:ViewmodelOptions={}):Group{
   const group=new Group();group.name=`viewmodel-${weaponId}`;
-  const weapon=weaponId==='sniper'?createWeapon(weaponId,{viewmodel:true}):createWeapon(weaponId);group.add(weapon);
+  const weapon=createWeapon(weaponId,{viewmodel:true,skin:options.skin});group.add(weapon);
   // Construction-time lookup only; no character transforms/geometries are edited.
   const character=createCharacter(characterConfig).userData as CharacterRuntime;
   const hands=new Group();hands.name='hands';group.add(hands);
@@ -58,7 +59,7 @@ export function poseViewmodel(viewmodel:Group,state:ViewmodelState,_dt?:number):
   const gait=grounded?Math.sin(t*8)*speed:0;
   const side=state.holdSide??d.holdSide;
   const sign=side==='left'?-1:1;
-  const ads=w.kind==='knife'?0:unit(state.ads),blend=ads*ads*(3-2*ads);
+  const ads=w.kind==='knife'||w.kind==='paintGrenade'?0:unit(state.ads),blend=ads*ads*(3-2*ads);
   viewmodel.visible=w.kind!=='sniper'||ads<.9;
   if(w.scopeBody){
     const hip=ads<.5;w.scopeBody.visible=hip;w.scopeRear!.visible=true;
@@ -69,6 +70,13 @@ export function poseViewmodel(viewmodel:Group,state:ViewmodelState,_dt?:number):
   hipEuler.set(.12+pitch*.025+gait*.012,sign*.34+strafe*.025,-strafe*.045+gait*.015);
   hipRotation.setFromEuler(hipEuler);
   viewmodel.position.copy(hipPosition);viewmodel.quaternion.copy(hipRotation);
+  if(w.weaponId==='paintGrenade'){
+    const progress=unit(state.throw),wind=Math.sin(Math.min(1,progress/.45)*Math.PI/2);
+    viewmodel.position.y+=progress<.45?wind*.08:Math.sin((progress-.45)/.55*Math.PI)*.18;
+    viewmodel.position.z+=progress<.45?wind*.12:-(progress-.45)/.55*TOY_VISUALS.throwReach;
+    viewmodel.rotation.x+=progress<.45?-wind*.4:Math.sin((progress-.45)/.55*Math.PI)*.6;
+    d.weapon.visible=progress<TOY_VISUALS.throwRelease;
+  }
   viewmodel.scale.set(1,1,1);
   poseWeapon(d.weapon,state);
   const mirror=side==='left'&&readyProfile(w.weaponId)!.config.mirrorSafe?-1:1;

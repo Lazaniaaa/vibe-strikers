@@ -1,10 +1,11 @@
 import type { BufferGeometry, Group, Mesh, Object3D, SkinnedMesh } from 'three';
-import type { HexColor, Vec3, HoldSide } from '../characters/types';
+import type { HexColor, Vec3, HoldSide, PoseState } from '../characters/types';
+import type { SkinTraits } from './skinTraits';
 export type { HoldSide } from '../characters/types';
 
-export type WeaponId = 'knife' | 'pistol' | 'rifle' | 'sniper' | 'shotgun';
+export type WeaponId = 'knife' | 'pistol' | 'rifle' | 'sniper' | 'shotgun' | 'beam' | 'bouncer' | 'slingshot' | 'rail' | 'splat' | 'paintGrenade';
 export type WeaponKind = WeaponId;
-export type AnimatedPart = 'mag' | 'slide' | 'bolt' | 'pump';
+export type AnimatedPart = 'mag' | 'slide' | 'bolt' | 'pump' | 'heat' | 'alarm' | 'bandL' | 'bandR' | 'pouch' | 'coil0' | 'coil1' | 'coil2' | 'coil3' | 'paint';
 export interface WeaponPalette {
   steel: HexColor;
   top: HexColor;
@@ -54,9 +55,16 @@ export interface WeaponConfig {
   body: readonly WeaponBox[];
   parts: Partial<Record<AnimatedPart, PartSpec>>;
 }
-export interface WeaponOptions { palette?: Partial<WeaponPalette>; /** Internal sniper rendering variant; defaults to the world model. */ viewmodel?: boolean }
-export interface ViewmodelOptions { holdSide?: HoldSide }
+export interface WeaponOptions { skin?:SkinTraits; lod?:'near'|'far'; palette?: Partial<WeaponPalette>; /** Internal sniper rendering variant; defaults to the world model. */ viewmodel?: boolean }
+export interface ViewmodelOptions { holdSide?: HoldSide; skin?:SkinTraits }
 export interface WeaponState {
+  /** Visual inputs only; caller owns heat, cooldown, ammunition and throw logic. */
+  heat?: number;
+  charge?: number;
+  paintLevel?: number;
+  throw?: number;
+  /** Explicit visual clock for overheat flashing; seconds. */
+  time?: number;
   fire: number;
   reload: number | null;
   cycle: number | null;
@@ -73,6 +81,13 @@ export interface ViewmodelState extends WeaponState {
   time: number;
 }
 export interface WeaponRuntime {
+  skinGain?:number;
+  skinRig?:{bones:readonly import('three').Bone[];sources:readonly Object3D[]};
+  farRig?:{bones:readonly import('three').Bone[];sources:readonly Object3D[]};
+  skin?:SkinTraits;
+  skinLights?:readonly Mesh[];
+  characterPose?: PoseState;
+  visualParts?: Partial<Record<AnimatedPart, Group>>;
   isSniperViewmodel?: true;
   scopeBody?: SkinnedMesh;
   scopeRear?: Mesh;

@@ -57,5 +57,6 @@ export function attachWeapon(character:Group,weapon:Group):Group{
   const mirrored=false;
   weapon.userData.holdMirror=mirrored;weapon.scale.x=mirrored?-1:1;
   d.weaponBinding={mount,weapon,id:profile.config.id,side:'right',mirrored};
+  if(profile.config.id==='paintGrenade'&&!weapon.userData.characterPose)weapon.userData.characterPose={weapon:'knife',speed:0,moveDir:{x:0,z:-1},aimPitch:0,shooting:false,crouching:false,grounded:true,dead:false};
   return mount;
 }

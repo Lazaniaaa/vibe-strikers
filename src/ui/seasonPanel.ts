@@ -2,7 +2,7 @@
 // Plain DOM over a market-subscribed GameNet; redraws are throttled like the market panel.
 import { PROGRESSION, QUESTS, SEASON, type QuestKind } from '../config/season.ts';
 import { levelOf, questEndMs, questLine, seasonActive, seasonLevel, seasonReward } from '../gameplay/progression.ts';
-import { nftReward, nftRewardName } from '../gameplay/nft.ts';
+import { nftRef, nftReward, nftRewardName } from '../gameplay/nft.ts';
 import type { GameNet } from '../network/client.ts';
 import type { MarketItemView } from './marketPanel.ts';
 import '../../client/game/market.css';
@@ -74,10 +74,11 @@ export class SeasonPanel {
     const r = seasonReward(level);
     const item = r.item ? this.describe(r.item) : null;
     const state = level <= claimed ? 'is-claimed' : level <= reached ? 'is-ready' : '';
-    const art = item
+    const nft = nftReward(level), me = this.net?.market.account;
+    const skin = nft && me ? this.describe(nftRef(SEASON.id, level, me)).portrait : undefined; // this wallet's own skin
+    const art = skin ? `<img src="${esc(skin)}" alt="" />` : item
       ? (item.portrait ? `<img src="${esc(item.portrait)}" alt="" />` : `<span class="season-emote">${esc(item.kind === 'emote' ? '♪' : '★')}</span>`)
       : `<span class="season-coins">◉ ${r.coins}</span>`;
-    const nft = nftReward(level);
     const title = `${item ? `${item.name} (${item.kind})${r.coins ? ` + ${r.coins} coins` : ''}` : `${r.coins} coins`}${nft ? ` + ${nftRewardName(nft)} (NFT)` : ''}`;
     return `<li class="${state}${r.item ? ' has-item' : ''}${level === SEASON.levels ? ' is-final' : ''}" title="${esc(title)}"><b>${level}</b>${art}${nft ? `<em class="season-nft" data-rarity="${nft.rarity}">NFT</em>` : ''}${level <= claimed ? '<i aria-label="claimed">✓</i>' : ''}</li>`;
   }

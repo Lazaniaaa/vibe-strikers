@@ -1,0 +1,165 @@
+{
+  "pass": true,
+  "combinations": 95040,
+  "rows": [
+    {
+      "id": "beam",
+      "cases": 15840,
+      "maxFistError": 0.03130301742978969,
+      "minClearance": 0.0014782359953396853,
+      "meshes": 4,
+      "maxMs": 0.3100000000004002,
+      "worst": {
+        "character": "vibe-vibers-bureau-23",
+        "weapon": "beam",
+        "pose": "strafe",
+        "aim": 0,
+        "fire": 0,
+        "progress": 0,
+        "phase": 0,
+        "clearance": 0.0014782359953396853,
+        "error": 0.005966079133530568,
+        "where": {
+          "mesh": "armL-boxes",
+          "body": "head"
+        }
+      }
+    },
+    {
+      "id": "bouncer",
+      "cases": 15840,
+      "maxFistError": 0.03130301742978969,
+      "minClearance": 0.0014782359953396853,
+      "meshes": 1,
+      "maxMs": 0.06150000000161526,
+      "worst": {
+        "character": "vibe-vibers-bureau-23",
+        "weapon": "bouncer",
+        "pose": "strafe",
+        "aim": 0,
+        "fire": 0,
+        "progress": 0,
+        "phase": 0,
+        "clearance": 0.0014782359953396853,
+        "error": 0.005966079133530568,
+        "where": {
+          "mesh": "armL-boxes",
+          "body": "head"
+        }
+      }
+    },
+    {
+      "id": "slingshot",
+      "cases": 15840,
+      "maxFistError": 0.03130301742978969,
+      "minClearance": 0.0014782359953396853,
+      "meshes": 4,
+      "maxMs": 0.17970000000059372,
+      "worst": {
+        "character": "vibe-vibers-bureau-23",
+        "weapon": "slingshot",
+        "pose": "strafe",
+        "aim": 0,
+        "fire": 0,
+        "progress": 0,
+        "phase": 0,
+        "clearance": 0.0014782359953396853,
+        "error": 0.005966079133530568,
+        "where": {
+          "mesh": "armL-boxes",
+          "body": "head"
+        }
+      }
+    },
+    {
+      "id": "rail",
+      "cases": 15840,
+      "maxFistError": 0.03130301742978969,
+      "minClearance": 0.0014782359953396853,
+      "meshes": 5,
+      "maxMs": 0.08220000000073924,
+      "worst": {
+        "character": "vibe-vibers-bureau-23",
+        "weapon": "rail",
+        "pose": "strafe",
+        "aim": 0,
+        "fire": 0,
+        "progress": 0,
+        "phase": 0,
+        "clearance": 0.0014782359953396853,
+        "error": 0.005966079133530568,
+        "where": {
+          "mesh": "armL-boxes",
+          "body": "head"
+        }
+      }
+    },
+    {
+      "id": "splat",
+      "cases": 15840,
+      "maxFistError": 0.03130301742978969,
+      "minClearance": 0.0014782359953396853,
+      "meshes": 2,
+      "maxMs": 0.05879999999888241,
+      "worst": {
+        "character": "vibe-vibers-bureau-23",
+        "weapon": "splat",
+        "pose": "strafe",
+        "aim": 0,
+        "fire": 0,
+        "progress": 0,
+        "phase": 0,
+        "clearance": 0.0014782359953396853,
+        "error": 0.005966079133530568,
+        "where": {
+          "mesh": "armL-boxes",
+          "body": "head"
+        }
+      }
+    },
+    {
+      "id": "paintGrenade",
+      "cases": 15840,
+      "maxFistError": 0.01982241607472693,
+      "minClearance": 0.0014782359953396853,
+      "meshes": 1,
+      "maxMs": 0.1407999999992171,
+      "worst": {
+        "character": "vibe-vibers-bureau-23",
+        "weapon": "paintGrenade",
+        "pose": "strafe",
+        "aim": 0,
+        "fire": 0,
+        "progress": 0,
+        "phase": 0,
+        "clearance": 0.0014782359953396853,
+        "error": 0.0007188053442565474,
+        "where": {
+          "mesh": "armL-boxes",
+          "body": "head"
+        }
+      }
+    }
+  ],
+  "failures": [],
+  "viewmodelCases": 4752,
+  "pool": {
+    "drawCalls": 3,
+    "decals": 8,
+    "caps": {
+      "beams": 4,
+      "trails": 32,
+      "particles": 96,
+      "decals": 128,
+      "decalsPerBurst": 24,
+      "surfaceScan": 4096,
+      "railSeconds": 0.5,
+      "bounceSeconds": 0.14,
+      "paintSeconds": 0.16,
+      "sparkSeconds": 0.18,
+      "decalLift": 0.006,
+      "decalLayerStep": 0.00001,
+      "beamWidth": 0.025
+    }
+  }
+}

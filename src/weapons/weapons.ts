@@ -1,4 +1,5 @@
 import { sniperScopeBoxes, sniperScopeLenses, SNIPER_SCOPE_AXIS_Y } from './sniperScope';
+import { toyWeapons } from './toyWeapons';
 import type { Vec3 } from '../characters/types';
 import type { WeaponBox, WeaponConfig, WeaponPalette } from './types';
 
@@ -130,8 +131,9 @@ export const weapons: readonly WeaponConfig[] = [
     ],
     parts:{pump:{position:[0,.045,-.61],boxes:[b([.32,.21,.32],[0,0,0],'accent','accentTop'),...[-.10,0,.10].map(z=>b([.335,.22,.035],[0,0,z],'shadow','steel'))]}},
   },
+  ...toyWeapons,
 ];
-export const weaponIds: readonly WeaponConfig['id'][] = Object.freeze(weapons.map(w=>w.id));
+export { weaponIds } from './weaponIds';
 
 
 

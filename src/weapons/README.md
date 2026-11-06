@@ -116,3 +116,109 @@ Fan: 36 азимутів, radial step .25°, near .05, FOV70; консерват
 material/cache/dispose, weapon progress poses та source audit алокацій.
 Це vertex-vs-box контракт, не SAT кожного трикутника; декоративні extras
 не є body hitboxes. Повний звіт містить числові результати й найгірші випадки.
+# New toy visual kit (Vibe Strikers)
+
+Six new visual IDs, ratio-driven parts, the extended `poseArmedCharacter` adapter, pooled trails/paint/decals and the copy list are documented in [TOYS.md](./TOYS.md) and [TOY_REPORT.md](./TOY_REPORT.md). Gameplay integration remains the game's responsibility. The original five models and their approved poses are retained.
+
+## NFT skins — Candy & Toys, generator v3
+
+```ts
+import {
+  generateSkinTraits, createWeapon, createViewmodel, poseWeapon,
+  renderSkinImage, skinMetadata, disposeWeaponResources,
+} from './index';
+
+const skin = generateSkinTraits({weapon: 'rifle', rarity: 'epic', seed: 1234});
+const pickup = createWeapon('rifle', {skin}); // near: layered candy/toy parts
+const remote = createWeapon('rifle', {skin, lod: 'far'}); // one rigid-skinned draw
+const view = createViewmodel('rifle', characterConfig, {holdSide: 'right', skin});
+poseWeapon(pickup, {fire: 0, reload: null, cycle: null, equip: 1, time: 1.2, heat: 0, charge: 0});
+const metadata = skinMetadata(skin, '42'); // image deliberately omitted
+const png = await renderSkinImage(skin, 512); // browser-only PNG data URL
+```
+
+All eleven `weaponIds` and six `SKIN_RARITIES` are supported. The pure generator
+has no runtime Three/DOM dependency and only uses integer seeded randomness.
+Import `skinTraits.ts` directly for server traits/metadata generation. JSON
+round-trips are supported; hand-edited/unknown recipe versions are rejected.
+Raw seeds are uint32; identical weapon/rarity/seed inputs produce identical JSON.
+Palette/pattern/kit libraries are exported as `CANDY_PALETTES`, `CANDY_PATTERNS`
+and `DETAIL_KITS`: eight candy colour sets, six box/face patterns and five named
+modular kit presets for each weapon (55 presets, five shared part families).
+Common already has layered parts; the number of parts rises with rarity.
+Epic and above have emissive panels; Mythic gain responds deterministically to
+existing `time`, `fire`, `heat` and `charge`, without vertex edits or pose-time
+allocations. Other functional weapon animations, sockets and hands are retained.
+
+The library is unchanged in size. `RARITY_STYLES` adds a fixed visual grammar:
+
+| Tier | Silhouette | Exclusive colour sets / finish |
+| --- | --- | --- |
+| Common | Flush candy sleeve | Strawberry / Peach, flat candy |
+| Uncommon | Small cream cap | Raspberry / Mint, cream trim |
+| Rare | One T-shaped wafer fin | Lemon Sherbet, orange inlay |
+| Epic | Twin glowing wings | Grape Soda, cyan light |
+| Legendary | Three-prong crown | Cocoa, reserved gold foil with pale top faces |
+| Mythic | Layered double halo | Bubblegum, ivory / purple / cyan prismatic trim |
+
+Palette pools are disjoint across all six tiers. Low tiers cannot roll gold or
+prismatic trim. Common/Uncommon have flat surfaces; the six procedural patterns
+become more visible from Rare upward. Part families still vary within each tier,
+but the tier silhouette never depends on the random kit. Both near and far retain
+the tier ornament. Mythic glow pulses from 0.32 to 1 with the existing `time`
+input in near, first person and far. Regenerate v2 recipes from weapon/rarity/seed
+to get v3; older edited/serialized recipes are deliberately not silently upgraded.
+
+Near world/lobby models add raised wafer ribs, gumball sockets, licorice harnesses,
+toy studs or gift-ribbon panels to exposed sides and a raised top ornament. First-person uses the same
+kit as fine recessed panels, inside the original paint plates, to retain the
+original opaque silhouette. Original grips, muzzle and animation transforms
+remain unchanged. No textures or downloaded assets are used.
+
+`lod: 'far'` is an explicit creation-time choice, not an automatic distance test.
+The game chooses near/far. Far removes buried colour-plate faces and spends some
+of the saved triangles on the same tier silhouette. Per-face candy colours and
+emission masks plus original moving groups drive a single rigid-skinned
+mesh, with no weapon shadow pass or remote glass meshes. The base weapon's full
+triangle ceiling includes dormant heat/charge parts; far stays at or below that
+ceiling. Near adds at most one draw, including glow. Draw ceilings count all
+animated parts even when currently dormant. Skins without the `skin` option do
+not change, including the previous five weapons and the six toy weapons.
+
+Equal appearances and LODs share geometry/materials. Reactive near/far glow uses
+shared shaders; each draw uploads its own instance gain. Resources remain in the
+existing weapon cache lifetime: call `disposeWeaponResources()` after removing
+all live weapons/viewmodels, and `disposeSkinImageRenderer()` when thumbnail
+rendering is finished. Creation, image export and authoring checks allocate;
+pose updates do not. The image helper lazily creates one reusable renderer and
+serializes concurrent exports. It accepts an optional third `{lod: 'far', time: 1}`
+argument for review images; near is the default. `renderBaseWeaponImage` in the
+image helper is for review baselines. All tiers and the base use a fixed camera
+and scale derived from the base bounds. Importing the helper creates no WebGL.
+
+This is a finite visual library, not a minting uniqueness registry. Use
+`skinVisualKey(traits)` as a deterministic recipe key and apply collection-level
+deduplication in the minting system; seed uniqueness alone is not a promise of
+infinite visibly distinct NFTs. Common and Uncommon use ten simple layouts per
+weapon (two palette sets × five kits), with 4,913 flat dye-batch tints per layout
+(at most ±8 RGB steps per channel). This preserves each tier's hue and flat finish
+without reducing its pool to ten identical NFTs. Inactive random pattern words
+are excluded from the appearance key; actual dye colours are included. No contract,
+minting or gameplay code is included.
+
+Review / checks (run from the own-copy repository root):
+
+```sh
+node src/weapons/verifySkins.mjs
+npx vite --config src/weapons/skinLab.vite.ts
+# http://127.0.0.1:5175/skins.html
+npx vite build --config src/weapons/skinLab.vite.ts
+```
+
+The lab has near/far grids with a base column, seeds, metadata, selected 512px PNG
+export, a 112px contact sheet with an explicit base row and base + all six tiers
+side by side, plus a 64px all-weapon strip and a Mythic pulse preview. Its GPU
+check compares silhouettes at 64px in both LODs, compares opaque pixel masks
+against the base viewmodel, alternates reactive instances to detect shared-state
+leaks and reads real Three draw/triangle counters for eight Mythic far weapons
+in Toy Town. Reports and copy instructions are in [SKIN_REPORT.md](./SKIN_REPORT.md).

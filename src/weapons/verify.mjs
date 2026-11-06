@@ -9,6 +9,7 @@ import { verifySniper } from './verifySniper.mjs';
 import { verifyScope } from './verifyScope.mjs';
 import { verifyHoldPerf } from './verifyHoldPerf.mjs';
 import { verifyHoldSweep } from './verifyHoldSweep.mjs';
+import { verifyToyWeapons } from './verifyToyWeapons.mjs';
 
 const hashGeometry=g=>{
  const h=createHash('sha256');
@@ -25,7 +26,10 @@ const idle={fire:0,reload:null,cycle:null,equip:1};
 export async function verifyWeapons(){
  const server=await createServer({server:{middlewareMode:true,hmr:false,ws:false},appType:'custom'});
  try{
-  const api=await server.ssrLoadModule('../weapons/index.ts');
+  const fullApi=await server.ssrLoadModule('../weapons/index.ts');
+  // Frozen legacy contracts retain their exact five-weapon matrix. The new kit has its own full matrix below.
+  const legacyIds=['knife','pistol','rifle','sniper','shotgun'];
+  const api={...fullApi,weapons:fullApi.weapons.filter(w=>legacyIds.includes(w.id)),weaponIds:legacyIds};
   const {characters}=await server.ssrLoadModule('/characters.ts');
   await verifyScope(api,await server.ssrLoadModule('../weapons/scopeOverlay.ts'),characters);
   const {createCharacter,disposeCharacterResources}=await server.ssrLoadModule('/createCharacter.ts');
@@ -181,6 +185,7 @@ export async function verifyWeapons(){
   for(const c of characters){const a=createCharacter(c).userData.armVariants;assert.deepEqual({armL:hashGeometry(a.longL),armR:hashGeometry(a.longR)},longBaseline.characters[c.id],'No pose may rewrite long geometry buffers');}
   assert.throws(()=>api.createWeapon('unknown'),/Unknown weapon/);
   assert.throws(()=>api.createWeapon('pistol',{palette:{accent:'#NOPE'}}),/Invalid weapon palette/);
+  await verifyToyWeapons(fullApi,characters,createCharacter);
   const old=api.createWeapon('rifle'),oldGeo=meshes(old)[0].geometry;
   let disposed=0,materialDisposals=0;oldGeo.addEventListener('dispose',()=>disposed++);
   let lensDisposed=0;const oldLens=old.getObjectByName('lens-sight').geometry;oldLens.addEventListener('dispose',()=>lensDisposed++);

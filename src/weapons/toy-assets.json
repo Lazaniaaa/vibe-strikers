@@ -1,0 +1,32 @@
+[
+  {
+    "id": "beam",
+    "meshes": 4,
+    "triangles": 1080
+  },
+  {
+    "id": "bouncer",
+    "meshes": 1,
+    "triangles": 936
+  },
+  {
+    "id": "slingshot",
+    "meshes": 4,
+    "triangles": 936
+  },
+  {
+    "id": "rail",
+    "meshes": 5,
+    "triangles": 2880
+  },
+  {
+    "id": "splat",
+    "meshes": 2,
+    "triangles": 864
+  },
+  {
+    "id": "paintGrenade",
+    "meshes": 1,
+    "triangles": 576
+  }
+]

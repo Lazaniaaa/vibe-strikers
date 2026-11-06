@@ -669,6 +669,9 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
 - 2026-11-06 owner: no uncommon tier. Five tiers; items that were uncommon are common now, level 10 NFT is a common shotgun, common
   NFTs use the generator's uncommon art (`NFT.skinArt`). Codex's fixed rarity art is delivered, not yet copied into the repo (still in its
   own copy, 2026-11-06/vibe-strikers-nft-skins). Owner: after this only test the contract before the deadline.
+- 2026-11-06 owner: Codex's weapon files copied (toy weapons and NFT skin generator, list in src/weapons/SKIN_FILES.md, review images left
+  in its copy). NFT pictures in the market and on the season track. Toy weapons have no stats and are not in matches: `GAME_WEAPONS` in
+  config/weapons.ts is what the game creates. Owner's wallet 0x08e4...51e9 got 9000 season XP on the live server by SQL, at the owner's request, to test a real mint.
 - 2026-10-31 owner: ADS proposal approved
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).

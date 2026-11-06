@@ -292,8 +292,10 @@ look. Players never sign a transaction and never pay; only the owner signs, in M
   `setBaseUri`, `setOwner` owner only; the contract owner cannot move a player's token.
 - Live contract: `0x23e30403814d584a3a2b462b6cf3622d246cd589` (deployed by the owner 2026-11-07). The UI opens sending when `NFT.contract` is set. The look comes from Codex's generator: mint for real players
   only after the generator is final, because a minted skin must not change.
-- Not yet: images and metadata, the NFT tab, wearing a skin in a match (after Codex). The game does not follow transfers
-  made outside it.
+- Pictures (`client/game/nftArt.ts`): Codex's generator draws each NFT in the browser from `nftSeed` and `NFT.skinArt`, for the
+  market rows and the player's own season track. Nothing is stored.
+- Not yet: metadata and a picture for wallets and explorers (`tokenURI`), an NFT tab, wearing a skin in a match. The game does
+  not follow transfers made outside it.
 
 ## 7. Bots — DECIDED
 Server-side fake players using the same intent path. Waypoint graph generated from

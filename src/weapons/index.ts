@@ -1,7 +1,16 @@
 export { weaponIds, weapons } from './weapons';
+export { generateSkinTraits, skinMetadata, skinVisualKey, SKIN_RARITIES, CANDY_PALETTES, CANDY_PATTERNS, DETAIL_KITS, RARITY_STYLES } from './skinTraits';
+export type { SkinTraits, SkinRarity, SkinPattern, GenerateSkinOptions } from './skinTraits';
+export { renderSkinImage, disposeSkinImageRenderer } from './renderSkinImage';
+export type { SkinImageOptions } from './renderSkinImage';
 export { createWeapon, disposeWeaponResources } from './createWeapon';
 export { poseWeapon } from './poseWeapon';
 export { attachWeapon } from './hold';
+export { poseArmedCharacter } from './characterPose';
+export type { WeaponCharacterState } from './characterPose';
+export { NEW_WEAPON_IDS } from './toyWeapons';
+export { createWeaponEffects, WeaponEffects, EFFECT_LIMITS } from './effects';
+export type { EffectPoint, PaintSurfaceBox, WeaponEffectsOptions } from './effects';
 export { createViewmodel, poseViewmodel } from './viewmodel';
 export { ADS_DISTANCE, SNIPER_ADS_DISTANCE, HIP_FOV, fovForAds, adsSensitivityScale } from './ads';
 export { createScopeOverlay, scopeOverlaySvg, scopeOverlayOpacity } from './scopeOverlay';
@@ -9,4 +18,4 @@ export type { ScopeOverlayOptions } from './scopeOverlay';
 export { measureViewmodelClearAngle } from './measureView';
 export { measureSniperScopeCoverage, measureSniperAdsView, sniperScopeSize } from './sniperScopeMetrics';
 export type { WeaponId, WeaponKind, WeaponConfig, WeaponPalette, WeaponOptions,
-  WeaponState, WeaponRuntime, ViewmodelState, ViewmodelRuntime, ViewmodelOptions, HoldSide } from './types';
+  WeaponState, WeaponRuntime, ViewmodelState, ViewmodelRuntime, ViewmodelOptions, HoldSide, AnimatedPart, WeaponBox, PartSpec } from './types';

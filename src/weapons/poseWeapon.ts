@@ -1,6 +1,8 @@
 import type { Group } from 'three';
 import type { Vec3 } from '../characters/types';
 import type { WeaponRuntime, WeaponState } from './types';
+import { poseToyWeapon } from './toyAnimation';
+import { poseSkin } from './skinGeometry';
 
 export const bounded=(n:number,lo:number,hi:number,fallback=0):number=>Number.isFinite(n)?Math.max(lo,Math.min(hi,n)):fallback;
 export const unit=(n:number|null|undefined,fallback=0):number=>typeof n==='number'?bounded(n,0,1,fallback):fallback;
@@ -21,4 +23,6 @@ export function poseWeapon(weapon:Group,state:WeaponState,_dt?:number):void{
   if(d.slide)d.slide.position.z+=fire*.075;
   if(d.bolt){d.bolt.position.z+=action*.18;d.bolt.rotation.z=-Math.sin(cycle*Math.PI*2)*.6;}
   if(d.pump)d.pump.position.z+=Math.max(action,out)*.18;
+  poseToyWeapon(d,state);
+  poseSkin(d,state);
 }

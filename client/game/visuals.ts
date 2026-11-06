@@ -1,9 +1,10 @@
 // three.js side of the game: bot avatars, local viewmodels, tracers, impacts. No per-frame allocation.
+import { GAME_WEAPONS, type GameWeaponId } from '../../src/config/weapons';
 import {
   AmbientLight, BoxGeometry, Color, DirectionalLight, Group, InstancedMesh, Matrix4, Mesh, MeshBasicMaterial, Object3D, PerspectiveCamera, Scene, Vector3,
 } from 'three';
 import { characters, createCharacter, poseCharacter, type PoseState } from '../../src/characters';
-import { attachWeapon, createViewmodel, createWeapon, poseViewmodel, poseWeapon, weaponIds, type ViewmodelState, type WeaponId, type WeaponState } from '../../src/weapons';
+import { attachWeapon, createViewmodel, createWeapon, poseViewmodel, poseWeapon, type ViewmodelState, type WeaponId, type WeaponState } from '../../src/weapons';
 import { DEATH, EFFECTS, POSE, TEAM_COLORS, VIEWMODEL_CAMERA } from '../../src/config/game';
 import type { Actor } from '../../src/gameplay/actor';
 import { cycleProgress, reloadProgress } from '../../src/gameplay/weaponLogic';
@@ -35,7 +36,7 @@ export class AvatarRig {
     this.marker = allyMarker;
     if (allyMarker) { allyMarker.position.set(0, ALLY_MARKER_Y, 0); this.root.add(allyMarker); }
     // Every weapon once (the primary can change between rounds); only the held one is attached.
-    for (const id of weaponIds) this.weapons.set(id, createWeapon(id));
+    for (const id of GAME_WEAPONS) this.weapons.set(id, createWeapon(id));
   }
 
   /** Muzzle of the held weapon (for tracer start points). */
@@ -70,7 +71,7 @@ export class AvatarRig {
     this.root.position.set(actor.x, actor.y - sink, actor.z);
     this.root.rotation.y = actor.yaw;
     const p = this.pose;
-    p.weapon = id; p.speed = actor.alive ? actor.moveFraction : 0;
+    p.weapon = id as GameWeaponId; p.speed = actor.alive ? actor.moveFraction : 0;
     p.moveDir.x = actor.moveLocalX; p.moveDir.z = actor.moveLocalZ;
     p.aimPitch = actor.pitch; p.shooting = actor.fireAnimLeft > 0; p.crouching = actor.crouching;
     p.grounded = actor.grounded || !actor.alive; p.dead = !actor.alive;
@@ -106,7 +107,7 @@ export class ViewmodelRig {
     this.scene.add(new AmbientLight(0xffffff, 1.6));
     const key = new DirectionalLight(0xffffff, 1.4); key.position.set(0.5, 1, 0.8); this.scene.add(key);
     const config = characters[actor.characterIndex % characters.length];
-    for (const id of weaponIds) {
+    for (const id of GAME_WEAPONS) {
       const vm = createViewmodel(id, config, { holdSide: 'right' });
       vm.visible = false;
       this.scene.add(vm);

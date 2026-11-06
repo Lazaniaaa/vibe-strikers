@@ -1,0 +1,144 @@
+{
+  "pass": true,
+  "calls": 13860,
+  "maxColdMs": 4.5236999999999625,
+  "maxHotMs": 0.11679999999978463,
+  "limits": {
+    "coldMs": 30,
+    "hotMs": 0.5
+  },
+  "results": [
+    {
+      "character": "reference-01",
+      "maxMs": 0.0785000000000764
+    },
+    {
+      "character": "vibe-vibers-bureau-8",
+      "maxMs": 0.07220000000006621
+    },
+    {
+      "character": "vibe-vibers-viber-extra-12",
+      "maxMs": 0.05580000000009022
+    },
+    {
+      "character": "vibe-vibers-viber-142",
+      "maxMs": 0.055200000000240834
+    },
+    {
+      "character": "vibe-vibers-viber-extra-11",
+      "maxMs": 0.044100000000071304
+    },
+    {
+      "character": "vibe-vibers-bureau-25",
+      "maxMs": 0.04359999999996944
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-22-11",
+      "maxMs": 0.05050000000028376
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-48-7",
+      "maxMs": 0.060500000000047294
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-7-11",
+      "maxMs": 0.04320000000006985
+    },
+    {
+      "character": "vibe-vibers-viber-32",
+      "maxMs": 0.04589999999961947
+    },
+    {
+      "character": "vibe-vibers-viber-10",
+      "maxMs": 0.04610000000002401
+    },
+    {
+      "character": "vibe-vibers-viber-103",
+      "maxMs": 0.0478000000002794
+    },
+    {
+      "character": "vibe-vibers-viber-31",
+      "maxMs": 0.045200000000022555
+    },
+    {
+      "character": "vibe-vibers-viber-42",
+      "maxMs": 0.07340000000021973
+    },
+    {
+      "character": "vibe-vibers-viber-71",
+      "maxMs": 0.0455999999994674
+    },
+    {
+      "character": "vibe-vibers-bureau-23",
+      "maxMs": 0.044200000000273576
+    },
+    {
+      "character": "vibe-vibers-bureau-4",
+      "maxMs": 0.05510000000049331
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-40-10",
+      "maxMs": 0.04860000000007858
+    },
+    {
+      "character": "vibe-vibers-viber-141",
+      "maxMs": 0.04500000000007276
+    },
+    {
+      "character": "vibe-vibers-viber-48",
+      "maxMs": 0.047599999999874854
+    },
+    {
+      "character": "vibe-vibers-bureau-24",
+      "maxMs": 0.04370000000017171
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-22-12",
+      "maxMs": 0.08179999999993015
+    },
+    {
+      "character": "vibe-vibers-viber-6",
+      "maxMs": 0.08539999999993597
+    },
+    {
+      "character": "vibe-vibers-viber-63",
+      "maxMs": 0.05360000000018772
+    },
+    {
+      "character": "vibe-vibers-viber-84",
+      "maxMs": 0.11679999999978463
+    },
+    {
+      "character": "vibe-vibers-viber-extra-20",
+      "maxMs": 0.042000000000371074
+    },
+    {
+      "character": "vibe-vibers-bureau-31",
+      "maxMs": 0.04869999999937136
+    },
+    {
+      "character": "vibe-vibers-bureau-roll-9-5",
+      "maxMs": 0.05050000000028376
+    },
+    {
+      "character": "vibe-vibers-viber-123",
+      "maxMs": 0.04809999999997672
+    },
+    {
+      "character": "vibe-vibers-viber-extra-19",
+      "maxMs": 0.052999999999883585
+    },
+    {
+      "character": "vibe-vibers-viber-extra-15",
+      "maxMs": 0.05259999999998399
+    },
+    {
+      "character": "vibe-vibers-viber-extra-24",
+      "maxMs": 0.050600000000486034
+    },
+    {
+      "character": "vibe-vibers-viber-extra-9",
+      "maxMs": 0.049399999999877764
+    }
+  ]
+}

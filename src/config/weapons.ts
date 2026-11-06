@@ -59,7 +59,11 @@ const base = {
   viewPunchDeg: 0, equipTime: 0.45, fireAnimTime: 0.12, moveSpeedScale: 1, adsSpeedScale: 1, cycles: false,
 } as const;
 
-export const WEAPON_STATS: Readonly<Record<WeaponId, WeaponStats>> = {
+/** Weapons the game plays with. The asset folder also has toy weapons: visuals only, no stats yet (they are not in matches). */
+export type GameWeaponId = 'knife' | 'pistol' | 'rifle' | 'sniper' | 'shotgun';
+export const GAME_WEAPONS: readonly GameWeaponId[] = ['knife', 'pistol', 'rifle', 'sniper', 'shotgun'];
+
+const STATS: Readonly<Record<GameWeaponId, WeaponStats>> = {
   knife: { ...base, id: 'knife', damage: 40, fireInterval: 0.6, automatic: false, magSize: 0, reloadTime: 0,
     spreadDeg: 0, moveSpreadDeg: 0, airSpreadDeg: 0, range: 1.6, fireAnimTime: 0.3, equipTime: 0.3 },
   pistol: { ...base, id: 'pistol', damage: 30, fireInterval: 60 / 400, automatic: false, magSize: 12, reserve: 36,
@@ -82,6 +86,7 @@ export const WEAPON_STATS: Readonly<Record<WeaponId, WeaponStats>> = {
     reloadTime: 0.5, reloadPerShell: true, spreadDeg: 6, moveSpreadDeg: 1, range: 40, falloffStart: 8, falloffMinScale: 0.3,
     recoilPattern: [{ pitchDeg: 2.5, yawDeg: 0 }], viewPunchDeg: 2.5, cycles: true },
 };
+export const WEAPON_STATS = STATS as Readonly<Record<WeaponId, WeaponStats>>;
 
 /** Loadout (GAME.md 2.1): slot 1 primary (chosen between rounds), 2 pistol, 3 knife. */
 export const LOADOUT = {

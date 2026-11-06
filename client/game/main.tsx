@@ -7,6 +7,7 @@ import { getSettingsPanel, settingsButton } from '../../src/ui/settingsPanel';
 import { dayNumber, levelOf, seasonLevel, streakCoins } from '../../src/gameplay/progression';
 import { SEASON } from '../../src/config/season';
 import { nftName } from '../../src/gameplay/nft';
+import { nftArt } from './nftArt';
 import { getSfx } from '../../src/ui/sfx';
 import type { GameOptions } from './GameApp';
 import { Loading } from './loading';
@@ -199,7 +200,7 @@ function openLeaders(): void {
 /** Name, kind and portrait of a catalog item for the market and season panels. */
 function itemDescriber(catalogItem: (ref: string) => { kind: string; index: number; name: string } | undefined) {
   return (ref: string): { name: string; kind: string; portrait?: string } => {
-    if (ref.startsWith('nft:')) return { name: nftName(ref), kind: 'nft' };
+    if (ref.startsWith('nft:')) return { name: nftName(ref), kind: 'nft', portrait: nftArt(ref, () => { marketPanel?.refresh(); seasonPanel?.refresh(); }) };
     const item = catalogItem(ref);
     if (!item) return { name: ref, kind: 'unknown item' };
     if (item.kind === 'character') return { name: menu.characterName(item.index) ?? item.name, kind: 'character', portrait: menu.portraitOf(item.index) };

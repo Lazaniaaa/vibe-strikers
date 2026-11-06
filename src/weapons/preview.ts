@@ -1,9 +1,10 @@
 /// <reference types="vite/client" />
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { characters, createCharacter, poseCharacter, disposeCharacterResources } from '../characters';
-import type { CharacterRuntime, PoseState } from '../characters';
-import { attachWeapon, createWeapon, createViewmodel, disposeWeaponResources, poseWeapon, poseViewmodel, weapons, sniperScopeSize } from './index';
+import { characters, createCharacter, disposeCharacterResources } from '../characters';
+import type { CharacterRuntime } from '../characters';
+import { poseArmedCharacter as poseCharacter, attachWeapon, createWeapon, createWeaponEffects, createViewmodel, disposeWeaponResources, poseWeapon, poseViewmodel, weapons, sniperScopeSize } from './index';
+import type { WeaponCharacterState as PoseState } from './characterPose';
 import type { HoldSide, ViewmodelState, WeaponId } from './types';
 import { materials } from './resources';
 import { SNIPER_SCOPE_AXIS_Y } from './sniperScope';
@@ -19,16 +20,16 @@ import './preview.css';
 
 document.title='VOXEL / LAB — Зброя · Stage A';
 const $=<T extends HTMLElement>(s:string)=>document.querySelector<T>(s)!;
-const controlsMarkup=[['fire','Віддача',0,1,.01,0],['reload','Перезаряджання',0,1,.01,0],['cycle','Затвор / помпа',0,1,.01,0],['equip','Витягування',0,1,.01,1],['move','Швидкість руху',0,1,.01,0],['strafe','Стрейф',-1,1,.01,0],['aim','Нахил прицілу',-89,89,1,0]];
+const controlsMarkup=[['fire','Віддача',0,1,.01,0],['reload','Перезаряджання',0,1,.01,0],['cycle','Затвор / помпа',0,1,.01,0],['equip','Витягування',0,1,.01,1],['move','Швидкість руху',0,1,.01,0],['strafe','Стрейф',-1,1,.01,0],['aim','Нахил прицілу',-89,89,1,0],['heat','Тепло · Pixel Beam',0,1,.01,0],['charge','Натяг / заряд',0,1,.01,0],['paint','Рівень фарби',0,1,.01,1],['throw','Кидок · Paint Bomb',0,1,.01,0]];
 $('#app').innerHTML=`
   <header class="header"><a class="brand" href="./"><span class="brand-icon"><i></i><i></i><i></i><i></i></span>VOXEL <span class="brand-slash">/</span> LAB</a><div class="header-center"><span class="live-dot"></span>Студія зброї <span class="header-divider">/</span><span class="muted">NFT Arsenal</span></div><div class="stage-badge"><span>STAGE A</span> Форма й анімації</div></header>
   <main class="weapon-workspace">
     <aside class="controls panel weapon-controls">
-      <div class="section-label"><span>АРСЕНАЛ</span><span class="counter">05 МОДЕЛЕЙ</span></div>
+      <div class="section-label"><span>АРСЕНАЛ</span><span class="counter">${weapons.length} МОДЕЛЕЙ</span></div>
       <label class="sr-only" for="weapon-select">Вибрати зброю</label><select id="weapon-select"></select>
       <div class="section-label section-space"><span>ПЕРСОНАЖ</span><span class="small-tag">33 NFT</span></div>
       <label class="sr-only" for="nft-select">Вибрати персонажа</label><select id="nft-select"></select>
-      <p class="collection-note">Вогнепальна — дві кисті.<br>Ніж — одна кисть.</p>
+      <p class="collection-note">Бластери — дві кисті.<br>Ніж / бомба — одна точка хвату.</p>
       <div class="section-label section-space"><span>ПЕРША ОСОБА · ЛИШЕ ЛОКАЛЬНО</span></div><label class="collection-note" for="hold-side">Сторона HIP viewmodel</label>
       <select id="hold-side"><option value="right">Справа</option><option value="left">Зліва</option></select>
       <label class="collection-note" for="vm-pose">Поза viewmodel</label><select id="vm-pose"><option value="hip">Від стегна</option><option value="ads">Приціл</option></select>
@@ -44,13 +45,13 @@ $('#app').innerHTML=`
       ${controlsMarkup.map(([id,label,min,max,step,value])=>`<div class="range-head"><label for="w-${id}">${label}</label><output id="value-${id}" for="w-${id}">${Number(value).toFixed(2)}</output></div><input id="w-${id}" type="range" min="${min}" max="${max}" step="${step}" value="${value}">`).join('')}
       <label class="check-row"><input type="checkbox" id="w-crouch">Присід viewmodel</label>
       <label class="check-row"><input type="checkbox" id="w-air">Viewmodel у повітрі</label>
-      <button id="reset-weapon" class="grid-toggle">↺ Скинути анімації</button>
+      <button id="export-toys" class="grid-toggle">↓ PNG · нові 6 у руці / на землі / FPS</button><button id="export-toy-progress" class="grid-toggle">↓ PNG · heat / charge / paint / throw</button><button id="test-effect" class="grid-toggle">Ефект вибраної зброї</button><button id="clear-effects" class="grid-toggle">Очистити ефекти / фарбу</button><p id="effect-stats" class="collection-note" data-decals="0">Ефекти: до 3 draw calls · 128 декалей</p><button id="reset-weapon" class="grid-toggle">↺ Скинути анімації</button>
       <a class="back-link" href="./">← Колекція персонажів</a>
     </aside>
     <section class="weapon-stage">
-      <div class="weapon-heading"><div><p class="eyebrow">П’ЯТЬ СИЛУЕТІВ / ОДИН СТИЛЬ</p><h1>Арсенал у кубах.</h1><p class="stage-description">Товсті форми. Тонкий контур. Власний колір.</p></div><div class="weapon-actions"><button id="spin" class="icon-button active" aria-pressed="true">↻ Обертати</button><button id="fit-held" class="icon-button">⊡ Вмістити</button><button id="export-weapons" class="icon-button">↓ PNG × 5</button><button id="export-review" class="icon-button">Хвати ±89°</button><button id="export-sniper-scope" class="icon-button" style="display:none">↓ PNG · sniper scope</button></div></div>
+      <div class="weapon-heading"><div><p class="eyebrow">ІГРАШКОВИЙ АРСЕНАЛ / ОДИН СТИЛЬ</p><h1>Арсенал у кубах.</h1><p class="stage-description">Товсті форми. Тонкий контур. Власний колір.</p></div><div class="weapon-actions"><button id="spin" class="icon-button active" aria-pressed="true">↻ Обертати</button><button id="fit-held" class="icon-button">⊡ Вмістити</button><button id="export-weapons" class="icon-button">↓ PNG × ${weapons.length}</button><button id="export-review" class="icon-button">Хвати ±89°</button><button id="export-sniper-scope" class="icon-button" style="display:none">↓ PNG · sniper scope</button></div></div>
       <div id="weapon-canvas"></div>
-      <div id="weapon-grid" class="weapon-grid" aria-label="Сітка п’яти видів зброї"></div>
+      <div id="weapon-grid" class="weapon-grid" aria-label="Сітка всіх видів зброї"></div>
       <div class="studio-heading"><div><p class="eyebrow">ПЕРЕВІРКА МАСШТАБУ Й РУХУ</p><h2 id="selected-name"></h2></div><span class="studio-pill">ADS і сторона — лише перша особа</span></div>
       <div class="weapon-studios">
         <article class="studio-panel"><div class="studio-label"><span>ТРЕТЯ ОСОБА · ПОСТІЙНИЙ HIP СПРАВА</span><span>OrbitControls ↔</span></div><div id="held-view" class="studio-viewport" aria-label="Персонаж зі зброєю"></div><div class="studio-caption"><strong id="held-character"></strong><span id="held-grip-label">Дві кисті · supportGrip</span></div></article>
@@ -59,7 +60,7 @@ $('#app').innerHTML=`
       <div class="weapon-data"><dl id="weapon-specs"></dl><p id="weapon-parts"></p></div>
       <div id="weapon-exports" class="weapon-exports"></div>
       <div id="grip-results" class="grip-results" aria-live="polite"></div>
-      <p class="weapon-limit-note">Дворучний хват: supportGrip для всіх чотирьох видів вогнепальної. Ніж лишається одноручним. Emotes і rocket boots ще не додані.</p>
+      <p class="weapon-limit-note">Дворучні бластери: supportGrip. Paint Bomb: правий хват, ліва рука напоготові. Heat / charge / paint — лише візуальні входи.</p>
     </section>
   </main>
   <footer class="footer"><span><span class="footer-square"></span>BOX GEOMETRY / VERTEX COLORS</span><span id="weapon-runtime">Локальне прев’ю</span><span>33 NFT · ЗВИЧАЙНА ГЕОМЕТРІЯ ЗБЕРЕЖЕНА</span></footer>`;
@@ -132,13 +133,19 @@ function renderFirstPerson(modelScene:THREE.Scene,worldCamera:THREE.PerspectiveC
 }
 const floorGeometry=new THREE.BoxGeometry(4,.035,3),floorMaterial=new THREE.MeshLambertMaterial({color:'#F6F4EB'});
 const floor=new THREE.Mesh(floorGeometry,floorMaterial);floor.position.y=-.023;heldScene.add(floor);
+const effects=createWeaponEffects(heldScene,{surfaceBoxes:[{min:{x:-2,y:-.04,z:-1.5},max:{x:2,y:0,z:1.5}}]});
+const effectMuzzle=new THREE.Vector3(),effectHit=new THREE.Vector3(0,.01,-1),effectBounce=new THREE.Vector3(1,.5,-.5);
+$('#test-effect').addEventListener('click',()=>{heldWeapon.updateWorldMatrix(true,false);heldWeapon.userData.muzzle.getWorldPosition(effectMuzzle);switch(weapons[selected].id){case 'beam':effects.beam(effectMuzzle,effectHit);break;case 'bouncer':effects.bouncer([effectMuzzle,effectBounce,effectHit]);break;case 'rail':effects.rail(effectMuzzle,effectHit);break;case 'splat':effects.splat(effectMuzzle,effectHit,'#FF6B8B');break;case 'paintGrenade':effects.grenadeArc(effectMuzzle,effectHit,.75,'#49D4B4');break;default:effects.rail(effectMuzzle,effectHit,'#FFD53D');}});
+$('#export-toy-progress').addEventListener('click',async()=>{const {captureToyProgress}=await import('./toyReview');captureToyProgress(renderer,characters[characterIndex],$('#weapon-exports'));resize();render();});
+$('#clear-effects').addEventListener('click',()=>effects.clear());
+$('#export-toys').addEventListener('click',async()=>{const {captureToyWeapons}=await import('./toyReview');captureToyWeapons(renderer,characters[characterIndex],$('#weapon-exports'));resize();render();});
 const gridCards:HTMLElement[]=[],cardViews:HTMLElement[]=[];
 const bounds=gridModels.map(w=>new THREE.Box3().setFromObject(w));
 for(let i=0;i<weapons.length;i++){
   const cfg=weapons[i],boundsSize=bounds[i].getSize(new THREE.Vector3());
   let meshes=0,lenses=0;gridModels[i].traverse(o=>{if(o instanceof THREE.Mesh){if(o.name.startsWith('lens-'))lenses++;else meshes++;}});
   const card=document.createElement('button');card.className='weapon-card';card.dataset.id=cfg.id;card.setAttribute('aria-label',`Вибрати ${cfg.displayName}`);
-  card.innerHTML=`<span class="weapon-index">0${i+1}</span><span class="weapon-accent" style="background:${cfg.palette.accent}"></span><span class="weapon-card-view"></span><span class="weapon-card-caption"><strong>${cfg.displayName}</strong><span>${cfg.tipDistance.toFixed(2)} м · ${meshes} меші${lenses?` + ${lenses} лінз${lenses===1?'а':'и'}`:''}</span></span>`;
+  card.innerHTML=`<span class="weapon-index">${String(i+1).padStart(2,'0')}</span><span class="weapon-accent" style="background:${cfg.palette.accent}"></span><span class="weapon-card-view"></span><span class="weapon-card-caption"><strong>${cfg.displayName}</strong><span>${cfg.tipDistance.toFixed(2)} м · ${meshes} меші${lenses?` + ${lenses} лінз${lenses===1?'а':'и'}`:''}</span></span>`;
   $('#weapon-grid').append(card);cardViews.push(card.querySelector('.weapon-card-view')!);gridCards.push(card);
   card.addEventListener('click',()=>selectWeapon(i));
   const opt=document.createElement('option');opt.value=String(i);opt.textContent=cfg.displayName;$('#weapon-select').append(opt);
@@ -167,12 +174,12 @@ previewPerf?.attach(()=>{
  return {measurement:{...measurements.stats},resources:ids.sort().join('|'),heldInstances:heldModels.size,viewInstances:viewModels.size,gpuGeometries:renderer.info.memory.geometries,overlayBuilds:1+overlayMutations,overlayNodeStable:scopeOverlay.firstElementChild===scopeSvgNode};
 });
 function details():void{
-  const cfg=weapons[selected];$('#selected-name').textContent=cfg.displayName;$('#held-character').textContent=characters[characterIndex].name;
-  $('#held-grip-label').textContent=cfg.kind==='knife'?'Одна кисть':'Дві кисті · supportGrip';
+  const cfg=weapons[selected];$<HTMLButtonElement>('#test-effect').disabled=!['beam','bouncer','rail','splat','paintGrenade'].includes(cfg.id);$('#selected-name').textContent=cfg.displayName;$('#held-character').textContent=characters[characterIndex].name;
+  $('#held-grip-label').textContent=(cfg.kind==='knife'||cfg.id==='paintGrenade')?'Одна кисть':'Дві кисті · supportGrip';
   gridCards.forEach((card,i)=>card.classList.toggle('selected',i===selected));
   $('#export-sniper-scope').style.display=cfg.id==='sniper'?'inline-flex':'none';
   $('#weapon-specs').innerHTML=`<div><dt>Кінчик від хвату</dt><dd>${cfg.tipDistance.toFixed(2)} м</dd></div><div><dt>Ш × В × Г</dt><dd>${gridCards[selected].dataset.bounds} м</dd></div><div><dt>Акцент</dt><dd><i style="background:${cfg.palette.accent}"></i>${cfg.palette.accent}</dd></div>`;
-  $('#weapon-parts').textContent=`Рухомі частини: ${Object.keys(cfg.parts).join(' · ')||'немає'}. Сокети: muzzle${cfg.kind!=='knife'?' · supportGrip':''}${cfg.foregrip?' · foregrip':''}${cfg.ejectPort?' · ejectPort':''}. Позаду хвату: ${cfg.stockBack.toFixed(3)} м. ${cfg.lenses?.length?'Блакитне скло · 35%':''}`;
+  $('#weapon-parts').textContent=`Рухомі частини: ${Object.keys(cfg.parts).join(' · ')||'немає'}. Сокети: muzzle${(cfg.kind!=='knife'&&cfg.id!=='paintGrenade')?' · supportGrip':''}${cfg.foregrip?' · foregrip':''}${cfg.ejectPort?' · ejectPort':''}. Позаду хвату: ${cfg.stockBack.toFixed(3)} м. ${cfg.lenses?.length?'Блакитне скло · 35%':''}`;
   if(cfg.id==='sniper'){const size=sniperScopeSize(heldWeapon);$('#weapon-parts').textContent+=' Приціл Stage A: '+size.width.toFixed(3)+' × '+size.height.toFixed(3)+' × '+size.depth.toFixed(3)+' м. ADS: 2D піксельний приціл, FOV 28°; від 0,9 viewmodel прихований.';}
 }
 function updateViewmodel():void{
@@ -206,7 +213,7 @@ function readState():void{
   state.fire=val('fire');state.reload=val('reload')||null;state.cycle=val('cycle')||null;state.equip=val('equip');
   state.moveSpeed=val('move');state.strafe=val('strafe');state.aimPitch=THREE.MathUtils.degToRad(val('aim'));
   state.crouching=$<HTMLInputElement>('#w-crouch').checked;state.grounded=!$<HTMLInputElement>('#w-air').checked;
-  state.ads=val('ads');
+  state.ads=val('ads');state.heat=val('heat');state.charge=val('charge');state.paintLevel=val('paint');state.throw=val('throw');
   state.holdSide=$<HTMLSelectElement>('#hold-side').value as HoldSide;
   requestPreviewRender();
 }
@@ -217,6 +224,7 @@ function onAnimationInput(event:Event):void{
   case 'w-fire':state.fire=value;break;case 'w-reload':state.reload=value||null;break;case 'w-cycle':state.cycle=value||null;break;
   case 'w-equip':state.equip=value;break;case 'w-move':state.moveSpeed=value;break;case 'w-strafe':state.strafe=value;break;
   case 'w-aim':state.aimPitch=THREE.MathUtils.degToRad(value);break;
+  case 'w-heat':state.heat=value;break;case 'w-charge':state.charge=value;break;case 'w-paint':state.paintLevel=value;break;case 'w-throw':state.throw=value;break;
  }
  requestPreviewRender();
 }
@@ -291,10 +299,11 @@ renderer.setAnimationLoop(time=>{
   characterState.weapon=weapons[selected].id;
   characterState.fire=state.fire;characterState.reload=state.reload;characterState.cycle=state.cycle;
   poseCharacter(character,characterState,dt);character.position.y=pose==='jump'?.18:0;
-  poseWeapon(heldWeapon,state);poseViewmodel(viewmodel,state);heldControls.update(dt);render();frames++;
+  effects.update(dt);poseWeapon(heldWeapon,state);poseViewmodel(viewmodel,state);heldControls.update(dt);render();frames++;
   if(time-lastStats>1000){
+    $('#effect-stats').dataset.decals=String(effects.decals.count);$('#effect-stats').textContent=`Ефекти: до 3 draw calls · ${effects.decals.count}/128 декалей`;
     $('#weapon-runtime').textContent=`${Math.round(frames*1000/(time-lastStats))} FPS · ДЕТЕРМІНОВАНІ ПОЗИ`;
-    const [r,l]=gripErrors(character,heldWeapon);$('#live-grip').textContent=weapons[selected].kind==='knife'?'Ніж · звичайна рука':`R ${(r*100).toFixed(1)} см · L ${(l*100).toFixed(1)} см · межа 10 см${r>.10||l>.10?' · FAIL':''}`;
+    const [r,l]=gripErrors(character,heldWeapon);$('#live-grip').textContent=(weapons[selected].kind==='knife'||weapons[selected].id==='paintGrenade')?'Одна точка хвату':`R ${(r*100).toFixed(1)} см · L ${(l*100).toFixed(1)} см · межа 10 см${r>.10||l>.10?' · FAIL':''}`;
     frames=0;lastStats=time;
   }
   previewPerf?.frame(frameStarted);
@@ -302,8 +311,8 @@ renderer.setAnimationLoop(time=>{
 // User-facing actual WebGL captures. Links remain in the DOM for saving/inspection.
 $('#export-weapons').addEventListener('click',async()=>{
   const out=$('#weapon-exports');out.replaceChildren();
-  const contact=document.createElement('canvas');contact.width=1500;contact.height=1020;const all=contact.getContext('2d')!;
-  all.fillStyle='#EEECE5';all.fillRect(0,0,1500,1020);all.fillStyle='#292B29';all.font='600 30px Segoe UI';all.fillText('VOXEL / LAB · П’ять видів зброї',28,48);
+  const contact=document.createElement('canvas');contact.width=1500;contact.height=80+Math.ceil(weapons.length/3)*465;const all=contact.getContext('2d')!;
+  all.fillStyle='#EEECE5';all.fillRect(0,0,1500,contact.height);all.fillStyle='#292B29';all.font='600 30px Segoe UI';all.fillText('VIBE STRIKERS / LAB · Іграшкова зброя',28,48);
   renderer.setPixelRatio(1);renderer.setSize(900,600,false);renderer.setScissorTest(false);renderer.setViewport(0,0,900,600);
   for(let i=0;i<weapons.length;i++){
     for(let j=0;j<gridModels.length;j++)gridModels[j].visible=i===j;
@@ -322,9 +331,9 @@ $('#export-weapons').addEventListener('click',async()=>{
   fpsCamera.aspect=700/600;renderFirstPerson(viewScene,fpsCamera,weapons[selected].id,state.ads??0);sc.drawImage(renderer.domElement,700,0);
   await paintScope(sc,700,0,700,600,weapons[selected].id,state.ads??0);
   sc.fillStyle='#292B29';sc.font='600 22px Segoe UI';sc.fillText(weapons[selected].displayName+' · '+characters[characterIndex].name,24,636);
-  sc.fillStyle='#7B856F';sc.font='15px Segoe UI';sc.fillText(`Праворуч — FOV 70°, near 0,05 м · власні кисті NFT · ${weapons[selected].kind==='knife'?'одноручний':'дворучний'} хват`,24,666);
+  sc.fillStyle='#7B856F';sc.font='15px Segoe UI';sc.fillText(`Праворуч — FOV 70°, near 0,05 м · власні кисті NFT · ${(weapons[selected].kind==='knife'||weapons[selected].id==='paintGrenade')?'одноручний':'дворучний'} хват`,24,666);
   const studioLink=document.createElement('a');studioLink.id='shot-studio';studioLink.href=studio.toDataURL('image/png');studioLink.download='voxel-weapon-studio.png';studioLink.textContent='Персонаж + viewmodel ↗';out.append(studioLink);
-  all.drawImage(studio,1010,545,480,237);
+
   const a=document.createElement('a');a.id='weapons-contact-sheet';a.href=contact.toDataURL('image/png');a.download='voxel-weapons-grid.png';a.textContent='Повна сітка ↗';out.prepend(a);
   resize();render();
 });
@@ -338,7 +347,7 @@ $('#export-review').addEventListener('click',()=>{
   reviewCamera.position.set(2.8,1.9,-4.4);reviewCamera.lookAt(.15,.96,-.12);
   const reviewBounds=new THREE.Box3(),reviewSphere=new THREE.Sphere(),reviewCenter=new THREE.Vector3();
   const reviewDirection=new THREE.Vector3(2.8,.94,-4.28).normalize();
-  const atlas=document.createElement('canvas');atlas.width=1624;atlas.height=2326;
+  const atlas=document.createElement('canvas');atlas.width=1624;atlas.height=110+weapons.length*552;
   const ac=atlas.getContext('2d')!;ac.fillStyle='#EEECE5';ac.fillRect(0,0,atlas.width,atlas.height);
   ac.fillStyle='#292B29';ac.font='600 27px Segoe UI';ac.fillText(`Дворучні хвати · ${reviewConfig.name} · −89° / 0° / +89°`,24,44);
   ac.font='14px Segoe UI';ac.fillStyle='#7B856F';ac.fillText('Голова: 0,6×, максимум ±35° · 4 види вогнепальної — дві кисті · ніж — одна',25,72);
@@ -358,11 +367,11 @@ $('#export-review').addEventListener('click',()=>{
       const [r,l]=gripErrors(avatar,weapon);
       sc.fillStyle=r>.10||l>.10?'#B23C36':'#7B856F';sc.font='14px Segoe UI';sc.fillText(`Голова ${Math.round(d.head.rotation.x*180/Math.PI)}° · R ${(r*100).toFixed(1)} см / L ${(l*100).toFixed(1)} см · ${d.armVariants.active?'armLong':'normal'}`,20,776);
       const a=document.createElement('a');a.id=`review-${cfg.id}-${col}`;a.download=`${cfg.id}-aim-${aim}.png`;a.href=shot.toDataURL('image/png');a.textContent=`${cfg.id} ${aim}° ↗`;out.append(a);
-      if(cfg.kind!=='knife')ac.drawImage(shot,20+col*532,94+(i-1)*552,520,527);
+      if((cfg.kind!=='knife'&&cfg.id!=='paintGrenade'))ac.drawImage(shot,20+col*532,94+(i-1)*552,520,527);
     }
     mount.removeFromParent();
   }
-  const a=document.createElement('a');a.id='review-atlas';a.download=`${reviewConfig.id}-two-handed.png`;a.href=atlas.toDataURL('image/png');a.textContent='12 вогнепальних хватів ↗';out.prepend(a);
+  const a=document.createElement('a');a.id='review-atlas';a.download=`${reviewConfig.id}-two-handed.png`;a.href=atlas.toDataURL('image/png');a.textContent='Усі хвати ±89° ↗';out.prepend(a);
   reviewScene.remove(avatar,pad);
   const sniper=createWeapon('sniper'),scopeScene=scene('#DFE4E2');scopeScene.add(sniper);
   const scopeCamera=new THREE.OrthographicCamera(-.30,.30,.30,-.30,.01,4);scopeCamera.position.set(0,SNIPER_SCOPE_AXIS_Y,.8);scopeCamera.lookAt(0,SNIPER_SCOPE_AXIS_Y,-1.4);
@@ -436,7 +445,6 @@ if(import.meta.hot)import.meta.hot.dispose(()=>{
   measurements.dispose();viewModels.clear();heldModels.clear();
   overlayObserver.disconnect();sampleWorld.dispose();
   renderer.setAnimationLoop(null);observer.disconnect();heldControls.dispose();renderer.dispose();
-  floorGeometry.dispose();floorMaterial.dispose();disposeWeaponResources();disposeCharacterResources();
+  effects.dispose();floorGeometry.dispose();floorMaterial.dispose();disposeWeaponResources();disposeCharacterResources();
   for(const geometry of markerGeometries)geometry.dispose();
 });
-
