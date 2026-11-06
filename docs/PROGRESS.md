@@ -611,6 +611,10 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   the live site as a guest only (no test wallet in the public tables): SEASON tab, LEADERS pool, online match, 0 console
   errors (`docs/evidence/season-online-guest.jpg`). Maincloud has 0 wallets so far: nobody has logged in to the game
   there yet, so login, XP and claim with a real MetaMask on the live server are still unchecked (owner).
+  Owner's network: the router's DNS (192.168.31.1) answers NXDOMAIN for every `*.pages.dev`, also names that are not
+  ours (Google DNS resolves them), so this is a network filter, not a propagation delay. The Worker copy
+  https://vibe-strikers.voxel-character-review.workers.dev resolves there and now has the same build as Pages.
+  Update both when deploying. An own domain would avoid the problem.
   Local SpacetimeDB: the new CLI login (Maincloud) could not update the local database made by the old identity, so
   the old data folder was moved to `%LOCALAPPDATA%\SpacetimeDB\data-old-2026-11-06` and the local server started
   fresh (test data only; delete the old folder when sure).
