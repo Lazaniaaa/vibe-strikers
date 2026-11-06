@@ -663,6 +663,9 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   (docs/evidence/nft-*.jpg), no console errors. NOT checked: a real deploy and mint on the chain, a real wallet.
   Waiting for: the owner deploys the contract, then `NFT.contract` opens "To wallet". After Codex: images, metadata and `setBaseUri` button,
   NFT tab, wearing a skin in a match. `Mint for real players only after the generator is final.`
+- 2026-11-07 ON CHAIN (owner, MetaMask): SeasonSkins **0x23e30403814d584a3a2b462b6cf3622d246cd589**. Read-only check: chain 46630, code equals our build, owner is the
+  owner wallet, supply 0, simulated mint (eth_call) works for the owner and is refused for a stranger. "To wallet" is open in the game.
+  NOT checked: a real mint transaction. Do not mint for real players before the look from Codex is final.
 - 2026-10-31 owner: ADS proposal approved
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).

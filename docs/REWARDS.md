@@ -33,7 +33,7 @@ Build: `npm run contract:build` (writes `contracts/build/`, committed). Test on 
 
 ## Season NFTs (GAME.md 6.11)
 Admin site, section **6. Season NFTs**. Players never pay and never sign a transaction; you pay the testnet gas.
-1. Once: **Deploy NFT contract** and confirm in MetaMask. Send the address to Claude: it opens the "To wallet" button in the game.
+1. Done 2026-11-07: contract `0x23e30403814d584a3a2b462b6cf3622d246cd589`, in the game as `NFT.contract`.
 2. When players asked for NFTs: **Load NFTs to send**, check the list, **Mint and send**. MetaMask asks for one free
    signature and then one transaction per 50 NFTs. A failed or cancelled batch can be pressed again: tokens that exist are skipped.
 Mint for real players only after the look from Codex is final: a minted skin must not change.

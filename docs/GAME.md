@@ -290,7 +290,7 @@ look. Players never sign a transaction and never pay; only the owner signs, in M
   contracts here build for `paris`). `tokenId = earner << 32 | season << 16 | level` is stable, so a batch can be sent again:
   existing tokens are skipped. `skinOf[tokenId] = season << 64 | level << 48 | rarity << 40 | weapon << 32 | seed`.
   `setBaseUri`, `setOwner` owner only; the contract owner cannot move a player's token.
-- Sending stays closed in the UI until `NFT.contract` is set. The look comes from Codex's generator: mint for real players
+- Live contract: `0x23e30403814d584a3a2b462b6cf3622d246cd589` (deployed by the owner 2026-11-07). The UI opens sending when `NFT.contract` is set. The look comes from Codex's generator: mint for real players
   only after the generator is final, because a minted skin must not change.
 - Not yet: images and metadata, the NFT tab, wearing a skin in a match (after Codex). The game does not follow transfers
   made outside it.

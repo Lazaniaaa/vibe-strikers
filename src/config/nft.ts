@@ -5,8 +5,8 @@ import type { RarityId } from './market.ts';
 export interface NftReward { weapon: string; rarity: RarityId }
 
 export const NFT = {
-  /** SeasonSkins contract (contracts/SeasonSkins.sol). Empty until the owner deploys it: sending stays closed. */
-  contract: '',
+  /** SeasonSkins contract (contracts/SeasonSkins.sol), deployed by the owner 2026-11-07. Empty = sending stays closed. */
+  contract: '0x23e30403814d584a3a2b462b6cf3622d246cd589',
   /** The owner's wallet: the only account that may mark NFTs as sent. Local tests add theirs to the `nft_admin` table. */
   admin: '0x08e4f62ed093124aa3ce257830c81b2bc14a51e9',
   /** Tokens per mintBatch transaction. */
