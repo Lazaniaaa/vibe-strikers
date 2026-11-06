@@ -583,7 +583,9 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   the batch, owner-only guards, withdraw, setOwner): PASS; 23 gameplay checks; server test; market test (week stats);
   LEADERS + admin page in Chromium with a fake wallet (reads from the real testnet RPC, no transactions), 0 console
   errors (`docs/evidence/leaders-this-week.jpg`, `rewards-admin.jpg`). Not yet done on the real chain: deploy, fund,
-  first payout (owner, MetaMask, needs testnet ETH).
+  first payout (owner, MetaMask, needs testnet ETH). Live: Maincloud `vibe-strikers` updated (new table, no data
+  lost; points count from now), Pages redeployed from commit 1c176a8 (admin page not in the build). The
+  workers.dev copy still has the previous build.
   Local SpacetimeDB: the new CLI login (Maincloud) could not update the local database made by the old identity, so
   the old data folder was moved to `%LOCALAPPDATA%\SpacetimeDB\data-old-2026-11-06` and the local server started
   fresh (test data only; delete the old folder when sure).
