@@ -594,6 +594,8 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   (`REWARDS.distributor`), owner 0x08e4f62ed093124aa3ce257830c81b2bc14a51e9, token STRIKE, funded with
   100 000 000 STRIKE (checked over the RPC: chain 46630, code present, owner / token / balance as expected).
   First payout: Monday 2026-11-09 for week 2965 (2026-11-02 – 2026-11-08).
+  Owner: show the pool in the game -> LEADERS "This week" has a WEEKLY POOL card with the contract's live balance
+  (read-only RPC call, explorer link); checked in Chromium, 0 console errors (`docs/evidence/leaders-pool-live.jpg`).
   Local SpacetimeDB: the new CLI login (Maincloud) could not update the local database made by the old identity, so
   the old data folder was moved to `%LOCALAPPDATA%\SpacetimeDB\data-old-2026-11-06` and the local server started
   fresh (test data only; delete the old folder when sure).

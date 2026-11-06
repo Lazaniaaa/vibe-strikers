@@ -30,6 +30,8 @@ export const REWARDS = {
   maxShareBps: 1000,
   /** Wallets with fewer points in the week get nothing. */
   minPoints: 10,
+  /** LEADERS re-reads the distributor's live balance from the RPC at most this often. */
+  poolRefreshMs: 60_000,
   /** Recipients per distribute() transaction (about 51k gas each, so about 5M gas per transaction). */
   batchSize: 100,
 } as const;

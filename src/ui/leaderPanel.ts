@@ -5,6 +5,7 @@ import { REWARDS } from '../config/rewards.ts';
 import { formatTokens, payoutPlan, toUnits, weekLabel, weekPoints } from '../gameplay/rewards.ts';
 import { shortAddress } from '../gameplay/walletMessage.ts';
 import type { GameNet } from '../network/client.ts';
+import { poolBalance, poolExplorerUrl, refreshPoolBalance } from '../network/rewardsPool.ts';
 // Same styles as the market panel; imported here too so LEADERS works when MARKET was never opened.
 import '../../client/game/market.css';
 
@@ -76,11 +77,17 @@ export class LeaderPanel {
   }
 
   /** This week: points, and the share of the configured pool if the week ended now (payoutPlan). */
+  /** This week's pool: the configured amount, or less when the contract holds less (live balance). */
+  private weekPool(): bigint {
+    const cfg = toUnits(REWARDS.weekPoolTokens), live = poolBalance();
+    return live !== null && live < cfg ? live : cfg;
+  }
+
   private weekLines(): WeekLine[] {
     const m = this.net?.market;
     if (!m) return [];
     const rows = [...m.weekStats.values()];
-    const plan = new Map(payoutPlan(rows, toUnits(REWARDS.weekPoolTokens)).map((p) => [p.owner, p.amount]));
+    const plan = new Map(payoutPlan(rows, this.weekPool()).map((p) => [p.owner, p.amount]));
     return rows.map((r) => ({ owner: r.owner, name: r.name, points: weekPoints(r), wins: r.wins, kills: r.kills,
       matches: r.matches, amount: plan.get(r.owner) ?? 0n }))
       .sort((a, b) => b.points - a.points || b.wins - a.wins || a.owner.localeCompare(b.owner));
@@ -107,12 +114,19 @@ export class LeaderPanel {
     if (myRank >= TOP_ROWS) body += `<tr class="gap"><td colspan="7">…</td></tr>${this.weekRow(all[myRank], myRank + 1, me)}`;
     const p = REWARDS.points, sym = REWARDS.token.symbol;
     const empty = !m ? 'Connecting…' : all.length ? '' : 'No points this week yet. Log in with a wallet and play an online match.';
+    const live = poolBalance(), link = poolExplorerUrl();
+    // Re-read the contract balance (cached); redraw only when it changed, so this never loops.
+    void refreshPoolBalance().then((b) => { if (b !== live) this.refresh(); });
+    const held = live === null ? 'checking the contract…' : `contract holds ${formatTokens(live)} ${sym}`;
     this.root.innerHTML = `
       <header><div><span class="menu-eyebrow">WEEK ${m ? esc(weekLabel(m.week)) : ''} UTC</span><h2>Leaders</h2></div>
         <div class="market-coins" title="Your place this week">${myRank >= 0 ? `#${myRank + 1}` : me ? '–' : 'Guest'}</div></header>
       ${this.viewButtons()}
-      <p class="leaders-pool">Pool <strong>${formatTokens(toUnits(REWARDS.weekPoolTokens))} ${sym}</strong> · win ${p.win} · match ${p.match} ·
-        kill ${p.kill} · headshot +${p.headshot} · min ${REWARDS.minPoints} pts · max ${REWARDS.maxShareBps / 100}% per wallet</p>
+      <div class="leaders-pool-card"><span class="menu-eyebrow">WEEKLY POOL</span>
+        <strong>${formatTokens(this.weekPool())} ${sym}</strong>
+        ${link ? `<a href="${esc(link)}" target="_blank" rel="noopener noreferrer">${held} ↗</a>` : ''}</div>
+      <p class="leaders-pool">Win ${p.win} · match ${p.match} · kill ${p.kill} · headshot +${p.headshot} ·
+        min ${REWARDS.minPoints} pts · max ${REWARDS.maxShareBps / 100}% per wallet</p>
       <div class="market-list">${empty ? `<p class="market-empty">${empty}</p>` : `<table class="leaders-table">
         <thead><tr><th>#</th><th>Player</th><th>Points</th><th>Wins</th><th>Kills</th><th>Matches</th><th>≈ ${sym}</th></tr></thead>
         <tbody>${body}</tbody></table>`}</div>
