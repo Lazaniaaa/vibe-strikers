@@ -37,7 +37,9 @@ export class Input {
     window.addEventListener('keydown', this.onKeyDown);
     window.addEventListener('keyup', this.onKeyUp);
     window.addEventListener('blur', this.onBlur);
-    element.addEventListener('mousedown', this.onMouseDown);
+    element.addEventListener('mousedown', this.onElementMouseDown);
+    window.addEventListener('mousedown', this.onMouseDown);
+    window.addEventListener('contextmenu', this.onContextMenu);
     window.addEventListener('mouseup', this.onMouseUp);
     window.addEventListener('mousemove', this.onMouseMove);
     element.addEventListener('contextmenu', (e) => e.preventDefault());
@@ -51,7 +53,8 @@ export class Input {
   /** Tests: act as if the pointer were locked (headless browsers cannot lock it). */
   debugUnlocked = false;
 
-  get locked(): boolean { return this.debugUnlocked || document.pointerLockElement === this.element; }
+  /** Any lock counts: the lobby's PLAY click takes the lock on the page before this element exists (menu.ts). */
+  get locked(): boolean { return this.debugUnlocked || document.pointerLockElement !== null; }
 
   requestLock(): void {
     try { const p = this.element.requestPointerLock() as unknown; if (p instanceof Promise) p.catch(() => undefined); } catch { /* not allowed here */ }
@@ -72,12 +75,18 @@ export class Input {
   };
   private onKeyUp = (e: KeyboardEvent) => { this.keys.delete(e.code); };
   private onBlur = () => { this.keys.clear(); this.pressed.clear(); this.fireHeld = false; this.adsHeld = false; };
+  /** A click on the game while the mouse is free takes the lock back (after Esc). */
+  private onElementMouseDown = () => {
+    if (!this.locked) { this.requestLock(); this.onConfirm?.(); }
+  };
+  /** On the window: while locked, mouse events go to the lock's element, which may be the page and not the canvas. */
   private onMouseDown = (e: MouseEvent) => {
-    if (!this.locked) { this.requestLock(); this.onConfirm?.(); return; }
+    if (!this.locked) return;
     if (e.button === 0) this.fireHeld = true;
     if (e.button === 2) { this.adsHeld = true; this.adsToggled = !this.adsToggled; }
     if (e.button === 1) { this.pingRequest = true; e.preventDefault(); }
   };
+  private onContextMenu = (e: MouseEvent) => { if (this.locked) e.preventDefault(); };
   private onMouseUp = (e: MouseEvent) => {
     if (e.button === 0) this.fireHeld = false;
     if (e.button === 2) this.adsHeld = false;
@@ -124,7 +133,9 @@ export class Input {
     window.removeEventListener('keydown', this.onKeyDown);
     window.removeEventListener('keyup', this.onKeyUp);
     window.removeEventListener('blur', this.onBlur);
-    this.element.removeEventListener('mousedown', this.onMouseDown);
+    this.element.removeEventListener('mousedown', this.onElementMouseDown);
+    window.removeEventListener('mousedown', this.onMouseDown);
+    window.removeEventListener('contextmenu', this.onContextMenu);
     window.removeEventListener('mouseup', this.onMouseUp);
     window.removeEventListener('mousemove', this.onMouseMove);
   }

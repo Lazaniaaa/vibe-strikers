@@ -114,7 +114,10 @@ export class Menu {
     for (const button of this.root.querySelectorAll<HTMLButtonElement>('[data-mode]')) button.addEventListener('click', () => { this.mode = button.dataset.mode as GameMode; onMode(this.mode); this.syncRules(); });
     for (const button of this.root.querySelectorAll<HTMLButtonElement>('[data-destination]')) button.addEventListener('click', () => { this.destination = button.dataset.destination as 'online' | 'practice'; this.syncRules(); });
     this.syncRules();
-    const pick = (choice: MenuChoice) => { const resolve = this.resolve; this.resolve = null; resolve?.(choice); };
+    // Take the mouse in the PLAY click itself (browsers allow it only right after a user action; loading can take longer),
+    // so the match starts with no extra click. If the browser refuses, the game's pause overlay is the fallback.
+    const takeMouse = () => { try { const p = document.documentElement.requestPointerLock() as unknown; if (p instanceof Promise) p.catch(() => undefined); } catch { /* not allowed here */ } };
+    const pick = (choice: MenuChoice) => { takeMouse(); const resolve = this.resolve; this.resolve = null; resolve?.(choice); };
     const name = () => this.nameInput.value.trim();
     const teams = this.root.querySelector<HTMLInputElement>('.menu-teams')!, mutator = this.root.querySelector<HTMLSelectElement>('.menu-mutator')!, bots = this.root.querySelector<HTMLInputElement>('.menu-bots')!;
     bots.addEventListener('change', () => this.syncRules());

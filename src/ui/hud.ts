@@ -47,7 +47,7 @@ export class Hud {
   private timer: HTMLElement; private score: HTMLElement; private center: HTMLElement; private sub: HTMLElement;
   private feed: HTMLElement; private perf: HTMLElement; private crosshair: HTMLElement; private hit: HTMLElement;
   private damage: HTMLElement;
-  /** The "click to play" overlay (shown while the mouse is not captured); extra buttons can be added to it. */
+  /** The pause overlay (shown while the mouse is not captured, normally after Esc); extra buttons can be added to it. */
   readonly overlay: HTMLElement;
   private last = new Map<HTMLElement, string>();
   private room: HTMLElement;
@@ -83,7 +83,7 @@ export class Hud {
     this.ammo = el('div', 'hud-ammo', right);
     this.perf = el('div', 'hud-perf', root);
     this.overlay = el('div', 'hud-overlay', root);
-    el('div', 'hud-overlay-title', this.overlay, 'Click to play');
+    el('div', 'hud-overlay-title', this.overlay, 'Click to continue');
     el('div', 'hud-overlay-keys', this.overlay,
       'WASD move · Mouse aim · LMB fire · R reload · 1 primary · 2 pistol · 3 knife · 7/8/9 rifle/shotgun/sniper · RMB aim · E pick up · V second person · Z / middle mouse ping · Tab scores · Space jump · C / Ctrl crouch · Shift walk · Esc release mouse');
   }

@@ -240,6 +240,7 @@ async function startOffline(character?: number, difficulty: BotDifficulty = save
     const { mountOffline } = await loadMount();
     mountOffline(GameApp, { ...options, character, difficulty, mode, teams, mutator, onLeave: backToMenu, onReady: () => loading.done() });
   } catch (e) {
+    try { document.exitPointerLock?.(); } catch { /* not locked */ }
     loading.error(`Could not load the game: ${e instanceof Error ? e.message : String(e)}. Reload the page.`);
   }
 }
@@ -279,6 +280,7 @@ async function menuLoop(): Promise<void> {
       mountOnline(OnlineApp, { net, debug, onLeave: backToMenu, onReady: () => loading.done() });
       return;
     } catch (e) {
+      try { document.exitPointerLock?.(); } catch { /* not locked */ }
       menu.setStatus(`Could not join: ${e instanceof Error ? e.message : String(e)}`);
       if (wasAuto) return;
     }
