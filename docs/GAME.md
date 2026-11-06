@@ -271,6 +271,30 @@ reward items only add to the tradable collection. Season-only NFTs: later (owner
 - In a match (`config/feedback.ts`): DOUBLE / TRIPLE / QUAD / MULTI KILL banners for kills within 4 s, ACE for the whole
   enemy side alone in a round. The controls are shown for 12 s in the first match of a browser.
 
+### 6.11 Season skin NFTs — DECIDED (owner 2026-11-06)
+Testnet only (Robinhood Chain testnet). Numbers in `config/nft.ts`, rules in `gameplay/nft.ts`. Skins only change the
+look. Players never sign a transaction and never pay; only the owner signs, in MetaMask, on the admin site.
+- Season levels 5 / 10 / 15 / 20 / 25 / 30 also give a fixed NFT: common pistol, uncommon shotgun, rare rifle, epic sniper,
+  legendary knife, mythic rifle. No random boxes: rarity and weapon are known in advance, and the look comes from the seed
+  `nftSeed(ref)`, so it is fixed by the wallet and the level.
+- The NFT starts in the game. `claimSeasonRewards` adds an `owned_item` row with `ref = nft:<season>:<level>:<earner>` and a
+  public `nft{ref pk, tokenId, season, level, earner, weapon, rarity, seed, status btree, recipient, tx}` row (status `game`).
+  It can be sold for coins on the market like any item. Levels claimed before NFTs existed are added on the next claim.
+- `requestNftSend{itemId}` (the holder, not listed): status `queued`, `recipient` = the holder. One way: a queued or sent NFT
+  cannot be listed (`nftListError`), because the game cannot move a token out of a player's wallet.
+- Admin site: loads the queue, the owner signs `mintBatch` (`batchSize` tokens), then the site calls `markNftsSent{refs, tx}`:
+  status `sent`. Accepted only from a session of `NFT.admin` or an address in the private table `nft_admin` (local tests).
+- Minted directly to the recipient: one transaction, no step through the owner's wallet (owner chose this over minting to
+  the owner and sending on).
+- Contract `contracts/SeasonSkins.sol`: OpenZeppelin 5.0.2 ERC-721 (5.0.x, because later versions need Cancun opcodes and
+  contracts here build for `paris`). `tokenId = earner << 32 | season << 16 | level` is stable, so a batch can be sent again:
+  existing tokens are skipped. `skinOf[tokenId] = season << 64 | level << 48 | rarity << 40 | weapon << 32 | seed`.
+  `setBaseUri`, `setOwner` owner only; the contract owner cannot move a player's token.
+- Sending stays closed in the UI until `NFT.contract` is set. The look comes from Codex's generator: mint for real players
+  only after the generator is final, because a minted skin must not change.
+- Not yet: images and metadata, the NFT tab, wearing a skin in a match (after Codex). The game does not follow transfers
+  made outside it.
+
 ## 7. Bots — DECIDED
 Server-side fake players using the same intent path. Waypoint graph generated from
 `mapData`. Simple behavior: walk between waypoints, turn to visible enemies, shoot

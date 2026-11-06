@@ -211,7 +211,7 @@ try {
   check((await reason(sp.claimSeasonRewards())) === '', 'season: level 12 claims');
   await waitFor(() => sp.market.wallet.coins === spCoins + first12.coins && sp.market.items.size === spItems + first12.items.length);
   check(sp.market.wallet.coins === spCoins + first12.coins, `season: ${first12.coins} coins paid`);
-  check(sp.market.items.size === spItems + first12.items.length, `season: ${first12.items.length} items given`);
+  check(sp.market.items.size === spItems + first12.items.length + 2, `season: ${first12.items.length} items and 2 NFTs given`);
   check(sp.market.seasonProgress.get(spAddr)?.claimedLevel === 12, 'season: claimed level stored');
   check((await reason(sp.claimSeasonRewards())).includes('no season rewards'), 'season: the same rewards cannot be claimed twice');
   sql(`UPDATE season_progress SET xp = ${SEASON.xpPerLevel * 99} WHERE id = '${spId}'`);
@@ -219,8 +219,74 @@ try {
   const rest = seasonClaim(12, SEASON.levels), spCoins2 = sp.market.wallet.coins, spItems2 = sp.market.items.size;
   check((await reason(sp.claimSeasonRewards())) === '', 'season: the rest of the track claims');
   await waitFor(() => sp.market.wallet.coins === spCoins2 + rest.coins && sp.market.items.size === spItems2 + rest.items.length);
-  check(sp.market.wallet.coins === spCoins2 + rest.coins && sp.market.items.size === spItems2 + rest.items.length, 'season: capped at the last level, totals right');
+  check(sp.market.wallet.coins === spCoins2 + rest.coins && sp.market.items.size === spItems2 + rest.items.length + 4, 'season: capped at the last level, totals right (4 more NFTs)');
   check(sp.market.seasonProgress.get(spAddr)?.claimedLevel === SEASON.levels, 'season: all levels claimed');
+
+  // Season NFTs (GAME.md 6.11): in the game first, sold like items, one way to a wallet, marked by the admin only.
+  const { nftRef, nftRarity, nftTokenId, nftSeed } = await vite.ssrLoadModule('/src/gameplay/nft.ts');
+  const { NFT } = await vite.ssrLoadModule('/src/config/nft.ts');
+  const { loadNftQueue, nftAdminSession, markNftsSent } = await vite.ssrLoadModule('/src/network/nftAdmin.ts');
+  const { itemRarity } = await vite.ssrLoadModule('/src/gameplay/marketRules.ts');
+  await sleep(MARKET.rateLimit.windowMs + 100);
+  const nftsOf = (n, addr) => [...n.market.nfts.values()].filter((r) => r.earner === addr);
+  const mine = nftsOf(sp, spAddr);
+  check(mine.length === 6 && mine.every((r) => r.status === 'game' && r.recipient === '' && r.tokenId === nftTokenId(1, r.level, spAddr).toString() && r.seed === nftSeed(r.ref)), 'nft: 6 rows, in the game, stable ids and seeds');
+  check(nftRarity(nftRef(1, 30, spAddr)) === 'mythic' && itemRarity(nftRef(1, 5, spAddr)) === 'common', 'nft: rarity comes from the level');
+  const itemOf = (n, level) => [...n.market.items.values()].find((i) => i.ref === nftRef(1, level, spAddr));
+  const nft5 = itemOf(sp, 5), nft10 = itemOf(sp, 10), nft15 = itemOf(sp, 15);
+  check(!!nft5 && !!nft10 && !!nft15, 'nft: they are items of the holder');
+
+  // Sold in the game, then the buyer asks for it: the recipient is the buyer, the earner stays.
+  const nb = await client();
+  await waitFor(() => nb.market.nfts.size >= 6);
+  check((await reason(sp.listItem(nft10.id, 100))) === '', 'nft: can be listed');
+  const nl = await waitFor(() => [...nb.market.listings.values()].find((l) => l.itemId === nft10.id));
+  check((await reason(sp.requestNftSend(nft10.id))).includes('cancel the listing'), 'nft: a listed NFT cannot be sent');
+  check((await reason(nb.requestNftSend(nft5.id))).includes('do not own'), 'nft: only the holder can send it');
+  check((await reason(nb.buyListing(nl.id, 100))) === '', 'nft: can be bought');
+  const bought = await waitFor(() => [...nb.market.items.values()].find((i) => i.ref === nft10.ref));
+  check(!!bought, 'nft: the buyer holds it');
+  check((await reason(nb.requestNftSend(bought.id))) === '', 'nft: the buyer asks to send it');
+  const q10 = await waitFor(() => { const r = nb.market.nfts.get(nft10.ref); return r?.status === 'queued' ? r : null; });
+  check(q10?.recipient === nb.market.account && q10?.earner === spAddr, 'nft: goes to the buyer, earner unchanged');
+  check((await reason(nb.requestNftSend(bought.id))).includes('already'), 'nft: cannot be sent twice');
+  check((await reason(nb.listItem(bought.id, 100))).includes('waiting'), 'nft: a queued NFT cannot be listed');
+  await sleep(MARKET.rateLimit.windowMs + 100);
+  check((await reason(sp.requestNftSend(nft5.id))) === '', 'nft: the earner sends another');
+  await waitFor(() => sp.market.nfts.get(nft5.ref)?.status === 'queued');
+
+  // Admin site calls, over plain HTTP as on the site.
+  const http = 'http://127.0.0.1:3000', dbName = 'voxel-arena';
+  const queue = await loadNftQueue(http, dbName);
+  const qa = queue.find((x) => x.ref === nft10.ref);
+  check(queue.length >= 2 && qa?.recipient === nb.market.account && qa?.tokenId === nftTokenId(1, 10, spAddr), 'nft: the admin site reads the queue');
+  check(qa && qa.skin >> 64n === 1n && ((qa.skin >> 48n) & 0xffffn) === 10n, 'nft: the queue has the skin word');
+  const adminKey = newKey();
+  const signWith = (key) => async (message) => {
+    const { secp256k1 } = await import('@noble/curves/secp256k1.js');
+    const { personalHash } = await vite.ssrLoadModule('/src/gameplay/walletAuth.ts');
+    const sig = secp256k1.sign(personalHash(message), key, { prehash: false, format: 'recovered' });
+    const raw = new Uint8Array(65); raw.set(sig.slice(1), 0); raw[64] = 27 + sig[0];
+    return `0x${Buffer.from(raw).toString('hex')}`;
+  };
+  const { addressOfPublicKey } = await vite.ssrLoadModule('/src/gameplay/walletAuth.ts');
+  const { secp256k1 } = await import('@noble/curves/secp256k1.js');
+  const adminAddr = addressOfPublicKey(secp256k1.getPublicKey(adminKey, false));
+  const session = await nftAdminSession(http, dbName, adminAddr, signWith(adminKey));
+  const fakeTx = `0x${'ab'.repeat(32)}`;
+  check((await reason(markNftsSent(session, [nft10.ref], fakeTx))).includes('not allowed'), 'nft: a stranger cannot mark as sent');
+  check(nb.market.nfts.get(nft10.ref)?.status === 'queued', 'nft: still queued');
+  sql(`INSERT INTO nft_admin (address) VALUES ('${adminAddr}')`);
+  check((await reason(markNftsSent(session, [nft10.ref], 'nope'))).includes('bad transaction'), 'nft: a bad hash is refused');
+  check((await reason(markNftsSent(session, [nft10.ref, 'nft:9:9:0x0', nft15.ref], fakeTx))) === '', 'nft: the admin marks (unknown and not queued refs ignored)');
+  const sent = await waitFor(() => { const r = nb.market.nfts.get(nft10.ref); return r?.status === 'sent' ? r : null; });
+  check(sent?.tx === fakeTx, 'nft: sent, with its transaction');
+  check(nb.market.nfts.get(nft15.ref)?.status === 'game', 'nft: an NFT nobody asked for stays in the game');
+  check((await reason(nb.listItem(bought.id, 100))).includes('in a wallet'), 'nft: a sent NFT cannot be listed');
+  check(!(await loadNftQueue(http, dbName)).some((x) => x.ref === nft10.ref), 'nft: it left the queue');
+  check(NFT.admin === NFT.admin.toLowerCase(), 'nft: the admin address is lowercase, like accounts');
+  const spAgain = await waitFor(() => sp.market.seasonProgress.get(spAddr)?.claimedLevel === SEASON.levels);
+  check(!!spAgain && (await reason(sp.claimSeasonRewards())).includes('no season rewards'), 'nft: a second claim gives nothing');
 
   // Economy invariant (auditor sees every wallet).
   await sleep(300);

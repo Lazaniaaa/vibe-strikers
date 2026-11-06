@@ -45,11 +45,13 @@ import LeaveRoomReducer from "./leave_room_reducer";
 import ListItemReducer from "./list_item_reducer";
 import LoginReducer from "./login_reducer";
 import LogoutReducer from "./logout_reducer";
+import MarkNftsSentReducer from "./mark_nfts_sent_reducer";
 import MoveReducer from "./move_reducer";
 import PickUpReducer from "./pick_up_reducer";
 import PingReducer from "./ping_reducer";
 import ReloadReducer from "./reload_reducer";
 import ReportPingReducer from "./report_ping_reducer";
+import RequestNftSendReducer from "./request_nft_send_reducer";
 import SetPrimaryWeaponReducer from "./set_primary_weapon_reducer";
 import SwitchWeaponReducer from "./switch_weapon_reducer";
 
@@ -62,6 +64,7 @@ import ItemRow from "./item_table";
 import KillEventRow from "./kill_event_table";
 import ListingRow from "./listing_table";
 import MissionProgressRow from "./mission_progress_table";
+import NftRow from "./nft_table";
 import OwnedItemRow from "./owned_item_table";
 import PingEventRow from "./ping_event_table";
 import PlayerRow from "./player_table";
@@ -156,6 +159,20 @@ const tablesSchema = __schema({
       { name: 'mission_progress_id_key', constraint: 'unique', columns: ['id'] },
     ],
   }, MissionProgressRow),
+  nft: __table({
+    name: 'nft',
+    indexes: [
+      { accessor: 'ref', name: 'nft_ref_idx_btree', algorithm: 'btree', columns: [
+        'ref',
+      ] },
+      { accessor: 'status', name: 'nft_status_idx_btree', algorithm: 'btree', columns: [
+        'status',
+      ] },
+    ],
+    constraints: [
+      { name: 'nft_ref_key', constraint: 'unique', columns: ['ref'] },
+    ],
+  }, NftRow),
   ownedItem: __table({
     name: 'owned_item',
     indexes: [
@@ -333,11 +350,13 @@ const reducersSchema = __reducers(
   __reducerSchema("list_item", ListItemReducer),
   __reducerSchema("login", LoginReducer),
   __reducerSchema("logout", LogoutReducer),
+  __reducerSchema("mark_nfts_sent", MarkNftsSentReducer),
   __reducerSchema("move", MoveReducer),
   __reducerSchema("pick_up", PickUpReducer),
   __reducerSchema("ping", PingReducer),
   __reducerSchema("reload", ReloadReducer),
   __reducerSchema("report_ping", ReportPingReducer),
+  __reducerSchema("request_nft_send", RequestNftSendReducer),
   __reducerSchema("set_primary_weapon", SetPrimaryWeaponReducer),
   __reducerSchema("switch_weapon", SwitchWeaponReducer),
 );

@@ -112,8 +112,8 @@ credits fighting the toolchain.
 - Do not refactor for taste. Do not add features the owner did not ask for.
 
 ## Out of scope now (do not build; do not block)
-Character unlocks by level (keep the `unlock` field; levels and seasons exist, GAME.md 6.10), on-chain anything beyond the weekly STRIKE payout
-(GAME.md 6.9: owner-signed testnet transfers only; no NFT ownership checks, no player transactions,
+Character unlocks by level (keep the `unlock` field; levels and seasons exist, GAME.md 6.10), on-chain anything beyond the weekly STRIKE payout and season skin NFTs
+(GAME.md 6.9, 6.11: owner-signed testnet transactions only; no NFT ownership checks, no player transactions,
 no mainnet), bomb mode, ice map and
 slide, seasonal characters, more weapons/skins, voice chat, mobile, regions beyond
 one. Leave clean extension points only.

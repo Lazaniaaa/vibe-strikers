@@ -6,10 +6,15 @@ import { formatTokens, payoutPlan, toUnits, weekLabel, weekOf, type Payout, type
 import { shortAddress } from '../../src/gameplay/walletMessage.ts';
 import { callData, decodeAddress, decodeUint, encodeArgs } from '../../src/network/evm.ts';
 import { browserWallet } from '../../src/network/walletLogin.ts';
+import { loadNftQueue, markNftsSent, nftAdminSession, type QueuedNft } from '../../src/network/nftAdmin.ts';
+import { NFT } from '../../src/config/nft.ts';
+import { nftName } from '../../src/gameplay/nft.ts';
 import DIST from '../../contracts/build/WeeklyDistributor.json';
+import SKINS from '../../contracts/build/SeasonSkins.json';
 
 type Eth = NonNullable<ReturnType<typeof browserWallet>>;
 const SAVED_DIST = 'vs-admin-distributor';
+const SAVED_SKINS = 'vs-admin-skins';
 const CHAIN_HEX = `0x${REWARDS.chain.id.toString(16)}`;
 const TOKEN = REWARDS.token.address;
 const SYM = REWARDS.token.symbol;
@@ -21,6 +26,8 @@ const state = {
   distributor: (REWARDS.distributor as string) || (() => { try { return localStorage.getItem(SAVED_DIST) ?? ''; } catch { return ''; } })(),
   week: weekOf(Date.now()) - 1,
   plan: [] as Payout[],
+  skins: (NFT.contract as string) || (() => { try { return localStorage.getItem(SAVED_SKINS) ?? ''; } catch { return ''; } })(),
+  queue: [] as QueuedNft[],
   busy: false,
 };
 
@@ -51,6 +58,14 @@ app.innerHTML = `
   <section><h2>5. Withdraw</h2>
     <label>Amount <input id="wAmount" type="number" min="1" step="1"> ${SYM}</label>
     <button id="withdraw">Withdraw to my wallet</button></section>
+  <section><h2>6. Season NFTs</h2>
+    <label>Contract <input id="skins" class="wide" placeholder="0x… (empty = not deployed yet)"></label>
+    <button id="skinsDeploy">Deploy NFT contract</button>
+    <p><small>After deploying, tell Claude the address: it goes into <code>src/config/nft.ts</code> (<code>contract</code>) and opens the "To wallet" button in the game.</small></p>
+    <button id="nftLoad">Load NFTs to send</button>
+    <button id="nftMint" disabled>Mint and send</button>
+    <p><small>MetaMask asks for one free signature (login) and then one transaction per ${NFT.batchSize} NFTs. Uses Server and Database from section 4.</small></p>
+    <div id="nftInfo"></div></section>
   <section><h2>Log</h2><div id="log"></div></section>`;
 
 const $ = <T extends HTMLElement = HTMLInputElement>(id: string) => document.getElementById(id) as T;
@@ -90,14 +105,14 @@ async function read(to: string, data: string): Promise<string> {
 }
 
 /** Send a transaction (MetaMask asks the owner), wait for it, return the receipt. */
-async function send(what: string, tx: { to?: string; data: string }): Promise<{ contractAddress?: string; status: string }> {
+async function send(what: string, tx: { to?: string; data: string }): Promise<{ contractAddress?: string; status: string; transactionHash: string }> {
   const eth = wallet();
   await ensureChain(eth);
   log(`${what}: confirm in MetaMask…`);
   const hash = (await eth.request({ method: 'eth_sendTransaction', params: [{ from: state.account, ...tx }] })) as string;
   log(`${what}: sent ${hash}`);
   for (let i = 0; i < 180; i++) {
-    const r = (await eth.request({ method: 'eth_getTransactionReceipt', params: [hash] })) as { status: string; contractAddress?: string } | null;
+    const r = (await eth.request({ method: 'eth_getTransactionReceipt', params: [hash] })) as { status: string; contractAddress?: string; transactionHash: string } | null;
     if (r) {
       if (r.status !== '0x1') throw new Error(`${what}: transaction failed (${REWARDS.chain.explorer}/tx/${hash})`);
       log(`${what}: done`, 'ok');
@@ -152,6 +167,7 @@ async function guarded(fn: () => Promise<void>): Promise<void> {
     state.busy = false;
     document.querySelectorAll('button').forEach((b) => { b.disabled = false; });
     $('pay').toggleAttribute('disabled', !state.plan.length);
+    $('nftMint').toggleAttribute('disabled', !state.queue.length);
     void refresh();
   }
 }
@@ -217,6 +233,49 @@ $('pay').addEventListener('click', () => void guarded(async () => {
         { type: 'address[]', value: part.map((p) => p.owner) }, { type: 'uint256[]', value: part.map((p) => p.amount) }]) });
   }
   log(`Week ${state.week} paid.`, 'ok');
+}));
+
+const skinsInput = $('skins');
+skinsInput.value = state.skins;
+function saveSkins(): void { try { localStorage.setItem(SAVED_SKINS, state.skins); } catch { /* private window */ } }
+skinsInput.addEventListener('change', () => { state.skins = skinsInput.value.trim(); saveSkins(); });
+
+$('skinsDeploy').addEventListener('click', () => void guarded(async () => {
+  if (!state.account) throw new Error('Connect MetaMask first.');
+  if (isAddr(state.skins) && !confirm('An NFT contract address is already set. Deploy another one?')) return;
+  const r = await send('Deploy NFT contract', { data: SKINS.bytecode });
+  if (!r.contractAddress) throw new Error('No contract address in the receipt.');
+  state.skins = r.contractAddress.toLowerCase();
+  skinsInput.value = state.skins;
+  saveSkins();
+  log(`NFT contract deployed at ${state.skins}. Send this address to Claude.`, 'ok');
+}));
+
+$('nftLoad').addEventListener('click', () => void guarded(async () => {
+  state.queue = await loadNftQueue($('server').value.trim(), $('db').value.trim());
+  $('nftInfo').innerHTML = state.queue.length ? `<p><b>${state.queue.length}</b> NFT(s) to send in ${Math.ceil(state.queue.length / NFT.batchSize)} transaction(s).</p>
+    <table><thead><tr><th>#</th><th>NFT</th><th>To wallet</th></tr></thead><tbody>
+    ${state.queue.map((n, i) => `<tr><td>${i + 1}</td><td>${esc(nftName(n.ref))}</td><td title="${esc(n.recipient)}">${shortAddress(n.recipient)}</td></tr>`).join('')}
+    </tbody></table>` : '<p>Nothing to send.</p>';
+  log(`NFT queue: ${state.queue.length}.`);
+}));
+
+$('nftMint').addEventListener('click', () => void guarded(async () => {
+  if (!state.account || !isAddr(state.skins)) throw new Error('Connect MetaMask and set the NFT contract first.');
+  const eth = wallet(), account = state.account;
+  const session = await nftAdminSession($('server').value.trim(), $('db').value.trim(), account, async (message) =>
+    (await eth.request({ method: 'personal_sign', params: [`0x${[...new TextEncoder().encode(message)].map((b) => b.toString(16).padStart(2, '0')).join('')}`, account] })) as string);
+  const batches = Math.ceil(state.queue.length / NFT.batchSize);
+  for (let b = 0; b < batches; b++) {
+    const part = state.queue.slice(b * NFT.batchSize, (b + 1) * NFT.batchSize);
+    const r = await send(`Mint batch ${b + 1}/${batches} (${part.length} NFTs)`, { to: state.skins, data: callData('mintBatch(address[],uint256[],uint256[])', [
+      { type: 'address[]', value: part.map((n) => n.recipient) }, { type: 'uint256[]', value: part.map((n) => n.tokenId) }, { type: 'uint256[]', value: part.map((n) => n.skin) }]) });
+    // If this fails the tokens exist but stay queued: pressing the button again skips them on chain and marks them.
+    await markNftsSent(session, part.map((n) => n.ref), r.transactionHash);
+  }
+  state.queue = [];
+  $('nftInfo').innerHTML = '<p>All sent.</p>';
+  log('NFTs minted and marked as sent.', 'ok');
 }));
 
 $('withdraw').addEventListener('click', () => void guarded(async () => {

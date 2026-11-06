@@ -82,6 +82,26 @@ export const MissionProgress = __t.object("MissionProgress", {
 });
 export type MissionProgress = __Infer<typeof MissionProgress>;
 
+export const Nft = __t.object("Nft", {
+  ref: __t.string(),
+  tokenId: __t.string(),
+  season: __t.u32(),
+  level: __t.u32(),
+  earner: __t.string(),
+  weapon: __t.string(),
+  rarity: __t.string(),
+  seed: __t.u32(),
+  status: __t.string(),
+  recipient: __t.string(),
+  tx: __t.string(),
+});
+export type Nft = __Infer<typeof Nft>;
+
+export const NftAdmin = __t.object("NftAdmin", {
+  address: __t.string(),
+});
+export type NftAdmin = __Infer<typeof NftAdmin>;
+
 export const OwnedItem = __t.object("OwnedItem", {
   id: __t.u64(),
   owner: __t.string(),

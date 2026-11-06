@@ -656,6 +656,13 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   that already exist keep their items. Other `ctx.random()` users (room codes, bots, shot spread) were not checked.
 - 2026-11-06 owner: English character names, chosen by Claude from the portraits (`config/characterNames.ts`). The asset folder
   is unchanged; lobby, market, season track and scoreboard read the new names. Client only, the server was not published.
+- 2026-11-06 owner: season skin NFTs, step 1 (GAME.md 6.11, owner steps docs/REWARDS.md): `contracts/SeasonSkins.sol` (OpenZeppelin 5.0.2,
+  in-process EVM test `scripts/test-nft-contract.mjs`), `config/nft.ts`, `gameplay/nft.ts`, server tables `nft` and private `nft_admin`,
+  reducers `requestNftSend`, `markNftsSent`, NFTs on the SEASON track and in the market (filter, sell, "To wallet"), admin site section 6
+  (`network/nftAdmin.ts`). Checked: contract test, test-market (real reducers and HTTP admin calls), browser run with a MOCK admin wallet
+  (docs/evidence/nft-*.jpg), no console errors. NOT checked: a real deploy and mint on the chain, a real wallet.
+  Waiting for: the owner deploys the contract, then `NFT.contract` opens "To wallet". After Codex: images, metadata and `setBaseUri` button,
+  NFT tab, wearing a skin in a match. `Mint for real players only after the generator is final.`
 - 2026-10-31 owner: ADS proposal approved
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).

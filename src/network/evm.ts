@@ -1,11 +1,12 @@
 // Tiny Ethereum ABI helpers for the weekly-rewards admin page and the contract tests (GAME.md 6.9): call data for
-// the few types used (address, uint256, address[], uint256[]) and decoding of single return words. No chain calls.
+// the few types used (address, uint256, string, address[], uint256[]) and decoding of single return words. No chain calls.
 import { keccak_256 } from '@noble/hashes/sha3.js';
 import { bytesToHex, utf8ToBytes } from '@noble/hashes/utils.js';
 
 export type AbiArg =
   | { type: 'address'; value: string }
   | { type: 'uint256'; value: bigint }
+  | { type: 'string'; value: string }
   | { type: 'address[]'; value: readonly string[] }
   | { type: 'uint256[]'; value: readonly bigint[] };
 
@@ -32,7 +33,12 @@ export function encodeArgs(args: readonly AbiArg[]): string {
   for (const a of args) {
     if (a.type === 'address') heads.push(addressWord(a.value));
     else if (a.type === 'uint256') heads.push(uintWord(a.value));
-    else {
+    else if (a.type === 'string') {
+      heads.push(uintWord(BigInt(tailBytes)));
+      const hex = bytesToHex(utf8ToBytes(a.value)), words = Math.ceil(hex.length / 64);
+      tails.push(uintWord(BigInt(hex.length / 2)) + hex.padEnd(words * 64, '0'));
+      tailBytes += 32 * (words + 1);
+    } else {
       heads.push(uintWord(BigInt(tailBytes)));
       const items = a.type === 'address[]' ? a.value.map((v) => addressWord(v)) : a.value.map((v) => uintWord(v));
       tails.push(uintWord(BigInt(items.length)) + items.join(''));

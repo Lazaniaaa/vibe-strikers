@@ -17,11 +17,13 @@ import LeaveRoomReducer from "../leave_room_reducer";
 import ListItemReducer from "../list_item_reducer";
 import LoginReducer from "../login_reducer";
 import LogoutReducer from "../logout_reducer";
+import MarkNftsSentReducer from "../mark_nfts_sent_reducer";
 import MoveReducer from "../move_reducer";
 import PickUpReducer from "../pick_up_reducer";
 import PingReducer from "../ping_reducer";
 import ReloadReducer from "../reload_reducer";
 import ReportPingReducer from "../report_ping_reducer";
+import RequestNftSendReducer from "../request_nft_send_reducer";
 import SetPrimaryWeaponReducer from "../set_primary_weapon_reducer";
 import SwitchWeaponReducer from "../switch_weapon_reducer";
 
@@ -36,11 +38,13 @@ export type LeaveRoomParams = __Infer<typeof LeaveRoomReducer>;
 export type ListItemParams = __Infer<typeof ListItemReducer>;
 export type LoginParams = __Infer<typeof LoginReducer>;
 export type LogoutParams = __Infer<typeof LogoutReducer>;
+export type MarkNftsSentParams = __Infer<typeof MarkNftsSentReducer>;
 export type MoveParams = __Infer<typeof MoveReducer>;
 export type PickUpParams = __Infer<typeof PickUpReducer>;
 export type PingParams = __Infer<typeof PingReducer>;
 export type ReloadParams = __Infer<typeof ReloadReducer>;
 export type ReportPingParams = __Infer<typeof ReportPingReducer>;
+export type RequestNftSendParams = __Infer<typeof RequestNftSendReducer>;
 export type SetPrimaryWeaponParams = __Infer<typeof SetPrimaryWeaponReducer>;
 export type SwitchWeaponParams = __Infer<typeof SwitchWeaponReducer>;
 

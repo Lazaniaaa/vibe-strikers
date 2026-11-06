@@ -9,12 +9,19 @@
 .market-tools { flex-wrap: wrap; }
 .market-tools select { flex: 1 1 0; min-width: 0; }
 .market-search { flex: 1 0 100%; border: 2px solid var(--menu-ink); border-radius: 7px; padding: 6px 8px; background: #fff; color: var(--menu-ink); font-weight: 800; font-size: 12px; }
-.market-row[data-rarity="common"] { --rarity: #6f747c; }
-.market-row[data-rarity="uncommon"] { --rarity: #2f8a3e; }
-.market-row[data-rarity="rare"] { --rarity: #2470cc; }
-.market-row[data-rarity="epic"] { --rarity: #8a3fd1; }
-.market-row[data-rarity="legendary"] { --rarity: #c96a08; }
-.market-row[data-rarity="mythic"] { --rarity: #d42a6e; }
+[data-rarity="common"] { --rarity: #6f747c; }
+[data-rarity="uncommon"] { --rarity: #2f8a3e; }
+[data-rarity="rare"] { --rarity: #2470cc; }
+[data-rarity="epic"] { --rarity: #8a3fd1; }
+[data-rarity="legendary"] { --rarity: #c96a08; }
+[data-rarity="mythic"] { --rarity: #d42a6e; }
+.season-nft { position: absolute; top: -6px; right: -5px; padding: 0 4px; border: 2px solid var(--menu-ink); border-radius: 5px; background: var(--rarity); color: #fff; font-size: 9px; font-style: normal; font-weight: 800; line-height: 13px; }
+.market-what { min-width: 106px; }
+.market-row-nft { flex-wrap: wrap; }
+.market-row-nft .market-what { flex: 1 1 calc(100% - 60px); }
+.market-row-nft .market-price { margin-left: auto; }
+.market-nft-state { flex: 0 1 auto; white-space: normal; text-align: right; }
+.market-nft-state a { color: inherit; }
 .market-row[data-rarity] { border-left: 7px solid var(--rarity); }
 .market-row[data-rarity] .market-thumb { border-color: var(--rarity); }
 .market-tier { padding: 1px 5px; border-radius: 4px; background: var(--rarity); color: #fff; font-style: normal; }

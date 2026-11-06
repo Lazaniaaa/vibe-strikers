@@ -2,6 +2,7 @@
 // Plain DOM over a market-subscribed GameNet; redraws are throttled like the market panel.
 import { PROGRESSION, QUESTS, SEASON, type QuestKind } from '../config/season.ts';
 import { levelOf, questEndMs, questLine, seasonActive, seasonLevel, seasonReward } from '../gameplay/progression.ts';
+import { nftReward, nftRewardName } from '../gameplay/nft.ts';
 import type { GameNet } from '../network/client.ts';
 import type { MarketItemView } from './marketPanel.ts';
 import '../../client/game/market.css';
@@ -61,7 +62,7 @@ export class SeasonPanel {
     this.busy = true; this.status = ''; this.draw();
     try {
       await this.net.claimSeasonRewards();
-      this.status = 'Rewards claimed. Items are in Market → My items.'; this.statusBad = false;
+      this.status = 'Rewards claimed. Items and NFTs are in Market → My items.'; this.statusBad = false;
     } catch (e) {
       this.status = e instanceof Error ? e.message : String(e); this.statusBad = true;
     }
@@ -76,8 +77,9 @@ export class SeasonPanel {
     const art = item
       ? (item.portrait ? `<img src="${esc(item.portrait)}" alt="" />` : `<span class="season-emote">${esc(item.kind === 'emote' ? '♪' : '★')}</span>`)
       : `<span class="season-coins">◉ ${r.coins}</span>`;
-    const title = item ? `${item.name} (${item.kind})${r.coins ? ` + ${r.coins} coins` : ''}` : `${r.coins} coins`;
-    return `<li class="${state}${r.item ? ' has-item' : ''}${level === SEASON.levels ? ' is-final' : ''}" title="${esc(title)}"><b>${level}</b>${art}${level <= claimed ? '<i aria-label="claimed">✓</i>' : ''}</li>`;
+    const nft = nftReward(level);
+    const title = `${item ? `${item.name} (${item.kind})${r.coins ? ` + ${r.coins} coins` : ''}` : `${r.coins} coins`}${nft ? ` + ${nftRewardName(nft)} (NFT)` : ''}`;
+    return `<li class="${state}${r.item ? ' has-item' : ''}${level === SEASON.levels ? ' is-final' : ''}" title="${esc(title)}"><b>${level}</b>${art}${nft ? `<em class="season-nft" data-rarity="${nft.rarity}">NFT</em>` : ''}${level <= claimed ? '<i aria-label="claimed">✓</i>' : ''}</li>`;
   }
 
   private draw(): void {

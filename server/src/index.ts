@@ -28,6 +28,8 @@ import { restartMatch, type RoundPhase, type RoundState, type TeamId } from '../
 import { canFire, cancelReload, consumeShot, damageAt, resetSlot, spreadDeg, startReload, tickSlot } from '../../src/gameplay/weaponLogic.ts';
 import { actorFor, brainFor, forgetActor, getNav, getWorld, historyFor, terrainFor } from './world.ts';
 import { MARKET } from '../../src/config/market.ts';
+import { NFT } from '../../src/config/nft.ts';
+import { nftListError, nftRef, nftSeed, nftTokenId } from '../../src/gameplay/nft.ts';
 import { AUTH } from '../../src/config/auth.ts';
 import { loginError } from '../../src/gameplay/walletAuth.ts';
 import { weekOf } from '../../src/gameplay/rewards.ts';
@@ -307,8 +309,28 @@ const dayStreak = table({ name: 'day_streak', public: true }, {
   best: t.u32(),
   skipDay: t.u32(),
 });
+/** Season skin NFTs (GAME.md 6.11). The holder is the `owned_item` row with the same ref. */
+const nft = table({ name: 'nft', public: true }, {
+  ref: t.string().primaryKey(),
+  /** uint256 as a decimal string. */
+  tokenId: t.string(),
+  season: t.u32(),
+  level: t.u32(),
+  earner: t.string(),
+  weapon: t.string(),
+  rarity: t.string(),
+  seed: t.u32(),
+  /** 'game' | 'queued' | 'sent' */
+  status: t.string().index('btree'),
+  recipient: t.string(),
+  tx: t.string(),
+});
+/** More wallets allowed to mark NFTs as sent, next to NFT.admin (local tests). */
+const nftAdmin = table({ name: 'nft_admin' }, {
+  address: t.string().primaryKey(),
+});
 
-const spacetimedb = schema({ room, player, shotEvent, killEvent, item, pingEvent, tickTimer, session, wallet, ownedItem, listing, trade, economy, matchStat, matchClock, playerStat, weekStat, playerProgress, seasonProgress, missionProgress, questProgress, dayStreak });
+const spacetimedb = schema({ room, player, shotEvent, killEvent, item, pingEvent, tickTimer, session, wallet, ownedItem, listing, trade, economy, matchStat, matchClock, playerStat, weekStat, playerProgress, seasonProgress, missionProgress, questProgress, dayStreak, nft, nftAdmin });
 export default spacetimedb;
 
 /** Row-level security: a client only receives the ping rows addressed to it. */
@@ -793,6 +815,17 @@ function payMatch(ctx: Ctx, r: RoomRow, winner: string): void {
   }
 }
 
+/** Add the season's NFTs up to a level. Each exists once, so levels claimed earlier are simply filled in. */
+function grantNfts(ctx: Ctx, owner: string, reached: number): void {
+  for (const [key, reward] of Object.entries(NFT.rewards)) {
+    const level = Number(key), ref = nftRef(SEASON.id, level, owner);
+    if (level > reached || ctx.db.nft.ref.find(ref)) continue;
+    ctx.db.nft.insert({ ref, tokenId: nftTokenId(SEASON.id, level, owner).toString(), season: SEASON.id, level, earner: owner,
+      weapon: reward.weapon, rarity: reward.rarity, seed: nftSeed(ref), status: 'game', recipient: '', tx: '' });
+    ctx.db.ownedItem.insert({ id: 0n, owner, ref, acquiredAt: ctx.timestamp });
+  }
+}
+
 /** Market reducers: the caller must be logged in; returns its account. */
 function marketGate(ctx: Ctx): string {
   const owner = accountOf(ctx, ctx.sender);
@@ -825,6 +858,30 @@ export const claimSeasonRewards = spacetimedb.reducer((ctx) => {
   ctx.db.seasonProgress.id.update({ ...s, claimedLevel: reached });
   if (coins > 0) payCoins(ctx, ensureWallet(ctx, me), coins);
   for (const ref of items) ctx.db.ownedItem.insert({ id: 0n, owner: me, ref, acquiredAt: ctx.timestamp });
+  grantNfts(ctx, me, reached);
+});
+
+/** Ask for an NFT to be sent to my wallet (GAME.md 6.11). One way: it cannot be sold in the game after this. */
+export const requestNftSend = spacetimedb.reducer({ itemId: t.u64() }, (ctx, { itemId }) => {
+  const me = marketGate(ctx);
+  const it = ctx.db.ownedItem.id.find(itemId);
+  if (!it || it.owner !== me) throw new SenderError('you do not own this item');
+  const row = ctx.db.nft.ref.find(it.ref);
+  if (!row) throw new SenderError('this item is not an NFT');
+  if (row.status !== 'game') throw new SenderError('this NFT is already on its way');
+  if (ctx.db.listing.itemId.find(itemId)) throw new SenderError('cancel the listing first');
+  ctx.db.nft.ref.update({ ...row, status: 'queued', recipient: me });
+});
+
+/** The admin site minted these NFTs in this transaction. */
+export const markNftsSent = spacetimedb.reducer({ refs: t.array(t.string()), tx: t.string() }, (ctx, { refs, tx }) => {
+  const me = accountOf(ctx, ctx.sender);
+  if (!me || (me !== NFT.admin && !ctx.db.nftAdmin.address.find(me))) throw new SenderError('not allowed');
+  if (!/^0x[0-9a-f]{64}$/.test(tx)) throw new SenderError('bad transaction hash');
+  for (const ref of refs) {
+    const row = ctx.db.nft.ref.find(ref);
+    if (row?.status === 'queued') ctx.db.nft.ref.update({ ...row, status: 'sent', tx });
+  }
 });
 
 export const listItem = spacetimedb.reducer({ itemId: t.u64(), price: t.u32() }, (ctx, { itemId, price }) => {
@@ -834,6 +891,8 @@ export const listItem = spacetimedb.reducer({ itemId: t.u64(), price: t.u32() },
   const it = ctx.db.ownedItem.id.find(itemId);
   if (!it || it.owner !== me) throw new SenderError('you do not own this item');
   if (ctx.db.listing.itemId.find(itemId)) throw new SenderError('this item is already listed');
+  const blocked = nftListError(ctx.db.nft.ref.find(it.ref)?.status);
+  if (blocked) throw new SenderError(blocked);
   let open = 0;
   for (const _ of ctx.db.listing.seller.filter(me)) open++;
   if (open >= MARKET.maxListingsPerSeller) throw new SenderError(`at most ${MARKET.maxListingsPerSeller} listings at once`);

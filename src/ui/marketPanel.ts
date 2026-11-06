@@ -4,6 +4,8 @@ import { MARKET } from '../config/market.ts';
 import { itemRarity, marketPrices, priceError, saleFee, suggestedPrice, type RefPrices } from '../gameplay/marketRules.ts';
 import { shortAddress } from '../gameplay/walletMessage.ts';
 import { AUTH } from '../config/auth.ts';
+import { NFT } from '../config/nft.ts';
+import { REWARDS } from '../config/rewards.ts';
 import type { GameNet, ListingRow, OwnedItemRow } from '../network/client.ts';
 import '../../client/game/market.css';
 
@@ -11,8 +13,7 @@ import '../../client/game/market.css';
 export interface MarketItemView { name: string; kind: string; portrait?: string }
 
 type View = 'browse' | 'mine' | 'history';
-type Filter = 'all' | 'character' | 'emote';
-const LISTED_TIERS = MARKET.rarity.tiers.filter((tier) => tier !== 'mythic'); // no catalog item is mythic yet: NFTs only
+type Filter = 'all' | 'character' | 'emote' | 'nft';
 const title = (s: string) => `${s[0].toUpperCase()}${s.slice(1)}`;
 type Sort = 'cheap' | 'expensive' | 'new';
 
@@ -35,6 +36,8 @@ export class MarketPanel {
   private sort: Sort = 'cheap';
   /** Listing id waiting for the second (confirm) click, and until when. */
   private confirm: { id: bigint; until: number } | null = null;
+  /** Item id waiting for the second click on "To wallet", and until when. */
+  private sendConfirm: { id: bigint; until: number } | null = null;
   private busy = false;
   private drawQueued = false;
   private lastDraw = 0;
@@ -75,17 +78,17 @@ export class MarketPanel {
   }
 
   show(): void { this.root.hidden = false; this.draw(); }
-  hide(): void { this.root.hidden = true; this.confirm = null; }
+  hide(): void { this.root.hidden = true; this.confirm = null; this.sendConfirm = null; }
 
   private itemCell(ref: string): string {
     const d = this.describe(ref);
-    const img = d.portrait ? `<img src="${d.portrait}" alt="">` : `<span class="market-icon">${d.kind === 'emote' ? '✦' : '?'}</span>`;
+    const img = d.portrait ? `<img src="${d.portrait}" alt="">` : `<span class="market-icon">${d.kind === 'emote' ? '✦' : d.kind === 'nft' ? '◆' : '?'}</span>`;
     return `<div class="market-thumb">${img}</div><div class="market-what"><strong>${esc(d.name)}</strong><small><i class="market-tier">${itemRarity(ref)}</i> ${esc(d.kind)}</small></div>`;
   }
 
   /** One row, coloured by the item's rarity. */
   private row(ref: string, rest: string): string {
-    return `<div class="market-row" data-rarity="${itemRarity(ref)}">${this.itemCell(ref)}${rest}</div>`;
+    return `<div class="market-row${ref.startsWith('nft:') ? ' market-row-nft' : ''}" data-rarity="${itemRarity(ref)}">${this.itemCell(ref)}${rest}</div>`;
   }
 
   private prices(): Map<string, RefPrices> {
@@ -120,8 +123,8 @@ export class MarketPanel {
       <div class="menu-segment market-views" role="group" aria-label="Market view">${tabs}</div>
       ${this.view === 'browse' ? `<div class="market-tools">
         <input class="market-search" type="search" placeholder="Search by name" aria-label="Search by name" maxlength="40">
-        <select class="market-rarity" aria-label="Rarity"><option value="all">All rarities</option>${LISTED_TIERS.map((tier) => `<option value="${tier}">${title(tier)}</option>`).join('')}</select>
-        <select class="market-filter" aria-label="Filter"><option value="all">All items</option><option value="character">Characters</option><option value="emote">Emotes</option></select>
+        <select class="market-rarity" aria-label="Rarity"><option value="all">All rarities</option>${MARKET.rarity.tiers.map((tier) => `<option value="${tier}">${title(tier)}</option>`).join('')}</select>
+        <select class="market-filter" aria-label="Filter"><option value="all">All items</option><option value="character">Characters</option><option value="emote">Emotes</option><option value="nft">NFTs</option></select>
         <select class="market-sort" aria-label="Sort"><option value="cheap">Cheapest first</option><option value="expensive">Most expensive</option><option value="new">Newest</option></select></div>` : ''}
       <div class="market-list">${body}</div>
       <footer><small class="market-testnet">${esc(AUTH.network)} only. Never use a wallet that holds real funds.</small>
@@ -178,17 +181,31 @@ export class MarketPanel {
     for (const l of listings.values()) if (l.seller === me) listed.set(l.itemId, l);
     const own = [...items.values()].filter((i) => i.owner === me).sort((a, b) => a.ref.localeCompare(b.ref) || Number(a.id - b.id));
     if (!own.length) return '<p class="market-empty">You have no items yet.</p>';
-    const prices = this.prices();
+    const prices = this.prices(), now = performance.now();
     return own.map((i) => {
       const p = prices.get(i.ref);
+      const nft = this.net?.market.nfts.get(i.ref);
+      if (nft && nft.status !== 'game') {
+        const where = nft.status === 'queued' ? 'Waiting to be sent to your wallet'
+          : `In your wallet${nft.tx ? ` · <a href="${REWARDS.chain.explorer}/tx/${esc(nft.tx)}" target="_blank" rel="noreferrer">transaction</a>` : ''}`;
+        return this.row(i.ref, `<div class="market-meta market-nft-state">${where}</div>`);
+      }
       const hint = p?.lowest || p?.last ? [p.lowest ? `Lowest ◉ ${p.lowest}` : '', p.last ? `Last sale ◉ ${p.last}` : ''].filter(Boolean).join('<br>') : 'No sales yet';
       const l = listed.get(i.id);
       const action = l
         ? `<div class="market-meta">Listed at ◉ ${l.price}</div><button data-cancel="${l.id}" class="menu-small-action">Cancel</button>`
-        : `<div class="market-meta">${hint}</div><input class="market-price" type="number" inputmode="numeric" min="${MARKET.price.min}" max="${MARKET.price.max}" step="1" placeholder="${suggestedPrice(i.ref, p)}" aria-label="Price in coins" data-item="${i.id}">
-           <button data-sell="${i.id}" class="menu-small-action" ${this.busy ? 'disabled' : ''}>Sell</button>`;
+        : `${nft ? '' : `<div class="market-meta">${hint}</div>`}<input class="market-price" type="number" inputmode="numeric" min="${MARKET.price.min}" max="${MARKET.price.max}" step="1" placeholder="${suggestedPrice(i.ref, p)}" aria-label="Price in coins" data-item="${i.id}">
+           <button data-sell="${i.id}" class="menu-small-action" ${this.busy ? 'disabled' : ''}>Sell</button>${nft ? this.toWallet(i.id, now) : ''}`;
       return this.row(i.ref, action);
     }).join('');
+  }
+
+  /** The button that sends an NFT to the wallet, or a note until the contract is live. */
+  private toWallet(id: bigint, now: number): string {
+    if (!NFT.contract) return '<div class="market-meta">Wallet: soon</div>';
+    const confirming = this.sendConfirm && this.sendConfirm.id === id && this.sendConfirm.until > now;
+    return `<button data-towallet="${id}" class="menu-small-action market-buy${confirming ? ' confirm' : ''}" ${this.busy ? 'disabled' : ''}
+      title="Free. After this it cannot be sold in the game.">${confirming ? 'No more sales. Send?' : 'To wallet'}</button>`;
   }
 
   private history(me: string): string {
@@ -221,7 +238,17 @@ export class MarketPanel {
     if (b.hasAttribute('data-login')) { this.onLogin?.(); return; }
     const net = this.net;
     if (!net) return;
-    if (b.dataset.buy) {
+    if (b.dataset.towallet) {
+      const id = BigInt(b.dataset.towallet), now = performance.now();
+      if (!this.sendConfirm || this.sendConfirm.id !== id || this.sendConfirm.until < now) {
+        this.sendConfirm = { id, until: now + CONFIRM_MS };
+        this.draw();
+        setTimeout(() => this.queueDraw(), CONFIRM_MS + 50);
+        return;
+      }
+      this.sendConfirm = null;
+      this.run(() => net.requestNftSend(id), 'Asked to send it. It reaches your wallet when the next batch is minted.');
+    } else if (b.dataset.buy) {
       const id = BigInt(b.dataset.buy), price = Number(b.dataset.price), now = performance.now();
       if (!this.confirm || this.confirm.id !== id || this.confirm.until < now) {
         this.confirm = { id, until: now + CONFIRM_MS };

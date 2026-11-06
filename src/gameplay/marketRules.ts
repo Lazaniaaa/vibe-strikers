@@ -1,5 +1,7 @@
 // Marketplace rules without the catalog (GAME.md 6.7): pure, loadable in plain Node (unit tests).
 import { MARKET, type RarityId } from '../config/market.ts';
+import { nftRarity } from './nft.ts';
+import { textHash } from './textHash.ts';
 
 export type MarketKind = 'character' | 'emote';
 
@@ -14,13 +16,6 @@ export interface CatalogItem {
 
 const RARITY = MARKET.rarity;
 
-/** FNV-1a hash of a text, as an unsigned 32-bit number. */
-function textHash(text: string): number {
-  let hash = 0x811c9dc5;
-  for (let i = 0; i < text.length; i++) hash = Math.imul(hash ^ text.charCodeAt(i), 0x01000193);
-  return hash >>> 0;
-}
-
 /** Repeatable random numbers in [0, 1) from a text (mulberry32). */
 export function textRandom(text: string): () => number {
   let state = textHash(text);
@@ -34,7 +29,7 @@ export function textRandom(text: string): () => number {
 
 /** Tier of a catalog item: fixed in the config, or stable from its id, so every client and the server agree. */
 export function itemRarity(ref: string): RarityId {
-  const fixed = RARITY.items[ref];
+  const fixed = RARITY.items[ref] ?? nftRarity(ref);
   if (fixed) return fixed;
   let roll = textHash(ref) % 100;
   for (const [tier, weight] of Object.entries(RARITY.weights)) {

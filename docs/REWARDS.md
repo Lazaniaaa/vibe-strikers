@@ -30,3 +30,10 @@ Admin site update: `npm run admin:build`, copy `work/admin-dist` to a folder out
 `admin.html` to `index.html`, then `npx wrangler@4.158.0 pages deploy <folder> --project-name vibe-strikers-admin --branch main`.
 Build: `npm run contract:build` (writes `contracts/build/`, committed). Test on an in-process EVM:
 `npm run contract:test`.
+
+## Season NFTs (GAME.md 6.11)
+Admin site, section **6. Season NFTs**. Players never pay and never sign a transaction; you pay the testnet gas.
+1. Once: **Deploy NFT contract** and confirm in MetaMask. Send the address to Claude: it opens the "To wallet" button in the game.
+2. When players asked for NFTs: **Load NFTs to send**, check the list, **Mint and send**. MetaMask asks for one free
+   signature and then one transaction per 50 NFTs. A failed or cancelled batch can be pressed again: tokens that exist are skipped.
+Mint for real players only after the look from Codex is final: a minted skin must not change.

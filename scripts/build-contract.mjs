@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import solc from 'solc';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const SOURCES = ['contracts/WeeklyDistributor.sol', 'contracts/test/TestToken.sol'];
+const SOURCES = ['contracts/WeeklyDistributor.sol', 'contracts/SeasonSkins.sol', 'contracts/test/TestToken.sol'];
 /** Oldest EVM target that compiles it: runs on any chain (Robinhood Chain is an Arbitrum Orbit L2). */
 const EVM_VERSION = 'paris';
 
@@ -20,12 +20,17 @@ const input = {
     outputSelection: { '*': { '*': ['abi', 'evm.bytecode.object'] } },
   },
 };
-const out = JSON.parse(solc.compile(JSON.stringify(input)));
+/** Imports such as @openzeppelin/... come from node_modules (exact version in package.json). */
+const findImports = (path) => {
+  try { return { contents: readFileSync(resolve(root, 'node_modules', path), 'utf8') }; } catch { return { error: `not found: ${path}` }; }
+};
+const out = JSON.parse(solc.compile(JSON.stringify(input), { import: findImports }));
 const errors = (out.errors ?? []).filter((e) => e.severity === 'error');
 for (const e of out.errors ?? []) console.log(e.formattedMessage);
 if (errors.length) process.exit(1);
 
 for (const [file, contracts] of Object.entries(out.contracts)) {
+  if (!SOURCES.includes(file)) continue; // library files
   for (const [name, c] of Object.entries(contracts)) {
     if (!c.evm.bytecode.object) continue; // interfaces
     const dir = resolve(root, 'contracts/build', file.includes('/test/') ? 'test' : '');

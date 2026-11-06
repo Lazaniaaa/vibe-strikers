@@ -18,6 +18,8 @@ import { MUTATOR_IDS, mutatorOfDay, mutatorRules } from '../config/mutators.ts';
 import { CORNUCOPIA } from '../config/items.ts';
 import { MARKET } from '../config/market.ts';
 import { itemRarity, marketPrices, matchPays, matchReward, newSales, priceError, RateLimiter, saleFee, starterRefs, suggestedPrice, textRandom, utcDay, type CatalogItem } from './marketRules.ts';
+import { NFT } from '../config/nft.ts';
+import { nftListError, nftName, nftRarity, nftRef, nftSeed, nftSkinWord, nftTokenId, parseNftRef } from './nft.ts';
 import { AUTH } from '../config/auth.ts';
 import { loginError, personalHash, recoverSigner, signLogin } from './walletAuth.ts';
 import { loginMessage } from './walletMessage.ts';
@@ -522,6 +524,38 @@ test('market: starter sets are spread evenly over the wallets', () => {
   const random = textRandom('a'), again = textRandom('a');
   assert.equal(random(), again());
   assert.notEqual(textRandom('a')(), textRandom('b')());
+});
+
+test('season NFTs: rewards, ids and words', () => {
+  const earner = `0x${'ab'.repeat(20)}`;
+  const levels = Object.keys(NFT.rewards).map(Number);
+  assert.deepEqual(levels, [5, 10, 15, 20, 25, 30]);
+  assert.deepEqual(levels.map((l) => NFT.rewards[l].rarity), MARKET.rarity.tiers);
+  for (const l of levels) {
+    assert.ok(NFT.weaponCodes.includes(NFT.rewards[l].weapon), NFT.rewards[l].weapon);
+    assert.ok(l <= SEASON.levels);
+  }
+  const ref = nftRef(1, 30, earner);
+  assert.deepEqual(parseNftRef(ref), { season: 1, level: 30, earner });
+  assert.equal(parseNftRef('character:x'), null);
+  assert.equal(parseNftRef('nft:1:30:bad'), null);
+  assert.equal(nftRarity(ref), 'mythic');
+  assert.equal(nftRarity('emote:wave'), null);
+  assert.equal(nftRarity(nftRef(1, 6, earner)), null, 'no NFT at this level');
+  assert.equal(itemRarity(ref), 'mythic');
+  assert.equal(nftName(ref), 'Mythic Rifle skin');
+  assert.equal(nftSeed(ref), nftSeed(nftRef(1, 30, earner)));
+  assert.notEqual(nftSeed(ref), nftSeed(nftRef(1, 25, earner)));
+  assert.equal(nftTokenId(1, 30, earner) & 0xffffn, 30n);
+  assert.equal(nftTokenId(1, 30, earner) >> 32n, BigInt(earner));
+  const word = nftSkinWord(1, 30, NFT.rewards[30], 7);
+  assert.equal(word & 0xffffffffn, 7n);
+  assert.equal((word >> 40n) & 0xffn, BigInt(MARKET.rarity.tiers.indexOf('mythic')));
+  assert.throws(() => nftSkinWord(1, 30, { weapon: 'spoon', rarity: 'common' }, 1));
+  assert.equal(nftListError('game'), '');
+  assert.equal(nftListError(undefined), '');
+  assert.ok(nftListError('queued'));
+  assert.ok(nftListError('sent'));
 });
 
 console.log(`${passed} gameplay checks passed`);
