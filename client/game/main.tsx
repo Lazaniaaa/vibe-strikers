@@ -216,6 +216,7 @@ function openSeason(): void {
       const [{ SeasonPanel }, { catalogItem }] = await Promise.all([import('../../src/ui/seasonPanel'), import('../../src/gameplay/market')]);
       seasonPanel ??= new SeasonPanel(menu.root, itemDescriber(catalogItem));
       seasonPanel.onLogin = () => { void walletLogin(); };
+      seasonPanel.onPreview = (ref) => menuScene?.previewSkin(ref);
     }
     seasonPanel.show();
     try { seasonPanel.attach(await ensureNet()); } catch { seasonPanel.attach(null); }
@@ -248,6 +249,7 @@ menu.onTab = (tab) => {
       const [{ MarketPanel }, { catalogItem }] = await Promise.all([import('../../src/ui/marketPanel'), import('../../src/gameplay/market')]);
       marketPanel ??= new MarketPanel(menu.root, itemDescriber(catalogItem));
       marketPanel.onLogin = () => { void walletLogin(); };
+      marketPanel.onPreview = (ref) => menuScene?.previewSkin(ref);
     }
     marketPanel.show();
     try { marketPanel.attach(await ensureNet()); } catch (e) { marketPanel.setStatus(`Market offline: ${e instanceof Error ? e.message : String(e)}`, true); }

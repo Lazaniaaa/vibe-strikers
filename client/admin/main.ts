@@ -62,6 +62,9 @@ app.innerHTML = `
     <label>Contract <input id="skins" class="wide" placeholder="0x… (empty = not deployed yet)"></label>
     <button id="skinsDeploy">Deploy NFT contract</button>
     <p><small>After deploying, tell Claude the address: it goes into <code>src/config/nft.ts</code> (<code>contract</code>) and opens the "To wallet" button in the game.</small></p>
+    <label>Metadata address <input id="nftBase" class="wide" value="${esc(NFT.metadataBase)}"></label>
+    <button id="nftSetBase">Set metadata address</button>
+    <p><small>One transaction, once. Pictures appear in explorers after this.</small></p>
     <button id="nftLoad">Load NFTs to send</button>
     <button id="nftMint" disabled>Mint and send</button>
     <p><small>MetaMask asks for one free signature (login) and then one transaction per ${NFT.batchSize} NFTs. Uses Server and Database from section 4.</small></p>
@@ -249,6 +252,14 @@ $('skinsDeploy').addEventListener('click', () => void guarded(async () => {
   skinsInput.value = state.skins;
   saveSkins();
   log(`NFT contract deployed at ${state.skins}. Send this address to Claude.`, 'ok');
+}));
+
+$('nftSetBase').addEventListener('click', () => void guarded(async () => {
+  if (!state.account || !isAddr(state.skins)) throw new Error('Connect MetaMask and set the NFT contract first.');
+  const uri = $('nftBase').value.trim();
+  if (!/^https:\/\/.+\/$/.test(uri)) throw new Error('The metadata address must start with https:// and end with /.');
+  await send('Set metadata address', { to: state.skins, data: callData('setBaseUri(string)', [{ type: 'string', value: uri }]) });
+  log(`Metadata address set to ${uri}`, 'ok');
 }));
 
 $('nftLoad').addEventListener('click', () => void guarded(async () => {

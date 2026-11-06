@@ -28,6 +28,9 @@ export class SeasonPanel {
   private statusBad = false;
   private busy = false;
   private questKind: QuestKind = 'day';
+  /** Shows an NFT skin on the lobby character (null = none). */
+  onPreview: ((ref: string | null) => void) | null = null;
+  private previewRef: string | null = null;
 
   constructor(parent: HTMLElement, private readonly describe: (ref: string) => MarketItemView) {
     this.root = document.createElement('section');
@@ -36,6 +39,13 @@ export class SeasonPanel {
     this.root.hidden = true;
     parent.append(this.root);
     this.root.addEventListener('click', (e) => {
+      const cell = (e.target as HTMLElement).closest<HTMLElement>('[data-tryon]');
+      if (cell) {
+        this.previewRef = this.previewRef === cell.dataset.tryon ? null : cell.dataset.tryon ?? null;
+        this.onPreview?.(this.previewRef);
+        this.draw();
+        return;
+      }
       const b = (e.target as HTMLElement).closest<HTMLButtonElement>('button');
       if (!b || b.disabled) return;
       e.stopPropagation();
@@ -48,7 +58,10 @@ export class SeasonPanel {
 
   attach(net: GameNet | null): void { this.net = net; this.refresh(); }
   show(): void { this.root.hidden = false; this.draw(); }
-  hide(): void { this.root.hidden = true; }
+  hide(): void {
+    this.root.hidden = true;
+    if (this.previewRef) { this.previewRef = null; this.onPreview?.(null); }
+  }
 
   refresh(): void {
     if (this.drawQueued || this.root.hidden) return;
@@ -75,12 +88,13 @@ export class SeasonPanel {
     const item = r.item ? this.describe(r.item) : null;
     const state = level <= claimed ? 'is-claimed' : level <= reached ? 'is-ready' : '';
     const nft = nftReward(level), me = this.net?.market.account;
-    const skin = nft && me ? this.describe(nftRef(SEASON.id, level, me)).portrait : undefined; // this wallet's own skin
+    const skinRef = nft && me ? nftRef(SEASON.id, level, me) : '';
+    const skin = skinRef ? this.describe(skinRef).portrait : undefined; // this wallet's own skin
     const art = skin ? `<img src="${esc(skin)}" alt="" />` : item
       ? (item.portrait ? `<img src="${esc(item.portrait)}" alt="" />` : `<span class="season-emote">${esc(item.kind === 'emote' ? '♪' : '★')}</span>`)
       : `<span class="season-coins">◉ ${r.coins}</span>`;
     const title = `${item ? `${item.name} (${item.kind})${r.coins ? ` + ${r.coins} coins` : ''}` : `${r.coins} coins`}${nft ? ` + ${nftRewardName(nft)} (NFT)` : ''}`;
-    return `<li class="${state}${r.item ? ' has-item' : ''}${level === SEASON.levels ? ' is-final' : ''}" title="${esc(title)}"><b>${level}</b>${art}${nft ? `<em class="season-nft" data-rarity="${nft.rarity}">NFT</em>` : ''}${level <= claimed ? '<i aria-label="claimed">✓</i>' : ''}</li>`;
+    return `<li class="${state}${r.item ? ' has-item' : ''}${level === SEASON.levels ? ' is-final' : ''}${skinRef && skinRef === this.previewRef ? ' is-preview' : ''}"${skinRef ? ` data-tryon="${esc(skinRef)}"` : ''} title="${esc(title)}"><b>${level}</b>${art}${nft ? `<em class="season-nft" data-rarity="${nft.rarity}">NFT</em>` : ''}${level <= claimed ? '<i aria-label="claimed">✓</i>' : ''}</li>`;
   }
 
   private draw(): void {
@@ -122,6 +136,6 @@ export class SeasonPanel {
         <ul class="season-missions">${missions}</ul>
       </div>
       <footer><small>Match +${x.match} · win +${x.win} · kill +${x.kill} · headshot +${x.headshot} · first win of the day +${x.firstWinOfDay} XP.
-        Real online matches only. Free for everyone, fixed rewards, all characters stay playable.</small></footer>`;
+        Real online matches only. Free for everyone, fixed rewards, all characters stay playable. Click an NFT level to see it on your character.</small></footer>`;
   }
 }

@@ -2,10 +2,18 @@
 // The generator and three.js load on the first request. If drawing fails the panels keep their ◆ icon.
 import { NFT } from '../../src/config/nft';
 import { nftReward, nftSeed, parseNftRef } from '../../src/gameplay/nft';
-import type { SkinRarity } from '../../src/weapons/skinTraits';
+import type { SkinRarity, SkinTraits } from '../../src/weapons/skinTraits';
 import type { WeaponId } from '../../src/weapons/types';
 
 const ART_SIZE = 128;
+
+/** The generator's input for an NFT: the same in the lobby, on the character and in the metadata. */
+export async function nftTraits(ref: string): Promise<SkinTraits | null> {
+  const parsed = parseNftRef(ref), reward = parsed && nftReward(parsed.level);
+  if (!reward) return null;
+  const { generateSkinTraits } = await import('../../src/weapons/skinTraits');
+  return generateSkinTraits({ weapon: reward.weapon as WeaponId, rarity: NFT.skinArt[reward.rarity] as SkinRarity, seed: nftSeed(ref) });
+}
 const art = new Map<string, string>();
 const asked = new Set<string>();
 
@@ -13,13 +21,11 @@ const asked = new Set<string>();
 export function nftArt(ref: string, ready: () => void): string | undefined {
   const url = art.get(ref);
   if (url || asked.has(ref)) return url;
-  const parsed = parseNftRef(ref), reward = parsed && nftReward(parsed.level);
-  if (!reward) return undefined;
   asked.add(ref);
   void (async () => {
     try {
-      const [{ generateSkinTraits }, { renderSkinImage }] = await Promise.all([import('../../src/weapons/skinTraits'), import('../../src/weapons/renderSkinImage')]);
-      const traits = generateSkinTraits({ weapon: reward.weapon as WeaponId, rarity: NFT.skinArt[reward.rarity] as SkinRarity, seed: nftSeed(ref) });
+      const [traits, { renderSkinImage }] = await Promise.all([nftTraits(ref), import('../../src/weapons/renderSkinImage')]);
+      if (!traits) return;
       art.set(ref, await renderSkinImage(traits, ART_SIZE));
       ready();
     } catch (e) {

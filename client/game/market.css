@@ -16,6 +16,8 @@
 [data-rarity="mythic"] { --rarity: #d42a6e; }
 .season-nft { position: absolute; top: -6px; right: -5px; padding: 0 4px; border: 2px solid var(--menu-ink); border-radius: 5px; background: var(--rarity); color: #fff; font-size: 9px; font-style: normal; font-weight: 800; line-height: 13px; }
 .market-what { min-width: 106px; }
+.season-track li[data-tryon] { cursor: pointer; }
+.season-track li.is-preview { outline: 3px solid var(--menu-ink); outline-offset: 1px; }
 .market-row-nft { flex-wrap: wrap; }
 .market-row-nft .market-what { flex: 1 1 calc(100% - 60px); }
 .market-row-nft .market-price { margin-left: auto; }

@@ -9,6 +9,9 @@ export const NFT = {
   contract: '0x23e30403814d584a3a2b462b6cf3622d246cd589',
   /** The owner's wallet: the only account that may mark NFTs as sent. Local tests add theirs to the `nft_admin` table. */
   admin: '0x08e4f62ed093124aa3ce257830c81b2bc14a51e9',
+  /** The game site used in metadata, and where tokenURI points (the Worker link: the owner's own network can reach it). */
+  siteUrl: 'https://vibe-strikers.voxel-character-review.workers.dev',
+  metadataBase: 'https://vibe-strikers.voxel-character-review.workers.dev/nft/',
   /** Tokens per mintBatch transaction. */
   batchSize: 50,
   /** Season level => reward. Fixed and visible in advance: no random boxes. */

@@ -1,0 +1,5 @@
+/nft/*
+  Content-Type: application/json
+  Access-Control-Allow-Origin: *
+/nft-img/*
+  Access-Control-Allow-Origin: *

@@ -16,6 +16,7 @@
     "server:bindings": "spacetime generate --lang typescript --module-path server --out-dir src/network/bindings -y",
     "server:reset": "spacetime publish --server local -y --delete-data=always --module-path server voxel-arena",
     "contract:build": "node scripts/build-contract.mjs",
+    "nft:metadata": "node scripts/nft-metadata.mjs",
     "contract:test": "node --experimental-strip-types --no-warnings scripts/test-contract.mjs && node --experimental-strip-types --no-warnings scripts/test-nft-contract.mjs",
     "admin:build": "vite build --config vite.admin.config.ts"
   },
@@ -42,6 +43,7 @@
     "@types/react-dom": "19.3.0",
     "@types/three": "0.186.0",
     "@vitejs/plugin-react": "6.1.2",
+    "playwright-core": "1.53.2",
     "solc": "0.8.38",
     "typescript": "6.0.3",
     "vite": "8.3.5"

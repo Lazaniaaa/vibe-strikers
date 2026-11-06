@@ -36,4 +36,5 @@ Admin site, section **6. Season NFTs**. Players never pay and never sign a trans
 1. Done 2026-11-07: contract `0x23e30403814d584a3a2b462b6cf3622d246cd589`, in the game as `NFT.contract`.
 2. When players asked for NFTs: **Load NFTs to send**, check the list, **Mint and send**. MetaMask asks for one free
    signature and then one transaction per 50 NFTs. A failed or cancelled batch can be pressed again: tokens that exist are skipped.
+3. Once: **Set metadata address** (one transaction). After each mint Claude runs `npm run nft:metadata` and deploys the site, so the picture appears.
 Mint for real players only after the look from Codex is final: a minted skin must not change.

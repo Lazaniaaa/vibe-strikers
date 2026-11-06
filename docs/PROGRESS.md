@@ -675,6 +675,8 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
 - 2026-11-06 FIRST REAL MINT (owner, MetaMask, level 5 XP given by SQL): Common Pistol skin to 0x08e4...51e9, tx
   0xa149d2ca7da0ddc4306d75cfdb8f3294cf7692c61716284504c7a884f6c22e0c, status ok, 118 212 gas. Checked on chain: ownerOf, balance 1, supply 1, skin word
   matches the rules; the game row is `sent` with this tx. No metadata yet, so wallets and the explorer show no picture.
+- 2026-11-06 owner: "Try on" shows an NFT skin on the lobby character (market rows, season track), and metadata with a picture for wallets:
+  `npm run nft:metadata` writes static files into client/public after each mint, then deploy. Admin site: Set metadata address (owner, one transaction).
 - 2026-10-31 owner: ADS proposal approved
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).

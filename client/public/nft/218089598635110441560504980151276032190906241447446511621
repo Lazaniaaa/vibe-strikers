@@ -1,0 +1,60 @@
+{
+  "name": "Common Pistol skin · Season 1",
+  "description": "An original Vibe Strikers Candy & Toys weapon, generated from seed 3331905869. Cosmetic only.",
+  "image": "https://vibe-strikers.voxel-character-review.workers.dev/nft-img/218089598635110441560504980151276032190906241447446511621.png",
+  "external_url": "https://vibe-strikers.voxel-character-review.workers.dev",
+  "attributes": [
+    {
+      "trait_type": "Season",
+      "value": "Candy & Toys"
+    },
+    {
+      "trait_type": "Weapon",
+      "value": "Pistol"
+    },
+    {
+      "trait_type": "Rarity",
+      "value": "common"
+    },
+    {
+      "trait_type": "Silhouette",
+      "value": "Cream cap"
+    },
+    {
+      "trait_type": "Colour set",
+      "value": "Mint Mallow"
+    },
+    {
+      "trait_type": "Candy dye batch",
+      "value": 1027
+    },
+    {
+      "trait_type": "Detail kit",
+      "value": "Gift slide"
+    },
+    {
+      "trait_type": "Surface pattern",
+      "value": "Cream strap"
+    },
+    {
+      "trait_type": "Finish",
+      "value": "Flat candy"
+    },
+    {
+      "trait_type": "Glow",
+      "value": "None"
+    },
+    {
+      "trait_type": "Seed",
+      "value": 3331905869
+    },
+    {
+      "trait_type": "Generator version",
+      "value": 3
+    },
+    {
+      "trait_type": "Season level",
+      "value": 5
+    }
+  ]
+}

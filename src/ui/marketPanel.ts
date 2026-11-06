@@ -45,6 +45,9 @@ export class MarketPanel {
   private messageIsError = false;
   /** Starts the wallet login (set by the lobby). */
   onLogin: (() => void) | null = null;
+  /** Shows an NFT skin on the lobby character (null = none). */
+  onPreview: ((ref: string | null) => void) | null = null;
+  private previewRef: string | null = null;
 
   constructor(parent: HTMLElement, private readonly describe: (ref: string) => MarketItemView) {
     this.root = document.createElement('section');
@@ -78,7 +81,10 @@ export class MarketPanel {
   }
 
   show(): void { this.root.hidden = false; this.draw(); }
-  hide(): void { this.root.hidden = true; this.confirm = null; this.sendConfirm = null; }
+  hide(): void {
+    this.root.hidden = true; this.confirm = null; this.sendConfirm = null;
+    if (this.previewRef) { this.previewRef = null; this.onPreview?.(null); }
+  }
 
   private itemCell(ref: string): string {
     const d = this.describe(ref);
@@ -88,7 +94,9 @@ export class MarketPanel {
 
   /** One row, coloured by the item's rarity. */
   private row(ref: string, rest: string): string {
-    return `<div class="market-row${ref.startsWith('nft:') ? ' market-row-nft' : ''}" data-rarity="${itemRarity(ref)}">${this.itemCell(ref)}${rest}</div>`;
+    const nft = ref.startsWith('nft:');
+    const tryOn = nft ? `<button data-tryon="${esc(ref)}" class="menu-small-action" aria-pressed="${this.previewRef === ref}">${this.previewRef === ref ? 'Take off' : 'Try on'}</button>` : '';
+    return `<div class="market-row${nft ? ' market-row-nft' : ''}" data-rarity="${itemRarity(ref)}">${this.itemCell(ref)}${rest}${tryOn}</div>`;
   }
 
   private prices(): Map<string, RefPrices> {
@@ -236,6 +244,12 @@ export class MarketPanel {
     e.stopPropagation();
     if (b.dataset.view) { this.view = b.dataset.view as View; this.confirm = null; this.message = ''; this.draw(); return; }
     if (b.hasAttribute('data-login')) { this.onLogin?.(); return; }
+    if (b.dataset.tryon) {
+      this.previewRef = this.previewRef === b.dataset.tryon ? null : b.dataset.tryon;
+      this.onPreview?.(this.previewRef);
+      this.draw();
+      return;
+    }
     const net = this.net;
     if (!net) return;
     if (b.dataset.towallet) {

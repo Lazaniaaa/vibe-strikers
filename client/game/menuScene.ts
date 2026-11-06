@@ -2,7 +2,10 @@ import { AmbientLight, Color, DirectionalLight, Fog, HemisphereLight, Mesh, Vect
   NeutralToneMapping, PCFSoftShadowMap, PerspectiveCamera, Scene, SRGBColorSpace, WebGLRenderer, WebGLRenderTarget,
   type Group } from 'three';
 import { characterDisplayName } from '../../src/config/characterNames';
-import { characters, createCharacter, disposeCharacterResources, prepareLobbyAnimation, playEmote, updateAnimation, LOBBY_EMOTES, BODY_HEIGHT, type LobbyEmoteId } from '../../src/characters';
+import { characters, createCharacter, disposeCharacterResources, poseCharacter, prepareLobbyAnimation, playEmote, updateAnimation, LOBBY_EMOTES, BODY_HEIGHT, type LobbyEmoteId } from '../../src/characters';
+import { attachWeapon, createWeapon, poseWeapon } from '../../src/weapons';
+import type { PoseState } from '../../src/characters/types';
+import { nftTraits } from './nftArt';
 import { buildLobbyScene, disposeLobbySceneResources, loadLobbyScene } from '../../src/maps/lobby';
 import { MENU, RENDER, TEAM_COLORS } from '../../src/config/game';
 import { createMenuSky } from './menuSky';
@@ -20,7 +23,7 @@ export interface MenuSceneOptions {
   onPortrait: (index: number, url: string, pixels: number) => void;
   onStatus: (message: string) => void;
 }
-export interface MenuScene { select(index: number): void; dispose(): void }
+export interface MenuScene { select(index: number): void; /** Show an NFT skin in the character's hand (null = none). */ previewSkin(ref: string | null): void; dispose(): void }
 
 export function createMenuScene(options: MenuSceneOptions): MenuScene {
   const renderer = new WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'low-power' });
@@ -95,17 +98,37 @@ export function createMenuScene(options: MenuSceneOptions): MenuScene {
   worldCamera.position.set(...MENU.world.position); worldCamera.lookAt(...MENU.world.target);
   portraitCamera.position.set(...MENU.portrait.position); portraitCamera.lookAt(...MENU.portrait.target);
 
+  // NFT skin held by the lobby character: the hold pose replaces the lobby animation while it is shown.
+  let skinRef: string | null = null, skinWeapon: Group | null = null, skinRequest = 0, introPlayed = false;
+  const skinPose: PoseState = { weapon: 'rifle', speed: 0, moveDir: { x: 0, z: -1 }, aimPitch: 0, shooting: false, crouching: false, grounded: true, dead: false, fire: 0, reload: null, cycle: null };
+  const skinIdle = { fire: 0, reload: null, cycle: null, equip: 1 };
   const intro=()=>{if(character){const id=LOBBY_EMOTES[Math.floor(Math.random()*LOBBY_EMOTES.length)].id;playEmote(character,id);options.host.dataset.lastEmote=id;}};
   const select = (index: number) => {
     if (disposed || selected === index) return;
-    const initial=selected<0;
+    const initial=!introPlayed;introPlayed=true;
     if (character) world.remove(character);
     selected = index; character = createCharacter(characters[index]);
     character.rotation.y = MENU.initialYaw;
     prepareLobbyAnimation(character);
     if(initial)intro();
     character.traverse(object => { if (object instanceof Mesh) { object.castShadow = true; object.receiveShadow = false; } });
+    if (skinWeapon) attachWeapon(character, skinWeapon);
     world.add(character);
+  };
+  /** A fresh character: nothing of the old hold or lobby pose stays on it. */
+  const rebuildCharacter = () => { const index = selected; selected = -1; if (index >= 0) select(index); };
+  const previewSkin = (ref: string | null) => {
+    if (disposed || ref === skinRef) return;
+    skinRef = ref;
+    const request = ++skinRequest;
+    if (!ref) { skinWeapon = null; rebuildCharacter(); return; }
+    void nftTraits(ref).then(traits => {
+      if (disposed || request !== skinRequest || !traits) return;
+      skinWeapon = createWeapon(traits.weapon, { skin: traits });
+      skinWeapon.traverse(object => { if (object instanceof Mesh) object.castShadow = true; });
+      skinPose.weapon = traits.weapon as PoseState['weapon'];
+      rebuildCharacter();
+    }).catch(e => console.warn('NFT preview failed', e));
   };
   const resize = () => {
     if (disposed) return;
@@ -123,7 +146,7 @@ export function createMenuScene(options: MenuSceneOptions): MenuScene {
     const realDelta = previous ? Math.max(0, (time - previous) * MENU.timeScale) : 0;
     const dt = Math.min(realDelta, MENU.maxDelta);
     previous = time; elapsed += dt;
-    if (character) { character.rotation.y = MENU.initialYaw + Math.sin(elapsed * MENU.turntableSpeed) * MENU.idleYawRange; updateAnimation(character, dt); }
+    if (character) { character.rotation.y = (skinWeapon ? MENU.skinPreviewYaw : MENU.initialYaw) + Math.sin(elapsed * MENU.turntableSpeed) * MENU.idleYawRange; if (skinWeapon) { poseCharacter(character, skinPose, dt); poseWeapon(skinWeapon, skinIdle, dt); } else updateAnimation(character, dt); }
     worldCamera.position.x = MENU.world.position[0] + Math.sin(elapsed * MENU.world.driftSpeed) * MENU.world.driftX;
     worldCamera.position.y = MENU.world.position[1] + Math.sin(elapsed * MENU.world.driftSpeed) * MENU.world.driftY;
     worldCamera.position.z = MENU.world.position[2] + Math.cos(elapsed * MENU.world.driftSpeed) * MENU.world.driftZ;
@@ -201,7 +224,7 @@ export function createMenuScene(options: MenuSceneOptions): MenuScene {
   options.host.dataset.portraits = String(portraits.size);
   select(options.selected); resize(); options.onStatus(''); options.host.dataset.scene = 'ready';
   renderer.setAnimationLoop(frame);
-  return { select, dispose };
+  return { select, previewSkin, dispose };
 }
 
 function addLights(scene: Scene, shadows: boolean): DirectionalLight {
