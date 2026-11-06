@@ -43,7 +43,7 @@ check(await uint('supportsInterface(bytes4)', [{ type: 'uint256', value: BigInt(
 const earner = addr(0xabc).toLowerCase();
 const ref = nftRef(1, 30, earner), id30 = nftTokenId(1, 30, earner);
 const word = nftSkinWord(1, 30, nftReward(30), nftSeed(ref));
-check(word >> 64n === 1n && ((word >> 48n) & 0xffffn) === 30n && ((word >> 40n) & 0xffn) === 5n && ((word >> 32n) & 0xffn) === 2n && (word & 0xffffffffn) === BigInt(nftSeed(ref)), 'skin word: season 1, level 30, mythic, rifle, seed');
+check(word >> 64n === 1n && ((word >> 48n) & 0xffffn) === 30n && ((word >> 40n) & 0xffn) === 4n && ((word >> 32n) & 0xffn) === 2n && (word & 0xffffffffn) === BigInt(nftSeed(ref)), 'skin word: season 1, level 30, mythic, rifle, seed');
 check(nftTokenId(1, 30, earner) !== nftTokenId(1, 25, earner) && nftTokenId(1, 30, earner) !== nftTokenId(2, 30, earner) && nftTokenId(1, 30, earner) !== nftTokenId(1, 30, addr(0xabd)), 'token ids differ by level, season and earner');
 
 const stranger = await mint(STRANGER, [P1], [1n]);

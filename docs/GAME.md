@@ -193,8 +193,8 @@ playable for everyone (owner). Numbers in `config/market.ts` (`MARKET`).
   else the latest sale, else the tier's base price (`marketPrices`, `suggestedPrice`). All read from the public tables.
 - Character names shown to players: `config/characterNames.ts` by character id (owner 2026-11-06). Ids stay the keys in
   the tables, so renaming changes nothing for owners.
-- Rarity (`MARKET.rarity`, `itemRarity`, owner 2026-11-06): a coloured label only, no gameplay effect. Tiers common to
-  legendary for catalog items, mythic kept for season NFTs. Fixed for season rewards and starter emotes, otherwise stable
+- Rarity (`MARKET.rarity`, `itemRarity`, owner 2026-11-06): a coloured label only, no gameplay effect. Five tiers, no
+  uncommon (owner); common NFTs use the generator's uncommon art (`NFT.skinArt`). Tiers common to legendary for catalog items, mythic kept for season NFTs. Fixed for season rewards and starter emotes, otherwise stable
   from the item id. New players' starter set has nothing above `starterMax`; items they already own stay.
 - "Item sold" notice in the lobby (`ui/saleNotice.ts`): count and coins after the fee. Sales during a match or while
   away wait for the lobby; the last one seen is kept per account in the browser, so a new browser starts from now.
@@ -274,7 +274,7 @@ reward items only add to the tradable collection. Season-only NFTs: later (owner
 ### 6.11 Season skin NFTs — DECIDED (owner 2026-11-06)
 Testnet only (Robinhood Chain testnet). Numbers in `config/nft.ts`, rules in `gameplay/nft.ts`. Skins only change the
 look. Players never sign a transaction and never pay; only the owner signs, in MetaMask, on the admin site.
-- Season levels 5 / 10 / 15 / 20 / 25 / 30 also give a fixed NFT: common pistol, uncommon shotgun, rare rifle, epic sniper,
+- Season levels 5 / 10 / 15 / 20 / 25 / 30 also give a fixed NFT: common pistol, common shotgun, rare rifle, epic sniper,
   legendary knife, mythic rifle. No random boxes: rarity and weapon are known in advance, and the look comes from the seed
   `nftSeed(ref)`, so it is fixed by the wallet and the level.
 - The NFT starts in the game. `claimSeasonRewards` adds an `owned_item` row with `ref = nft:<season>:<level>:<earner>` and a

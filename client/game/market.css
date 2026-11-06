@@ -10,7 +10,6 @@
 .market-tools select { flex: 1 1 0; min-width: 0; }
 .market-search { flex: 1 0 100%; border: 2px solid var(--menu-ink); border-radius: 7px; padding: 6px 8px; background: #fff; color: var(--menu-ink); font-weight: 800; font-size: 12px; }
 [data-rarity="common"] { --rarity: #6f747c; }
-[data-rarity="uncommon"] { --rarity: #2f8a3e; }
 [data-rarity="rare"] { --rarity: #2470cc; }
 [data-rarity="epic"] { --rarity: #8a3fd1; }
 [data-rarity="legendary"] { --rarity: #c96a08; }

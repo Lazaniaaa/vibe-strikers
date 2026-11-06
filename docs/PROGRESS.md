@@ -666,6 +666,9 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
 - 2026-11-07 ON CHAIN (owner, MetaMask): SeasonSkins **0x23e30403814d584a3a2b462b6cf3622d246cd589**. Read-only check: chain 46630, code equals our build, owner is the
   owner wallet, supply 0, simulated mint (eth_call) works for the owner and is refused for a stranger. "To wallet" is open in the game.
   NOT checked: a real mint transaction. Do not mint for real players before the look from Codex is final.
+- 2026-11-06 owner: no uncommon tier. Five tiers; items that were uncommon are common now, level 10 NFT is a common shotgun, common
+  NFTs use the generator's uncommon art (`NFT.skinArt`). Codex's fixed rarity art is delivered, not yet copied into the repo (still in its
+  own copy, 2026-11-06/vibe-strikers-nft-skins). Owner: after this only test the contract before the deadline.
 - 2026-10-31 owner: ADS proposal approved
 - 2026-10-31 owner: ADS proposal approved (weapon switch, reload start and death cancel aiming).
 - 2026-10-31 owner: ADS = right mouse TOGGLE by default, setting "ADS mode: toggle / hold" (GAME.md 5, 10; M3).

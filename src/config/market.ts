@@ -1,5 +1,5 @@
 // In-game marketplace (GAME.md 6.7, owner 2026-11-05): coins only, no real money. Gameplay economy numbers.
-export type RarityId = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary' | 'mythic';
+export type RarityId = 'common' | 'rare' | 'epic' | 'legendary' | 'mythic';
 
 export const MARKET = {
   /** Coins in a new wallet. */
@@ -31,8 +31,8 @@ export const MARKET = {
    * the weights moves items between tiers. `mythic` is kept for season NFTs (GAME.md 6.7).
    */
   rarity: {
-    tiers: ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic'] as readonly RarityId[],
-    weights: { common: 55, uncommon: 28, rare: 12, epic: 5 },
+    tiers: ['common', 'rare', 'epic', 'legendary', 'mythic'] as readonly RarityId[],
+    weights: { common: 83, rare: 12, epic: 5 },
     items: {
       'emote:wave': 'common',
       'emote:shrug': 'common',
@@ -44,8 +44,8 @@ export const MARKET = {
       'character:vibe-vibers-viber-extra-20': 'legendary',
     } as Readonly<Record<string, RarityId>>,
     /** New players' starter set contains nothing above this tier. */
-    starterMax: 'uncommon' as RarityId,
+    starterMax: 'common' as RarityId,
     /** Price suggested when an item has no listing and no sale yet (coins). */
-    basePrice: { common: 50, uncommon: 100, rare: 200, epic: 400, legendary: 800, mythic: 2000 } as Readonly<Record<RarityId, number>>,
+    basePrice: { common: 50, rare: 200, epic: 400, legendary: 800, mythic: 2000 } as Readonly<Record<RarityId, number>>,
   },
 } as const;

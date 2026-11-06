@@ -479,7 +479,7 @@ test('market: rarity is stable, starter sets stay low, prices and sale notice re
   const refs = Array.from({ length: 400 }, (_, i) => `character:test-${i}`);
   const counts = new Map<string, number>();
   for (const ref of refs) counts.set(itemRarity(ref), (counts.get(itemRarity(ref)) ?? 0) + 1);
-  for (const tier of ['common', 'uncommon', 'rare', 'epic'] as const) assert.ok((counts.get(tier) ?? 0) > 0, tier);
+  for (const tier of ['common', 'rare', 'epic'] as const) assert.ok((counts.get(tier) ?? 0) > 0, tier);
   assert.equal(counts.get('legendary'), undefined, 'legendary only from a fixed list');
   assert.ok(counts.get('common')! > counts.get('rare')!);
   const catalog: CatalogItem[] = [...refs.map((ref, index) => ({ ref, kind: 'character' as const, index, name: ref })),
@@ -530,7 +530,8 @@ test('season NFTs: rewards, ids and words', () => {
   const earner = `0x${'ab'.repeat(20)}`;
   const levels = Object.keys(NFT.rewards).map(Number);
   assert.deepEqual(levels, [5, 10, 15, 20, 25, 30]);
-  assert.deepEqual(levels.map((l) => NFT.rewards[l].rarity), MARKET.rarity.tiers);
+  assert.deepEqual(levels.map((l) => NFT.rewards[l].rarity), ['common', 'common', 'rare', 'epic', 'legendary', 'mythic']);
+  for (const tier of MARKET.rarity.tiers) assert.ok(NFT.skinArt[tier], tier);
   for (const l of levels) {
     assert.ok(NFT.weaponCodes.includes(NFT.rewards[l].weapon), NFT.rewards[l].weapon);
     assert.ok(l <= SEASON.levels);

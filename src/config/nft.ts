@@ -14,12 +14,14 @@ export const NFT = {
   /** Season level => reward. Fixed and visible in advance: no random boxes. */
   rewards: {
     5: { weapon: 'pistol', rarity: 'common' },
-    10: { weapon: 'shotgun', rarity: 'uncommon' },
+    10: { weapon: 'shotgun', rarity: 'common' },
     15: { weapon: 'rifle', rarity: 'rare' },
     20: { weapon: 'sniper', rarity: 'epic' },
     25: { weapon: 'knife', rarity: 'legendary' },
     30: { weapon: 'rifle', rarity: 'mythic' },
   } as Readonly<Record<number, NftReward>>,
+  /** Tier of Codex's skin generator that draws a game tier (owner 2026-11-06: no uncommon tier, common uses its art). */
+  skinArt: { common: 'uncommon', rare: 'rare', epic: 'epic', legendary: 'legendary', mythic: 'mythic' } as Readonly<Record<RarityId, string>>,
   /** Number of each weapon in the on-chain word. Add at the end only: minted tokens keep their numbers. */
   weaponCodes: ['knife', 'pistol', 'rifle', 'sniper', 'shotgun'] as readonly string[],
 } as const;
