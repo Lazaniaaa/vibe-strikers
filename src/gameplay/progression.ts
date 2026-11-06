@@ -1,5 +1,5 @@
 // Player level, season track and weekly missions (GAME.md 6.10). Pure math shared by the server module and the UI.
-import { DAY_MS, PROGRESSION, QUESTS, SEASON, type QuestKind } from '../config/season.ts';
+import { DAY_MS, DAY_STREAK, PROGRESSION, QUESTS, SEASON, type QuestKind } from '../config/season.ts';
 import { REWARDS } from '../config/rewards.ts';
 
 export interface LevelInfo { level: number; into: number; need: number }
@@ -51,6 +51,24 @@ export function seasonClaim(claimed: number, reached: number): { coins: number; 
     if (r.item) items.push(r.item);
   }
   return { coins, items };
+}
+
+export interface StreakState { lastDay: number; streak: number; best: number; skipDay: number }
+
+export function dayNumber(ms: number): number { return Math.floor(ms / DAY_MS); }
+
+/** Coins of a streak day (1 = the first day); the cycle repeats. */
+export function streakCoins(streak: number): number {
+  return DAY_STREAK.coins[(Math.max(1, streak) - 1) % DAY_STREAK.coins.length];
+}
+
+/** The streak after a first real match on `day`; null if this day already counted. */
+export function streakAfterPlay(prev: StreakState | null, day: number): StreakState | null {
+  if (prev && prev.lastDay >= day) return null;
+  const gap = prev ? day - prev.lastDay : 0;
+  const skip = gap === 2 && !!prev && day - prev.skipDay >= DAY_STREAK.skipEveryDays;
+  const streak = prev && (gap === 1 || skip) ? prev.streak + 1 : 1;
+  return { lastDay: day, streak, best: Math.max(streak, prev?.best ?? 0), skipDay: skip ? day - 1 : prev?.skipDay ?? 0 };
 }
 
 /** Row key part of the current period of a kind: `d20398`, `w2965`, `s1`. */

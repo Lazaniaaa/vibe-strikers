@@ -32,7 +32,7 @@ import { AUTH } from '../../src/config/auth.ts';
 import { loginError } from '../../src/gameplay/walletAuth.ts';
 import { weekOf } from '../../src/gameplay/rewards.ts';
 import { QUESTS, SEASON, type QuestKind } from '../../src/config/season.ts';
-import { matchXp, questScope, questsDone, questXp, seasonActive, seasonClaim, seasonLevel } from '../../src/gameplay/progression.ts';
+import { dayNumber, matchXp, questScope, questsDone, questXp, seasonActive, seasonClaim, seasonLevel, streakAfterPlay, streakCoins } from '../../src/gameplay/progression.ts';
 import { CATALOG, matchPays, matchReward, priceError, RateLimiter, saleFee, starterRefs, utcDay } from '../../src/gameplay/market.ts';
 
 const room = table({ name: 'room', public: true }, {
@@ -299,7 +299,16 @@ const questProgress = table({ name: 'quest_progress', public: true }, {
   done: t.u32(),
 });
 
-const spacetimedb = schema({ room, player, shotEvent, killEvent, item, pingEvent, tickTimer, session, wallet, ownedItem, listing, trade, economy, matchStat, matchClock, playerStat, weekStat, playerProgress, seasonProgress, missionProgress, questProgress });
+/** Days in a row with a real match per account (GAME.md 6.10). `skipDay` = the day last forgiven. */
+const dayStreak = table({ name: 'day_streak', public: true }, {
+  owner: t.string().primaryKey(),
+  lastDay: t.u32(),
+  streak: t.u32(),
+  best: t.u32(),
+  skipDay: t.u32(),
+});
+
+const spacetimedb = schema({ room, player, shotEvent, killEvent, item, pingEvent, tickTimer, session, wallet, ownedItem, listing, trade, economy, matchStat, matchClock, playerStat, weekStat, playerProgress, seasonProgress, missionProgress, questProgress, dayStreak });
 export default spacetimedb;
 
 /** Row-level security: a client only receives the ping rows addressed to it. */
@@ -746,6 +755,16 @@ function payProgress(ctx: Ctx, owner: string, won: boolean, kills: number, heads
   }
 }
 
+/** First real match of the day: the streak grows and pays its coins. */
+function payStreak(ctx: Ctx, owner: string): void {
+  const prev = ctx.db.dayStreak.owner.find(owner) ?? null;
+  const next = streakAfterPlay(prev, dayNumber(nowMs(ctx)));
+  if (!next) return;
+  if (prev) ctx.db.dayStreak.owner.update({ owner, ...next });
+  else ctx.db.dayStreak.insert({ owner, ...next });
+  payCoins(ctx, ensureWallet(ctx, owner), streakCoins(next.streak));
+}
+
 /** Match end: stats for every logged-in human (every online match counts); coins and XP only for a real match. */
 function payMatch(ctx: Ctx, r: RoomRow, winner: string): void {
   const day = utcDay(nowMs(ctx)), rows = playersIn(ctx, r.id);
@@ -764,6 +783,7 @@ function payMatch(ctx: Ctx, r: RoomRow, winner: string): void {
     const first = won && w.lastWinDay !== day;
     payCoins(ctx, w, matchReward(won, p.kills, headshots, first), first ? { lastWinDay: day } : {});
     payProgress(ctx, owner, won, p.kills, headshots, first);
+    payStreak(ctx, owner);
   }
 }
 

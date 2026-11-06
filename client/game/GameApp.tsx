@@ -15,6 +15,7 @@ import { RapierMotor } from '../../src/gameplay/rapierMotor';
 import { LOCAL_ID, Simulation } from '../../src/gameplay/simulation';
 import { spreadDeg } from '../../src/gameplay/weaponLogic';
 import { Hud, type HudView } from '../../src/ui/hud';
+import { KillStreak } from '../../src/gameplay/killStreak';
 import { Input } from './input';
 import { AvatarRig, DeathMarkers, ShotEffects, ViewmodelRig } from './visuals';
 import { CameraShake } from './cameraShake';
@@ -139,6 +140,7 @@ function GameDriver({ options }: { options: GameOptions }) {
     const input = new Input(gl.domElement);
     const hudRoot = document.getElementById('hud')!;
     const hud = new Hud(hudRoot);
+    hud.firstMatchHint();
     const unitBox = new BoxGeometry(1, 1, 1);
     const tracerMat = new MeshBasicMaterial({ color: '#fff1a8', transparent: true, opacity: 0.85, depthWrite: false });
     const impactMat = new MeshBasicMaterial({ color: '#3a3a3a' });
@@ -243,7 +245,7 @@ function GameDriver({ options }: { options: GameOptions }) {
   }, [game, scene, camera, gl, options.debug]);
 
   const scratch = useMemo(() => ({ from: new Vector3(), fwd: new Vector3(), right: new Vector3(), hudTimer: 0, fpsFrames: 0, fpsTimer: 0, punch: 0, shake: new CameraShake(),
-    audio: { prevReload: 0, pickups: 0, steps: new Map<number, number>() } }), []);
+    killStreak: new KillStreak(), audio: { prevReload: 0, pickups: 0, steps: new Map<number, number>() } }), []);
   const view = useMemo<HudView>(() => ({ hp: 100, alive: true, weapon: '', mag: 0, reserve: 0, reloading: false, phase: 'freeze',
     timeLeft: 0, round: 1, scoreA: 0, scoreB: 0, aliveA: 0, aliveB: 0, center: '', sub: '', feed: [], roomInfo: `Offline practice · ${options.mode === 'cornucopia' ? `Cornucopia${options.teams === false ? ' (free-for-all)' : ''}` : 'Elimination'}${options.mutator ? ` · Mutator: ${mutatorLabel(options.mutator)}` : ''} · bots ${options.difficulty ?? DEFAULT_DIFFICULTY}`, fps: 0, perf: '', locked: false }), []);
 
@@ -291,6 +293,12 @@ function GameDriver({ options }: { options: GameOptions }) {
           stats.localHits++; stats.localDamage += shot.damage;
           hud.hitMarker(shot.part === 'head', shot.killed, EFFECTS.hitMarkerTime);
           sfx.play(shot.killed ? 'kill' : shot.part === 'head' ? 'headshot' : 'hit');
+          if (shot.killed) {
+            let enemies = 0;
+            for (const a of sim.actors) if (a.team !== local.team) enemies++;
+            const banner = scratch.killStreak.kill(performance.now(), sim.round.round, enemies);
+            if (banner) { hud.streakBanner(banner); sfx.play('streak'); }
+          }
         }
       } else {
         const rig = rigs.get(shot.shooterId);

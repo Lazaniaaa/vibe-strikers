@@ -10,6 +10,15 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
+export const DayStreak = __t.object("DayStreak", {
+  owner: __t.string(),
+  lastDay: __t.u32(),
+  streak: __t.u32(),
+  best: __t.u32(),
+  skipDay: __t.u32(),
+});
+export type DayStreak = __Infer<typeof DayStreak>;
+
 export const Economy = __t.object("Economy", {
   id: __t.u32(),
   minted: __t.u64(),

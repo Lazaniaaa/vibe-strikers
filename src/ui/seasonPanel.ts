@@ -100,11 +100,12 @@ export class SeasonPanel {
     const cells = Array.from({ length: SEASON.levels }, (_, i) => this.rewardCell(i + 1, reached, claimed)).join('');
     const when = now < SEASON.startMs ? 'STARTS SOON' : active ? `${timeLeft(SEASON.endMs - now).toUpperCase()} LEFT` : 'ENDED';
     const x = PROGRESSION.xp;
+    const streak = me ? m?.streaks.get(me) : undefined;
     const action = !m ? '<p class="market-empty">Connecting…</p>'
       : !me ? '<button class="season-claim" data-login>Log in with wallet to earn XP</button>'
       : `<button class="season-claim" data-claim ${toClaim && !this.busy ? '' : 'disabled'}>${this.busy ? 'Claiming…' : toClaim ? `Claim ${toClaim} reward${toClaim > 1 ? 's' : ''}` : 'Nothing to claim yet'}</button>`;
     this.root.innerHTML = `
-      <header><div><span class="menu-eyebrow">${when}</span><h2>${esc(SEASON.name)}</h2></div>
+      <header><div><span class="menu-eyebrow">${when}${streak ? ` · 🔥 ${streak.streak} DAY STREAK (BEST ${streak.best})` : ''}</span><h2>${esc(SEASON.name)}</h2></div>
         <div class="market-coins" title="Your player level">${me ? `Lv ${player.level}` : 'Guest'}</div></header>
       <div class="season-progress"><div class="season-progress-text"><strong>Level ${reached} / ${SEASON.levels}</strong>
         <small>${reached >= SEASON.levels ? 'Track complete' : `${into} / ${SEASON.xpPerLevel} XP`}</small></div>

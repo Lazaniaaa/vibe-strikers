@@ -163,17 +163,20 @@ try {
     const seconds = (Date.now() - started) / 1000;
     await sleep(500);
     const won = h.room?.matchWinner !== '' && h.room?.matchWinner === h.me?.team;
-    const expected = seconds >= MARKET.reward.minMatchSeconds ? matchReward(won, kills, 0, won && h.market.wallet.lastWinDay !== '') : 0;
+    const { DAY_STREAK } = await vite.ssrLoadModule('/src/config/season.ts');
+    const dayOne = seconds >= MARKET.reward.minMatchSeconds ? DAY_STREAK.coins[0] : 0;
+    const expected = seconds >= MARKET.reward.minMatchSeconds ? matchReward(won, kills, 0, won && h.market.wallet.lastWinDay !== '') + dayOne : 0;
     check(!!ended, `slow: match ended after ${seconds.toFixed(0)} s (${h.players.size} players)`);
     const hs = h.market.stats.get(h.market.account);
     check(!!hs && hs.matches === 1 && hs.kills === kills, `slow: stats ${hs?.matches} match, ${hs?.kills} kills, ${hs?.deaths} deaths`);
-    check(h.market.wallet.coins - coins0 === expected || (won && h.market.wallet.coins - coins0 === matchReward(won, kills, 0, false)),
+    check(h.market.wallet.coins - coins0 === expected || (won && h.market.wallet.coins - coins0 === matchReward(won, kills, 0, false) + dayOne),
       `slow: paid ${h.market.wallet.coins - coins0} coins for a ${won ? 'win' : 'loss'} with ${kills} kills (expected ${expected})`);
     if (seconds >= MARKET.reward.minMatchSeconds) {
       const { matchXp } = await vite.ssrLoadModule('/src/gameplay/progression.ts');
       const earned = (h.market.progress.get(h.market.account)?.xp ?? 0) - xp0;
       check(earned >= matchXp(won, kills, 0, false), `slow: ${earned} XP for the match`);
       check(h.market.seasonProgress.get(h.market.account)?.xp === earned, 'slow: the season track got the same XP');
+      check(h.market.streaks.get(h.market.account)?.streak === 1, 'slow: day streak 1');
       for (const kind of ['day', 'week', 'season']) {
         const q = h.market.myQuests(kind);
         check(q?.matches === 1 && q?.kills === kills, `slow: ${kind} missions count 1 match, ${kills} kills`);

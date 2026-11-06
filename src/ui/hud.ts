@@ -1,6 +1,10 @@
+import { FIRST_MATCH_HINT, KILL_STREAK } from '../config/feedback.ts';
 import { TEAM_COLORS } from '../config/game.ts';
 // Plain-DOM HUD. The game loop writes into it directly (no React state in the frame loop).
 // Text updates are throttled by the caller; only changed values touch the DOM.
+
+const CONTROLS_TEXT =
+  'WASD move · Mouse aim · LMB fire · R reload · 1 primary · 2 pistol · 3 knife · 7/8/9 rifle/shotgun/sniper · RMB aim · E pick up · V second person · Z / middle mouse ping · Tab scores · Space jump · C / Ctrl crouch · Shift walk · Esc release mouse';
 
 export interface KillFeedEntry { killer: string; killerAlly: boolean; victim: string; victimAlly: boolean; weapon: string; headshot: boolean }
 
@@ -44,6 +48,7 @@ function el(tag: string, cls: string, parent: HTMLElement, text = ''): HTMLEleme
 export class Hud {
   private root: HTMLElement;
   private hp: HTMLElement; private ammo: HTMLElement; private weapon: HTMLElement;
+  private streak: HTMLElement;
   private timer: HTMLElement; private score: HTMLElement; private center: HTMLElement; private sub: HTMLElement;
   private feed: HTMLElement; private perf: HTMLElement; private crosshair: HTMLElement; private hit: HTMLElement;
   private damage: HTMLElement;
@@ -83,9 +88,28 @@ export class Hud {
     this.ammo = el('div', 'hud-ammo', right);
     this.perf = el('div', 'hud-perf', root);
     this.overlay = el('div', 'hud-overlay', root);
+    this.streak = el('div', 'hud-streak', root);
+    this.streak.style.setProperty('--streak-time', `${KILL_STREAK.bannerSeconds}s`);
     el('div', 'hud-overlay-title', this.overlay, 'Click to continue');
-    el('div', 'hud-overlay-keys', this.overlay,
-      'WASD move · Mouse aim · LMB fire · R reload · 1 primary · 2 pistol · 3 knife · 7/8/9 rifle/shotgun/sniper · RMB aim · E pick up · V second person · Z / middle mouse ping · Tab scores · Space jump · C / Ctrl crouch · Shift walk · Esc release mouse');
+    el('div', 'hud-overlay-keys', this.overlay, CONTROLS_TEXT);
+  }
+
+  /** Kill streak banner: restarts its CSS animation; called from kill events, not every frame. */
+  streakBanner(text: string): void {
+    this.streak.textContent = text;
+    this.streak.classList.remove('show');
+    void this.streak.offsetWidth;
+    this.streak.classList.add('show');
+  }
+
+  /** The controls for a few seconds in the player's first match; once per browser. */
+  firstMatchHint(): void {
+    try {
+      if (localStorage.getItem(FIRST_MATCH_HINT.storageKey)) return;
+      localStorage.setItem(FIRST_MATCH_HINT.storageKey, '1');
+    } catch { return; }
+    const hint = el('div', 'hud-first-hint', this.root, CONTROLS_TEXT);
+    window.setTimeout(() => hint.remove(), FIRST_MATCH_HINT.ms);
   }
 
   private set(e: HTMLElement, text: string): void {

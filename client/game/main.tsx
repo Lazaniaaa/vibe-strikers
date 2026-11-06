@@ -4,7 +4,8 @@ import type { GameNet } from '../../src/network/client';
 import type { GameMode } from '../../src/gameplay/mode';
 import { Menu, type MenuChoice } from '../../src/ui/menu';
 import { getSettingsPanel, settingsButton } from '../../src/ui/settingsPanel';
-import { levelOf } from '../../src/gameplay/progression';
+import { dayNumber, levelOf, seasonLevel, streakCoins } from '../../src/gameplay/progression';
+import { SEASON } from '../../src/config/season';
 import { getSfx } from '../../src/ui/sfx';
 import type { GameOptions } from './GameApp';
 import { Loading } from './loading';
@@ -144,10 +145,24 @@ function ensureNet(): Promise<GameNet> {
 
 // Wallet login (GAME.md 6.8): sign a text in the browser wallet; testnet only, no transactions.
 let loginBusy = false;
+/** The nearest goal on the player card: a reward to claim, today's streak, or the XP to the next reward. */
+function accountHint(n: GameNet, account: string): { hint: string; rewardsReady: number } {
+  const season = n.market.seasonProgress.get(account), xp = season?.xp ?? 0, reached = seasonLevel(xp);
+  const rewardsReady = Math.max(0, reached - (season?.claimedLevel ?? 0));
+  if (rewardsReady > 0) return { hint: `${rewardsReady} reward${rewardsReady > 1 ? 's' : ''} ready: open SEASON`, rewardsReady };
+  const streak = n.market.streaks.get(account), today = dayNumber(Date.now());
+  const played = streak?.lastDay === today, alive = !!streak && today - streak.lastDay <= 1;
+  const parts: string[] = [];
+  if (alive && played) parts.push(`🔥 ${streak.streak} day${streak.streak > 1 ? 's' : ''}`);
+  else parts.push(`🔥 Play today: +${streakCoins(alive ? streak.streak + 1 : 1)} coins`);
+  if (reached < SEASON.levels) parts.push(`${SEASON.xpPerLevel - xp % SEASON.xpPerLevel} XP to next reward`);
+  return { hint: parts.join(' · '), rewardsReady };
+}
+
 function showAccount(n: GameNet | null): void {
   const account = n?.market.account ?? '';
   menu.setAccount({ online: !!n, address: account, coins: n?.market.wallet?.coins ?? null, busy: loginBusy,
-    level: levelOf(n?.market.progress.get(account)?.xp ?? 0).level });
+    level: levelOf(n?.market.progress.get(account)?.xp ?? 0).level, ...(n && account ? accountHint(n, account) : {}) });
 }
 async function walletLogin(): Promise<void> {
   if (loginBusy) return;

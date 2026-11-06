@@ -23,6 +23,7 @@ import type WeekStatDef from './bindings/week_stat_table.ts';
 import type PlayerProgressDef from './bindings/player_progress_table.ts';
 import type SeasonProgressDef from './bindings/season_progress_table.ts';
 import type QuestProgressDef from './bindings/quest_progress_table.ts';
+import type DayStreakDef from './bindings/day_streak_table.ts';
 import { weekOf } from '../gameplay/rewards.ts';
 import { SEASON, type QuestKind } from '../config/season.ts';
 import { questScope } from '../gameplay/progression.ts';
@@ -44,6 +45,7 @@ export type WeekStatRow = Infer<typeof WeekStatDef>;
 export type PlayerProgressRow = Infer<typeof PlayerProgressDef>;
 export type SeasonProgressRow = Infer<typeof SeasonProgressDef>;
 export type QuestProgressRow = Infer<typeof QuestProgressDef>;
+export type DayStreakRow = Infer<typeof DayStreakDef>;
 
 /** Marketplace rows (GAME.md 6.7, 6.8), kept current after GameNet.subscribeMarket. No artificial lag. */
 export class MarketView {
@@ -64,6 +66,8 @@ export class MarketView {
   readonly progress = new Map<string, PlayerProgressRow>();
   /** This season's track by account. */
   readonly seasonProgress = new Map<string, SeasonProgressRow>();
+  /** Day streaks by account. */
+  readonly streaks = new Map<string, DayStreakRow>();
   /** Current periods of the missions and their rows by id (`${scope}:${owner}`). */
   questScopes: Record<QuestKind, string> = { day: '', week: '', season: '' };
   readonly quests = new Map<string, QuestProgressRow>();
@@ -300,6 +304,9 @@ export class GameNet {
     c.db.seasonProgress.onInsert((_ctx, row) => { m.seasonProgress.set(row.owner, row); changed(); });
     c.db.seasonProgress.onUpdate((_ctx, _old, row) => { m.seasonProgress.set(row.owner, row); changed(); });
     c.db.seasonProgress.onDelete((_ctx, row) => { m.seasonProgress.delete(row.owner); changed(); });
+    c.db.dayStreak.onInsert((_ctx, row) => { m.streaks.set(row.owner, row); changed(); });
+    c.db.dayStreak.onUpdate((_ctx, _old, row) => { m.streaks.set(row.owner, row); changed(); });
+    c.db.dayStreak.onDelete((_ctx, row) => { m.streaks.delete(row.owner); changed(); });
     c.db.questProgress.onInsert((_ctx, row) => { m.quests.set(row.id, row); changed(); });
     c.db.questProgress.onUpdate((_ctx, _old, row) => { m.quests.set(row.id, row); changed(); });
     c.db.questProgress.onDelete((_ctx, row) => { m.quests.delete(row.id); changed(); });
@@ -344,7 +351,7 @@ export class GameNet {
     const queries = ['SELECT * FROM session', 'SELECT * FROM wallet', 'SELECT * FROM listing', 'SELECT * FROM trade',
       'SELECT * FROM economy', 'SELECT * FROM player_stat'];
     this.market.week = weekOf(Date.now());
-    queries.push(`SELECT * FROM week_stat WHERE week = ${this.market.week}`, 'SELECT * FROM player_progress',
+    queries.push(`SELECT * FROM week_stat WHERE week = ${this.market.week}`, 'SELECT * FROM player_progress', 'SELECT * FROM day_streak',
       `SELECT * FROM season_progress WHERE season = ${SEASON.id}`);
     this.syncQuests();
     if (all) queries.push('SELECT * FROM owned_item');

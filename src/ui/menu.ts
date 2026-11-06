@@ -16,7 +16,7 @@ export type MenuChoice =
 export type MenuTab = 'play' | 'characters' | 'market' | 'leaders' | 'season';
 
 /** Login state shown on the player card (GAME.md 6.8). */
-export interface MenuAccount { online: boolean; address: string; coins: number | null; busy?: boolean; level?: number }
+export interface MenuAccount { online: boolean; address: string; coins: number | null; busy?: boolean; level?: number; hint?: string; rewardsReady?: number }
 
 export class Menu {
   readonly root: HTMLElement;
@@ -201,12 +201,21 @@ export class Menu {
     this.previewCharacter(this.character);
     this.onTab?.(tab);
   }
+  /** Number on the SEASON tab while rewards wait to be claimed. */
+  private setSeasonBadge(count: number): void {
+    const tab = this.root.querySelector<HTMLElement>('[data-tab=season]')!;
+    let badge = tab.querySelector<HTMLElement>('.menu-tab-badge');
+    if (count <= 0) { badge?.remove(); return; }
+    if (!badge) { badge = document.createElement('b'); badge.className = 'menu-tab-badge'; tab.append(badge); }
+    badge.textContent = String(count);
+  }
   /** Wallet login state on the player card: a login button for a guest, address + coins when logged in. */
   setAccount(a: MenuAccount): void {
     const el = this.root.querySelector<HTMLElement>('.menu-account')!;
     el.hidden = !a.online;
     if (!a.online) return;
-    const key = `${a.address}|${a.coins}|${a.busy}|${a.level}`;
+    this.setSeasonBadge(a.address ? a.rewardsReady ?? 0 : 0);
+    const key = `${a.address}|${a.coins}|${a.busy}|${a.level}|${a.hint}`;
     if (el.dataset.key === key) return;
     el.dataset.key = key;
     if (!a.address) {
@@ -214,7 +223,7 @@ export class Menu {
       el.querySelector('button')!.addEventListener('click', (e) => { e.stopPropagation(); this.onLogin?.(); });
     } else {
       const short = a.address.length > 12 ? `${a.address.slice(0, 6)}…${a.address.slice(-4)}` : a.address;
-      el.innerHTML = `<span class="menu-level" title="Your player level">Lv ${a.level ?? 1}</span><span class="menu-coins" title="Your coins">◉ ${a.coins ?? '…'}</span><span class="menu-address" title="${a.address}">${short}</span><button class="menu-logout" title="Log out">Log out</button>`;
+      el.innerHTML = `<span class="menu-level" title="Your player level">Lv ${a.level ?? 1}</span><span class="menu-coins" title="Your coins">◉ ${a.coins ?? '…'}</span><span class="menu-address" title="${a.address}">${short}</span><button class="menu-logout" title="Log out">Log out</button>${a.hint ? `<small class="menu-next">${a.hint}</small>` : ''}`;
       el.querySelector('button')!.addEventListener('click', (e) => { e.stopPropagation(); this.onLogout?.(); });
     }
   }

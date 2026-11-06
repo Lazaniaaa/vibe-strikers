@@ -36,6 +36,7 @@ export const SOUNDS = {
   step: { ...d, wave: 'noise', freq: 120, freqEnd: 60, sustain: 0.015, release: 0.06, noise: 1, lowpass: 700, volume: 0.25, pitchJitter: 0.15 },
   ui: { ...d, wave: 'sine', freq: 660, freqEnd: 880, sustain: 0.02, release: 0.05, volume: 0.25, pitchJitter: 0 },
   ping: { ...d, wave: 'sine', freq: 1046, freqEnd: 1568, sustain: 0.05, release: 0.18, volume: 0.35, pitchJitter: 0 },
+  streak: { ...d, wave: 'triangle', freq: 660, freqEnd: 1320, sustain: 0.08, release: 0.14, volume: 0.3, pitchJitter: 0 },
   // Fallbacks only: these two always use their code-made recipe (PICKED_SOUNDS).
   hover: { ...d, wave: 'sine', freq: 1800, freqEnd: 2100, sustain: 0.005, release: 0.02, volume: 0.15, pitchJitter: 0 },
   loot: { ...d, wave: 'sine', freq: 1046, freqEnd: 1568, sustain: 0.04, release: 0.15, volume: 0.35, pitchJitter: 0 },

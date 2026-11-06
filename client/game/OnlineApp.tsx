@@ -45,6 +45,7 @@ import { AUDIO, type SoundName } from '../../src/config/audio';
 import { onSettingsChange, settings } from '../../src/ui/settings';
 import { getSettingsPanel, settingsButton } from '../../src/ui/settingsPanel';
 import { MatchSummary } from '../../src/ui/matchSummary';
+import { KillStreak } from '../../src/gameplay/killStreak';
 import { useWorldRenderer } from './postfx';
 
 const map = loadMapData(MAP_ID);
@@ -99,7 +100,13 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
     const hudRoot = document.getElementById('hud')!;
     const hud = new Hud(hudRoot);
     const scoreboard = new Scoreboard(hudRoot);
-    const summary = new MatchSummary(hudRoot, net.market);
+    const summary = new MatchSummary(hudRoot, net.market, () => {
+      let best: { name: string; kills: number; id: bigint } | null = null;
+      for (const p of net.players.values()) if (!best || p.kills > best.kills) best = p;
+      return best && best.kills > 0 ? { name: best.id === net.me?.id ? 'You' : best.name, kills: best.kills } : null;
+    });
+    const killStreak = new KillStreak();
+    hud.firstMatchHint();
     hud.addLeaveButton(onLeave);
     settingsButton(hud.overlay, getSettingsPanel(), 'hud-settings-btn');
     const unitBox = new BoxGeometry(1, 1, 1);
@@ -190,7 +197,15 @@ function OnlineDriver({ net, debug, onLeave, onReady }: { net: GameNet; debug: b
       stats.pings++;
     };
     net.onKill = (k: KillEvent) => {
-      if (net.me && k.killerId === net.me.id) stats.kills++;
+      if (net.me && k.killerId === net.me.id) {
+        stats.kills++;
+        if (k.victimId !== net.me.id) {
+          let enemies = 0;
+          for (const p of net.players.values()) if (p.team !== net.me.team) enemies++;
+          const banner = killStreak.kill(performance.now(), net.room?.round ?? 0, enemies);
+          if (banner) { hud.streakBanner(banner); sfx.play('streak'); }
+        }
+      }
       if (net.me && k.victimId === net.me.id) stats.deaths++;
       feed.push(`${name(k.killerId)} [${k.weapon}${k.headshot ? ' HS' : ''}] ${name(k.victimId)}`);
       if (net.me && k.victimId === net.me.id) {

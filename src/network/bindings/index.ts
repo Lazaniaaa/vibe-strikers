@@ -56,6 +56,7 @@ import SwitchWeaponReducer from "./switch_weapon_reducer";
 // Import all procedure arg schemas
 
 // Import all table schema definitions
+import DayStreakRow from "./day_streak_table";
 import EconomyRow from "./economy_table";
 import ItemRow from "./item_table";
 import KillEventRow from "./kill_event_table";
@@ -79,6 +80,17 @@ import WeekStatRow from "./week_stat_table";
 
 /** The schema information for all tables in this module. This is defined the same was as the tables would have been defined in the server. */
 const tablesSchema = __schema({
+  dayStreak: __table({
+    name: 'day_streak',
+    indexes: [
+      { accessor: 'owner', name: 'day_streak_owner_idx_btree', algorithm: 'btree', columns: [
+        'owner',
+      ] },
+    ],
+    constraints: [
+      { name: 'day_streak_owner_key', constraint: 'unique', columns: ['owner'] },
+    ],
+  }, DayStreakRow),
   economy: __table({
     name: 'economy',
     indexes: [

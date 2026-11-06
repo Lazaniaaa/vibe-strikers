@@ -11,6 +11,13 @@ export const PROGRESSION = {
 
 export const DAY_MS = 24 * 60 * 60 * 1000;
 
+/** Day streak: a first real match of the day pays coins by streak day; the cycle repeats after the last one. */
+export const DAY_STREAK = {
+  coins: [20, 30, 40, 50, 60, 80, 150],
+  /** One missed day keeps the streak, at most once in this many days. */
+  skipEveryDays: 7,
+} as const;
+
 export type QuestKind = 'day' | 'week' | 'season';
 export type QuestField = 'matches' | 'wins' | 'kills' | 'headshots';
 /** One mission line: every next tier asks for more (`targets`) and pays more (the kind's `xp`). */

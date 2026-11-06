@@ -251,8 +251,14 @@ reward items only add to the tradable collection. Season-only NFTs: later (owner
 - Reducer `claimSeasonRewards` (login + market rate limit): pays levels after `claimedLevel` up to the level reached;
   coins are minted like other coins (economy invariant holds), items are new `owned_item` rows.
 - Lobby: tab SEASON (5; Settings moved to 6): level bar, one claim button, the track, the missions.
-- End of an online match: reward card (`ui/matchSummary.ts`) with XP, coins, STRIKE points, mission tiers done, level
-  ups and rewards ready; it compares the account's rows with the match start. Nothing is sent or changed by it.
+- End of an online match: reward card (`ui/matchSummary.ts`) with the MVP, XP, coins, STRIKE points, streak, mission tiers
+  done, level ups and rewards ready; it compares the account's rows with the match start. Nothing is sent or changed by it.
+- Day streak (`DAY_STREAK`, table `day_streak{owner pk, lastDay, streak, best, skipDay}`): the first real match of a day
+  pays 20 / 30 / 40 / 50 / 60 / 80 / 150 coins by streak day, then the cycle repeats. One missed day is forgiven at most
+  once in 7 days. No paid restore.
+- Lobby: the player card shows the nearest goal, and the SEASON tab has a badge while rewards wait.
+- In a match (`config/feedback.ts`): DOUBLE / TRIPLE / QUAD / MULTI KILL banners for kills within 4 s, ACE for the whole
+  enemy side alone in a round. The controls are shown for 12 s in the first match of a browser.
 
 ## 7. Bots — DECIDED
 Server-side fake players using the same intent path. Waypoint graph generated from

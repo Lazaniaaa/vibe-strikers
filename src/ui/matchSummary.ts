@@ -2,13 +2,15 @@
 // rows now and at the match start. Plain DOM, updated from the throttled HUD block; redraws only when market rows change.
 import { MARKET } from '../config/market.ts';
 import { QUESTS, SEASON, type QuestKind } from '../config/season.ts';
-import { levelOf, questsNewlyDone, seasonLevel } from '../gameplay/progression.ts';
+import { levelOf, questsNewlyDone, seasonLevel, streakCoins } from '../gameplay/progression.ts';
 import { weekPoints } from '../gameplay/rewards.ts';
 import type { MarketView } from '../network/client.ts';
 
 const KINDS = Object.keys(QUESTS) as QuestKind[];
 
-interface Snapshot { coins: number; xp: number; seasonXp: number; points: number; done: Record<QuestKind, number> }
+interface Snapshot { coins: number; xp: number; seasonXp: number; points: number; streak: number; streakDay: number; done: Record<QuestKind, number> }
+
+const esc = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 
 const barWidth = (xp: number) => (seasonLevel(xp) >= SEASON.levels ? 100 : ((xp % SEASON.xpPerLevel) / SEASON.xpPerLevel) * 100);
 
@@ -20,7 +22,7 @@ export class MatchSummary {
   private showing = false;
   private drawnVersion = -1;
 
-  constructor(parent: HTMLElement, private readonly market: MarketView) {
+  constructor(parent: HTMLElement, private readonly market: MarketView, private readonly mvp: () => { name: string; kills: number } | null) {
     this.root = document.createElement('div');
     this.root.className = 'hud-summary';
     this.root.hidden = true;
@@ -49,8 +51,10 @@ export class MatchSummary {
   dispose(): void { this.root.remove(); }
 
   private snapshot(): Snapshot {
-    const m = this.market, me = m.account, week = m.weekStats.get(me);
+    const m = this.market, me = m.account, week = m.weekStats.get(me), streak = m.streaks.get(me);
     return {
+      streak: streak?.streak ?? 0,
+      streakDay: streak?.lastDay ?? 0,
       coins: m.wallet?.coins ?? 0,
       xp: m.progress.get(me)?.xp ?? 0,
       seasonXp: m.seasonProgress.get(me)?.xp ?? 0,
@@ -69,8 +73,10 @@ export class MatchSummary {
 
   private draw(): void {
     const m = this.market, me = m.account;
+    const best = this.mvp();
+    const mvp = best ? `<p class="hud-summary-mvp">MVP: <em>${esc(best.name)}</em> · ${best.kills} kill${best.kills > 1 ? 's' : ''}</p>` : '';
     if (!me) {
-      this.body.innerHTML = '<p class="hud-summary-note">Log in with a wallet in the lobby to earn XP, coins and STRIKE.</p>';
+      this.body.innerHTML = `${mvp}<p class="hud-summary-note">Log in with a wallet in the lobby to earn XP, coins and STRIKE.</p>`;
       this.bar.parentElement!.hidden = true;
       return;
     }
@@ -82,9 +88,11 @@ export class MatchSummary {
     const seasonUp = reached > seasonLevel(base.seasonXp);
     const done = KINDS.flatMap((kind) => questsNewlyDone(kind, base.done[kind], now.done[kind]).map((q) => `<li>✓ ${QUESTS[kind].label}: ${q.label} <b>+${q.xp} XP</b></li>`));
     const into = reached >= SEASON.levels ? SEASON.xpPerLevel : now.seasonXp % SEASON.xpPerLevel;
-    this.body.innerHTML = `
+    const streakUp = now.streakDay > base.streakDay ? `<p class="hud-summary-line">🔥 Day ${now.streak} streak: ◉ ${streakCoins(now.streak)} included</p>` : '';
+    this.body.innerHTML = `${mvp}
       <div class="hud-summary-chips"><strong>+${xp} XP</strong><span>◉ +${coins}</span><span>+${points} STRIKE points</span></div>
       ${xp > 0 ? '' : `<p class="hud-summary-note">No XP or coins: the match must last at least ${MARKET.reward.minMatchSeconds} s.</p>`}
+      ${streakUp}
       ${done.length ? `<ul>${done.join('')}</ul>` : ''}
       <p class="hud-summary-line">${levelUp ? `<em>LEVEL UP!</em> ` : ''}Lv ${level} · ${seasonUp ? '<em>Season level up!</em> ' : ''}${SEASON.name}: level ${reached} / ${SEASON.levels} · ${into} / ${SEASON.xpPerLevel} XP</p>
       ${ready > 0 ? `<p class="hud-summary-line"><em>${ready} reward${ready > 1 ? 's' : ''} ready</em> in the SEASON tab</p>` : ''}`;

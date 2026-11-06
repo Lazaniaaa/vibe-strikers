@@ -23,10 +23,12 @@ import { loginError, personalHash, recoverSigner, signLogin } from './walletAuth
 import { loginMessage } from './walletMessage.ts';
 import { formatTokens, payoutPlan, toUnits, weekLabel, weekOf, weekPoints, weekStartMs } from './rewards.ts';
 import { REWARDS } from '../config/rewards.ts';
-import { DAY_MS, PROGRESSION, QUESTS, SEASON } from '../config/season.ts';
+import { DAY_MS, DAY_STREAK, PROGRESSION, QUESTS, SEASON } from '../config/season.ts';
+import { KILL_STREAK } from '../config/feedback.ts';
+import { KillStreak } from './killStreak.ts';
 import { AUDIO } from '../config/audio.ts';
 import { hearingGain } from './hearing.ts';
-import { levelCost, levelOf, matchXp, questEndMs, questLine, questScope, questsDone, questsNewlyDone, questXp, seasonActive, seasonClaim, seasonLevel, seasonReward } from './progression.ts';
+import { levelCost, levelOf, matchXp, questEndMs, questLine, questScope, questsDone, questsNewlyDone, questXp, seasonActive, seasonClaim, seasonLevel, seasonReward, streakAfterPlay, streakCoins } from './progression.ts';
 import { callData, decodeUint, encodeArgs, selector } from '../network/evm.ts';
 import { buildNavGrid, findPath, groundAt, nearestWalkable, nodeY, pruneUnreachable, upperAreas } from './navGrid.ts';
 
@@ -395,6 +397,41 @@ test('levels, season track, missions', () => {
   const part = seasonClaim(0, 12), rest = seasonClaim(12, SEASON.levels);
   assert.equal(part.coins + rest.coins, all.coins, 'claiming in parts gives the same total');
   assert.equal(part.items.length + rest.items.length, all.items.length);
+});
+
+test('day streak: grows, forgives one missed day a week, pays by day', () => {
+  const skip = DAY_STREAK.skipEveryDays;
+  const d1 = streakAfterPlay(null, 100)!;
+  assert.deepEqual(d1, { lastDay: 100, streak: 1, best: 1, skipDay: 0 });
+  assert.equal(streakAfterPlay(d1, 100), null, 'a day counts once');
+  const d2 = streakAfterPlay(d1, 101)!;
+  assert.equal(d2.streak, 2);
+  const skipped = streakAfterPlay(d2, 103)!;
+  assert.ok(skipped.streak === 3 && skipped.skipDay === 102, 'one missed day keeps the streak');
+  const again = streakAfterPlay(skipped, 105)!;
+  assert.equal(again.streak, 1, 'a second missed day within a week breaks it');
+  assert.equal(again.best, 3, 'the best stays');
+  const later = streakAfterPlay({ ...skipped, lastDay: 102 + skip, streak: 5 }, 102 + skip + 2)!;
+  assert.equal(later.streak, 6, 'forgiven again after a week');
+  assert.equal(streakAfterPlay(d2, 104)!.streak, 1, 'two missed days break it');
+  assert.equal(streakCoins(1), DAY_STREAK.coins[0]);
+  assert.equal(streakCoins(DAY_STREAK.coins.length), DAY_STREAK.coins[DAY_STREAK.coins.length - 1], 'the last day pays the most');
+  assert.equal(streakCoins(DAY_STREAK.coins.length + 1), DAY_STREAK.coins[0], 'the cycle repeats');
+});
+
+test('kill streak banners', () => {
+  const w = KILL_STREAK.windowMs, s = new KillStreak();
+  assert.equal(s.kill(0, 1, 4), '');
+  assert.equal(s.kill(w, 1, 4), KILL_STREAK.labels[2]);
+  assert.equal(s.kill(w * 2, 1, 4), KILL_STREAK.labels[3]);
+  assert.equal(s.kill(w * 2 + 1, 1, 4), KILL_STREAK.aceLabel, 'all enemies of the round');
+  assert.equal(s.kill(w * 9, 2, 4), '', 'a new round starts over');
+  assert.equal(s.kill(w * 11, 2, 4), '', 'too slow, no chain');
+  const solo = new KillStreak();
+  assert.equal(solo.kill(0, 1, 1), '', 'one enemy is not an ace');
+  const long = new KillStreak();
+  for (let i = 0; i < 9; i++) long.kill(i, 1, 99);
+  assert.equal(long.kill(10, 1, 99), KILL_STREAK.labels[KILL_STREAK.labels.length - 1], 'long chains keep the last banner');
 });
 
 test('missions: tiers ask for more and pay more, each pays once', () => {
