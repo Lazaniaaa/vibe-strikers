@@ -16,7 +16,8 @@
     "server:bindings": "spacetime generate --lang typescript --module-path server --out-dir src/network/bindings -y",
     "server:reset": "spacetime publish --server local -y --delete-data=always --module-path server voxel-arena",
     "contract:build": "node scripts/build-contract.mjs",
-    "contract:test": "node --experimental-strip-types --no-warnings scripts/test-contract.mjs"
+    "contract:test": "node --experimental-strip-types --no-warnings scripts/test-contract.mjs",
+    "admin:build": "vite build --config vite.admin.config.ts"
   },
   "dependencies": {
     "@noble/curves": "2.4.0",

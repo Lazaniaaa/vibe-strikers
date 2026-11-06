@@ -586,6 +586,10 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   first payout (owner, MetaMask, needs testnet ETH). Live: Maincloud `vibe-strikers` updated (new table, no data
   lost; points count from now), Pages redeployed from commit 1c176a8 (admin page not in the build). The
   workers.dev copy still has the previous build.
+  Owner asked for the admin page as its own site: `vite.admin.config.ts` + `npm run admin:build` -> Pages project
+  `vibe-strikers-admin`, https://vibe-strikers-admin.pages.dev (noindex; no secrets, every action is a MetaMask
+  transaction and the contract is owner-only). Checked online with a fake read-only wallet: testnet reads and the
+  Maincloud week load work, 0 console errors (`docs/evidence/rewards-admin-online.jpg`).
   Local SpacetimeDB: the new CLI login (Maincloud) could not update the local database made by the old identity, so
   the old data folder was moved to `%LOCALAPPDATA%\SpacetimeDB\data-old-2026-11-06` and the local server started
   fresh (test data only; delete the old folder when sure).

@@ -226,7 +226,7 @@ Testnet only. Token STRIKE (`REWARDS.token`, the owner's ERC-20 on Robinhood Cha
 - Contract `contracts/WeeklyDistributor.sol`: holds the pool (funded by the owner), owner-only
   `distribute(week, players[], amounts[])` in batches of `batchSize`; each (week, player) pays at most once, so
   re-sending a batch is safe; `withdraw`, `setOwner`. Players never call it and never sign a transaction.
-- Admin page `client/admin.html` (dev server only, not in the production build): connect MetaMask (switches to the
+- Admin page `client/admin.html` (own site https://vibe-strikers-admin.pages.dev via `npm run admin:build`; not in the game build): connect MetaMask (switches to the
   testnet), deploy, fund, load a week from the server's SQL endpoint, pay, withdraw. No private keys anywhere.
 - LEADERS tab: "This week" (default: points, wins, kills, matches, estimated STRIKE if the week ended now with
   `weekPoolTokens`) and "All time" (6.8).
