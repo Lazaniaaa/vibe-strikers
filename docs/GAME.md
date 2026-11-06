@@ -210,7 +210,7 @@ never calls a chain; a login is a free text signature. Numbers in `config/auth.t
   online match counts (owner: testnet), bots and guests have none: kills / deaths / headshots at each kill,
   matches / wins at `matchEnd` for logged-in humans in the room. Name = the player name in the last match.
 - Lobby: player card shows "Log in with wallet" (testnet note) or the short address, coins and Log out.
-  Tab LEADERS (4; Settings moved to 5): all time, sort by wins / kills / coins, top 50 plus my own place.
+  Tab LEADERS (4; Settings is now 6): all time, sort by wins / kills / coins, top 50 plus my own place.
 - Not done (later, owner decides): NFT ownership checks on the chain, smart-contract wallets (EIP-1271), hiding
   balances, one-account-per-person rules (a new wallet is free, so the starter gift can still be farmed on testnet).
 
@@ -232,6 +232,22 @@ Testnet only. Token STRIKE (`REWARDS.token`, the owner's ERC-20 on Robinhood Cha
   "All time" (6.8). A WEEKLY POOL card shows `weekPoolTokens` (or less if the contract holds less) and the
   distributor's live balance with an explorer link: one read-only `eth_call` to the public testnet RPC
   (`network/rewardsPool.ts`, cached `poolRefreshMs`), no wallet needed.
+
+### 6.10 Levels and seasons — DECIDED (owner 2026-11-06)
+Free for everyone, separate from the weekly STRIKE points (6.9). Numbers in `config/season.ts`, math in
+`gameplay/progression.ts`. Fixed rewards, visible in advance, no random boxes; characters stay playable for everyone,
+reward items only add to the tradable collection. Season-only NFTs: later (owner).
+- XP only from real matches of logged-in players (same guard as coins, `matchPays`): match 50, win 50, kill 10,
+  headshot 5, capped at `matchCap`, first win of the day +100.
+- Player level: permanent, starts at 1, each level costs a bit more (`levelOf`), shown on the player card and in LEADERS.
+- Season 1: 2026-11-06 to 2026-12-04 UTC, 30 levels of 1000 XP. Levels give coins; every fifth gives an item (emote or
+  character); level 30 gives a character and 500 coins. Season XP stops at the end, earned rewards stay claimable.
+- Missions: 3 per week (Monday 00:00 UTC): 5 matches, 20 kills, 3 wins; +300 XP each, paid once when done.
+- Tables (public): `player_progress{owner pk, xp}`, `season_progress{id "season:owner" pk, season btree, owner, xp,
+  claimedLevel}`, `mission_progress{id "week:owner" pk, week btree, owner, matches, wins, kills, done}`.
+- Reducer `claimSeasonRewards` (login + market rate limit): pays levels after `claimedLevel` up to the level reached;
+  coins are minted like other coins (economy invariant holds), items are new `owned_item` rows.
+- Lobby: tab SEASON (5; Settings moved to 6): level bar, one claim button, the track, the missions.
 
 ## 7. Bots — DECIDED
 Server-side fake players using the same intent path. Waypoint graph generated from

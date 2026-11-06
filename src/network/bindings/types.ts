@@ -62,6 +62,17 @@ export const MatchStat = __t.object("MatchStat", {
 });
 export type MatchStat = __Infer<typeof MatchStat>;
 
+export const MissionProgress = __t.object("MissionProgress", {
+  id: __t.string(),
+  week: __t.u32(),
+  owner: __t.string(),
+  matches: __t.u32(),
+  wins: __t.u32(),
+  kills: __t.u32(),
+  done: __t.u32(),
+});
+export type MissionProgress = __Infer<typeof MissionProgress>;
+
 export const OwnedItem = __t.object("OwnedItem", {
   id: __t.u64(),
   owner: __t.string(),
@@ -121,6 +132,12 @@ export const Player = __t.object("Player", {
 });
 export type Player = __Infer<typeof Player>;
 
+export const PlayerProgress = __t.object("PlayerProgress", {
+  owner: __t.string(),
+  xp: __t.u32(),
+});
+export type PlayerProgress = __Infer<typeof PlayerProgress>;
+
 export const PlayerStat = __t.object("PlayerStat", {
   owner: __t.string(),
   name: __t.string(),
@@ -151,6 +168,15 @@ export const Room = __t.object("Room", {
   createdAt: __t.timestamp(),
 });
 export type Room = __Infer<typeof Room>;
+
+export const SeasonProgress = __t.object("SeasonProgress", {
+  id: __t.string(),
+  season: __t.u32(),
+  owner: __t.string(),
+  xp: __t.u32(),
+  claimedLevel: __t.u32(),
+});
+export type SeasonProgress = __Infer<typeof SeasonProgress>;
 
 export const Session = __t.object("Session", {
   identity: __t.identity(),

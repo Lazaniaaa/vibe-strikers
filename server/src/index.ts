@@ -31,6 +31,8 @@ import { MARKET } from '../../src/config/market.ts';
 import { AUTH } from '../../src/config/auth.ts';
 import { loginError } from '../../src/gameplay/walletAuth.ts';
 import { weekOf } from '../../src/gameplay/rewards.ts';
+import { SEASON } from '../../src/config/season.ts';
+import { matchXp, missionsDone, missionXp, seasonActive, seasonClaim, seasonLevel } from '../../src/gameplay/progression.ts';
 import { CATALOG, matchPays, matchReward, priceError, RateLimiter, saleFee, starterRefs, utcDay } from '../../src/gameplay/market.ts';
 
 const room = table({ name: 'room', public: true }, {
@@ -255,7 +257,35 @@ const weekStat = table({ name: 'week_stat', public: true }, {
   headshots: t.u32(),
 });
 
-const spacetimedb = schema({ room, player, shotEvent, killEvent, item, pingEvent, tickTimer, session, wallet, ownedItem, listing, trade, economy, matchStat, matchClock, playerStat, weekStat });
+/** Total XP per account: the player level (GAME.md 6.10). */
+const playerProgress = table({ name: 'player_progress', public: true }, {
+  owner: t.string().primaryKey(),
+  xp: t.u32(),
+});
+
+/** Season XP per account and the last season level whose reward was claimed. */
+const seasonProgress = table({ name: 'season_progress', public: true }, {
+  /** `${season}:${owner}` */
+  id: t.string().primaryKey(),
+  season: t.u32().index('btree'),
+  owner: t.string(),
+  xp: t.u32(),
+  claimedLevel: t.u32(),
+});
+
+/** Weekly mission counters per account (real matches only); `done` = bit mask of SEASON.missions already paid. */
+const missionProgress = table({ name: 'mission_progress', public: true }, {
+  /** `${week}:${owner}` */
+  id: t.string().primaryKey(),
+  week: t.u32().index('btree'),
+  owner: t.string(),
+  matches: t.u32(),
+  wins: t.u32(),
+  kills: t.u32(),
+  done: t.u32(),
+});
+
+const spacetimedb = schema({ room, player, shotEvent, killEvent, item, pingEvent, tickTimer, session, wallet, ownedItem, listing, trade, economy, matchStat, matchClock, playerStat, weekStat, playerProgress, seasonProgress, missionProgress });
 export default spacetimedb;
 
 /** Row-level security: a client only receives the ping rows addressed to it. */
@@ -675,7 +705,30 @@ function bumpStat(ctx: Ctx, p: PlayerRow, d: Partial<Omit<StatRow, 'owner' | 'na
     kills: add(w.kills, d.kills), headshots: add(w.headshots, d.headshots) });
 }
 
-/** Match end: stats for every logged-in human (every online match counts); coins only for a real match. */
+/** Add XP to the account's level and, while the season runs, to its season track. */
+function giveXp(ctx: Ctx, owner: string, xp: number): void {
+  const add = (a: number) => Math.min(U32_MAX, a + xp);
+  const p = ctx.db.playerProgress.owner.find(owner) ?? ctx.db.playerProgress.insert({ owner, xp: 0 });
+  ctx.db.playerProgress.owner.update({ ...p, xp: add(p.xp) });
+  if (!seasonActive(nowMs(ctx))) return;
+  const id = `${SEASON.id}:${owner}`;
+  const s = ctx.db.seasonProgress.id.find(id) ?? ctx.db.seasonProgress.insert({ id, season: SEASON.id, owner, xp: 0, claimedLevel: 0 });
+  ctx.db.seasonProgress.id.update({ ...s, xp: add(s.xp) });
+}
+
+/** A real match ended: XP for the match, this week's mission counters and the XP of missions just completed. */
+function payProgress(ctx: Ctx, owner: string, won: boolean, kills: number, headshots: number, firstWin: boolean): void {
+  giveXp(ctx, owner, matchXp(won, kills, headshots, firstWin));
+  const week = weekOf(nowMs(ctx)), id = `${week}:${owner}`;
+  const m = ctx.db.missionProgress.id.find(id) ?? ctx.db.missionProgress.insert({ id, week, owner, matches: 0, wins: 0, kills: 0, done: 0 });
+  const counts = { matches: Math.min(U32_MAX, m.matches + 1), wins: Math.min(U32_MAX, m.wins + (won ? 1 : 0)), kills: Math.min(U32_MAX, m.kills + kills) };
+  const done = m.done | missionsDone(counts);
+  ctx.db.missionProgress.id.update({ ...m, ...counts, done });
+  const xp = missionXp(m.done, done);
+  if (xp > 0) giveXp(ctx, owner, xp);
+}
+
+/** Match end: stats for every logged-in human (every online match counts); coins and XP only for a real match. */
 function payMatch(ctx: Ctx, r: RoomRow, winner: string): void {
   const day = utcDay(nowMs(ctx)), rows = playersIn(ctx, r.id);
   const clock = ctx.db.matchClock.roomId.find(r.id);
@@ -692,6 +745,7 @@ function payMatch(ctx: Ctx, r: RoomRow, winner: string): void {
     const w = ensureWallet(ctx, owner);
     const first = won && w.lastWinDay !== day;
     payCoins(ctx, w, matchReward(won, p.kills, headshots, first), first ? { lastWinDay: day } : {});
+    payProgress(ctx, owner, won, p.kills, headshots, first);
   }
 }
 
@@ -716,6 +770,18 @@ export const login = spacetimedb.reducer({ address: t.string(), issuedAtMs: t.f6
 });
 
 export const logout = spacetimedb.reducer((ctx) => { ctx.db.session.identity.delete(ctx.sender); });
+
+/** Take the rewards of every season level reached and not yet claimed (GAME.md 6.10). */
+export const claimSeasonRewards = spacetimedb.reducer((ctx) => {
+  const me = marketGate(ctx);
+  const s = ctx.db.seasonProgress.id.find(`${SEASON.id}:${me}`);
+  const reached = s ? seasonLevel(s.xp) : 0;
+  if (!s || reached <= s.claimedLevel) throw new SenderError('no season rewards to claim');
+  const { coins, items } = seasonClaim(s.claimedLevel, reached);
+  ctx.db.seasonProgress.id.update({ ...s, claimedLevel: reached });
+  if (coins > 0) payCoins(ctx, ensureWallet(ctx, me), coins);
+  for (const ref of items) ctx.db.ownedItem.insert({ id: 0n, owner: me, ref, acquiredAt: ctx.timestamp });
+});
 
 export const listItem = spacetimedb.reducer({ itemId: t.u64(), price: t.u32() }, (ctx, { itemId, price }) => {
   const me = marketGate(ctx);

@@ -29,8 +29,35 @@
 @media (max-width: 1150px) { .menu-market { right: 18px; width: 400px; } }
 .menu[data-tab=market] .menu-dimmer { opacity: .28; }
 .menu[data-tab=market] .menu-emote-wrap { display: none; }
-.menu[data-tab=leaders] .menu-dimmer { opacity: .28; }
-.menu[data-tab=leaders] .menu-emote-wrap { display: none; }
+.menu[data-tab=leaders] .menu-dimmer, .menu[data-tab=season] .menu-dimmer { opacity: .28; }
+.menu[data-tab=leaders] .menu-emote-wrap, .menu[data-tab=season] .menu-emote-wrap { display: none; }
+.menu-market.menu-season { width: clamp(520px, 44vw, 700px); }
+.season-progress { display: flex; flex-direction: column; gap: 5px; }
+.season-progress-text { display: flex; align-items: baseline; justify-content: space-between; }
+.season-progress-text strong { font: 19px var(--menu-display); }
+.season-progress-text small { font-size: 11px; font-weight: 800; color: var(--menu-muted); }
+.season-bar { height: 12px; overflow: hidden; border: 2px solid var(--menu-ink); border-radius: 7px; background: var(--menu-panelLight); }
+.season-bar i { display: block; height: 100%; background: var(--menu-accent); }
+.season-claim { padding: 9px 12px; border: 2px solid var(--menu-ink); border-radius: 9px; background: var(--menu-accent); color: var(--menu-ink); font: 16px var(--menu-display); cursor: pointer; box-shadow: 0 3px 0 var(--menu-ink); }
+.season-scroll { flex: 1; min-height: 0; overflow-y: auto; }
+.season-track { display: grid; grid-template-columns: repeat(auto-fill, minmax(48px, 1fr)); gap: 5px; margin: 0; padding: 2px 2px 4px; list-style: none; }
+.season-track li { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 50px; padding: 2px; border: 2px solid var(--menu-ink); border-radius: 9px; background: var(--menu-cream); opacity: .62; }
+.season-track li.has-item { background: var(--menu-panelLight); opacity: .85; }
+.season-track li.is-final { background: var(--menu-ring); opacity: 1; }
+.season-track li.is-ready { opacity: 1; background: var(--menu-accent); }
+.season-track li.is-claimed { opacity: 1; background: var(--menu-teal); }
+.season-track b { position: absolute; left: 4px; top: 2px; font: 11px var(--menu-display); }
+.season-track img { width: 34px; height: 34px; object-fit: contain; }
+.season-track i { position: absolute; right: 4px; top: 1px; font: 13px var(--menu-display); font-style: normal; }
+.season-coins { margin-top: 10px; font: 11px var(--menu-display); white-space: nowrap; }
+.season-emote { margin-top: 6px; font: 20px var(--menu-display); }
+.menu-season h3 { display: flex; align-items: baseline; justify-content: space-between; margin: 8px 2px 4px; font: 16px var(--menu-display); }
+.menu-season h3 small { font: 800 10px sans-serif; color: var(--menu-muted); }
+.season-missions { display: flex; flex-direction: column; gap: 5px; margin: 0; padding: 0; list-style: none; }
+.season-missions li { display: grid; grid-template-columns: 1fr 96px 46px 62px; align-items: center; gap: 8px; padding: 6px 9px; border: 2px solid var(--menu-ink); border-radius: 8px; background: var(--menu-cream); font-size: 12px; font-weight: 800; }
+.season-missions li.is-done { background: var(--menu-teal); }
+.season-missions small { font-size: 11px; text-align: right; color: var(--menu-muted); }
+.season-missions b { text-align: right; font: 13px var(--menu-display); }
 .market-testnet { font-weight: 800; color: var(--menu-error); }
 .market-login { display: flex; flex-direction: column; align-items: flex-start; gap: 7px; padding: 10px; border: 2px dashed var(--menu-ink); border-radius: 9px; background: var(--menu-cream); }
 .market-login p { margin: 0; font-size: 13px; font-weight: 800; }

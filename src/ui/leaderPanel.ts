@@ -2,6 +2,7 @@
 // leaderboard of logged-in players (wins, kills, coins). Plain DOM over a market-subscribed GameNet; redraws are
 // throttled like the market panel.
 import { REWARDS } from '../config/rewards.ts';
+import { levelOf } from '../gameplay/progression.ts';
 import { formatTokens, payoutPlan, toUnits, weekLabel, weekPoints } from '../gameplay/rewards.ts';
 import { shortAddress } from '../gameplay/walletMessage.ts';
 import type { GameNet } from '../network/client.ts';
@@ -69,9 +70,15 @@ export class LeaderPanel {
     return [...out.values()].sort((a, b) => b[key] - a[key] || b.wins - a.wins || b.kills - a.kills || a.owner.localeCompare(b.owner));
   }
 
+  /** Player cell: name (or address), player level and short address. */
+  private who(owner: string, name: string): string {
+    const level = levelOf(this.net?.market.progress.get(owner)?.xp ?? 0).level;
+    return `<strong>${esc(name || shortAddress(owner))}</strong><small>Lv ${level}${name ? ` · ${esc(shortAddress(owner))}` : ''}</small>`;
+  }
+
   private row(l: Line, rank: number, me: string): string {
     const kd = l.deaths ? (l.kills / l.deaths).toFixed(2) : l.kills ? String(l.kills) : '–';
-    const who = l.name ? `<strong>${esc(l.name)}</strong><small>${esc(shortAddress(l.owner))}</small>` : `<strong>${esc(shortAddress(l.owner))}</strong>`;
+    const who = this.who(l.owner, l.name);
     return `<tr class="${l.owner === me ? 'is-me' : ''}"><td>${rank}</td><td>${who}</td>
       <td>${l.wins}</td><td>${l.kills}</td><td>${kd}</td><td>${l.matches}</td><td>◉ ${l.coins}</td></tr>`;
   }
@@ -94,7 +101,7 @@ export class LeaderPanel {
   }
 
   private weekRow(l: WeekLine, rank: number, me: string): string {
-    const who = l.name ? `<strong>${esc(l.name)}</strong><small>${esc(shortAddress(l.owner))}</small>` : `<strong>${esc(shortAddress(l.owner))}</strong>`;
+    const who = this.who(l.owner, l.name);
     return `<tr class="${l.owner === me ? 'is-me' : ''}"><td>${rank}</td><td>${who}</td>
       <td><strong>${l.points}</strong></td><td>${l.wins}</td><td>${l.kills}</td><td>${l.matches}</td>
       <td>${l.amount > 0n ? formatTokens(l.amount) : '–'}</td></tr>`;

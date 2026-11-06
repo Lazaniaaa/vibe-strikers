@@ -23,6 +23,8 @@ import { loginError, personalHash, recoverSigner, signLogin } from './walletAuth
 import { loginMessage } from './walletMessage.ts';
 import { formatTokens, payoutPlan, toUnits, weekLabel, weekOf, weekPoints, weekStartMs } from './rewards.ts';
 import { REWARDS } from '../config/rewards.ts';
+import { PROGRESSION, SEASON } from '../config/season.ts';
+import { levelCost, levelOf, matchXp, missionsDone, missionXp, seasonActive, seasonClaim, seasonLevel, seasonReward } from './progression.ts';
 import { callData, decodeUint, encodeArgs, selector } from '../network/evm.ts';
 import { buildNavGrid, findPath, groundAt, nearestWalkable, nodeY, pruneUnreachable, upperAreas } from './navGrid.ts';
 
@@ -350,6 +352,45 @@ test('ABI call data matches known vectors', () => {
   assert.equal(words[3], 2n);
   assert.deepEqual(words.slice(6), [1n, 9n]);
   assert.equal(decodeUint('0x' + '0'.repeat(62) + '2a'), 42n);
+});
+
+test('levels, season track, missions', () => {
+  assert.deepEqual(levelOf(0), { level: 1, into: 0, need: levelCost(1) });
+  assert.equal(levelOf(levelCost(1) - 1).level, 1);
+  assert.deepEqual(levelOf(levelCost(1) + 7), { level: 2, into: 7, need: levelCost(2) });
+  assert.ok(levelCost(2) > levelCost(1), 'each level costs a bit more');
+  const top = levelOf(0xffffffff);
+  assert.deepEqual(top, { level: PROGRESSION.level.max, into: 0, need: 0 }, 'levels stop at the max');
+  const x = PROGRESSION.xp;
+  assert.equal(matchXp(false, 0, 0, false), x.match);
+  assert.equal(matchXp(true, 2, 1, true), x.match + x.win + 2 * x.kill + x.headshot + x.firstWinOfDay);
+  assert.equal(matchXp(true, 1000, 1000, false), x.matchCap, 'capped');
+  assert.ok(seasonActive(SEASON.startMs) && !seasonActive(SEASON.startMs - 1) && !seasonActive(SEASON.endMs));
+  assert.equal(SEASON.endMs - SEASON.startMs, 28 * 24 * 3600 * 1000, '4 weeks');
+  assert.equal(seasonLevel(SEASON.xpPerLevel - 1), 0);
+  assert.equal(seasonLevel(SEASON.xpPerLevel * 3), 3);
+  assert.equal(seasonLevel(0xffffffff), SEASON.levels);
+  for (let l = 1; l <= SEASON.levels; l++) {
+    const r = seasonReward(l);
+    assert.ok(r.coins > 0 || r.item, `level ${l} has a reward`);
+    assert.equal(!!r.item, l % 5 === 0, `every fifth level has an item (${l})`);
+  }
+  assert.ok(seasonReward(SEASON.levels).item && seasonReward(SEASON.levels).coins === SEASON.finalCoins, 'best prize last');
+  const all = seasonClaim(0, SEASON.levels);
+  assert.equal(all.items.length, 6);
+  assert.equal(all.coins, 24 * SEASON.coinsPerLevel + SEASON.finalCoins);
+  assert.deepEqual(seasonClaim(5, 5), { coins: 0, items: [] }, 'nothing twice');
+  const part = seasonClaim(0, 12), rest = seasonClaim(12, SEASON.levels);
+  assert.equal(part.coins + rest.coins, all.coins, 'claiming in parts gives the same total');
+  assert.equal(part.items.length + rest.items.length, all.items.length);
+  const m = SEASON.missions;
+  assert.equal(missionsDone({ matches: 0, wins: 0, kills: 0 }), 0);
+  const some = missionsDone({ matches: m[0].target, wins: 0, kills: 0 });
+  assert.equal(some, 1);
+  assert.equal(missionXp(0, some), m[0].xp);
+  assert.equal(missionXp(some, some), 0, 'a mission pays once');
+  const every = missionsDone({ matches: 99, wins: 99, kills: 99 });
+  assert.equal(missionXp(some, every), m[1].xp + m[2].xp);
 });
 
 console.log(`${passed} gameplay checks passed`);

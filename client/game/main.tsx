@@ -4,6 +4,7 @@ import type { GameNet } from '../../src/network/client';
 import type { GameMode } from '../../src/gameplay/mode';
 import { Menu, type MenuChoice } from '../../src/ui/menu';
 import { getSettingsPanel, settingsButton } from '../../src/ui/settingsPanel';
+import { levelOf } from '../../src/gameplay/progression';
 import { getSfx } from '../../src/ui/sfx';
 import { getMusic } from '../../src/ui/music';
 import type { GameOptions } from './GameApp';
@@ -75,7 +76,7 @@ const menu = new Menu(document.body, params.get('name') ?? savedName, [],
   savedDifficulty(), (d) => storage('local')?.setItem('voxel-difficulty', d),
   savedMode(), (m) => storage('local')?.setItem('voxel-mode', m));
 const settingsTab = settingsButton(menu.settingsSlot, getSettingsPanel(), 'menu-tab menu-settings');
-settingsTab.innerHTML = '<kbd>5</kbd> SETTINGS';
+settingsTab.innerHTML = '<kbd>6</kbd> SETTINGS';
 settingsTab.setAttribute('aria-label', 'Settings');
 // Paint the plain DOM first. A generation token cancels a lazy import when a match starts meanwhile.
 let menuScene: MenuScene | null = null;
@@ -132,7 +133,7 @@ function ensureNet(): Promise<GameNet> {
       lagMs: Number(params.get('lag') ?? 0) || 0,
     });
     await n.connect();
-    n.onMarketChange = () => { showAccount(n); marketPanel?.refresh(); leaderPanel?.refresh(); };
+    n.onMarketChange = () => { showAccount(n); marketPanel?.refresh(); leaderPanel?.refresh(); seasonPanel?.refresh(); };
     await n.subscribeMarket().catch(() => undefined); // the game works without the market
     showAccount(n);
     net = n;
@@ -145,7 +146,9 @@ function ensureNet(): Promise<GameNet> {
 // Wallet login (GAME.md 6.8): sign a text in the browser wallet; testnet only, no transactions.
 let loginBusy = false;
 function showAccount(n: GameNet | null): void {
-  menu.setAccount({ online: !!n, address: n?.market.account ?? '', coins: n?.market.wallet?.coins ?? null, busy: loginBusy });
+  const account = n?.market.account ?? '';
+  menu.setAccount({ online: !!n, address: account, coins: n?.market.wallet?.coins ?? null, busy: loginBusy,
+    level: levelOf(n?.market.progress.get(account)?.xp ?? 0).level });
 }
 async function walletLogin(): Promise<void> {
   if (loginBusy) return;
@@ -176,20 +179,40 @@ function openLeaders(): void {
   })();
 }
 
+/** Name, kind and portrait of a catalog item for the market and season panels. */
+function itemDescriber(catalogItem: (ref: string) => { kind: string; index: number; name: string } | undefined) {
+  return (ref: string): { name: string; kind: string; portrait?: string } => {
+    const item = catalogItem(ref);
+    if (!item) return { name: ref, kind: 'unknown item' };
+    if (item.kind === 'character') return { name: menu.characterName(item.index) ?? item.name, kind: 'character', portrait: menu.portraitOf(item.index) };
+    return { name: item.name, kind: 'emote' };
+  };
+}
+
+// SEASON tab: loads on first open.
+let seasonPanel: import('../../src/ui/seasonPanel').SeasonPanel | null = null;
+function openSeason(): void {
+  void (async () => {
+    if (!seasonPanel) {
+      const [{ SeasonPanel }, { catalogItem }] = await Promise.all([import('../../src/ui/seasonPanel'), import('../../src/gameplay/market')]);
+      seasonPanel ??= new SeasonPanel(menu.root, itemDescriber(catalogItem));
+      seasonPanel.onLogin = () => { void walletLogin(); };
+    }
+    seasonPanel.show();
+    try { seasonPanel.attach(await ensureNet()); } catch { seasonPanel.attach(null); }
+  })();
+}
+
 // MARKET tab: the panel and the catalog load on first open.
 let marketPanel: import('../../src/ui/marketPanel').MarketPanel | null = null;
 menu.onTab = (tab) => {
   if (tab === 'leaders') openLeaders(); else leaderPanel?.hide();
+  if (tab === 'season') openSeason(); else seasonPanel?.hide();
   if (tab !== 'market') { marketPanel?.hide(); return; }
   void (async () => {
     if (!marketPanel) {
       const [{ MarketPanel }, { catalogItem }] = await Promise.all([import('../../src/ui/marketPanel'), import('../../src/gameplay/market')]);
-      marketPanel ??= new MarketPanel(menu.root, (ref) => {
-        const item = catalogItem(ref);
-        if (!item) return { name: ref, kind: 'unknown item' };
-        if (item.kind === 'character') return { name: menu.characterName(item.index) ?? item.name, kind: 'character', portrait: menu.portraitOf(item.index) };
-        return { name: item.name, kind: 'emote' };
-      });
+      marketPanel ??= new MarketPanel(menu.root, itemDescriber(catalogItem));
       marketPanel.onLogin = () => { void walletLogin(); };
     }
     marketPanel.show();

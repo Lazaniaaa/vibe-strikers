@@ -36,6 +36,7 @@ import {
 // Import all reducer arg schemas
 import BuyListingReducer from "./buy_listing_reducer";
 import CancelListingReducer from "./cancel_listing_reducer";
+import ClaimSeasonRewardsReducer from "./claim_season_rewards_reducer";
 import CreatePrivateRoomReducer from "./create_private_room_reducer";
 import FireReducer from "./fire_reducer";
 import JoinByCodeReducer from "./join_by_code_reducer";
@@ -59,11 +60,14 @@ import EconomyRow from "./economy_table";
 import ItemRow from "./item_table";
 import KillEventRow from "./kill_event_table";
 import ListingRow from "./listing_table";
+import MissionProgressRow from "./mission_progress_table";
 import OwnedItemRow from "./owned_item_table";
 import PingEventRow from "./ping_event_table";
 import PlayerRow from "./player_table";
+import PlayerProgressRow from "./player_progress_table";
 import PlayerStatRow from "./player_stat_table";
 import RoomRow from "./room_table";
+import SeasonProgressRow from "./season_progress_table";
 import SessionRow from "./session_table";
 import ShotEventRow from "./shot_event_table";
 import TradeRow from "./trade_table";
@@ -125,6 +129,20 @@ const tablesSchema = __schema({
       { name: 'listing_item_id_key', constraint: 'unique', columns: ['itemId'] },
     ],
   }, ListingRow),
+  missionProgress: __table({
+    name: 'mission_progress',
+    indexes: [
+      { accessor: 'id', name: 'mission_progress_id_idx_btree', algorithm: 'btree', columns: [
+        'id',
+      ] },
+      { accessor: 'week', name: 'mission_progress_week_idx_btree', algorithm: 'btree', columns: [
+        'week',
+      ] },
+    ],
+    constraints: [
+      { name: 'mission_progress_id_key', constraint: 'unique', columns: ['id'] },
+    ],
+  }, MissionProgressRow),
   ownedItem: __table({
     name: 'owned_item',
     indexes: [
@@ -164,6 +182,17 @@ const tablesSchema = __schema({
       { name: 'player_id_key', constraint: 'unique', columns: ['id'] },
     ],
   }, PlayerRow),
+  playerProgress: __table({
+    name: 'player_progress',
+    indexes: [
+      { accessor: 'owner', name: 'player_progress_owner_idx_btree', algorithm: 'btree', columns: [
+        'owner',
+      ] },
+    ],
+    constraints: [
+      { name: 'player_progress_owner_key', constraint: 'unique', columns: ['owner'] },
+    ],
+  }, PlayerProgressRow),
   playerStat: __table({
     name: 'player_stat',
     indexes: [
@@ -190,6 +219,20 @@ const tablesSchema = __schema({
       { name: 'room_id_key', constraint: 'unique', columns: ['id'] },
     ],
   }, RoomRow),
+  seasonProgress: __table({
+    name: 'season_progress',
+    indexes: [
+      { accessor: 'id', name: 'season_progress_id_idx_btree', algorithm: 'btree', columns: [
+        'id',
+      ] },
+      { accessor: 'season', name: 'season_progress_season_idx_btree', algorithm: 'btree', columns: [
+        'season',
+      ] },
+    ],
+    constraints: [
+      { name: 'season_progress_id_key', constraint: 'unique', columns: ['id'] },
+    ],
+  }, SeasonProgressRow),
   session: __table({
     name: 'session',
     indexes: [
@@ -254,6 +297,7 @@ const tablesSchema = __schema({
 const reducersSchema = __reducers(
   __reducerSchema("buy_listing", BuyListingReducer),
   __reducerSchema("cancel_listing", CancelListingReducer),
+  __reducerSchema("claim_season_rewards", ClaimSeasonRewardsReducer),
   __reducerSchema("create_private_room", CreatePrivateRoomReducer),
   __reducerSchema("fire", FireReducer),
   __reducerSchema("join_by_code", JoinByCodeReducer),

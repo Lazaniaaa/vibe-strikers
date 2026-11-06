@@ -2,6 +2,7 @@
 // items, listing checks, buying, fees, races between buyers, cancelling, rate limit, leaderboard stats, and the
 // economy invariant (sum of coins == minted - burned).
 // Usage: node scripts/test-market.mjs   (needs `spacetime start` + `npm run server:publish`)
+import { spawnSync } from 'node:child_process';
 import { createServer } from 'vite';
 
 const vite = await createServer({ configFile: false, root: process.cwd(), logLevel: 'error', server: { middlewareMode: true, hmr: false } });
@@ -156,6 +157,7 @@ try {
     await h.createPrivateRoom('Idler', 4, true, 'easy', 'cornucopia', false, '');
     await waitFor(() => h.me && h.room, 5000);
     const coins0 = h.market.wallet.coins, started = Date.now();
+    const xp0 = h.market.progress.get(h.market.account)?.xp ?? 0;
     let kills = 0;
     const ended = await waitFor(() => { if (h.me) kills = h.me.kills; return h.room?.phase === 'matchEnd'; }, 330000);
     const seconds = (Date.now() - started) / 1000;
@@ -167,8 +169,47 @@ try {
     check(!!hs && hs.matches === 1 && hs.kills === kills, `slow: stats ${hs?.matches} match, ${hs?.kills} kills, ${hs?.deaths} deaths`);
     check(h.market.wallet.coins - coins0 === expected || (won && h.market.wallet.coins - coins0 === matchReward(won, kills, 0, false)),
       `slow: paid ${h.market.wallet.coins - coins0} coins for a ${won ? 'win' : 'loss'} with ${kills} kills (expected ${expected})`);
+    if (seconds >= MARKET.reward.minMatchSeconds) {
+      const { matchXp } = await vite.ssrLoadModule('/src/gameplay/progression.ts');
+      const earned = (h.market.progress.get(h.market.account)?.xp ?? 0) - xp0;
+      const missions = h.market.missionProgress.get(h.market.account);
+      check(earned >= matchXp(won, kills, 0, false), `slow: ${earned} XP for the match`);
+      check(h.market.seasonProgress.get(h.market.account)?.xp === earned, 'slow: the season track got the same XP');
+      check(missions?.matches === 1 && missions?.kills === kills, `slow: missions count 1 match, ${kills} kills`);
+    }
     await h.leave();
   }
+
+  // Season rewards (GAME.md 6.10). XP normally comes from real matches; here the owner's SQL sets it for the claim checks.
+  const { SEASON } = await vite.ssrLoadModule('/src/config/season.ts');
+  const { seasonClaim } = await vite.ssrLoadModule('/src/gameplay/progression.ts');
+  for (const ref of Object.values(SEASON.items)) check(CATALOG.some((c) => c.ref === ref), `season item ${ref} is in the catalog`);
+  const sp = await client();
+  const spAddr = sp.market.account;
+  check((await reason(guest.claimSeasonRewards())).includes('log in'), 'season: a guest cannot claim');
+  await sleep(MARKET.rateLimit.windowMs + 100);
+  check((await reason(sp.claimSeasonRewards())).includes('no season rewards'), 'season: nothing to claim without XP');
+  const sql = (q) => {
+    const r = spawnSync('spacetime', ['sql', '--server', 'local', 'voxel-arena', q], { encoding: 'utf8', shell: true });
+    if (r.status !== 0) throw new Error(`spacetime sql failed: ${r.stderr}`);
+  };
+  const spId = `${SEASON.id}:${spAddr}`;
+  sql(`INSERT INTO season_progress (id, season, owner, xp, claimed_level) VALUES ('${spId}', ${SEASON.id}, '${spAddr}', ${SEASON.xpPerLevel * 12 + 5}, 0)`);
+  await waitFor(() => sp.market.seasonProgress.get(spAddr));
+  const spCoins = sp.market.wallet.coins, spItems = sp.market.items.size, first12 = seasonClaim(0, 12);
+  check((await reason(sp.claimSeasonRewards())) === '', 'season: level 12 claims');
+  await waitFor(() => sp.market.wallet.coins === spCoins + first12.coins && sp.market.items.size === spItems + first12.items.length);
+  check(sp.market.wallet.coins === spCoins + first12.coins, `season: ${first12.coins} coins paid`);
+  check(sp.market.items.size === spItems + first12.items.length, `season: ${first12.items.length} items given`);
+  check(sp.market.seasonProgress.get(spAddr)?.claimedLevel === 12, 'season: claimed level stored');
+  check((await reason(sp.claimSeasonRewards())).includes('no season rewards'), 'season: the same rewards cannot be claimed twice');
+  sql(`UPDATE season_progress SET xp = ${SEASON.xpPerLevel * 99} WHERE id = '${spId}'`);
+  await waitFor(() => (sp.market.seasonProgress.get(spAddr)?.xp ?? 0) > SEASON.xpPerLevel * 50);
+  const rest = seasonClaim(12, SEASON.levels), spCoins2 = sp.market.wallet.coins, spItems2 = sp.market.items.size;
+  check((await reason(sp.claimSeasonRewards())) === '', 'season: the rest of the track claims');
+  await waitFor(() => sp.market.wallet.coins === spCoins2 + rest.coins && sp.market.items.size === spItems2 + rest.items.length);
+  check(sp.market.wallet.coins === spCoins2 + rest.coins && sp.market.items.size === spItems2 + rest.items.length, 'season: capped at the last level, totals right');
+  check(sp.market.seasonProgress.get(spAddr)?.claimedLevel === SEASON.levels, 'season: all levels claimed');
 
   // Economy invariant (auditor sees every wallet).
   await sleep(300);

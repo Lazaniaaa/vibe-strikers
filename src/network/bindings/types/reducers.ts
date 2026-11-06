@@ -8,6 +8,7 @@ import { type Infer as __Infer } from "spacetimedb";
 // Import all reducer arg schemas
 import BuyListingReducer from "../buy_listing_reducer";
 import CancelListingReducer from "../cancel_listing_reducer";
+import ClaimSeasonRewardsReducer from "../claim_season_rewards_reducer";
 import CreatePrivateRoomReducer from "../create_private_room_reducer";
 import FireReducer from "../fire_reducer";
 import JoinByCodeReducer from "../join_by_code_reducer";
@@ -26,6 +27,7 @@ import SwitchWeaponReducer from "../switch_weapon_reducer";
 
 export type BuyListingParams = __Infer<typeof BuyListingReducer>;
 export type CancelListingParams = __Infer<typeof CancelListingReducer>;
+export type ClaimSeasonRewardsParams = __Infer<typeof ClaimSeasonRewardsReducer>;
 export type CreatePrivateRoomParams = __Infer<typeof CreatePrivateRoomReducer>;
 export type FireParams = __Infer<typeof FireReducer>;
 export type JoinByCodeParams = __Infer<typeof JoinByCodeReducer>;

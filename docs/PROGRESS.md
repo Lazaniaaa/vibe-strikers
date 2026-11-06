@@ -599,6 +599,14 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
 - 2026-11-06 owner: the Spotlight form says "not launched yet", so the game is marked **beta** (BETA badge on the
   lobby logo, page title, loading screen; live on Pages). X post images from the live site: `docs/brand/x-post/`
   (lobby, leaders with the pool, gameplay; 1600x900).
+- 2026-11-06 levels and Season 1 (owner, after looking at CS2 / PUBG; deadline 23:59 UTC; GAME.md 6.10): XP from real
+  matches, permanent player level, 4-week season with 30 levels, 3 weekly missions, one claim button, tab SEASON (5;
+  Settings moved to 6), level on the player card and in LEADERS. New tables only, so publishing keeps all data. Pacing
+  note: public matches use the short `test` preset (first to 3, about 3 minutes), so 25 minutes a day reaches about
+  87% of the track. BETA badge moved under the logo on screens up to 1500 px (6 tabs are wider). Next (owner): NFTs
+  only from season rewards.
+  Checks: gameplay tests, market test (claim rules, economy invariant; `--slow` real match gives XP), Chromium with a
+  fake wallet, 0 console errors (`docs/evidence/season-tab.jpg`, `season-guest.jpg`, `season-tab-1100.jpg`).
   Local SpacetimeDB: the new CLI login (Maincloud) could not update the local database made by the old identity, so
   the old data folder was moved to `%LOCALAPPDATA%\SpacetimeDB\data-old-2026-11-06` and the local server started
   fresh (test data only; delete the old folder when sure).
