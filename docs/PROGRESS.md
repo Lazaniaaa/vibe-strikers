@@ -623,6 +623,7 @@ Asset owner update (2026-10-31, imported by the owner's assistant, not by the ga
   claimed a level yet). The owner's counters of the old weekly missions (1 game) were not carried over.
 - 2026-11-06 post-match reward card (`ui/matchSummary.ts`), online matches only. NFT weapon skins: the task for Codex is in
   `docs/codex-nft-prompt.md` (a seeded generator, visuals only; contract, minting and season rewards stay with Claude).
+  Owner: NFT weapons have 2-3 times the detail of the base ones, so they look like something else, not a recolour.
 - 2026-11-06 lobby goal line and SEASON badge, day streak, kill streak banners, MVP on the reward card, first-match
   controls hint (GAME.md 6.10). New table `day_streak`.
   Next (owner's order): marketplace and NFTs.
