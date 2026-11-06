@@ -295,7 +295,8 @@ look. Players never sign a transaction and never pay; only the owner signs, in M
 - Pictures (`client/game/nftArt.ts`): Codex's generator draws each NFT in the browser from `nftSeed` and `NFT.skinArt`, for the
   market rows and the player's own season track. Nothing is stored.
 - Try on: "Try on" in market rows, or a click on an NFT level of the season track, puts the skin in the lobby character's hand
-  (`menuScene.previewSkin`). Only a preview; it clears when the tab changes.
+  (`menuScene.previewSkin`). Only a preview; it clears when the tab changes. Dragging on the lobby scene turns the character around
+  its vertical axis (`MENU.dragYawPerPixel`).
 - Metadata: `tokenURI` = `NFT.metadataBase` + token id. `npm run nft:metadata` draws every minted NFT in a browser and writes
   `client/public/nft/<id>` (JSON) and `client/public/nft-img/<id>.png`, deployed with the site. Static files, so run it after each mint.
 - Not yet: an NFT tab, wearing a skin in a match. The game does not follow transfers made outside it.

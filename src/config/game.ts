@@ -14,6 +14,8 @@ export const MENU = {
   turntableSpeed: 0.065, initialYaw: -0.18, idleYawRange: 0.18, maxDelta: 0.05, timeScale: 0.001,
  /** Character yaw while it holds an NFT skin: side on, so the weapon is seen from the side. */
  skinPreviewYaw: -0.85,
+ /** Character turn per pixel when it is dragged with the mouse (radians). */
+ dragYawPerPixel: 0.012,
   exposure: 1, minPixelRatio: 1, maxPixelRatio: 1.25,
   sky: { size: 2, top: '#0099DB', horizon: '#C0CBDC' },
   world: { fov: 31, near: 0.1, far: 160, position: [1.4, 2.7, -7.5], target: [0, 0.75, 0],

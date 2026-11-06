@@ -102,6 +102,20 @@ export function createMenuScene(options: MenuSceneOptions): MenuScene {
   let skinRef: string | null = null, skinWeapon: Group | null = null, skinRequest = 0, introPlayed = false;
   const skinPose: PoseState = { weapon: 'rifle', speed: 0, moveDir: { x: 0, z: -1 }, aimPitch: 0, shooting: false, crouching: false, grounded: true, dead: false, fire: 0, reload: null, cycle: null };
   const skinIdle = { fire: 0, reload: null, cycle: null, equip: 1 };
+  // Dragging on the scene turns the character around its vertical axis, nothing else.
+  let dragYaw = 0, dragX: number | null = null;
+  const canvas = renderer.domElement;
+  canvas.style.cursor = 'grab';
+  canvas.addEventListener('pointerdown', event => { if (event.button !== 0) return; dragX = event.clientX; canvas.setPointerCapture(event.pointerId); canvas.style.cursor = 'grabbing'; });
+  canvas.addEventListener('pointermove', event => {
+    if (dragX === null) return;
+    dragYaw += (event.clientX - dragX) * MENU.dragYawPerPixel;
+    dragX = event.clientX;
+    options.host.dataset.dragYaw = dragYaw.toFixed(3);
+  });
+  const endDrag = () => { dragX = null; canvas.style.cursor = 'grab'; };
+  canvas.addEventListener('pointerup', endDrag);
+  canvas.addEventListener('pointercancel', endDrag);
   const intro=()=>{if(character){const id=LOBBY_EMOTES[Math.floor(Math.random()*LOBBY_EMOTES.length)].id;playEmote(character,id);options.host.dataset.lastEmote=id;}};
   const select = (index: number) => {
     if (disposed || selected === index) return;
@@ -120,6 +134,7 @@ export function createMenuScene(options: MenuSceneOptions): MenuScene {
   const previewSkin = (ref: string | null) => {
     if (disposed || ref === skinRef) return;
     skinRef = ref;
+    dragYaw = 0; // each try-on starts from the angle that shows the weapon
     const request = ++skinRequest;
     if (!ref) { skinWeapon = null; rebuildCharacter(); return; }
     void nftTraits(ref).then(traits => {
@@ -146,7 +161,7 @@ export function createMenuScene(options: MenuSceneOptions): MenuScene {
     const realDelta = previous ? Math.max(0, (time - previous) * MENU.timeScale) : 0;
     const dt = Math.min(realDelta, MENU.maxDelta);
     previous = time; elapsed += dt;
-    if (character) { character.rotation.y = (skinWeapon ? MENU.skinPreviewYaw : MENU.initialYaw) + Math.sin(elapsed * MENU.turntableSpeed) * MENU.idleYawRange; if (skinWeapon) { poseCharacter(character, skinPose, dt); poseWeapon(skinWeapon, skinIdle, dt); } else updateAnimation(character, dt); }
+    if (character) { character.rotation.y = (skinWeapon ? MENU.skinPreviewYaw : MENU.initialYaw) + dragYaw + Math.sin(elapsed * MENU.turntableSpeed) * MENU.idleYawRange; if (skinWeapon) { poseCharacter(character, skinPose, dt); poseWeapon(skinWeapon, skinIdle, dt); } else updateAnimation(character, dt); }
     worldCamera.position.x = MENU.world.position[0] + Math.sin(elapsed * MENU.world.driftSpeed) * MENU.world.driftX;
     worldCamera.position.y = MENU.world.position[1] + Math.sin(elapsed * MENU.world.driftSpeed) * MENU.world.driftY;
     worldCamera.position.z = MENU.world.position[2] + Math.cos(elapsed * MENU.world.driftSpeed) * MENU.world.driftZ;
