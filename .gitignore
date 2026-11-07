@@ -5,3 +5,17 @@ dist/
 .DS_Store
 outputs/
 .env*.local
+
+# Internal notes and reports: kept on the owner's laptop, not in the public repository (owner 2026-11-07).
+/CLAUDE.md
+/docs/PROGRESS.md
+/docs/codex-nft-prompt.md
+/src/weapons/REPORT.md
+/src/weapons/REVIEW.md
+/src/weapons/ROUND*.md
+/src/weapons/SKIN_FILES.md
+/src/weapons/SKIN_REPORT.md
+/src/weapons/TOYS.md
+/src/weapons/TOY_FILES.md
+/src/weapons/TOY_REPORT.md
+/src/weapons/toy-review/
